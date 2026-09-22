@@ -31,8 +31,6 @@ js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, drop
                             the shadcn-style docs builder (sort, index, Preview/Code tabs, filters).
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Play view knobs, Code tab CSS/JS extraction, Install section.
 js/50-menu-apps.js          mobile menu sheet, Chirp (feed), Tape (player), Static support (chat).
-js/60-gallery.js            packs the Components and Blocks galleries: measures each section and writes its
-                            row span, so columns of different heights close up. Clears itself at one column.
 ```
 
 Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
@@ -81,11 +79,11 @@ Everything is a character. `--r` is 24px, everywhere, at every width. `main` wid
 
 `css/16-grid.css` owns how wide the page gets. `--maxcols` is a cap in characters and steps up at four breakpoints: 80 by default (the width the kit was designed at), 100 from 1024px, 124 from 1280px, 166 from 1600px (about 1600 real pixels). `layout()` reads it and snaps `main` to that many whole characters, so the cap is a design decision in css, not a number in js.
 
-Components and Blocks are galleries: each panel is one css grid of columns at least `--galmin` (46ch) wide, so they hold one column on a phone, two from 1024px and three from 1600px. The steps are chosen so the columns land on whole characters: at 165 columns, minus 4 of padding and 8 of gutter, three columns of 51ch. Sections have very different heights, so `js/60-gallery.js` measures each one and writes `grid-row-end: span N` against `--r` rows. That is ordinary masonry, and it is exact here because every element already sits on that baseline. It repacks on layout, on tab clicks and through a ResizeObserver, it does nothing to a panel that is not on screen (a hidden panel measures zero), and it removes itself when there is only one column.
+Components, Blocks and Charts are galleries: each panel is one css grid of columns at least `--galmin` (46ch) wide, so they hold one column on a phone, two from 1024px and three from 1600px. The steps are chosen so the columns land on whole characters: at 165 columns, minus 4 of padding and 8 of gutter, three columns of 51ch.
 
-A section that cannot live in a narrow column carries `data-span="full"`. `spanSections()` in js/30 sets it on anything holding a table, a chart, a phone frame, a timeline, a picture or a stat row; write the attribute in the html to decide for yourself.
+Sections keep their document order, row by row, left to right. A row is as tall as its tallest card, so short cards leave air under them. Masonry would close those gaps but it breaks the promise the alphabetical index makes, and it stops the cards in a row from starting at the same height, which is what lets their dashed rules line up. Plain rows, on purpose.
 
-Charts is not a gallery. Every chart draws to the page width rather than to its box, so that view stays one column and simply gets wider.
+A section that cannot live in a narrow column carries `data-span`. `spanSections()` in js/30 sets `full` on anything holding a table, a phone frame, a timeline, a picture or a stat row. `index.html` sets it by hand on the three charts that draw to the page width (Bars, Line, Regions); Heatmap and Donut are fixed-size drawings and sit in a column. `docify()` sets `code` on a section while its Code tab is open, because code lines are long and a 46ch column would show half of each one. Anything with a `data-span` takes the whole row.
 
 ## The ramp
 

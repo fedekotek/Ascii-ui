@@ -671,8 +671,10 @@ figcaption b{color:var(--ink)}
    when it snaps main to a whole number of columns. Second, the component
    galleries: Components, Blocks and Charts flow into as many columns of at
    least 46ch as fit, so the page fills a monitor instead of a strip down the
-   middle. A section that needs the full width says so with data-span="full";
-   js/30 sets it on anything holding a table, a chart, a canvas or a phone. */
+   middle. A section that needs the full width says so with data-span; js/30
+   sets it on anything holding a table, a picture or a phone, index.html sets it
+   on the charts that draw to the page width, and the Code tab sets it while it
+   is open. */
 
 :root{
   --maxcols:80;      /* ~768px, the width the kit was designed at */
@@ -686,33 +688,41 @@ figcaption b{color:var(--ink)}
 /* css/02 caps main at 80ch, the cap now moves with the breakpoints */
 main{max-width:calc(var(--maxcols)*1ch)}
 
-#view-kit,#view-blocks{
+#view-kit,#view-blocks,#view-charts{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(var(--galmin),100%),1fr));
   gap:0 var(--galgap);
   align-items:start;
-  grid-auto-flow:row dense;   /* a short section backfills the hole above it */
 }
 /* full width by default, so anything untagged keeps the old single column */
-#view-kit > *,#view-blocks > *{grid-column:1/-1;min-width:0}
-#view-kit > section[aria-labelledby]:not([data-span="full"]),
-#view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:span 1}
+#view-kit > *,#view-blocks > *,#view-charts > *{grid-column:1/-1;min-width:0}
+#view-kit > section[aria-labelledby]:not([data-span]),
+#view-blocks > section[aria-labelledby]:not([data-span]),
+#view-charts > section[aria-labelledby]:not([data-span]){grid-column:span 1}
 
 /* one column: the grid is a no-op and the old rhythm applies unchanged */
 @media (max-width:1023px){
-  #view-kit > section[aria-labelledby]:not([data-span="full"]),
-  #view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:1/-1}
+  #view-kit > section[aria-labelledby]:not([data-span]),
+  #view-blocks > section[aria-labelledby]:not([data-span]),
+  #view-charts > section[aria-labelledby]:not([data-span]){grid-column:1/-1}
 }
 
-/* in a gallery cell the separator rule reads as the top edge of a card, so it
-   goes on every section, not only on the ones that follow another */
+/* Sections keep their document order: row by row, left to right, the same
+   order the alphabetical index above them promises. A row is as tall as its
+   tallest card, which leaves air under the short ones and is the price of that
+   promise. Because every card in a row starts at the same height, the dashed
+   rule reads as the top edge of a card again, so it goes on all of them and not
+   only on the ones that follow another. Two rows of air above a card, five was
+   a hole. */
 @media (min-width:1024px){
   #view-kit > section[aria-labelledby],
-  #view-blocks > section[aria-labelledby]{margin-top:calc(var(--r)*3)}
-  #view-kit > section[aria-labelledby]:not([data-span="full"])::before,
-  #view-blocks > section[aria-labelledby]:not([data-span="full"])::before{
+  #view-blocks > section[aria-labelledby],
+  #view-charts > section[aria-labelledby]{margin-top:calc(var(--r)*2)}
+  #view-kit > section[aria-labelledby]::before,
+  #view-blocks > section[aria-labelledby]::before,
+  #view-charts > section[aria-labelledby]::before{
     content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
-    white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2);
+    white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
   }
 }
 
@@ -729,6 +739,17 @@ main{max-width:calc(var(--maxcols)*1ch)}
 
 /* the progress bar is a fixed run of characters, let it scroll in a narrow box */
 .progress{max-width:100%;overflow-x:auto}
+
+/* a popover belongs to its own card but is drawn over the next one, so the
+   card that has something open comes forward */
+#view-kit > section,#view-blocks > section,#view-charts > section{position:relative}
+#view-kit > section:has(.menu.open),#view-blocks > section:has(.menu.open),
+#view-kit > section:has([aria-expanded="true"]),#view-blocks > section:has([aria-expanded="true"]),
+#view-kit > section:has(.tip:focus-within),#view-kit > section:has(.tip:hover){z-index:6}
+.menu{box-shadow:0 0 0 1ch var(--bg)}
+
+/* the footer game keeps its size, it just stops hugging the left edge */
+#inv{margin-inline:auto}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -1326,7 +1347,7 @@ window.AUI_TONES();
   <section aria-label="About charts"><p>Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></section>
 
 
-  <section aria-labelledby="s-bars">
+  <section aria-labelledby="s-bars" data-span="full">
     <h2 id="s-bars" class="vh">Bars</h2>
     <pre class="poster ptitle" data-text="BARS" aria-hidden="true"></pre>
     <p class="muted">Requests per day. Bars grow through the ramp and cap out lighter.</p>
@@ -1334,7 +1355,7 @@ window.AUI_TONES();
     <p class="muted status" id="st-bars" role="status">Tap a bar.</p>
   </section>
 
-  <section aria-labelledby="s-line">
+  <section aria-labelledby="s-line" data-span="full">
     <h2 id="s-line" class="vh">Line</h2>
     <pre class="poster ptitle" data-text="LINE" aria-hidden="true"></pre>
     <p class="muted">p95 latency, live. Spikes turn yellow. Tap the chart to break production.</p>
@@ -1342,7 +1363,7 @@ window.AUI_TONES();
     <p class="muted status" id="st-line" role="status">p95 --</p>
   </section>
 
-  <section aria-labelledby="s-regions">
+  <section aria-labelledby="s-regions" data-span="full">
     <h2 id="s-regions" class="vh">Regions</h2>
     <pre class="poster ptitle" data-text="REGIONS" aria-hidden="true"></pre>
     <p class="muted">Probe success by region, on the same halftone bar as the slider.</p>
@@ -3740,6 +3761,11 @@ function docify(sec){
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
     const code=t===tabs[1];p1.hidden=code;p2.hidden=!code;
+    /* code lines are long. A section in a 46ch column would show half of each
+       one, so while Code is open the section takes the whole row. Sections that
+       are full width anyway keep their attribute, they are marked permanent. */
+    if(code){if(!sec.hasAttribute('data-span'))sec.setAttribute('data-span','code')}
+    else if(sec.getAttribute('data-span')==='code')sec.removeAttribute('data-span');
     if(code&&!built){
       built=true;let src=pretty(cleanHTML(p1));const ex=A.codeExtra?A.codeExtra(sec,p1):null;
       p2.querySelector('pre').innerHTML='<b class="h4">html</b>'+hl(src)+(ex?ex.html.replace(/<h4>/g,'<b class="h4">').replace(/<\/h4>/g,'</b>'):'');
@@ -3757,7 +3783,7 @@ function docify(sec){
 /* which sections cannot live in a narrow gallery column: anything with a table,
    a chart, a canvas, a phone frame or its own tab strip. Set data-span in the
    html to override, either way. See docs/COMPONENTS.md. */
-const WIDE='.tablewrap,.chart,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
+const WIDE='.tablewrap,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
 function spanSections(panel){
   panel.querySelectorAll(':scope > section[aria-labelledby]').forEach(s=>{
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
@@ -3778,6 +3804,7 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
+spanSections($('view-charts'));
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{
@@ -3926,6 +3953,7 @@ A.codeExtra=function(sec,p1){
 (function install(){
   const kit=$('view-kit'),toc=kit.querySelector('.toc');if(!toc)return;
   const sec=document.createElement('section');sec.setAttribute('aria-labelledby','s-install');
+  sec.setAttribute('data-span','full');   /* it opens the view, it is not a card */
   const tokens=()=>$('tokensOut').textContent;
   sec.innerHTML='<h2 id="s-install" class="vh">Installation</h2><p><b>Installation.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Ten colors and the ramp. Tune them in Themes first.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
@@ -4037,92 +4065,6 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   }
   $('chatSend').addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});
 })();
-})();
-</script>
-<script>
-/* ---- gallery: pack the component columns ----------------------------------
-   The galleries in Components, Blocks and Charts are one css grid each. On a
-   wide screen the sections sit side by side, and since they have very different
-   heights a plain grid leaves a hole under every short one. Rows are 24px, the
-   same as the text baseline, so a section can simply say how many rows it
-   occupies and the next one starts right under it. That is all this file does:
-   measure, round up to whole rows, write the span. It runs on layout, on tab
-   switches and whenever a section changes height (opening Code, filtering
-   blocks). With one column it clears everything and gets out of the way. */
-(function(){
-  const A=window.AUI,$=A.$;
-  const PANELS=['view-kit','view-blocks'].map($).filter(Boolean);
-  const row=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r'))||24;
-  let ro=null;
-
-  /* a hidden panel reports its grid unresolved (repeat(auto-fill, minmax(...)))
-     and measures zero, so counting tracks there would be counting words */
-  function laid(panel){
-    return panel.offsetParent!==null&&panel.getBoundingClientRect().width>0;
-  }
-  function cols(panel){
-    if(!laid(panel))return 0;
-    const t=getComputedStyle(panel).gridTemplateColumns;
-    return t&&t!=='none'?t.split(' ').filter(Boolean).length:1;
-  }
-  function sections(panel){
-    return [].slice.call(panel.querySelectorAll(':scope > section[aria-labelledby]'));
-  }
-  function kids(panel){
-    return [].slice.call(panel.children).filter(el=>!el.hidden);
-  }
-  /* every child needs a span, not only the tagged ones: with 24px rows an
-     unmeasured child gets a single row and the next one lands on top of it */
-  function pack(panel){
-    if(!laid(panel))return;          /* nothing to measure, nothing to write */
-    const ROW=row(),items=kids(panel);
-    if(cols(panel)<2){
-      panel.style.removeProperty('grid-auto-rows');
-      items.forEach(s=>s.style.removeProperty('grid-row-end'));
-      return;
-    }
-    if(panel.style.gridAutoRows!==ROW+'px'){
-      items.forEach(s=>s.style.setProperty('grid-row-end','span 400'));
-      panel.style.gridAutoRows=ROW+'px';
-    }
-    /* measure everything first, write after, so one section's new span cannot
-       shift the next one's measurement */
-    const spans=items.map(s=>{
-      const m=parseFloat(getComputedStyle(s).marginTop)||0;
-      return Math.max(1,Math.ceil((s.getBoundingClientRect().height+m)/ROW));
-    });
-    items.forEach((s,i)=>{
-      const v='span '+spans[i];
-      if(s.style.gridRowEnd!==v)s.style.gridRowEnd=v;
-    });
-  }
-  function packAll(){PANELS.forEach(pack)}
-
-  /* a section changes height when its Code tab opens, when a demo animates in,
-     or when the blocks filter hides its neighbours */
-  if(window.ResizeObserver){
-    let queued=false;
-    ro=new ResizeObserver(function(){
-      if(queued)return;queued=true;
-      requestAnimationFrame(function(){queued=false;packAll()});
-    });
-    PANELS.forEach(p=>kids(p).forEach(s=>ro.observe(s)));
-  }
-  /* layout() reaches packAll through onLayout on the same event, so one
-     rAF-debounced pass serves both */
-  let pending=false;
-  function packSoon(){
-    if(pending)return;pending=true;
-    requestAnimationFrame(function(){pending=false;packAll()});
-  }
-  window.addEventListener('resize',packSoon);
-  document.addEventListener('click',function(e){
-    if(e.target.closest&&e.target.closest('.tab,.chip,.views [role="tab"]'))setTimeout(packAll,60);
-  });
-  const prev=A.onLayout;
-  A.onLayout=function(W){if(prev)prev(W);packSoon()};
-  packAll();
-  window.AUI_GALLERY={pack:packAll};
 })();
 </script>
 </body>

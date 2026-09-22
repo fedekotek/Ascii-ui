@@ -133,6 +133,7 @@ A.codeExtra=function(sec,p1){
 (function install(){
   const kit=$('view-kit'),toc=kit.querySelector('.toc');if(!toc)return;
   const sec=document.createElement('section');sec.setAttribute('aria-labelledby','s-install');
+  sec.setAttribute('data-span','full');   /* it opens the view, it is not a card */
   const tokens=()=>$('tokensOut').textContent;
   sec.innerHTML='<h2 id="s-install" class="vh">Installation</h2><p><b>Installation.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Ten colors and the ramp. Tune them in Themes first.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+

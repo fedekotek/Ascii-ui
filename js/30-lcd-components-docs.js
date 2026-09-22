@@ -345,6 +345,11 @@ function docify(sec){
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
     const code=t===tabs[1];p1.hidden=code;p2.hidden=!code;
+    /* code lines are long. A section in a 46ch column would show half of each
+       one, so while Code is open the section takes the whole row. Sections that
+       are full width anyway keep their attribute, they are marked permanent. */
+    if(code){if(!sec.hasAttribute('data-span'))sec.setAttribute('data-span','code')}
+    else if(sec.getAttribute('data-span')==='code')sec.removeAttribute('data-span');
     if(code&&!built){
       built=true;let src=pretty(cleanHTML(p1));const ex=A.codeExtra?A.codeExtra(sec,p1):null;
       p2.querySelector('pre').innerHTML='<b class="h4">html</b>'+hl(src)+(ex?ex.html.replace(/<h4>/g,'<b class="h4">').replace(/<\/h4>/g,'</b>'):'');
@@ -362,7 +367,7 @@ function docify(sec){
 /* which sections cannot live in a narrow gallery column: anything with a table,
    a chart, a canvas, a phone frame or its own tab strip. Set data-span in the
    html to override, either way. See docs/COMPONENTS.md. */
-const WIDE='.tablewrap,.chart,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
+const WIDE='.tablewrap,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
 function spanSections(panel){
   panel.querySelectorAll(':scope > section[aria-labelledby]').forEach(s=>{
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
@@ -383,6 +388,7 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
+spanSections($('view-charts'));
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{

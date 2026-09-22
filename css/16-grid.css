@@ -4,8 +4,10 @@
    when it snaps main to a whole number of columns. Second, the component
    galleries: Components, Blocks and Charts flow into as many columns of at
    least 46ch as fit, so the page fills a monitor instead of a strip down the
-   middle. A section that needs the full width says so with data-span="full";
-   js/30 sets it on anything holding a table, a chart, a canvas or a phone. */
+   middle. A section that needs the full width says so with data-span; js/30
+   sets it on anything holding a table, a picture or a phone, index.html sets it
+   on the charts that draw to the page width, and the Code tab sets it while it
+   is open. */
 
 :root{
   --maxcols:80;      /* ~768px, the width the kit was designed at */
@@ -19,33 +21,41 @@
 /* css/02 caps main at 80ch, the cap now moves with the breakpoints */
 main{max-width:calc(var(--maxcols)*1ch)}
 
-#view-kit,#view-blocks{
+#view-kit,#view-blocks,#view-charts{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(var(--galmin),100%),1fr));
   gap:0 var(--galgap);
   align-items:start;
-  grid-auto-flow:row dense;   /* a short section backfills the hole above it */
 }
 /* full width by default, so anything untagged keeps the old single column */
-#view-kit > *,#view-blocks > *{grid-column:1/-1;min-width:0}
-#view-kit > section[aria-labelledby]:not([data-span="full"]),
-#view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:span 1}
+#view-kit > *,#view-blocks > *,#view-charts > *{grid-column:1/-1;min-width:0}
+#view-kit > section[aria-labelledby]:not([data-span]),
+#view-blocks > section[aria-labelledby]:not([data-span]),
+#view-charts > section[aria-labelledby]:not([data-span]){grid-column:span 1}
 
 /* one column: the grid is a no-op and the old rhythm applies unchanged */
 @media (max-width:1023px){
-  #view-kit > section[aria-labelledby]:not([data-span="full"]),
-  #view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:1/-1}
+  #view-kit > section[aria-labelledby]:not([data-span]),
+  #view-blocks > section[aria-labelledby]:not([data-span]),
+  #view-charts > section[aria-labelledby]:not([data-span]){grid-column:1/-1}
 }
 
-/* in a gallery cell the separator rule reads as the top edge of a card, so it
-   goes on every section, not only on the ones that follow another */
+/* Sections keep their document order: row by row, left to right, the same
+   order the alphabetical index above them promises. A row is as tall as its
+   tallest card, which leaves air under the short ones and is the price of that
+   promise. Because every card in a row starts at the same height, the dashed
+   rule reads as the top edge of a card again, so it goes on all of them and not
+   only on the ones that follow another. Two rows of air above a card, five was
+   a hole. */
 @media (min-width:1024px){
   #view-kit > section[aria-labelledby],
-  #view-blocks > section[aria-labelledby]{margin-top:calc(var(--r)*3)}
-  #view-kit > section[aria-labelledby]:not([data-span="full"])::before,
-  #view-blocks > section[aria-labelledby]:not([data-span="full"])::before{
+  #view-blocks > section[aria-labelledby],
+  #view-charts > section[aria-labelledby]{margin-top:calc(var(--r)*2)}
+  #view-kit > section[aria-labelledby]::before,
+  #view-blocks > section[aria-labelledby]::before,
+  #view-charts > section[aria-labelledby]::before{
     content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
-    white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2);
+    white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
   }
 }
 
@@ -62,3 +72,14 @@ main{max-width:calc(var(--maxcols)*1ch)}
 
 /* the progress bar is a fixed run of characters, let it scroll in a narrow box */
 .progress{max-width:100%;overflow-x:auto}
+
+/* a popover belongs to its own card but is drawn over the next one, so the
+   card that has something open comes forward */
+#view-kit > section,#view-blocks > section,#view-charts > section{position:relative}
+#view-kit > section:has(.menu.open),#view-blocks > section:has(.menu.open),
+#view-kit > section:has([aria-expanded="true"]),#view-blocks > section:has([aria-expanded="true"]),
+#view-kit > section:has(.tip:focus-within),#view-kit > section:has(.tip:hover){z-index:6}
+.menu{box-shadow:0 0 0 1ch var(--bg)}
+
+/* the footer game keeps its size, it just stops hugging the left edge */
+#inv{margin-inline:auto}
