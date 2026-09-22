@@ -273,11 +273,17 @@
     });
   }
   function buildMask(){
-    var m=[],y,x,l1=bitmap(HP.t1||' ',HP.t1.length>5?1:2),l2=bitmap(HP.t2||' ',HP.t2.length>5?1:2);
+    /* The two words used to sit at rows 2 and 42 of 58. The hero is not always
+       58 rows now, so they sit at the same fractions of whatever it is, and
+       they drop to one character per pixel when there are too few rows to hold
+       two words at two. */
+    var half=HR<44,sc=function(t){return (t&&t.length>5)||half?1:2};
+    var m=[],y,x,l1=bitmap(HP.t1||' ',sc(HP.t1)),l2=bitmap(HP.t2||' ',sc(HP.t2));
     for(y=0;y<HR;y++){m.push([]);for(x=0;x<HC;x++)m[y].push(0)}
     function put(b,x0,y0){for(var y=0;y<b.length;y++)for(var x=0;x<b[y].length;x++)
       if(b[y][x]&&m[y0+y]&&x0+x<HC)m[y0+y][x0+x]=1}
-    put(l1,1,2);put(l2,1,42);
+    put(l1,1,Math.round(HR*0.034));
+    put(l2,1,Math.min(HR-l2.length,Math.round(HR*0.724)));
     mask=m;
   }
   function charWidth(fs){
@@ -330,13 +336,20 @@
     ctx.font='700 100px '+FONT;
     var r=ctx.measureText('M').width/100||0.6;
     CW=W/HC;FS=CW/r;LH=Math.round(CW*1.25);
-    /* The hero used to be 58 rows whatever they measured, which on a wide
-       screen came out taller than the window: you could not tell there was a
-       page under it. It now stops at 52% of the window, and drops rows to fit
-       rather than squashing them, so the scene keeps its proportions. */
-    var Hpx=Math.ceil(HR*LH/24)*24;
-    var lid=Math.max(240,Math.round(window.innerHeight*0.52/24)*24);
-    if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
+    /* The hero used to be 58 rows whatever they measured, which came out at
+       1296px, taller than any window: you could not tell there was a page under
+       it. The canvas now takes what is left once the copy under it has had its
+       share, so the hero ends four rows short of the fold and the first
+       components show. It drops rows to fit rather than squashing them, and it
+       never goes under ten rows however short the window is. */
+    var Hpx=Math.ceil(HR*LH/24)*24,vh=window.innerHeight;
+    var hd=document.querySelector('main > header');
+    if(hd){
+      var copy=hd.getBoundingClientRect().height-hero.getBoundingClientRect().height;
+      var floor=Math.min(240,Math.round(vh*0.3/24)*24);
+      var lid=Math.max(floor,Math.round((vh-192-copy)/24)*24);
+      if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
+    }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
     /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a
@@ -437,7 +450,10 @@
     /* torus */
     if(!zb||zb.length!==n){zb=new Float32Array(n);lu=new Float32Array(n)}
     for(i=0;i<n;i++){zb[i]=0;lu[i]=-9}
-    var rad=Math.min(HC*0.36,27)*HP.rad,K2=8,K1=rad*K2/3*0.86,cx=HC-Math.min(HC*0.36,27)-2,cy=37;
+    /* the torus is sized by both dimensions and centred by fraction, so a
+       shorter hero shows a smaller torus instead of half of one */
+    var rr=Math.min(HC*0.36,HR*0.47,27);
+    var rad=rr*HP.rad,K2=8,K1=rad*K2/3*0.86,cx=HC-rr-2,cy=Math.round(HR*0.64);
     var cA=Math.cos(A),sA=Math.sin(A),cB=Math.cos(B),sB=Math.sin(B),th,ph;
     for(th=0;th<6.283;th+=0.08){
       var ct=Math.cos(th),st=Math.sin(th);

@@ -100,3 +100,28 @@ main{max-width:calc(var(--maxcols)*1ch)}
     linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
   mask-composite:intersect;
 }
+
+/* ---- the hero fold --------------------------------------------------------
+   Under the canvas the hero stacks seven short rows, which on a wide screen
+   pushed the first component past the bottom of the window: the page looked
+   like it ended at the hero. From 1024px those rows sit in three columns, the
+   copy on the left, the controls in the middle and the right, which is about
+   300px shorter and leaves the first row of components showing. */
+@media (min-width:1024px){
+  main > header{display:grid;grid-template-columns:repeat(3,1fr);column-gap:4ch;align-items:start}
+  main > header > h1,main > header > canvas{grid-column:1/-1}
+  main > header > .lede{grid-column:1;grid-row:2;margin-top:var(--r)}
+  main > header > .hint{grid-column:1;grid-row:3}
+  main > header > #heroSrc{grid-column:2;grid-row:2;margin-top:var(--r)}
+  main > header > #heroStatus{grid-column:2;grid-row:3}
+  main > header > div.row:nth-of-type(2){grid-column:3;grid-row:2;margin-top:var(--r)}
+  main > header > div.row:nth-of-type(3){grid-column:3;grid-row:3}
+}
+
+/* On a phone the same rows are stacked, and the two that the [=] sheet already
+   carries (the switches and the theme button) are the ones that push the page
+   under the fold, so down there they live in the sheet only. The tip goes with
+   them: it describes gestures you find by trying. */
+@media (max-width:1023px){
+  main > header > div.row:nth-of-type(2),main > header > .hint{display:none}
+}
