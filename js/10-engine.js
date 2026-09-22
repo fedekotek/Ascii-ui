@@ -318,6 +318,8 @@
     var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
     var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
     main.style.width=(cols*ch)+'px';
+    var bar=document.querySelector('.topbar-in');
+    if(bar)bar.style.width=(cols*ch)+'px';
     var inner=cols-4;
     root.style.setProperty('--dcols',Math.min(48,cols-2));
     var W=inner*ch;
@@ -328,15 +330,28 @@
     ctx.font='700 100px '+FONT;
     var r=ctx.measureText('M').width/100||0.6;
     CW=W/HC;FS=CW/r;LH=Math.round(CW*1.25);
+    /* The hero used to be 58 rows whatever they measured, which on a wide
+       screen came out taller than the window: you could not tell there was a
+       page under it. It now stops at 52% of the window, and drops rows to fit
+       rather than squashing them, so the scene keeps its proportions. */
     var Hpx=Math.ceil(HR*LH/24)*24;
+    var lid=Math.max(240,Math.round(window.innerHeight*0.52/24)*24);
+    if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
-    var tt=fit(94,W,7),tlh=Math.max(4,Math.round(tt.cw*1.3));
+    /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a
+       token so the size is a design decision, not a number buried in here. */
+    var cap=parseFloat(getComputedStyle(root).getPropertyValue('--ptitle'))||7;
+    var tt=fit(94,W,cap),tlh=Math.max(4,Math.round(tt.cw*1.3));
     titles.forEach(function(pre){
       pre.style.fontSize=tt.fs+'px';pre.style.lineHeight=tlh+'px';
       pre.style.height=(Math.ceil(14*tlh/24)*24)+'px';
     });
     fitTitles();
+    /* the glow behind the hero is painted on body so it can reach the window
+       edges, which means body has to be told how tall the header is */
+    var hd=document.querySelector('main > header');
+    if(hd)root.style.setProperty('--heroh',Math.round(hd.getBoundingClientRect().height)+'px');
     buildMask();seedScene();readPalette();drawHero();
     if(window.AUI&&AUI.onLayout)AUI.onLayout(W);
   }
@@ -660,7 +675,7 @@
     solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(to bottom,'+grad.join(',')+')';
     pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:24px;white-space:pre;color:'+ink;
     wrap.appendChild(solid);wrap.appendChild(pre);document.body.appendChild(wrap);
-    var p=0,end=cols+8+skew,out=false,step=Math.max(4,Math.round(end/13));
+    var p=0,end=cols+8+skew,out=false,step=Math.max(8,Math.round(end/6.5));
     function frame(){
       var txt='',x,y;
       for(y=0;y<rows;y++){
@@ -983,7 +998,7 @@
          '.slider > label,.slider-track,.slider output,.tablist:not(.views),.tabpanel,section .lift,.progress,.rules li,'+
          '.stat,.ticker,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
   function reveal(el,i){
-    el.style.setProperty('--d',(i*48)+'ms');
+    el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');
     setTimeout(function(){
       sfx.tick();

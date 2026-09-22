@@ -57,13 +57,13 @@ function mosh(cb){
   const rows=Math.ceil(window.innerHeight/24),els=[];
   for(let y=0;y<rows;y++){
     const d=document.createElement('div'),solid=Math.random()<0.24,side=Math.random()<0.5?-1:1;
-    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*24)+'px;height:24px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(110+rnd(210))+'ms steps(5)';
+    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*24)+'px;height:24px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(55+rnd(105))+'ms steps(5)';
     d.textContent=Math.random()<0.6?A.TR(rep(RAMP[2+rnd(7)],260)):'';d._s=side;wrap.appendChild(d);els.push(d);
   }
   document.body.appendChild(wrap);noise(0.3,0.12);
   requestAnimationFrame(()=>requestAnimationFrame(()=>els.forEach(d=>d.style.transform='translateX(0)')));
   setTimeout(()=>{cb();els.forEach(d=>d.style.transform='translateX('+(-d._s*101)+'%)');
-    setTimeout(()=>{wrap.remove();moshing=false;A.kick()},340)},350);
+    setTimeout(()=>{wrap.remove();moshing=false;A.kick()},170)},175);
 }
 A.mosh=mosh;
 function show(name){const t=$('v-'+name);if(t){t.click();return true}return false}

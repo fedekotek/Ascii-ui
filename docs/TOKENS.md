@@ -18,6 +18,7 @@
 | `--scan` | scanline overlay color | `rgba(17,17,16,.06)` | `rgba(0,0,0,.28)` |
 | `--accent` | alias of `--cy` | | |
 | `--danger` | alias of `--warn` | | |
+| `--ptitle` | How big a bitmap pixel in a poster title may get, in px. 6 by default, 7 was the old size. Lower it and every title shrinks with it. |
 | `--r` | row height | 24px (22px at 720px+) | |
 
 Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same ten on `:root[data-preset=...]`. Adding a preset is one CSS rule plus one entry in the `preset` toggle group in `index.html` (Themes view).

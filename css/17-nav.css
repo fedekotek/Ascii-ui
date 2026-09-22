@@ -1,12 +1,30 @@
+/* ---- the top bar ----------------------------------------------------------
+   It sits outside main so it spans the window, and it is stuck to the top from
+   the first pixel, not from wherever the hero ends. Inside, a container the
+   width of the content column keeps the name aligned with the page. The rule
+   underneath runs the full width, the way a header border does.
+   Under 768px the views collapse into the [=] sheet, which already lists them
+   and the sections of the view you are in. */
+.topbar{
+  position:sticky;top:0;z-index:40;background:var(--bg);
+  padding-top:env(safe-area-inset-top,0px);
+}
+.topbar-in{margin:0 auto;padding:0 2ch;position:relative}
+.topbar::after{
+  content:var(--h-light);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;color:var(--violet);pointer-events:none;
+}
+html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
+@media (max-width:767px){.viewsbar .views{display:none}}
+@media (min-width:768px){#menuBtn{display:none}}
+
 /* ---- navigation -----------------------------------------------------------
-   Two pieces. The bar at the top was already sticky, it gets a name on the
-   left so the page says what it is while you scroll. The second is new: from
-   1280px a sidebar lists the sections of the view you are in, sticky, with the
-   one you are reading marked. Below 1280px there is no room for it, so the
-   chip index inside each view stays and the sidebar is not rendered.
-   Everything is measured in characters and rows: the sidebar is 26 wide with a
-   4 gutter, which leaves whole columns for the gallery beside it (43 at
-   1280px, 41 at 1600px). */
+   From 1024px a sidebar lists the sections of the view you are in, sticky
+   under the bar, with the one you are reading marked. Below that there is no
+   room for it, so the chip index inside each view stays and the sidebar is not
+   rendered. Everything is measured in characters and rows: the sidebar is 26
+   wide with a 4 gutter, which leaves whole columns for the gallery beside it
+   (66 at 1024px, 43 at 1280px, 41 at 1600px). */
 
 .brand{
   font:inherit;font-weight:700;background:none;border:0;border-radius:0;
@@ -16,27 +34,29 @@
 .brand .slash{color:var(--hot)}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:hover .slash{color:var(--pink)}
-@media (max-width:719px){.brand{display:none}}
 
 #sidenav{display:none}
 
-@media (min-width:1280px){
+@media (min-width:1024px){
   main{
     display:grid;
     grid-template-columns:26ch 1fr;
     column-gap:4ch;
     align-items:start;
   }
-  main > header,main > .viewsbar,main > footer{grid-column:1/-1}
-  /* every panel shares one cell, only one of them is ever shown */
-  main > [role="tabpanel"]{grid-column:2;grid-row:3;min-width:0}
+  /* rows, in order: the hero, then the sidebar beside the panels, then the
+     footer. The panels are pinned because they all share one cell, and once a
+     row is pinned the rest have to be too or they flow into the gap */
+  main > header{grid-column:1/-1;grid-row:1}
+  main > footer{grid-column:1/-1;grid-row:3}
+  main > [role="tabpanel"]{grid-column:2;grid-row:2;min-width:0}
   /* a view with nothing to list gives the width back to the content */
   main:has(#sidenav[hidden]){grid-template-columns:1fr}
   main:has(#sidenav[hidden]) > [role="tabpanel"]{grid-column:1/-1}
   #sidenav{
-    display:block;grid-column:1;grid-row:3;
+    display:block;grid-column:1;grid-row:2;
     position:sticky;top:calc(var(--r)*3);
-    max-height:calc(100vh - var(--r)*5);overflow:auto;
+    max-height:calc(100vh - var(--r)*4);overflow:auto;
     scrollbar-width:none;padding-bottom:var(--r);
   }
   #sidenav::-webkit-scrollbar{display:none}

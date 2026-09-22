@@ -81,13 +81,13 @@ Everything is a character. `--r` is 24px, everywhere, at every width. `main` wid
 
 Two pieces, both in `css/17-nav.css` and `js/70-nav.js`.
 
-The bar at the top was already sticky. It now carries the name of the thing on the left, which doubles as "back to the top", then the seven views, then the command palette button on the right.
+The bar at the top lives outside `main`, so it spans the window and sticks from the first pixel rather than from wherever the hero ends. Inside it, a container the width of the content column keeps the name aligned with the page, and the rule underneath runs the full width the way a header border does. It carries the name of the kit on the left, which doubles as "back to the top", then the seven views, then the command palette button. Under 768px the views collapse into the `[=]` sheet, which already lists them and the sections of the view you are in.
 
-From 1280px the page grows a sidebar: the sections of the view you are in, listed in the order the page shows them, sticky, with the one you are reading marked. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`: views are swapped by toggling that attribute, and so is the Blocks filter, but neither happens on the click (the theme curtain and the docs builder take their time), so watching the attribute beats guessing a delay. Clicking an entry pins it for 1.2s while the smooth scroll arrives, otherwise the sections passing by would steal the mark.
+From 1024px the page grows a sidebar: the sections of the view you are in, listed in the order the page shows them, sticky, with the one you are reading marked. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`: views are swapped by toggling that attribute, and so is the Blocks filter, but neither happens on the click (the theme curtain and the docs builder take their time), so watching the attribute beats guessing a delay. Clicking an entry pins it for 1.2s while the smooth scroll arrives, otherwise the sections passing by would steal the mark.
 
 Reading position is plain maths on scroll, rAF throttled: the last section whose top has passed under the bar. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry.
 
-Below 1280px there is no room, so the sidebar is not shown and the chip index inside each view does the job. `main` becomes a two column grid at that width: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (43 at 1280px, 41 at 1600px).
+Below 1024px there is no room, so the sidebar is not shown and the chip index inside each view does the job. `main` becomes a two column grid at that width: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at 1600px). Its rows are pinned, because the panels all share one cell and once one row is explicit the others have to be, or the footer flows into the gap.
 
 ## Page width and the galleries
 

@@ -16,7 +16,7 @@ body::before{
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 #fx div{position:absolute}
 .js-rv [data-rv]{opacity:0}
-.js-rv [data-rv].in{opacity:1;animation:rvin .44s steps(1) both;animation-delay:var(--d,0ms)}
+.js-rv [data-rv].in{opacity:1;animation:rvin .22s steps(1) both;animation-delay:var(--d,0ms)}
 .js-rv [data-rv].done{animation:none;opacity:1}
 @keyframes rvin{
   0%{opacity:0}
@@ -38,7 +38,17 @@ main.jolt{animation:jolt .26s steps(1)}
   75%{transform:translateX(2px);filter:none}
   100%{transform:none}
 }
-header{background:radial-gradient(60% 46% at 68% 44%,color-mix(in srgb,var(--hot) 16%,transparent),transparent)}
+/* the hero's glow used to live on header, which is only as wide as the content
+   column, so on a wide screen it ended in a hard vertical line with flat
+   background either side. It belongs to the window, not to the column. --heroh
+   is the height of the header, written by layout(). */
+header{background:none}
+body{
+  background:
+    radial-gradient(64% 46% at 62% 44%,color-mix(in srgb,var(--hot) 16%,transparent),transparent)
+      no-repeat top center / 100% var(--heroh,640px),
+    var(--bg);
+}
 main{max-width:80ch;margin:0 auto;padding:var(--r) 2ch calc(var(--r)*5)}
 main.show-grid{
   background-image:

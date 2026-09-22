@@ -106,8 +106,7 @@
 .hint{color:var(--muted)}
 kbd{font:inherit;font-weight:700;color:var(--ink)}
 kbd::before{content:"["}kbd::after{content:"]"}
-.viewsbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2);display:flex;align-items:flex-start;padding-bottom:var(--r)}
-.viewsbar::after{content:var(--h-light);position:absolute;left:0;right:0;bottom:0;height:var(--r);overflow:hidden;white-space:nowrap;font-weight:700;color:var(--violet);pointer-events:none}
+.viewsbar{display:flex;align-items:flex-start;padding-bottom:var(--r)}
 .viewsbar .views{position:static;margin-top:0;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding-bottom:0}
 .viewsbar .views::-webkit-scrollbar{display:none}
 .viewsbar .views::after{display:none}

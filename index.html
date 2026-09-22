@@ -28,6 +28,25 @@
 </head>
 <body>
 <span id="probe" aria-hidden="true">MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
+<div class="topbar">
+  <div class="topbar-in">
+      <div class="viewsbar">
+    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+    <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
+    <div class="tablist views" role="tablist" aria-label="Views" id="views">
+      <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
+      <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
+      <button class="tab" role="tab" id="v-charts" aria-controls="view-charts" aria-selected="false" tabindex="-1" type="button">Charts</button>
+      <button class="tab" role="tab" id="v-themes" aria-controls="view-themes" aria-selected="false" tabindex="-1" type="button">Themes</button>
+      <button class="tab" role="tab" id="v-play" aria-controls="view-play" aria-selected="false" tabindex="-1" type="button">Play</button>
+      <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
+      <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
+    </div>
+      <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+    </div>
+  </div>
+</div>
+
 <main id="main">
 
   <header>
@@ -54,20 +73,6 @@
     </div>
   </header>
 
-  <div class="viewsbar">
-  <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
-  <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
-  <div class="tablist views" role="tablist" aria-label="Views" id="views">
-    <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
-    <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
-    <button class="tab" role="tab" id="v-charts" aria-controls="view-charts" aria-selected="false" tabindex="-1" type="button">Charts</button>
-    <button class="tab" role="tab" id="v-themes" aria-controls="view-themes" aria-selected="false" tabindex="-1" type="button">Themes</button>
-    <button class="tab" role="tab" id="v-play" aria-controls="view-play" aria-selected="false" tabindex="-1" type="button">Play</button>
-    <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
-    <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
-  </div>
-  <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
-  </div>
 
   <nav id="sidenav" aria-label="Sections"></nav>
 

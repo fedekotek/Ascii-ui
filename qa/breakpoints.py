@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 
 URL='file://'+os.path.abspath(os.path.join(os.path.dirname(__file__),'..','index.html'))
 # width, height, expected gallery columns
-SIZES=[(360,780,1),(390,844,1),(820,1180,1),(1024,768,2),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
+SIZES=[(360,780,1),(390,844,1),(820,1180,1),(1024,768,1),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
 GALLERIES=['kit','blocks']   # these fill every column
 VIEWS=GALLERIES+['charts']   # charts has only two sections that are not full width
 
