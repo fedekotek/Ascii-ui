@@ -383,7 +383,6 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
-spanSections($('view-charts'));   /* charts draw to the page width, never a column */
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{

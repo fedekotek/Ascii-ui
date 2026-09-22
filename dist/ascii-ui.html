@@ -681,12 +681,12 @@ figcaption b{color:var(--ink)}
 }
 @media (min-width:1024px){:root{--maxcols:100}}   /* ~960px,  2 columns */
 @media (min-width:1280px){:root{--maxcols:124}}   /* ~1190px, 2 columns */
-@media (min-width:1600px){:root{--maxcols:166}}   /* ~1594px, 3 columns */
+@media (min-width:1600px){:root{--maxcols:165}}   /* ~1590px, 3 columns of 51ch */
 
 /* css/02 caps main at 80ch, the cap now moves with the breakpoints */
 main{max-width:calc(var(--maxcols)*1ch)}
 
-#view-kit,#view-blocks,#view-charts{
+#view-kit,#view-blocks{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(min(var(--galmin),100%),1fr));
   gap:0 var(--galgap);
@@ -694,27 +694,23 @@ main{max-width:calc(var(--maxcols)*1ch)}
   grid-auto-flow:row dense;   /* a short section backfills the hole above it */
 }
 /* full width by default, so anything untagged keeps the old single column */
-#view-kit > *,#view-blocks > *,#view-charts > *{grid-column:1/-1;min-width:0}
+#view-kit > *,#view-blocks > *{grid-column:1/-1;min-width:0}
 #view-kit > section[aria-labelledby]:not([data-span="full"]),
-#view-blocks > section[aria-labelledby]:not([data-span="full"]),
-#view-charts > section[aria-labelledby]:not([data-span="full"]){grid-column:span 1}
+#view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:span 1}
 
 /* one column: the grid is a no-op and the old rhythm applies unchanged */
 @media (max-width:1023px){
   #view-kit > section[aria-labelledby]:not([data-span="full"]),
-  #view-blocks > section[aria-labelledby]:not([data-span="full"]),
-  #view-charts > section[aria-labelledby]:not([data-span="full"]){grid-column:1/-1}
+  #view-blocks > section[aria-labelledby]:not([data-span="full"]){grid-column:1/-1}
 }
 
 /* in a gallery cell the separator rule reads as the top edge of a card, so it
    goes on every section, not only on the ones that follow another */
 @media (min-width:1024px){
   #view-kit > section[aria-labelledby],
-  #view-blocks > section[aria-labelledby],
-  #view-charts > section[aria-labelledby]{margin-top:calc(var(--r)*3)}
+  #view-blocks > section[aria-labelledby]{margin-top:calc(var(--r)*3)}
   #view-kit > section[aria-labelledby]:not([data-span="full"])::before,
-  #view-blocks > section[aria-labelledby]:not([data-span="full"])::before,
-  #view-charts > section[aria-labelledby]:not([data-span="full"])::before{
+  #view-blocks > section[aria-labelledby]:not([data-span="full"])::before{
     content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
     white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2);
   }
@@ -1725,7 +1721,7 @@ window.AUI_TONES();
       }
     }finally{
       if(swept)CK.tasks=CK.tasks.filter(function(x){return !x.dead});
-      if(CK.tasks.length)clockStart();
+      if(CK.tasks.length&&!CK.paused)clockStart();
     }
   }
   function clockStart(){if(!CK.raf)CK.raf=requestAnimationFrame(clockFrame)}
@@ -3782,7 +3778,6 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
-spanSections($('view-charts'));   /* charts draw to the page width, never a column */
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{
@@ -4056,11 +4051,17 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
    blocks). With one column it clears everything and gets out of the way. */
 (function(){
   const A=window.AUI,$=A.$;
-  const PANELS=['view-kit','view-blocks','view-charts'].map($).filter(Boolean);
-  const ROW=24;
+  const PANELS=['view-kit','view-blocks'].map($).filter(Boolean);
+  const row=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r'))||24;
   let ro=null;
 
+  /* a hidden panel reports its grid unresolved (repeat(auto-fill, minmax(...)))
+     and measures zero, so counting tracks there would be counting words */
+  function laid(panel){
+    return panel.offsetParent!==null&&panel.getBoundingClientRect().width>0;
+  }
   function cols(panel){
+    if(!laid(panel))return 0;
     const t=getComputedStyle(panel).gridTemplateColumns;
     return t&&t!=='none'?t.split(' ').filter(Boolean).length:1;
   }
@@ -4073,7 +4074,8 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   /* every child needs a span, not only the tagged ones: with 24px rows an
      unmeasured child gets a single row and the next one lands on top of it */
   function pack(panel){
-    const items=kids(panel);
+    if(!laid(panel))return;          /* nothing to measure, nothing to write */
+    const ROW=row(),items=kids(panel);
     if(cols(panel)<2){
       panel.style.removeProperty('grid-auto-rows');
       items.forEach(s=>s.style.removeProperty('grid-row-end'));
@@ -4106,12 +4108,19 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
     });
     PANELS.forEach(p=>kids(p).forEach(s=>ro.observe(s)));
   }
-  window.addEventListener('resize',packAll);
+  /* layout() reaches packAll through onLayout on the same event, so one
+     rAF-debounced pass serves both */
+  let pending=false;
+  function packSoon(){
+    if(pending)return;pending=true;
+    requestAnimationFrame(function(){pending=false;packAll()});
+  }
+  window.addEventListener('resize',packSoon);
   document.addEventListener('click',function(e){
     if(e.target.closest&&e.target.closest('.tab,.chip,.views [role="tab"]'))setTimeout(packAll,60);
   });
   const prev=A.onLayout;
-  A.onLayout=function(W){if(prev)prev(W);packAll()};
+  A.onLayout=function(W){if(prev)prev(W);packSoon()};
   packAll();
   window.AUI_GALLERY={pack:packAll};
 })();

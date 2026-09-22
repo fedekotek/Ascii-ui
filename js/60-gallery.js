@@ -9,11 +9,17 @@
    blocks). With one column it clears everything and gets out of the way. */
 (function(){
   const A=window.AUI,$=A.$;
-  const PANELS=['view-kit','view-blocks','view-charts'].map($).filter(Boolean);
-  const ROW=24;
+  const PANELS=['view-kit','view-blocks'].map($).filter(Boolean);
+  const row=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r'))||24;
   let ro=null;
 
+  /* a hidden panel reports its grid unresolved (repeat(auto-fill, minmax(...)))
+     and measures zero, so counting tracks there would be counting words */
+  function laid(panel){
+    return panel.offsetParent!==null&&panel.getBoundingClientRect().width>0;
+  }
   function cols(panel){
+    if(!laid(panel))return 0;
     const t=getComputedStyle(panel).gridTemplateColumns;
     return t&&t!=='none'?t.split(' ').filter(Boolean).length:1;
   }
@@ -26,7 +32,8 @@
   /* every child needs a span, not only the tagged ones: with 24px rows an
      unmeasured child gets a single row and the next one lands on top of it */
   function pack(panel){
-    const items=kids(panel);
+    if(!laid(panel))return;          /* nothing to measure, nothing to write */
+    const ROW=row(),items=kids(panel);
     if(cols(panel)<2){
       panel.style.removeProperty('grid-auto-rows');
       items.forEach(s=>s.style.removeProperty('grid-row-end'));
@@ -59,12 +66,19 @@
     });
     PANELS.forEach(p=>kids(p).forEach(s=>ro.observe(s)));
   }
-  window.addEventListener('resize',packAll);
+  /* layout() reaches packAll through onLayout on the same event, so one
+     rAF-debounced pass serves both */
+  let pending=false;
+  function packSoon(){
+    if(pending)return;pending=true;
+    requestAnimationFrame(function(){pending=false;packAll()});
+  }
+  window.addEventListener('resize',packSoon);
   document.addEventListener('click',function(e){
     if(e.target.closest&&e.target.closest('.tab,.chip,.views [role="tab"]'))setTimeout(packAll,60);
   });
   const prev=A.onLayout;
-  A.onLayout=function(W){if(prev)prev(W);packAll()};
+  A.onLayout=function(W){if(prev)prev(W);packSoon()};
   packAll();
   window.AUI_GALLERY={pack:packAll};
 })();

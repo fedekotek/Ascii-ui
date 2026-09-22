@@ -9,7 +9,8 @@ from playwright.async_api import async_playwright
 URL='file://'+os.path.abspath(os.path.join(os.path.dirname(__file__),'..','index.html'))
 # width, height, expected gallery columns
 SIZES=[(360,780,1),(390,844,1),(820,1180,1),(1024,768,2),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
-VIEWS=['kit','blocks','charts']
+GALLERIES=['kit','blocks']   # charts is not a gallery, every chart draws to the page width
+VIEWS=GALLERIES+['charts']
 
 OVERLAP="""(p=>{
   const k=[...document.querySelectorAll(p+' > *')].filter(e=>!e.hidden)
@@ -52,8 +53,15 @@ async def run():
                 await pg.evaluate(f"document.getElementById('v-{v}').click()"); await pg.wait_for_timeout(1300)
                 ov=await pg.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")
                 if ov>1: msgs.append(f'{v} overflow {ov}px')
-                n=await pg.evaluate("(p=>{const t=getComputedStyle(document.querySelector(p)).gridTemplateColumns;return t&&t!=='none'?t.split(' ').filter(Boolean).length:1})('#view-"+v+"')")
-                if n!=want: msgs.append(f'{v} {n} columns, wanted {want}')
+                # count where sections actually sit, not how many tracks the
+                # template declares: a gallery that collapsed would still declare three
+                n=await pg.evaluate("(p=>new Set([...document.querySelectorAll(p+' > section[aria-labelledby]')].filter(s=>!s.hidden&&s.getAttribute('data-span')!=='full').map(s=>Math.round(s.getBoundingClientRect().left))).size)('#view-"+v+"')")
+                w_want=want if v in GALLERIES else 1
+                if n!=w_want: msgs.append(f'{v} sections sit in {n} columns, wanted {w_want}')
+                if v in GALLERIES:
+                    snap=await pg.evaluate("(p=>{const m=document.getElementById('main').getBoundingClientRect(),ch=document.getElementById('probe').getBoundingClientRect().width/50;return [...new Set([...document.querySelectorAll(p+' > section[aria-labelledby]')].filter(s=>!s.hidden&&s.getAttribute('data-span')!=='full').map(s=>s.getBoundingClientRect().left))].map(l=>Math.round(((l-m.left)/ch)*100)/100)})('#view-"+v+"')")
+                    off=[x for x in snap if abs(x-round(x))>0.08]
+                    if off: msgs.append(f'{v} columns off the character grid: {off}')
                 lap=await pg.evaluate(OVERLAP+"('#view-"+v+"')")
                 if lap: msgs.append(f'{v} overlap: '+'; '.join(lap))
                 esc=await pg.evaluate(OUTSIDE+"('#view-"+v+"')")

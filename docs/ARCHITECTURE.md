@@ -31,6 +31,8 @@ js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, drop
                             the shadcn-style docs builder (sort, index, Preview/Code tabs, filters).
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Play view knobs, Code tab CSS/JS extraction, Install section.
 js/50-menu-apps.js          mobile menu sheet, Chirp (feed), Tape (player), Static support (chat).
+js/60-gallery.js            packs the Components and Blocks galleries: measures each section and writes its
+                            row span, so columns of different heights close up. Clears itself at one column.
 ```
 
 Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
@@ -73,15 +75,17 @@ Views are a tablist (`.views`). Switching runs `wipe` (color-bar curtain) or `mo
 
 ## The grid
 
-Everything is a character. `--r` is 24px on mobile, 22px at 720px+ with 15px type. `main` width is snapped to a whole number of `ch` in `layout()`. The hero canvas measures the real glyph width (`ctx.measureText('M')`) and sizes itself to `HC` columns. Titles are 5x7 bitmaps rendered at 2 characters per pixel, and `fitTitles()` drops the color bars or halves the scale when the box is too narrow.
+Everything is a character. `--r` is 24px, everywhere, at every width. `main` width is snapped to a whole number of `ch` in `layout()`. The hero canvas measures the real glyph width (`ctx.measureText('M')`) and sizes itself to `HC` columns. Titles are 5x7 bitmaps rendered at 2 characters per pixel, and `fitTitles()` drops the color bars or halves the scale when the box is too narrow.
 
 ## Page width and the galleries
 
 `css/16-grid.css` owns how wide the page gets. `--maxcols` is a cap in characters and steps up at four breakpoints: 80 by default (the width the kit was designed at), 100 from 1024px, 124 from 1280px, 166 from 1600px (about 1600 real pixels). `layout()` reads it and snaps `main` to that many whole characters, so the cap is a design decision in css, not a number in js.
 
-Components, Blocks and Charts are galleries: each panel is one css grid of columns at least `--galmin` (46ch) wide, so they hold one column on a phone, two from 1024px and three from 1600px. Sections have very different heights, so `js/60-gallery.js` measures each one and writes `grid-row-end: span N` against 24px rows. That is ordinary masonry, and it is exact here because every element already sits on the 24px baseline. It repacks on layout, on tab clicks and through a ResizeObserver, and it removes itself when there is only one column.
+Components and Blocks are galleries: each panel is one css grid of columns at least `--galmin` (46ch) wide, so they hold one column on a phone, two from 1024px and three from 1600px. The steps are chosen so the columns land on whole characters: at 165 columns, minus 4 of padding and 8 of gutter, three columns of 51ch. Sections have very different heights, so `js/60-gallery.js` measures each one and writes `grid-row-end: span N` against `--r` rows. That is ordinary masonry, and it is exact here because every element already sits on that baseline. It repacks on layout, on tab clicks and through a ResizeObserver, it does nothing to a panel that is not on screen (a hidden panel measures zero), and it removes itself when there is only one column.
 
-A section that cannot live in a narrow column carries `data-span="full"`. `spanSections()` in js/30 sets it on anything holding a table, a chart, a phone frame, a timeline, a picture or a stat row; write the attribute in the html to decide for yourself. Charts are always full width because they draw to the page width, not to their box.
+A section that cannot live in a narrow column carries `data-span="full"`. `spanSections()` in js/30 sets it on anything holding a table, a chart, a phone frame, a timeline, a picture or a stat row; write the attribute in the html to decide for yourself.
+
+Charts is not a gallery. Every chart draws to the page width rather than to its box, so that view stays one column and simply gets wider.
 
 ## The ramp
 

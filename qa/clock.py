@@ -51,17 +51,33 @@ async def run(w,h):
         out.append(('resume restarts',f!=e,e+' -> '+f))
         if f==e: bad+=1
 
-        # finite tasks run their count, call end once, then leave the list
+        # finite tasks run their count, call end once, then leave the list.
+        # measured on the handles themselves: page animations start and stop all
+        # the time, so the global count cannot answer this
         got=await pg.evaluate("""(async()=>{
-          const n0=AUI.clock.count();let runs=0,ends=0;
-          for(let i=0;i<20;i++)AUI.times(20,3,()=>runs++,()=>ends++);
-          const peak=AUI.clock.count()-n0;
+          const mine=[];let runs=0,ends=0;
+          for(let i=0;i<20;i++)mine.push(AUI.times(20,3,()=>runs++,()=>ends++));
+          const armed=mine.filter(t=>t.running()).length;
           await new Promise(r=>setTimeout(r,500));
-          return {peak:peak,runs:runs,ends:ends,left:AUI.clock.count()-n0};
+          return {armed:armed,runs:runs,ends:ends,alive:mine.filter(t=>t.running()).length};
         })()""")
-        ok=got['peak']==20 and got['runs']==60 and got['ends']==20 and got['left']<=0
+        ok=got['armed']==20 and got['runs']==60 and got['ends']==20 and got['alive']==0
         out.append(('finite tasks reaped',ok,got))
         if not ok: bad+=1
+
+        # a callback that throws loses its own place and nothing else: the loop
+        # keeps running and the error still reaches the page
+        thrown=await pg.evaluate("""(async()=>{
+          let good=0;const ok=AUI.every(20,()=>good++);
+          const bomb=AUI.every(20,()=>{throw new Error('clock qa bomb')});
+          await new Promise(r=>setTimeout(r,400));
+          const out={bombDead:!bomb.running(),others:good};
+          ok.stop();return out;
+        })()""")
+        okt=thrown['bombDead'] and thrown['others']>=5
+        out.append(('throwing task dropped, loop alive',okt,thrown))
+        if not okt: bad+=1
+        errs=[e for e in errs if 'clock qa bomb' not in e]
 
         out.append(('page errors',len(errs),errs[:3]))
         if errs: bad+=1

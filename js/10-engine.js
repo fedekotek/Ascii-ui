@@ -51,7 +51,7 @@
       }
     }finally{
       if(swept)CK.tasks=CK.tasks.filter(function(x){return !x.dead});
-      if(CK.tasks.length)clockStart();
+      if(CK.tasks.length&&!CK.paused)clockStart();
     }
   }
   function clockStart(){if(!CK.raf)CK.raf=requestAnimationFrame(clockFrame)}

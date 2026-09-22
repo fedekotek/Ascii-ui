@@ -43,7 +43,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 8. Run `python3 build.py` and check `dist/ascii-ui.html` also loads clean. That is what ships.
 
 ## How to add a component (short version, long one in docs/COMPONENTS.md)
-Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. The docs builder sorts sections alphabetically, adds Preview/Code tabs and puts it in the index. If it needs JS, register it in `window.AUI_JS.NAME` so the Code tab can print it.
+Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. From 1024px that section gets a gallery column 46 characters wide, so if it holds a table, a chart or a picture give it `data-span="full"`. The docs builder sorts sections alphabetically, adds Preview/Code tabs and puts it in the index. If it needs JS, register it in `window.AUI_JS.NAME` so the Code tab can print it.
 
 ## Things that look like bugs and are not
 - The boot screen only runs once per session (`sessionStorage['aui-boot']`). Type `boot` in the palette to see it again.
