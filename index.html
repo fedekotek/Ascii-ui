@@ -42,7 +42,11 @@
       <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
       <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
     </div>
-      <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+      <div class="barctl">
+        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span><span class="lbl">Sound</span></label>
+        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
+        <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+      </div>
     </div>
   </div>
 </div>
@@ -63,8 +67,6 @@
     <div class="row demo">
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-      <label class="check"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
-      <button class="btn frame tone-light" id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
     </div>
     <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or tap <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
     <div class="row demo">

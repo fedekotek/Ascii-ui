@@ -819,6 +819,27 @@ main{max-width:calc(var(--maxcols)*1ch)}
   overflow:hidden;white-space:nowrap;font-weight:700;color:var(--violet);pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
+
+/* The controls that belong to the page rather than to the hero live on the
+   right of the bar, the way a documentation header carries them: sound, theme,
+   commands. Under 900px their words are read out but not drawn, the glyph and
+   the word DARK or LIGHT carry them. */
+.barctl{display:flex;align-items:flex-start;gap:0 2ch;flex:none;margin-left:2ch}
+.barctl .check{padding:calc(var(--r)/2) 0;margin:0;white-space:nowrap}
+#themeToggle{
+  font:inherit;background:none;border:0;border-radius:0;color:var(--ink);
+  padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;white-space:nowrap;
+}
+#themeToggle:focus-visible{background:var(--accent);color:var(--bg)}
+#themeToggle .label{text-decoration:underline;text-underline-offset:3px}
+@media (hover:hover){#themeToggle:hover .label{color:var(--hot)}}
+@media (max-width:899px){
+  .barctl .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+/* the bar has to fit a 320px screen: tighter gutters first, then the name goes,
+   the [=] sheet is the way back to the top down there anyway */
+@media (max-width:479px){.barctl{gap:0 1ch;margin-left:1ch}.viewsbar{gap:0}}
+@media (max-width:389px){.brand{display:none}}
 @media (max-width:767px){.viewsbar .views{display:none}}
 @media (min-width:768px){#menuBtn{display:none}}
 
@@ -889,6 +910,13 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #sidenav .navlink[aria-current="true"]{color:var(--ink);font-weight:700}
 #sidenav .navlink[aria-current="true"]::before{content:"> ";color:var(--hot);white-space:pre}
 #sidenav .navcount{color:var(--muted);font-weight:500}
+
+/* ---- small screens --------------------------------------------------------
+   Fixes that only matter under a phone's width. */
+
+/* the tooltip is one long line, which on a 320px screen pushes the page
+   sideways even while it is clipped out of sight */
+.tip{max-width:calc(100vw - 4ch);white-space:normal}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -928,7 +956,11 @@ window.AUI_TONES();
       <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
       <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
     </div>
-      <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+      <div class="barctl">
+        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span><span class="lbl">Sound</span></label>
+        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
+        <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+      </div>
     </div>
   </div>
 </div>
@@ -949,8 +981,6 @@ window.AUI_TONES();
     <div class="row demo">
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-      <label class="check"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
-      <button class="btn frame tone-light" id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
     </div>
     <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or tap <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
     <div class="row demo">
@@ -2561,9 +2591,14 @@ window.AUI_TONES();
     var next=currentTheme()==='dark'?'light':'dark';
     wipe(function(){root.setAttribute('data-theme',next)});
   });
-  new MutationObserver(function(){setLabel(themeBtn,'Theme: '+currentTheme());readPalette();drawHero()})
+  function themeLabel(){
+    var t=currentTheme();
+    setLabel(themeBtn,t==='dark'?'Dark':'Light');
+    themeBtn.setAttribute('aria-label','Theme: '+t+'. Switch to '+(t==='dark'?'light':'dark')+'.');
+  }
+  new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
-  setLabel(themeBtn,'Theme: '+currentTheme());
+  themeLabel();
 
   /* ---- input validation ---- */
   var slug=$('slug'),slugField=$('slugField'),slugError=$('slugError');

@@ -723,9 +723,14 @@
     var next=currentTheme()==='dark'?'light':'dark';
     wipe(function(){root.setAttribute('data-theme',next)});
   });
-  new MutationObserver(function(){setLabel(themeBtn,'Theme: '+currentTheme());readPalette();drawHero()})
+  function themeLabel(){
+    var t=currentTheme();
+    setLabel(themeBtn,t==='dark'?'Dark':'Light');
+    themeBtn.setAttribute('aria-label','Theme: '+t+'. Switch to '+(t==='dark'?'light':'dark')+'.');
+  }
+  new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
-  setLabel(themeBtn,'Theme: '+currentTheme());
+  themeLabel();
 
   /* ---- input validation ---- */
   var slug=$('slug'),slugField=$('slugField'),slugError=$('slugError');
