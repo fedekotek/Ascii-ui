@@ -24,6 +24,7 @@ function buildMenu(){
 }
 $('menuBtn').addEventListener('click',()=>{buildMenu();md.showModal();if(live())sfx.open()});
 $('menuClose').addEventListener('click',()=>md.close());
+$('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
    out is tapping next to it */
 md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});

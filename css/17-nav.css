@@ -114,53 +114,50 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
    sideways even while it is clipped out of sight */
 .tip{max-width:calc(100vw - 4ch);white-space:normal}
 
-/* the sheet is taller than the screen on a phone: 30 chips plus switches plus
-   the close row. It scrolls now, and the close row stays put at the bottom */
-dialog.sheet{max-height:74vh;max-height:74dvh;display:flex;flex-direction:column}
-dialog.sheet[open]{display:flex}   /* the strip left above it is what you tap to close */
+/* ---- the menu sheet -------------------------------------------------------
+   A phone gets seven views, thirty section chips, two switches, theme and
+   commands. That is more than any screen, so the sheet scrolls, and the
+   things that are not the list stop taking room from it: the way out is the
+   [x] in the title row and the strip of page above the sheet, not a button
+   at the bottom that needs its own band. */
+dialog.sheet{max-height:82vh;max-height:82dvh;display:flex;flex-direction:column}
+dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
-/* the whole sheet scrolls, not one part of it: seven views, thirty sections,
-   the switches and the close row do not fit on a phone in any arrangement */
 dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
-/* the two lists are different things: views, a rule, then the sections */
+dialog.sheet .body,dialog.sheet .body > *{max-width:100%}
+/* nothing behind a dialog scrolls while it is open */
+body:has(dialog[open]){overflow:hidden}
+
+/* the way out sits in the title row, where it is always visible */
+.sheet-x{
+  /* the box is a thumb tall, centred on the one row it draws in */
+  position:absolute;top:calc(var(--r)*-0.5);right:2ch;z-index:4;
+  font:inherit;font-weight:700;background:var(--bg);border:0;border-radius:0;
+  color:var(--ink);padding:12px 1ch;line-height:var(--r);
+  cursor:pointer;outline:0;
+}
+.sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover){.sheet-x:hover{color:var(--hot)}}
+dialog.sheet .body > .row:last-child{display:none}   /* the old close row */
+
+/* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
+dialog.sheet #menuSecs{margin-top:0}
 dialog.sheet #menuSecs::before{
   content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
   white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
 }
-dialog.sheet .menu-foot{margin-top:calc(var(--r)*2)}
-/* close sits on its own solid band, it used to float over the chips */
-/* The side walls are drawn inside the body, which is now the part that
-   scrolls, so they scrolled away after one screenful and the sheet looked
-   unfinished. They move to the wrapper, which stays put. */
-dialog.sheet .body::before,dialog.sheet .body::after{display:none}
-/* the tone lives on the card, and a parent does not inherit from its child,
-   so the wrapper is told which wall to draw */
-dialog.sheet > .lift{position:relative;--v:var(--v-heavy)}
-dialog.sheet > .lift::before,dialog.sheet > .lift::after{
-  display:block;content:var(--v);position:absolute;top:var(--r);bottom:var(--r);
-  width:2ch;overflow:hidden;white-space:pre;font-weight:700;
-  color:var(--frame-color,var(--ink));z-index:3;pointer-events:none;
-}
-dialog.sheet > .lift::before{left:0}
-dialog.sheet > .lift::after{right:0}
-/* the frame rows get a solid background so the list disappears under them
-   instead of showing half a row through the characters */
-dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
+dialog.sheet .menu-foot{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
 
-/* close sits on its own solid band at the bottom of the scroll, so the list
-   passes behind it instead of colliding with it */
-dialog.sheet .body > .row:last-child{
-  position:sticky;bottom:0;z-index:2;background:var(--bg);
-  box-shadow:0 calc(var(--r)*-0.5) 0 var(--bg),0 var(--r) 0 var(--bg);
-  padding:var(--r) 0;margin:var(--r) 0 0;
-}
-/* the close button keeps its own width: it is drawn from a run of characters
-   and stretching it widens the whole sheet, which stops the chips wrapping */
-dialog.sheet .body > .row:last-child{justify-content:center}
-dialog.sheet .body,dialog.sheet .body > *{max-width:100%}
-/* nothing behind a dialog scrolls while it is open */
-body:has(dialog[open]){overflow:hidden}
+/* The side walls are drawn inside the body, which is the part that scrolls, so
+   they stopped after four rows and the sheet looked unfinished. On a phone the
+   sheet reads as a card from its top and bottom rows and the MENU slab, so the
+   walls step out rather than be faked. */
+dialog.sheet .body::before,dialog.sheet .body::after{display:none}
+dialog.sheet .body{padding-left:2ch;padding-right:2ch}
+/* the frame rows get a background so the list disappears under them instead
+   of showing half a row through the characters */
+dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 
 /* the bar: the command button holds the right edge now that the hidden tab
    list is no longer the spacer, and both icon buttons are a thumb wide */
