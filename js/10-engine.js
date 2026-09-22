@@ -314,12 +314,15 @@
     var ch=probe.getBoundingClientRect().width/50;
     if(!ch)return;
     CH=ch;
-    var cols=Math.min(80,Math.floor(root.clientWidth/ch));
+    /* css/16-grid.css owns the cap, in characters, per breakpoint */
+    var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
+    var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
     main.style.width=(cols*ch)+'px';
     var inner=cols-4;
     root.style.setProperty('--dcols',Math.min(48,cols-2));
     var W=inner*ch;
-    HC=W<520?60:Math.round(W/9);
+    /* the hero costs HC*58 cells a frame, so it stops getting denser past 140 */
+    HC=W<520?60:Math.min(140,Math.round(W/9));
     DPR=Math.min(window.devicePixelRatio||1,2.5);
     ctx.setTransform(1,0,0,1,0,0);
     ctx.font='700 100px '+FONT;

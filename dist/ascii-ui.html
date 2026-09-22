@@ -665,6 +665,74 @@ figcaption b{color:var(--ink)}
 .thread li:not(.me) .bubble{background:color-mix(in srgb,var(--ink) 12%,transparent)}
 .thread .meta{display:block;color:var(--muted);font-size:12px;line-height:14px}
 .typing{color:var(--muted)}
+/* ---- layout grid ----------------------------------------------------------
+   Two things live here. First, how wide the page is allowed to get: --maxcols
+   is the cap in characters, it steps up at four breakpoints and js/10 reads it
+   when it snaps main to a whole number of columns. Second, the component
+   galleries: Components, Blocks and Charts flow into as many columns of at
+   least 46ch as fit, so the page fills a monitor instead of a strip down the
+   middle. A section that needs the full width says so with data-span="full";
+   js/30 sets it on anything holding a table, a chart, a canvas or a phone. */
+
+:root{
+  --maxcols:80;      /* ~768px, the width the kit was designed at */
+  --galmin:46ch;     /* narrowest a gallery column may get */
+  --galgap:4ch;      /* gutter between gallery columns */
+}
+@media (min-width:1024px){:root{--maxcols:100}}   /* ~960px,  2 columns */
+@media (min-width:1280px){:root{--maxcols:124}}   /* ~1190px, 2 columns */
+@media (min-width:1600px){:root{--maxcols:166}}   /* ~1594px, 3 columns */
+
+/* css/02 caps main at 80ch, the cap now moves with the breakpoints */
+main{max-width:calc(var(--maxcols)*1ch)}
+
+#view-kit,#view-blocks,#view-charts{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(min(var(--galmin),100%),1fr));
+  gap:0 var(--galgap);
+  align-items:start;
+  grid-auto-flow:row dense;   /* a short section backfills the hole above it */
+}
+/* full width by default, so anything untagged keeps the old single column */
+#view-kit > *,#view-blocks > *,#view-charts > *{grid-column:1/-1;min-width:0}
+#view-kit > section[aria-labelledby]:not([data-span="full"]),
+#view-blocks > section[aria-labelledby]:not([data-span="full"]),
+#view-charts > section[aria-labelledby]:not([data-span="full"]){grid-column:span 1}
+
+/* one column: the grid is a no-op and the old rhythm applies unchanged */
+@media (max-width:1023px){
+  #view-kit > section[aria-labelledby]:not([data-span="full"]),
+  #view-blocks > section[aria-labelledby]:not([data-span="full"]),
+  #view-charts > section[aria-labelledby]:not([data-span="full"]){grid-column:1/-1}
+}
+
+/* in a gallery cell the separator rule reads as the top edge of a card, so it
+   goes on every section, not only on the ones that follow another */
+@media (min-width:1024px){
+  #view-kit > section[aria-labelledby],
+  #view-blocks > section[aria-labelledby],
+  #view-charts > section[aria-labelledby]{margin-top:calc(var(--r)*3)}
+  #view-kit > section[aria-labelledby]:not([data-span="full"])::before,
+  #view-blocks > section[aria-labelledby]:not([data-span="full"])::before,
+  #view-charts > section[aria-labelledby]:not([data-span="full"])::before{
+    content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
+    white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2);
+  }
+}
+
+/* text stays readable however wide the page gets */
+.lede,section > p.muted{max-width:72ch}
+#view-kit > section > p,#view-blocks > section > p,#view-charts > section > p{max-width:72ch}
+
+/* the two block grids were pinned to fixed character columns at a viewport
+   breakpoint, which is wrong inside a gallery column: the column is 46ch wide
+   whatever the window is. They now fit as many tracks as the box allows. */
+.grid2{grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));gap:var(--r) 2ch}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(min(24ch,100%),1fr));gap:var(--r) 2ch}
+.grid2 .lift,.grid3 .lift{max-width:none}
+
+/* the progress bar is a fixed run of characters, let it scroll in a narrow box */
+.progress{max-width:100%;overflow-x:auto}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -1920,12 +1988,15 @@ window.AUI_TONES();
     var ch=probe.getBoundingClientRect().width/50;
     if(!ch)return;
     CH=ch;
-    var cols=Math.min(80,Math.floor(root.clientWidth/ch));
+    /* css/16-grid.css owns the cap, in characters, per breakpoint */
+    var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
+    var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
     main.style.width=(cols*ch)+'px';
     var inner=cols-4;
     root.style.setProperty('--dcols',Math.min(48,cols-2));
     var W=inner*ch;
-    HC=W<520?60:Math.round(W/9);
+    /* the hero costs HC*58 cells a frame, so it stops getting denser past 140 */
+    HC=W<520?60:Math.min(140,Math.round(W/9));
     DPR=Math.min(window.devicePixelRatio||1,2.5);
     ctx.setTransform(1,0,0,1,0,0);
     ctx.font='700 100px '+FONT;
@@ -3687,7 +3758,17 @@ function docify(sec){
   }
   tabs.forEach((t,i)=>{t.addEventListener('click',()=>pick(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pick(tabs[1-i],true)}})});
 }
+/* which sections cannot live in a narrow gallery column: anything with a table,
+   a chart, a canvas, a phone frame or its own tab strip. Set data-span in the
+   html to override, either way. See docs/COMPONENTS.md. */
+const WIDE='.tablewrap,.chart,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
+function spanSections(panel){
+  panel.querySelectorAll(':scope > section[aria-labelledby]').forEach(s=>{
+    if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
+  });
+}
 function buildView(panel,label,skip){
+  spanSections(panel);
   const secs=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!skip.includes(s.getAttribute('aria-labelledby')));
   const tail=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>skip.includes(s.getAttribute('aria-labelledby'))&&s.getAttribute('aria-labelledby')==='s-rules');
   const name=s=>s.querySelector('h2').textContent.trim();
@@ -3701,6 +3782,7 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
+spanSections($('view-charts'));   /* charts draw to the page width, never a column */
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{
@@ -3960,6 +4042,78 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   }
   $('chatSend').addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});
 })();
+})();
+</script>
+<script>
+/* ---- gallery: pack the component columns ----------------------------------
+   The galleries in Components, Blocks and Charts are one css grid each. On a
+   wide screen the sections sit side by side, and since they have very different
+   heights a plain grid leaves a hole under every short one. Rows are 24px, the
+   same as the text baseline, so a section can simply say how many rows it
+   occupies and the next one starts right under it. That is all this file does:
+   measure, round up to whole rows, write the span. It runs on layout, on tab
+   switches and whenever a section changes height (opening Code, filtering
+   blocks). With one column it clears everything and gets out of the way. */
+(function(){
+  const A=window.AUI,$=A.$;
+  const PANELS=['view-kit','view-blocks','view-charts'].map($).filter(Boolean);
+  const ROW=24;
+  let ro=null;
+
+  function cols(panel){
+    const t=getComputedStyle(panel).gridTemplateColumns;
+    return t&&t!=='none'?t.split(' ').filter(Boolean).length:1;
+  }
+  function sections(panel){
+    return [].slice.call(panel.querySelectorAll(':scope > section[aria-labelledby]'));
+  }
+  function kids(panel){
+    return [].slice.call(panel.children).filter(el=>!el.hidden);
+  }
+  /* every child needs a span, not only the tagged ones: with 24px rows an
+     unmeasured child gets a single row and the next one lands on top of it */
+  function pack(panel){
+    const items=kids(panel);
+    if(cols(panel)<2){
+      panel.style.removeProperty('grid-auto-rows');
+      items.forEach(s=>s.style.removeProperty('grid-row-end'));
+      return;
+    }
+    if(panel.style.gridAutoRows!==ROW+'px'){
+      items.forEach(s=>s.style.setProperty('grid-row-end','span 400'));
+      panel.style.gridAutoRows=ROW+'px';
+    }
+    /* measure everything first, write after, so one section's new span cannot
+       shift the next one's measurement */
+    const spans=items.map(s=>{
+      const m=parseFloat(getComputedStyle(s).marginTop)||0;
+      return Math.max(1,Math.ceil((s.getBoundingClientRect().height+m)/ROW));
+    });
+    items.forEach((s,i)=>{
+      const v='span '+spans[i];
+      if(s.style.gridRowEnd!==v)s.style.gridRowEnd=v;
+    });
+  }
+  function packAll(){PANELS.forEach(pack)}
+
+  /* a section changes height when its Code tab opens, when a demo animates in,
+     or when the blocks filter hides its neighbours */
+  if(window.ResizeObserver){
+    let queued=false;
+    ro=new ResizeObserver(function(){
+      if(queued)return;queued=true;
+      requestAnimationFrame(function(){queued=false;packAll()});
+    });
+    PANELS.forEach(p=>kids(p).forEach(s=>ro.observe(s)));
+  }
+  window.addEventListener('resize',packAll);
+  document.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('.tab,.chip,.views [role="tab"]'))setTimeout(packAll,60);
+  });
+  const prev=A.onLayout;
+  A.onLayout=function(W){if(prev)prev(W);packAll()};
+  packAll();
+  window.AUI_GALLERY={pack:packAll};
 })();
 </script>
 </body>

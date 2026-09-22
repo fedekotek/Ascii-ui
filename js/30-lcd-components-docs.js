@@ -359,7 +359,17 @@ function docify(sec){
   }
   tabs.forEach((t,i)=>{t.addEventListener('click',()=>pick(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pick(tabs[1-i],true)}})});
 }
+/* which sections cannot live in a narrow gallery column: anything with a table,
+   a chart, a canvas, a phone frame or its own tab strip. Set data-span in the
+   html to override, either way. See docs/COMPONENTS.md. */
+const WIDE='.tablewrap,.chart,.phone,.timeline,.statbars,figure.pic,.kpi,.steps,.rampcells';
+function spanSections(panel){
+  panel.querySelectorAll(':scope > section[aria-labelledby]').forEach(s=>{
+    if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
+  });
+}
 function buildView(panel,label,skip){
+  spanSections(panel);
   const secs=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!skip.includes(s.getAttribute('aria-labelledby')));
   const tail=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>skip.includes(s.getAttribute('aria-labelledby'))&&s.getAttribute('aria-labelledby')==='s-rules');
   const name=s=>s.querySelector('h2').textContent.trim();
@@ -373,6 +383,7 @@ function buildView(panel,label,skip){
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
+spanSections($('view-charts'));   /* charts draw to the page width, never a column */
 buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{

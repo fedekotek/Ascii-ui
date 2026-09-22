@@ -8,6 +8,10 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] **Tokens as a JSON source of truth** that generates `css/01-tokens.css` and the Tokens block, so presets and docs cannot drift.
 - [ ] **A real device pass** on iOS Safari and Firefox. Fix list in KNOWN-ISSUES.md #20.
 
+## Next (layout)
+- [ ] The Themes, Play and Apps views still lay out for one column. They read fine wide, but the knobs and the app frames could use the space.
+- [ ] Masonry is done in js. If `grid-template-rows: masonry` ever ships broadly, delete `js/60-gallery.js`.
+
 ## Next (kit)
 - [ ] Per-component files: `components/button/{button.html,button.css,button.js,README.md}` and a script that assembles `index.html`. The Code tab can then read the files instead of scraping the DOM.
 - [ ] A copy-paste "registry" JSON like shadcn's, one entry per component with its files and dependencies (tokens, tones, engine helpers used).
