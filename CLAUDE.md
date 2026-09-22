@@ -1,5 +1,24 @@
 # Working on ascii/ui
 
+## What this is
+A component kit: shadcn-style components wearing a brutalist ASCII skin with a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense a character is, every state change glitches, and underneath it is plain HTML. It is for designers and developers who want to copy a component and own the code, plus a playground (Themes, Play, Apps, One pager) that shows the kit under stress. Published as one HTML file.
+
+## Stack
+No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, one page (`index.html`), 16 stylesheets in `css/` and 7 scripts in `js/`, both loaded in the order their filenames are numbered. `build.py` (Python 3, standard library only) inlines them into `dist/ascii-ui.html`, which is what ships. Google Fonts (Geist Mono) is the only external request. QA is Playwright for Python in `qa/`.
+
+## Run and test
+```
+python3 -m http.server 8000      # then http://localhost:8000 (file:// works too)
+python3 build.py                 # writes dist/ascii-ui.html, run before shipping
+pip install playwright pillow && playwright install chromium
+python3 qa/qa.py 390 844 dark m x      # errors and overflow, every view, mobile dark
+python3 qa/qa.py 1440 900 light d x    # same on desktop light
+python3 qa/breakpoints.py              # columns, overflow and overlap, 360 to 1920
+python3 qa/clock.py                    # the single animation clock still holds
+python3 qa/audit.py                    # tap targets under 40px, text under 12px
+```
+There is no unit test suite, no linter and no type checker. The QA scripts are the test suite. Release bar: `qa.py` clean at 390 and 1440 in both themes, `breakpoints.py` ok, `clock.py` ok, `audit.py` clean, and `dist/ascii-ui.html` loads clean.
+
 Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 
 ## Rules that are not negotiable
@@ -35,3 +54,15 @@ Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class
 
 ## Things that are actually fragile
 See `docs/KNOWN-ISSUES.md`. The top three: the file is stitched from five IIFEs with a shared global, every animation shares one rAF clock (a throwing callback costs that frame), and the Code tab's CSS extraction is regex-based.
+
+## Definition of done
+- The QA scripts above pass, before and after the change.
+- No console errors, no horizontal overflow at any width from 360 to 1920.
+- Empty, loading and error states are handled and reachable.
+- Works on a phone and on a desktop, and from `file://`.
+- Reviewer findings are addressed. Nothing is called done before that.
+
+## Working style
+The person you are working with is a product designer, not an engineer. Explain decisions in plain language, skip the jargon, keep answers short. Prefer small changes you can verify over large ones you cannot. Every change gets merged and published, it does not sit in a branch.
+
+After any non-trivial change, run the `reviewer` agent. After any UI change, run the `ux-critic` agent.
