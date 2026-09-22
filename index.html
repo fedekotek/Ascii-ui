@@ -23,6 +23,7 @@
 <link rel="stylesheet" href="css/14-docs-components-lcd.css">
 <link rel="stylesheet" href="css/15-themes-play-menu-apps.css">
 <link rel="stylesheet" href="css/16-grid.css">
+<link rel="stylesheet" href="css/17-nav.css">
 <script src="js/00-tones.js"></script>
 </head>
 <body>
@@ -55,6 +56,7 @@
 
   <div class="viewsbar">
   <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+  <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
   <div class="tablist views" role="tablist" aria-label="Views" id="views">
     <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
     <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
@@ -66,6 +68,8 @@
   </div>
   <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
   </div>
+
+  <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit">
 
@@ -945,5 +949,6 @@
 <script src="js/30-lcd-components-docs.js"></script>
 <script src="js/40-themes-ramp-code.js"></script>
 <script src="js/50-menu-apps.js"></script>
+<script src="js/70-nav.js"></script>
 </body>
 </html>

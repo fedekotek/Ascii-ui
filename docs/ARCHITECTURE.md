@@ -31,6 +31,8 @@ js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, drop
                             the shadcn-style docs builder (sort, index, Preview/Code tabs, filters).
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Play view knobs, Code tab CSS/JS extraction, Install section.
 js/50-menu-apps.js          mobile menu sheet, Chirp (feed), Tape (player), Static support (chat).
+js/70-nav.js                the sidebar: builds the section list for the view you are in, marks the one
+                            you are reading, rebuilds when a view or a filter changes.
 ```
 
 Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
@@ -74,6 +76,18 @@ Views are a tablist (`.views`). Switching runs `wipe` (color-bar curtain) or `mo
 ## The grid
 
 Everything is a character. `--r` is 24px, everywhere, at every width. `main` width is snapped to a whole number of `ch` in `layout()`. The hero canvas measures the real glyph width (`ctx.measureText('M')`) and sizes itself to `HC` columns. Titles are 5x7 bitmaps rendered at 2 characters per pixel, and `fitTitles()` drops the color bars or halves the scale when the box is too narrow.
+
+## Navigation
+
+Two pieces, both in `css/17-nav.css` and `js/70-nav.js`.
+
+The bar at the top was already sticky. It now carries the name of the thing on the left, which doubles as "back to the top", then the seven views, then the command palette button on the right.
+
+From 1280px the page grows a sidebar: the sections of the view you are in, listed in the order the page shows them, sticky, with the one you are reading marked. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`: views are swapped by toggling that attribute, and so is the Blocks filter, but neither happens on the click (the theme curtain and the docs builder take their time), so watching the attribute beats guessing a delay. Clicking an entry pins it for 1.2s while the smooth scroll arrives, otherwise the sections passing by would steal the mark.
+
+Reading position is plain maths on scroll, rAF throttled: the last section whose top has passed under the bar. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry.
+
+Below 1280px there is no room, so the sidebar is not shown and the chip index inside each view does the job. `main` becomes a two column grid at that width: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (43 at 1280px, 41 at 1600px).
 
 ## Page width and the galleries
 

@@ -678,7 +678,7 @@ figcaption b{color:var(--ink)}
 
 :root{
   --maxcols:80;      /* ~768px, the width the kit was designed at */
-  --galmin:46ch;     /* narrowest a gallery column may get */
+  --galmin:40ch;     /* narrowest a gallery column may get */
   --galgap:4ch;      /* gutter between gallery columns */
 }
 @media (min-width:1024px){:root{--maxcols:100}}   /* ~960px,  2 columns */
@@ -750,6 +750,90 @@ main{max-width:calc(var(--maxcols)*1ch)}
 
 /* the footer game keeps its size, it just stops hugging the left edge */
 #inv{margin-inline:auto}
+
+/* ---- hero edges ----------------------------------------------------------
+   The scene is drawn to the edge of its canvas, so streaks and the sides of
+   the title used to stop mid character, a cut that reads as a mistake rather
+   than as a frame. Six characters of fade on the sides and two rows top and
+   bottom let them leave instead. The measurements are grid units, like
+   everything else. */
+#hero{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
+  mask-composite:intersect;
+}
+/* ---- navigation -----------------------------------------------------------
+   Two pieces. The bar at the top was already sticky, it gets a name on the
+   left so the page says what it is while you scroll. The second is new: from
+   1280px a sidebar lists the sections of the view you are in, sticky, with the
+   one you are reading marked. Below 1280px there is no room for it, so the
+   chip index inside each view stays and the sidebar is not rendered.
+   Everything is measured in characters and rows: the sidebar is 26 wide with a
+   4 gutter, which leaves whole columns for the gallery beside it (43 at
+   1280px, 41 at 1600px). */
+
+.brand{
+  font:inherit;font-weight:700;background:none;border:0;border-radius:0;
+  color:var(--ink);padding:calc(var(--r)/2) 2ch calc(var(--r)/2) 0;
+  cursor:pointer;outline:0;flex:none;white-space:nowrap;
+}
+.brand .slash{color:var(--hot)}
+.brand:focus-visible{background:var(--accent);color:var(--bg)}
+.brand:hover .slash{color:var(--pink)}
+@media (max-width:719px){.brand{display:none}}
+
+#sidenav{display:none}
+
+@media (min-width:1280px){
+  main{
+    display:grid;
+    grid-template-columns:26ch 1fr;
+    column-gap:4ch;
+    align-items:start;
+  }
+  main > header,main > .viewsbar,main > footer{grid-column:1/-1}
+  /* every panel shares one cell, only one of them is ever shown */
+  main > [role="tabpanel"]{grid-column:2;grid-row:3;min-width:0}
+  /* a view with nothing to list gives the width back to the content */
+  main:has(#sidenav[hidden]){grid-template-columns:1fr}
+  main:has(#sidenav[hidden]) > [role="tabpanel"]{grid-column:1/-1}
+  #sidenav{
+    display:block;grid-column:1;grid-row:3;
+    position:sticky;top:calc(var(--r)*3);
+    max-height:calc(100vh - var(--r)*5);overflow:auto;
+    scrollbar-width:none;padding-bottom:var(--r);
+  }
+  #sidenav::-webkit-scrollbar{display:none}
+  /* the chip index says the same thing twice once the sidebar is there */
+  #view-kit > .toc,#view-blocks > .toc,#view-charts > .toc,
+  #view-kit > section:has(> .toc),#view-blocks > section:has(> .toc),
+  #view-charts > section:has(> .toc){display:none}
+}
+
+#sidenav h2{
+  font:inherit;font-weight:700;color:var(--ink);
+  margin:0 0 var(--r) 0;line-height:var(--r);
+}
+#sidenav .navgroup + .navgroup{margin-top:calc(var(--r)*2)}
+#sidenav ul{list-style:none;margin:0;padding:0}
+#sidenav li{line-height:var(--r)}
+#sidenav .navlink{
+  display:block;width:100%;text-align:left;font:inherit;
+  background:none;border:0;border-radius:0;color:var(--muted);
+  padding:12px 1ch;margin:-12px 0;cursor:pointer;outline:0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#sidenav .navlink::before{content:"  ";white-space:pre}
+#sidenav .navlink:hover{color:var(--ink)}
+#sidenav .navlink:focus-visible{background:var(--accent);color:var(--bg)}
+#sidenav .navlink[aria-current="true"]{color:var(--ink);font-weight:700}
+#sidenav .navlink[aria-current="true"]::before{content:"> ";color:var(--hot);white-space:pre}
+#sidenav .navcount{color:var(--muted);font-weight:500}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -803,6 +887,7 @@ window.AUI_TONES();
 
   <div class="viewsbar">
   <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+  <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
   <div class="tablist views" role="tablist" aria-label="Views" id="views">
     <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
     <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
@@ -814,6 +899,8 @@ window.AUI_TONES();
   </div>
   <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
   </div>
+
+  <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit">
 
@@ -4065,6 +4152,120 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   }
   $('chatSend').addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});
 })();
+})();
+</script>
+<script>
+/* ---- the sidebar ----------------------------------------------------------
+   From 1280px the page carries a list of the sections in the view you are in,
+   the way a documentation site does. It is built from the sections themselves,
+   so it cannot drift from the page: same order, same names, and it follows the
+   Blocks filter. The entry you are reading is marked, from an
+   IntersectionObserver rather than from scroll maths.
+   Below 1280px the css hides it and the chip index inside each view does the
+   job, so this file keeps working and simply is not seen. */
+(function(){
+  const A=window.AUI,$=A.$,nav=$('sidenav');
+  if(!nav)return;
+  const VIEWS=['kit','blocks','charts','themes','play','apps','page'];
+  const LABEL={kit:'Components',blocks:'Blocks',charts:'Charts',themes:'Themes',
+               play:'Play',apps:'Apps',page:'One pager'};
+  let links=[],current=null,pinned=0;
+
+  function panel(){
+    for(const v of VIEWS){const p=$('view-'+v);if(p&&!p.hidden)return {p:p,v:v}}
+    return {p:$('view-kit'),v:'kit'};
+  }
+  function name(sec){
+    const h=sec.querySelector('h2,h3');
+    return h?h.textContent.trim():(sec.getAttribute('aria-label')||'').trim();
+  }
+  function sections(p){
+    return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
+             .filter(s=>!s.hidden&&name(s));
+  }
+
+  function build(){
+    const cur=panel(),secs=sections(cur.p);
+    nav.innerHTML='';nav.hidden=!secs.length;
+    if(!secs.length){links=[];current=null;return}
+    const g=document.createElement('div');g.className='navgroup';
+    const h=document.createElement('h2');
+    h.innerHTML=LABEL[cur.v]+' <span class="navcount">'+secs.length+'</span>';
+    const ul=document.createElement('ul');
+    links=secs.map(sec=>{
+      const li=document.createElement('li'),b=document.createElement('button');
+      b.type='button';b.className='navlink';b.textContent=name(sec);
+      b.addEventListener('click',function(){
+        sec.scrollIntoView({block:'start',behavior:A.reduce?'auto':'smooth'});
+        /* hold the mark on what you picked until the scroll has arrived,
+           otherwise the sections passing by would steal it on the way */
+        mark(b);pinned=Date.now()+1200;
+        if(A.live())A.sfx.tab();
+      });
+      li.appendChild(b);ul.appendChild(li);
+      return {b:b,sec:sec};
+    });
+    g.appendChild(h);g.appendChild(ul);nav.appendChild(g);
+    spy();
+  }
+
+  function mark(b){
+    if(current===b)return;
+    if(current)current.removeAttribute('aria-current');
+    current=b;
+    if(b){
+      b.setAttribute('aria-current','true');
+      /* keep the marked entry inside the sidebar's own scroll */
+      const nb=nav.getBoundingClientRect(),bb=b.getBoundingClientRect();
+      if(bb.top<nb.top||bb.bottom>nb.bottom)nav.scrollTop+=bb.top-nb.top-nb.height/3;
+    }
+  }
+
+  /* You are reading the last section that has passed under the bar. In a
+     gallery a whole row shares one top, and the first of that row is the one
+     the eye lands on, so ties go to document order. */
+  const BAR=24*5;
+  function spy(){
+    if(!links.length||Date.now()<pinned)return;
+    let top=-Infinity,row=[];
+    for(let i=0;i<links.length;i++){
+      const t=links[i].sec.getBoundingClientRect().top;
+      if(t>BAR)continue;
+      if(t>top+2){top=t;row=[links[i].b]}
+      else if(t>top-2)row.push(links[i].b);
+    }
+    if(!row.length)row=[links[0].b];
+    /* a gallery row shares one top: if you picked one of them from the list,
+       that one stays marked, otherwise the row's first entry speaks for it */
+    mark(row.indexOf(current)>=0?current:row[0]);
+  }
+  let ticking=false;
+  function spySoon(){
+    if(ticking)return;ticking=true;
+    requestAnimationFrame(function(){ticking=false;spy()});
+  }
+  window.addEventListener('scroll',spySoon,{passive:true});
+  window.addEventListener('resize',spySoon);
+
+  $('brand').addEventListener('click',function(){
+    window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
+    if(A.live())A.sfx.tab();
+  });
+
+  /* Views are swapped by toggling hidden, and the swap does not happen on the
+     click: the theme curtain and the docs builder take their time. So watch the
+     attribute rather than guess a delay. The same observer catches the Blocks
+     filter, which hides sections the same way. */
+  let queued=false;
+  function rebuild(){
+    if(queued)return;queued=true;
+    requestAnimationFrame(function(){queued=false;build()});
+  }
+  new MutationObserver(rebuild).observe($('main'),{
+    attributes:true,attributeFilter:['hidden'],subtree:true
+  });
+  build();
+  window.AUI_NAV={build:build};
 })();
 </script>
 </body>

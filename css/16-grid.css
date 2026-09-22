@@ -11,7 +11,7 @@
 
 :root{
   --maxcols:80;      /* ~768px, the width the kit was designed at */
-  --galmin:46ch;     /* narrowest a gallery column may get */
+  --galmin:40ch;     /* narrowest a gallery column may get */
   --galgap:4ch;      /* gutter between gallery columns */
 }
 @media (min-width:1024px){:root{--maxcols:100}}   /* ~960px,  2 columns */
@@ -83,3 +83,20 @@ main{max-width:calc(var(--maxcols)*1ch)}
 
 /* the footer game keeps its size, it just stops hugging the left edge */
 #inv{margin-inline:auto}
+
+/* ---- hero edges ----------------------------------------------------------
+   The scene is drawn to the edge of its canvas, so streaks and the sides of
+   the title used to stop mid character, a cut that reads as a mistake rather
+   than as a frame. Six characters of fade on the sides and two rows top and
+   bottom let them leave instead. The measurements are grid units, like
+   everything else. */
+#hero{
+  -webkit-mask-image:
+    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:
+    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
+  mask-composite:intersect;
+}

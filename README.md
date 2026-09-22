@@ -53,6 +53,7 @@ Drop the trailing `x` to also get one screenshot per screen. See `qa/README.md`.
 | Add a block | `docs/BLOCKS.md` |
 | Understand a trick (torus, tear, LCD, shatter, ramp swap) | `docs/EFFECTS.md` |
 | See what is fragile | `docs/KNOWN-ISSUES.md` |
+| Change the navigation (top bar, sidebar) | `css/17-nav.css`, `js/70-nav.js` |
 | Decide what to do next | `docs/ROADMAP.md` |
 | Know why something is the way it is | `docs/DECISIONS.md` |
 | See how it got here | `docs/CHANGELOG.md` |
