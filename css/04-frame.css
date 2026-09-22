@@ -1,0 +1,15 @@
+/* ---------- frame: borders are strings of characters ---------- */
+.frame{position:relative;padding:var(--r) 0}
+.frame::before,.frame::after{
+  content:var(--h);position:absolute;left:0;right:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;pointer-events:none;
+  color:var(--frame-color,var(--ink));
+}
+.frame::before{top:0}
+.frame::after{bottom:0;content:var(--hb,var(--h))}
+.mid{display:flex}
+.mid::before,.mid::after{
+  content:var(--s);flex:none;white-space:pre;font-weight:700;
+  color:var(--frame-color,var(--ink));
+}
+.mid::after{content:var(--sr,var(--s))}

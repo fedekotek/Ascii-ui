@@ -1,0 +1,51 @@
+/* ---------- card, dialog and the offset shadow ---------- */
+.lift{position:relative;padding:0 2ch var(--r) 0;max-width:50ch}
+.lift::before{
+  content:var(--v-shade);position:absolute;right:0;top:var(--r);bottom:var(--r);width:2ch;
+  overflow:hidden;white-space:pre;font-weight:700;
+}
+.lift::after{
+  content:var(--h-shade);position:absolute;left:2ch;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;
+}
+.card{background:var(--bg)}
+.lift::before,.lift::after{color:var(--deep)}
+.card::before{content:var(--h-heavy)}
+.bar-title{
+  position:absolute;top:0;left:2ch;z-index:1;padding:0 1ch;
+  background:var(--hot);color:var(--bg);text-transform:uppercase;
+  box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--warn);
+  max-width:calc(100% - 4ch);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.body{position:relative;padding:var(--r) 4ch}
+.body::before,.body::after{
+  content:var(--v);position:absolute;top:0;bottom:0;width:2ch;
+  overflow:hidden;white-space:pre;font-weight:700;
+}
+.body::before{left:0}
+.body::after{right:0}
+.card dl{display:grid;grid-template-columns:9ch 1fr}
+.card dt{color:var(--muted)}
+.body .row{margin-top:var(--r)}
+
+dialog{
+  font:inherit;color:var(--ink);background:none;border:0;padding:0;overflow:visible;
+  width:calc(var(--dcols,36)*1ch);max-width:none;
+}
+dialog .lift{max-width:none}
+dialog::backdrop{
+  background-color:rgba(236,235,228,.86);
+  background-color:color-mix(in srgb,var(--bg) 86%,transparent);
+  background-image:radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
+  background-size:9.6px 12px;
+}
+dialog[open] .lift{animation:glitchin .34s steps(1) both}
+@keyframes glitchin{
+  0%{clip-path:inset(0 0 72% 0);transform:translateX(-16px);filter:hue-rotate(90deg)}
+  18%{clip-path:inset(34% 0 22% 0);transform:translateX(13px)}
+  36%{clip-path:inset(0 0 0 0);transform:translateX(-7px);filter:hue-rotate(-70deg)}
+  54%{transform:translateX(5px);filter:none}
+  72%{transform:translateX(-2px)}
+  100%{clip-path:inset(0 0 0 0);transform:none;filter:none}
+}
+dialog .row{justify-content:flex-end;column-gap:1ch}

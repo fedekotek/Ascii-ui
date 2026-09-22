@@ -1,0 +1,19 @@
+/* ---------- tabs ---------- */
+.tablist{display:flex;position:relative;padding-bottom:var(--r)}
+.tablist::after{
+  content:var(--h-light);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;
+}
+.tab{
+  font:inherit;color:var(--muted);background:none;border:0;border-radius:0;margin:0;
+  padding:var(--r) 2ch;cursor:pointer;text-transform:uppercase;
+  outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
+}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.tablist::after{color:var(--violet)}
+@media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
+.tab:focus-visible{background:var(--accent);color:var(--bg)}
+.tabpanel{padding:var(--r) 0;outline:0}
+.tabpanel:focus-visible{box-shadow:inset 2ch 0 0 -1ch var(--accent)}
+.tabpanel pre{overflow-x:auto;white-space:pre;padding-left:2ch}
+.tabpanel .row{padding-left:2ch}

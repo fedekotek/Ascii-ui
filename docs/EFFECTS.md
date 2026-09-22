@@ -1,0 +1,78 @@
+# Effects, one by one
+
+Every trick on the site, what it does, where it lives, how it works, what would break it. Read this before touching js/10 or js/20.
+
+## Frames made of strings (`js/00-tones.js`, `css/04-frame.css`)
+`AUI_TONES()` builds, for each tone (heavy `@`, dense `%`, mid `#`, light `=`/`::`, shade `:`, faint `- `, danger `/`, error `!`), three CSS variables: `--h-*` a 180-char horizontal string, `--s-*` a 2-char side string, `--v-*` a vertical string of 90 lines (`\A` line breaks). `.frame::before/after` set `content:var(--h)` with `overflow:hidden`, so the string is clipped at the element's width. `.mid::before/after` use `--s`. `.body::before/after` use `--v` for walls. `.tone-*` classes just point `--h/--s/--v` at a tone. Animations (rim march, burst, ripple, draw-in, rot) set `--h`/`--hb`/`--s`/`--sr` inline with generated strings. Breaks if: a frame is wider than 180ch; a string contains `"` or `\`.
+
+## Bitmap titles (`js/10` "5x7 bitmap face", "section titles")
+`F` is a 5x7 font for A-Z, 0-9 and `/ - . ! ? space`. `bitmap(text, scale)` returns a matrix. `titleFrame(pre, f)` renders rows as `<span class="tr cN">` with a per-cell random delay `_n` so the title "develops" over 14 frames, rows shifted randomly while developing; `f=99` is final. Color rows `c0..c3` map to `--t0..--t3`. `makeBars()` adds the color-bar decoration on the right when there is room. `fitTitles()` (v9.3) measures columns available and picks: scale 2 with bars, scale 2 without bars, scale 1. It runs on layout, on view switch, and every 1.5s. Breaks if: a title exceeds 8 characters at 390px (it goes to scale 1, which is fine but small); unknown glyphs render as `O`.
+
+## Layout snap (`js/10` "layout")
+`#probe` (50 M's, fixed, invisible) gives the real character width. `main` width is snapped to whole columns. `fit(cols, W, maxFs)` finds the largest font size where `cols` glyphs fit. The hero uses `ctx.measureText` instead, because canvas text metrics differ from DOM.
+
+## Hero: torus on a bad signal (`js/10` "hero")
+A canvas. `HC x HR` cells (HR=58). Per frame: (1) tearing shifts, a few random row bands offset by `shift[y]` during a burst; (2) streaks, magenta dashes moving horizontally; (3) blocks and color bars floating; (4) the torus, the classic donut.c projection with a z-buffer, lit, quantized to 7 levels and painted with a color map (`TOR_D` dark, `TOR_L` light, or `MAPS[HP.map]`), skipped where the title mask is; or, if `A.src` is set, the photo/camera luminance instead; (5) the two words from the title mask painted three times: cyan ghost left, magenta ghost right, ink on top (RGB split); (6) during a burst, corruption rectangles. Bursts come from `G.burst`, set by `kick()`, by the ambient timer (period shrinks with glitch amount), by fast scroll, by taps. Knobs in `HP` (Play view). Runs at 85ms while visible.
+
+## Photo and camera (`js/20` "photo / camera hero")
+`A.src(w,h)` samples an image or video into an offscreen canvas at the hero's resolution, returns normalized luminance. Camera uses `getUserMedia` (fails from file:// and inside sandboxed frames, with a message). Nothing leaves the page.
+
+## Sound (`js/10` "sound")
+See ARCHITECTURE.md. Motifs live in `sfx`. `human()` is the variation + fatigue. The Tape app makes music with `A.tone` on a pentatonic-ish scale over five roots.
+
+## Entrances (`js/10` "everything arrives broken")
+`[data-rv]` elements start with `.u` (opacity 0). IntersectionObserver reveals them with a stagger; `.in` runs the `tiki` keyframe (clip-path slices + translate + hue-rotate, `steps(1)`), `decode()` resolves their text left to right out of ramp noise, `AUI2.frameDraw()` draws frames around the perimeter, `el._anim()` runs chart growth, buttons `scramble()`. `.calm` on `:root` (glitch off) disables all of it.
+
+## Theme curtain (`js/10` "theme: a halftone curtain")
+`wipe(cb)` covers the viewport with a diagonal front of `.:=+*#%@` characters plus a solid strip of test-pattern color bars, calls `cb` while covered, then retreats. Used for theme toggle, presets, and half of the view switches.
+
+## Datamosh (`js/20` "datamosh transition")
+`mosh(cb)`: one absolutely positioned row per 24px of viewport, each a div with random ramp text and a random palette color, sliding in from a random side with a random duration, then out. The other half of view switches.
+
+## Tear (`js/20` "fx helpers")
+`tear(n)`: n horizontal strips in `#fx` with a `backdrop-filter: hue-rotate(...) saturate(2.4)` and a small translateX, removed after 80..220ms. Fast scroll calls it (velocity > 1300 px/s).
+
+## Jolt (`css/02` `@keyframes jolt`, `A.jolt`)
+260ms `steps(1)` keyframe on `main`: translateX, skewX, hue-rotate, saturate. Fires on success states, errors, shatter, hits in invaders.
+
+## Scroll is signal, idle is rot (`js/20`)
+Scroll velocity feeds `G.scroll` (decays 28 percent per 100ms) which boosts `glitch()` and bursts the hero above 0.3. After 14s without pointer or key, every 1.1s up to 4 visible frames get characters degraded one ramp step, and one visible title is re-rendered at a lower develop frame. Any touch repairs everything (`touch()`), with an arpeggio.
+
+## Shatter and sand (`js/20` "destructible UI")
+Long-press (560ms, cancelled by 10px movement) on `.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker`. `harvest(el, cw)` (v9.4) collects the element's own characters: each text character via `Range.getBoundingClientRect` with the parent's color (or background color for slabs), pseudo-element strings (`::before/::after` content) laid along the top/bottom/sides, LCD canvases via `lcd.sample()` (real image colors), other canvases via pixel sampling. Capped at 900 pieces. Particles fall on `#sand` with gravity, bounce off the walls, and settle into a per-column height map; the pile keeps colors and caps at 34 percent of the viewport. `Rebuild` restores visibility and re-runs entrances. The palette command `rm -rf X` uses the same path.
+
+## LCD pictures (`js/30` "LCD pictures", `css/14`)
+`LCD(canvas)` reads `data-scene|cols|rows|mode`. Scenes are procedural drawings (`SCENES.ba` Buenos Aires dusk with the Obelisco, `desk`, `mate`, `test`, `portrait`, `ui1..ui4`) into an offscreen canvas at cols x rows, sampled per cell. Modes: `rgb` (three subpixels with a gamma lift plus a dim full-color backing), `mono` (Game Boy palette with 4x4 Bayer dithering), `ascii` (ramp character in the pixel's color). The panel is split into sectors (4x3 for big panels, 2x2 small); each sector has its own scanline phase and can be tapped to cycle modes; glitch bursts shift rows and swap channels per sector. `setImage(file)` replaces the scene. 8 fps while in view.
+
+## Character-grid charts
+See CHARTS.md.
+
+## Space invaders (`js/20` "space invaders")
+64x46 cell canvas capped at 440px wide. Three alien types with 2-frame sprites drawn in `@#*` and palette colors, bunkers that erode, bombs, waves, lives, a high score in `localStorage['aui-hi']`. Pointer: drag to move, hold to fire. Keyboard: arrows, space (only when the canvas is in view and no dialog is open). Aliens jitter with RGB ghosts when glitch is on. Runs at 50ms while in view.
+
+## Signature and poster (`js/20` "signature + poster")
+`SEED` per visit (or `fnv(name)` via `sign NAME`). `makePoster()` renders a 1080x1350 PNG with a seeded PRNG: streaks, blocks, color bars, the split bitmap title, the signal code, scanlines. The Play view's Snapshot reuses `#posterDlg` with the hero canvas instead.
+
+## VHS layer (`js/20` "VHS layer", `css/13`)
+`#hud`: REC blinking, timecode from page load, SIG percent (100 minus glitch), SND when audio is on. `#track`: a translucent band with a backdrop filter that rolls down every 9s. Both hidden in `.calm`.
+
+## Tilt (`js/20` "tilt")
+`deviceorientation` feeds `A.spin()`. iOS needs `DeviceOrientationEvent.requestPermission()`, exposed as the `tilt` palette command.
+
+## Boot (`js/20` "boot")
+Once per session. A full-screen `<pre>` with the split bitmap title developing, the color-bar strip, a BIOS log typed line by line with sounds, a halftone progress bar, magenta streaks, then a clip-path exit and a hero kick. Tap skips. `boot` command replays.
+
+## Ramp editor (`js/40` "the ramp editor")
+Presets and eight single-character inputs. `setRamp` validates (8 distinct, no space/quote/backslash/angle bracket), then `A.setRamp()` sets `AUI_MAP`, rebuilds tones, re-renders titles, sliders, charts, invaders (via `layout()`), and everything that goes through `A.TR()` or the patched `fillText`. Known gap: the progress bar and the ramp lab in One pager keep old characters until they next redraw.
+
+## Presets and pickers (`js/40` "themes", `css/15`)
+Presets set `data-preset` on `:root` (or clear it for Signal/Paper and set `data-theme`). Pickers write inline custom properties on `:root`. A MutationObserver on `data-theme|data-preset` calls `readPalette()` and redraws canvases. Tokens block regenerates from computed styles.
+
+## Code tab (`js/30` docs builder, `js/40` `A.codeExtra`)
+HTML: clone of the preview, cleaned, pretty-printed by a tiny tokenizer, highlighted with placeholder markers (so the highlighter cannot mangle its own output). CSS: every rule in every stylesheet whose selector matches one of the preview's classes (minus a base set), pretty-printed. JS: `AUI_JS[name].toString()`. Copy uses the Clipboard API and falls back to a toast.
+
+## Menu sheet (`js/50` "menu")
+Mobile only (`#menuBtn` hidden at 720px+). Lists the seven views with the current one marked, chips for the current view's sections, and the sound/glitch/theme/commands controls. Rebuilt on every open.
+
+## Apps (`js/50`)
+Chirp: like/repost counters scramble through the ramp while changing, posting decodes the new post in. Tape: transport, scrub, VU meter from a sine field, generated tune (square/triangle, 8-note scale, five roots, noise hats). Chat: bot replies from a fixed list, "typing" indicator animates ramp characters.

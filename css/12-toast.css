@@ -1,0 +1,10 @@
+/* ---------- toast ---------- */
+.toast{
+  position:fixed;left:2ch;right:2ch;bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
+  display:flex;pointer-events:none;z-index:10;
+}
+.toast span{
+  background:var(--ok);color:var(--bg);padding:0 1ch;max-width:100%;font-weight:700;
+  clip-path:inset(0 100% 0 0);transition:clip-path .24s steps(12);
+}
+.toast.on span{clip-path:inset(0 0 0 0)}

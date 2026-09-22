@@ -1,0 +1,26 @@
+/* ---------- button ---------- */
+.btn{
+  display:inline-block;font:inherit;color:var(--ink);background:none;border:0;border-radius:0;
+  margin:0;cursor:pointer;text-transform:uppercase;white-space:pre;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  outline:2px solid transparent;outline-offset:-2px;
+}
+.btn .mid{display:inline-flex}
+.btn .label{padding:0 1ch}
+.btn-primary{--frame-color:var(--hot)}
+.btn-primary .label{background:var(--hot);color:var(--bg);box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--warn)}
+.btn:not(:disabled):active .label{text-shadow:-2px 0 var(--cy),2px 0 var(--hot)}
+.btn-danger .label{color:var(--danger)}
+.btn-danger{--frame-color:var(--danger)}
+@media (hover:hover){
+  .btn:not(:disabled):hover{--h:var(--h-mid);--s:var(--s-mid)}
+  .btn-primary:not(:disabled):hover{--h:var(--h-dense);--s:var(--s-dense)}
+  .btn-danger:not(:disabled):hover{--h:var(--h-danger);--s:var(--s-danger)}
+  .btn-danger:not(:disabled):hover .label{background:var(--danger);color:var(--bg)}
+}
+.btn:not(:disabled):active{background:var(--ink);--frame-color:var(--bg)}
+.btn:not(:disabled):active .label{background:var(--ink);color:var(--bg)}
+.btn-primary:not(:disabled):active .label{background:var(--bg);color:var(--ink)}
+.btn:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
+.btn:disabled{--h:var(--h-faint);--s:var(--s-faint);--frame-color:var(--muted);color:var(--muted);cursor:not-allowed}
+.btn-primary:disabled .label{background:var(--muted);color:var(--bg);box-shadow:none}

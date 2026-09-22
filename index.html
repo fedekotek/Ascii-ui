@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ascii/ui</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/01-tokens.css">
+<link rel="stylesheet" href="css/02-base-grid.css">
+<link rel="stylesheet" href="css/03-posters.css">
+<link rel="stylesheet" href="css/04-frame.css">
+<link rel="stylesheet" href="css/05-button.css">
+<link rel="stylesheet" href="css/06-input.css">
+<link rel="stylesheet" href="css/07-toggles.css">
+<link rel="stylesheet" href="css/08-bars.css">
+<link rel="stylesheet" href="css/09-tabs.css">
+<link rel="stylesheet" href="css/10-card-dialog.css">
+<link rel="stylesheet" href="css/11-views-onepager.css">
+<link rel="stylesheet" href="css/12-toast.css">
+<link rel="stylesheet" href="css/13-rules-shell-blocks-charts.css">
+<link rel="stylesheet" href="css/14-docs-components-lcd.css">
+<link rel="stylesheet" href="css/15-themes-play-menu-apps.css">
+<script src="js/00-tones.js"></script>
+</head>
+<body>
+<span id="probe" aria-hidden="true">MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
+<main id="main">
+
+  <header>
+    <h1 class="vh">ascii/ui</h1>
+    <canvas id="hero" aria-hidden="true"></canvas>
+    <div class="row demo" id="heroSrc">
+      <button class="btn frame tone-light" id="photoBtn" type="button"><span class="mid"><span class="label">Load photo</span></span></button>
+      <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
+      <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Torus</span></span></button>
+      <input type="file" id="photoFile" accept="image/*" hidden>
+    </div>
+    <p class="muted status" id="heroStatus" role="status"></p>
+    <p class="lede demo">shadcn-style components with a brutalist ASCII skin and a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense the character is, and every state change glitches a little. Native HTML underneath.</p>
+    <div class="row demo">
+      <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
+      <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+      <label class="check"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
+      <button class="btn frame tone-light" id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
+    </div>
+    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or tap <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
+    <div class="row demo">
+      <span class="muted" id="sigText">SIG ----</span>
+      <button class="btn frame tone-light" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
+    </div>
+  </header>
+
+  <div class="viewsbar">
+  <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+  <div class="tablist views" role="tablist" aria-label="Views" id="views">
+    <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
+    <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
+    <button class="tab" role="tab" id="v-charts" aria-controls="view-charts" aria-selected="false" tabindex="-1" type="button">Charts</button>
+    <button class="tab" role="tab" id="v-themes" aria-controls="view-themes" aria-selected="false" tabindex="-1" type="button">Themes</button>
+    <button class="tab" role="tab" id="v-play" aria-controls="view-play" aria-selected="false" tabindex="-1" type="button">Play</button>
+    <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
+    <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
+  </div>
+  <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+  </div>
+
+  <div id="view-kit" role="tabpanel" aria-labelledby="v-kit">
+
+  <section aria-labelledby="s-button">
+    <h2 id="s-button" class="vh">Button</h2>
+    <pre class="poster ptitle" data-text="BUTTON" aria-hidden="true"></pre>
+    <p class="muted">The rim says how loud it is: @ for primary, = for the rest, / for danger.</p>
+    <div class="row demo">
+      <button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish site</span></span></button>
+      <button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Preview</span></span></button>
+      <button class="btn btn-danger frame tone-danger" type="button"><span class="mid"><span class="label">Discard draft</span></span></button>
+      <button class="btn btn-primary frame tone-heavy" type="button" disabled><span class="mid"><span class="label">Publish site</span></span></button>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-input">
+    <h2 id="s-input" class="vh">Input</h2>
+    <pre class="poster ptitle" data-text="INPUT" aria-hidden="true"></pre>
+    <p class="muted">Focus turns the frame to cyan @. An error turns it into a wall of !.</p>
+    <div class="demo">
+      <div class="group">
+        <label class="field-label" for="title">Project title</label>
+        <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="title" type="text" value="Reporting redesign" autocomplete="off"></div></div>
+      </div>
+      <div class="group">
+        <label class="field-label" for="slug">Link</label>
+        <div class="field frame tone-light invalid" id="slugField"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="slug" type="text" value="Reporting redesign" autocomplete="off" autocapitalize="off" spellcheck="false" aria-invalid="true" aria-describedby="slugError"></div></div>
+        <p class="error" id="slugError">Use lowercase letters, numbers and hyphens.</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-toggles">
+    <h2 id="s-toggles" class="vh">Toggles</h2>
+    <pre class="poster ptitle" data-text="TOGGLES" aria-hidden="true"></pre>
+    <p class="muted">Checkbox, radio and switch. Native inputs, the glyph is only the paint.</p>
+    <div class="demo stack">
+      <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Show on home page</label>
+      <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label>
+      <label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label>
+    </div>
+    <fieldset class="demo">
+      <legend>Visibility</legend>
+      <div class="stack">
+        <label class="check"><input type="radio" name="vis" checked><span class="glyph" aria-hidden="true"></span>Public</label>
+        <label class="check"><input type="radio" name="vis"><span class="glyph" aria-hidden="true"></span>Unlisted</label>
+        <label class="check"><input type="radio" name="vis"><span class="glyph" aria-hidden="true"></span>Private</label>
+      </div>
+    </fieldset>
+  </section>
+
+  <section aria-labelledby="s-slider">
+    <h2 id="s-slider" class="vh">Slider</h2>
+    <pre class="poster ptitle" data-text="SLIDER" aria-hidden="true"></pre>
+    <p class="muted">This one is wired to the page: it sets the RGB split, the tearing and the streaks. A real range input sits on top.</p>
+    <div class="demo slider">
+      <label for="speed">Glitch amount</label>
+      <span class="slider-track"><span class="bar" id="speedBar" aria-hidden="true"></span><input id="speed" type="range" inputmode="none" min="0" max="100" step="5" value="55"></span>
+      <output for="speed" id="speedOut">55</output>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-tabs">
+    <h2 id="s-tabs" class="vh">Tabs</h2>
+    <pre class="poster ptitle" data-text="TABS" aria-hidden="true"></pre>
+    <p class="muted">The active tab is a solid slab. Arrow keys move between tabs.</p>
+    <div class="demo">
+      <div class="tablist" role="tablist" aria-label="Button source">
+        <button class="tab" role="tab" id="t-prev" aria-controls="p-prev" aria-selected="true" type="button">Preview</button>
+        <button class="tab" role="tab" id="t-html" aria-controls="p-html" aria-selected="false" tabindex="-1" type="button">HTML</button>
+        <button class="tab" role="tab" id="t-css" aria-controls="p-css" aria-selected="false" tabindex="-1" type="button">CSS</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-prev" aria-labelledby="t-prev" tabindex="0">
+        <div class="row"><button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish site</span></span></button></div>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-html" aria-labelledby="t-html" tabindex="0" hidden>
+<pre>&lt;button class="btn btn-primary
+  frame tone-heavy"&gt;
+  &lt;span class="mid"&gt;
+    &lt;span class="label"&gt;
+      Publish site
+    &lt;/span&gt;
+  &lt;/span&gt;
+&lt;/button&gt;</pre>
+      </div>
+      <div class="tabpanel" role="tabpanel" id="p-css" aria-labelledby="t-css" tabindex="0" hidden>
+<pre>.tone-heavy {
+  --h: "@@@@@@@@@@@@...";
+  --s: "@@";
+}
+.frame::before,
+.frame::after {
+  content: var(--h);
+  overflow: hidden;
+}
+.mid::before,
+.mid::after {
+  content: var(--s);
+}</pre>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-card">
+    <h2 id="s-card" class="vh">Card and dialog</h2>
+    <pre class="poster ptitle" data-text="CARD" aria-hidden="true"></pre>
+    <p class="muted">Title on a bar of @, walls of #, and a shadow made of colons. Publishing opens the dialog.</p>
+    <div class="demo lift">
+      <article class="card frame tone-mid" aria-labelledby="cardTitle">
+        <h3 id="cardTitle" class="bar-title">Reporting redesign</h3>
+        <div class="body">
+          <dl>
+            <dt>Company</dt><dd>MaintainX</dd>
+            <dt>Role</dt><dd>Sr. Product Designer</dd>
+            <dt>Status</dt><dd id="cardStatus">draft</dd>
+          </dl>
+          <div class="row"><button class="btn btn-primary frame tone-heavy" id="publishBtn" type="button"><span class="mid"><span class="label">Publish</span></span></button></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-progress">
+    <h2 id="s-progress" class="vh">Progress</h2>
+    <pre class="poster ptitle" data-text="PROGRESS" aria-hidden="true"></pre>
+    <p class="muted">Same halftone bar. The spinner lives inside the button.</p>
+    <div class="demo">
+      <div class="progress" id="bar" role="progressbar" aria-label="Export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+    </div>
+    <div class="row demo">
+      <button class="btn frame tone-light" id="exportBtn" type="button"><span class="mid"><span class="label">Export case study</span></span></button>
+      <span class="muted" id="exportStatus" role="status"></span>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-details">
+    <h2 id="s-details" class="vh">Details</h2>
+    <pre class="poster ptitle" data-text="DETAILS" aria-hidden="true"></pre>
+    <p class="muted">A native details element. The marker flips between [+] and [-] and the answer decodes as it opens.</p>
+    <div class="demo">
+      <details class="acc"><summary>What ships in the kit?</summary><p>Thirteen components, one stylesheet and a few hundred lines of JavaScript. No build step.</p></details>
+      <details class="acc"><summary>Can I change the characters?</summary><p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p></details>
+    </div>
+  </section>
+
+
+  <section aria-labelledby="s-badge">
+    <h2 id="s-badge" class="vh">Badge</h2>
+    <pre class="poster ptitle" data-text="BADGE" aria-hidden="true"></pre>
+    <p class="muted">Inverse slabs for status, brackets for everything else.</p>
+    <div class="row demo"><span class="badge b-ok">Operational</span><span class="badge b-warn">Degraded</span><span class="badge b-hot">Down</span><span class="badge b-out">Beta</span></div>
+  </section>
+
+  <section aria-labelledby="s-alert">
+    <h2 id="s-alert" class="vh">Alert</h2>
+    <pre class="poster ptitle" data-text="ALERT" aria-hidden="true"></pre>
+    <p class="muted">A card with a hazard rim. The title says what happened, the body says what to do.</p>
+    <div class="demo stack" style="justify-items:stretch">
+      <div class="alert lift" role="note"><div class="card frame tone-danger"><span class="bar-title">Signal lost</span><div class="body"><p>Probes from 3 regions are timing out. Check the load balancer in fra-1.</p></div></div></div>
+      <div class="alert info lift" role="note"><div class="card frame tone-light"><span class="bar-title">Heads up</span><div class="body"><p>Maintenance window on Sunday at 03:00 UTC. Probes keep running.</p></div></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-select">
+    <h2 id="s-select" class="vh">Select</h2>
+    <pre class="poster ptitle" data-text="SELECT" aria-hidden="true"></pre>
+    <p class="muted">A native select inside the same frame as the input.</p>
+    <div class="demo group">
+      <label class="field-label" for="region">Probe region</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">v</span><select id="region"><option>iad-1, Washington</option><option>fra-1, Frankfurt</option><option>gru-1, Sao Paulo</option><option>sin-1, Singapore</option><option>syd-1, Sydney</option></select></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-skeleton">
+    <h2 id="s-skeleton" class="vh">Skeleton</h2>
+    <pre class="poster ptitle" data-text="SKELETON" aria-hidden="true"></pre>
+    <p class="muted">Loading is a wave moving through the ramp.</p>
+    <div class="demo"><span class="vh">Loading</span><pre class="skel" id="skel" aria-hidden="true"></pre></div>
+  </section>
+
+
+  <section aria-labelledby="s-avatar">
+    <h2 id="s-avatar" class="vh">Avatar</h2>
+    <pre class="poster ptitle" data-text="AVATAR" aria-hidden="true"></pre>
+    <p class="muted">Initials on a slab, or a picture pushed through the LCD.</p>
+    <div class="row demo"><span class="avatar" role="img" aria-label="Fede Kotek"><canvas class="lcd " data-scene="portrait" data-cols="16" data-rows="14" data-mode="rgb" role="img" aria-label=""></canvas></span><span class="avatar" role="img" aria-label="Fede Kotek">FK</span><span class="avatar hot sm" role="img" aria-label="MaintainX">MX</span><span class="avatar ok sm" role="img" aria-label="Autodesk">AD</span></div>
+  </section>
+
+  <section aria-labelledby="s-breadcrumb">
+    <h2 id="s-breadcrumb" class="vh">Breadcrumb</h2>
+    <pre class="poster ptitle" data-text="CRUMBS" aria-hidden="true"></pre>
+    <p class="muted">Slashes do the separating. The current page is a slab.</p>
+    <nav class="demo" aria-label="Breadcrumb"><ol class="crumbs"><li><a href="#">Portfolio</a></li><li><a href="#">Case studies</a></li><li><a href="#">MaintainX</a></li><li aria-current="page"><span>Reporting</span></li></ol></nav>
+  </section>
+
+  <section aria-labelledby="s-calendar">
+    <h2 id="s-calendar" class="vh">Calendar</h2>
+    <pre class="poster ptitle" data-text="CALENDAR" aria-hidden="true"></pre>
+    <p class="muted">A month of buttons. Today is magenta, your pick is a slab.</p>
+    <div class="demo cal" id="cal"></div>
+    <p class="muted status" id="calStatus" role="status"></p>
+  </section>
+
+  <section aria-labelledby="s-command">
+    <h2 id="s-command" class="vh">Command</h2>
+    <pre class="poster ptitle" data-text="COMMAND" aria-hidden="true"></pre>
+    <p class="muted">The palette is a component too. It runs this site.</p>
+    <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open command palette</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
+  </section>
+
+  <section aria-labelledby="s-dropdown">
+    <h2 id="s-dropdown" class="vh">Dropdown</h2>
+    <pre class="poster ptitle" data-text="DROPDOWN" aria-hidden="true"></pre>
+    <p class="muted">A button that opens a menu. Arrows move, Escape closes.</p>
+    <div class="demo pop" id="dd"><button class="btn frame tone-light" id="ddBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="ddMenu"><span class="mid"><span class="label">Actions v</span></span></button>
+      <div class="menu" id="ddMenu" role="menu" aria-label="Actions" hidden><div class="lift"><div class="card frame tone-heavy"><div class="body">
+        <button role="menuitem" type="button" tabindex="-1">Duplicate <kbd>d</kbd></button>
+        <button role="menuitem" type="button" tabindex="-1">Copy link <kbd>l</kbd></button>
+        <button role="menuitem" type="button" tabindex="-1">Move to archive</button>
+        <div class="sepd faint" role="separator"></div>
+        <button role="menuitem" type="button" tabindex="-1" class="danger">Delete forever</button>
+      </div></div></div></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-empty">
+    <h2 id="s-empty" class="vh">Empty</h2>
+    <pre class="poster ptitle" data-text="EMPTY" aria-hidden="true"></pre>
+    <p class="muted">When there is nothing, say so and offer the next step.</p>
+    <div class="demo lift"><div class="card frame tone-faint"><span class="bar-title">No work orders</span><div class="body"><p class="muted">Nothing is broken. Enjoy it, it never lasts.</p><div class="row"><button class="btn btn-primary frame tone-heavy" id="emptyBtn" type="button"><span class="mid"><span class="label">Create work order</span></span></button></div></div></div></div>
+  </section>
+
+  <section aria-labelledby="s-otp">
+    <h2 id="s-otp" class="vh">Input OTP</h2>
+    <pre class="poster ptitle" data-text="OTP" aria-hidden="true"></pre>
+    <p class="muted">Six brackets. They advance on their own and take a paste.</p>
+    <div class="demo otp" id="otp" role="group" aria-label="One-time code"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
+    <p class="muted status" id="otpStatus" role="status">Type any six digits.</p>
+  </section>
+
+  <section aria-labelledby="s-kbd">
+    <h2 id="s-kbd" class="vh">Kbd</h2>
+    <pre class="poster ptitle" data-text="KBD" aria-hidden="true"></pre>
+    <p class="muted">Keys in brackets. These ones are real.</p>
+    <div class="demo kbds"><span><kbd>/</kbd> commands</span><span><kbd>g</kbd> glitch</span><span><kbd>&lt;</kbd> <kbd>&gt;</kbd> move</span><span><kbd>space</kbd> fire</span></div>
+  </section>
+
+  <section aria-labelledby="s-pagination">
+    <h2 id="s-pagination" class="vh">Pagination</h2>
+    <pre class="poster ptitle" data-text="PAGER" aria-hidden="true"></pre>
+    <p class="muted">Brackets around every page, a slab under the current one.</p>
+    <nav class="demo row" id="pager" aria-label="Pagination"></nav>
+    <p class="muted status" id="pagerStatus" role="status"></p>
+  </section>
+
+  <section aria-labelledby="s-picture">
+    <h2 id="s-picture" class="vh">Picture</h2>
+    <pre class="poster ptitle" data-text="PICTURE" aria-hidden="true"></pre>
+    <p class="muted">A sectorized LCD. Every cell is three subpixels, the panel is twelve sectors, and each sector can run its own mode. Tap a sector.</p>
+    <figure class="pic demo"><div class="bezel"><canvas class="lcd " data-scene="ba" data-cols="64" data-rows="48" data-mode="rgb" role="img" aria-label="Buenos Aires at dusk with the Obelisco, rendered as an LCD panel"></canvas></div><figcaption id="picCap"><b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.</figcaption></figure>
+    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Panel mode"><label><input type="radio" name="picMode" value="rgb" checked><span>RGB</span></label><label><input type="radio" name="picMode" value="mono"><span>Mono</span></label><label><input type="radio" name="picMode" value="ascii"><span>ASCII</span></label></div></div>
+    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Picture"><label><input type="radio" name="picScene" value="ba" checked><span>Dusk</span></label><label><input type="radio" name="picScene" value="desk"><span>Desk</span></label><label><input type="radio" name="picScene" value="mate"><span>Mate</span></label><label><input type="radio" name="picScene" value="test"><span>Test</span></label></div></div>
+    <div class="row demo"><button class="btn frame tone-light" id="picLoad" type="button"><span class="mid"><span class="label">Load photo</span></span></button><input type="file" id="picFile" accept="image/*" hidden></div>
+  </section>
+
+  <section aria-labelledby="s-separator">
+    <h2 id="s-separator" class="vh">Separator</h2>
+    <pre class="poster ptitle" data-text="DIVIDER" aria-hidden="true"></pre>
+    <p class="muted">Four weights of nothing.</p>
+    <div class="demo"><div class="sepd heavy" role="separator"></div><div class="sepd" role="separator"></div><div class="sepd shade" role="separator"></div><div class="sepd faint" role="separator"></div><div class="sepl" role="separator">or</div></div>
+  </section>
+
+  <section aria-labelledby="s-sheet">
+    <h2 id="s-sheet" class="vh">Sheet</h2>
+    <pre class="poster ptitle" data-text="SHEET" aria-hidden="true"></pre>
+    <p class="muted">A dialog that comes up from the bottom in seven steps.</p>
+    <div class="row demo"><button class="btn frame tone-light" id="sheetBtn" type="button"><span class="mid"><span class="label">Open filters</span></span></button></div>
+  </section>
+
+  <section aria-labelledby="s-spinner">
+    <h2 id="s-spinner" class="vh">Spinner</h2>
+    <pre class="poster ptitle" data-text="SPINNER" aria-hidden="true"></pre>
+    <p class="muted">Five ways to wait.</p>
+    <div class="demo spins" id="spins" role="img" aria-label="Loading indicators"><span><b></b>classic</span><span><b></b>ramp</span><span><b></b>bounce</span><span><b></b>dots</span><span><b></b>fill</span></div>
+  </section>
+
+  <section aria-labelledby="s-textarea">
+    <h2 id="s-textarea" class="vh">Textarea</h2>
+    <pre class="poster ptitle" data-text="TEXTAREA" aria-hidden="true"></pre>
+    <p class="muted">The same frame, four rows tall, with a counter.</p>
+    <div class="demo group"><label class="field-label" for="ta">Crit notes</label>
+      <div class="field frame tone-light area"><div class="body"><textarea id="ta" rows="4" maxlength="280" placeholder="What is this screen trying to do?"></textarea></div></div>
+      <p class="count" id="taCount">0/280</p></div>
+  </section>
+
+  <section aria-labelledby="s-timeline">
+    <h2 id="s-timeline" class="vh">Timeline</h2>
+    <pre class="poster ptitle" data-text="TIMELINE" aria-hidden="true"></pre>
+    <p class="muted">Nodes are @, the wire is colons.</p>
+    <ol class="demo timeline"><li><b>Shipped</b><span>Search v2 went to 100 percent of accounts.</span></li><li class="past"><b>In review</b><span>14 comments in Figma, 3 of them useful.</span></li><li class="past"><b>Kickoff</b><span>One problem statement, zero solutions. As it should be.</span></li></ol>
+  </section>
+
+  <section aria-labelledby="s-toast">
+    <h2 id="s-toast" class="vh">Toast</h2>
+    <pre class="poster ptitle" data-text="TOAST" aria-hidden="true"></pre>
+    <p class="muted">One line, typed in from the left. Lime for good news, magenta for the other kind.</p>
+    <div class="row demo"><button class="btn frame tone-light" id="toastOk" type="button"><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" id="toastErr" type="button"><span class="mid"><span class="label">Break something</span></span></button></div>
+  </section>
+
+  <section aria-labelledby="s-togglegroup">
+    <h2 id="s-togglegroup" class="vh">Toggle group</h2>
+    <pre class="poster ptitle" data-text="SEGMENT" aria-hidden="true"></pre>
+    <p class="muted">Radios dressed as slabs.</p>
+    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div></div>
+    <p class="muted status" id="tgStatus" role="status">Board view.</p>
+  </section>
+
+  <section aria-labelledby="s-tooltip">
+    <h2 id="s-tooltip" class="vh">Tooltip</h2>
+    <pre class="poster ptitle" data-text="TOOLTIP" aria-hidden="true"></pre>
+    <p class="muted">Hover, focus or tap. It types itself in.</p>
+    <div class="demo pop" id="tt"><button class="btn frame tone-light" id="ttBtn" type="button" aria-describedby="ttTip"><span class="mid"><span class="label">Ship it</span></span></button><span class="tip" id="ttTip" role="tooltip">Deploys to production on a Friday</span></div>
+  </section>
+
+  <section aria-labelledby="s-rules">
+    <h2 id="s-rules" class="vh">Rules</h2>
+    <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
+    <p class="ramp" aria-hidden="true"><span style="color:var(--ink)">@@</span> <span style="color:var(--pink)">%%</span> <span style="color:var(--hot)">##</span> <span style="color:var(--violet)">**</span> <span style="color:var(--deep)">++</span> <span style="color:var(--cy)">==</span> <span style="color:var(--ok)">::</span> <span style="color:var(--warn)">..</span></p>
+    <ul class="rules demo muted">
+      <li>Weight is character density. @ is the loudest thing on the page and . is the quietest.</li>
+      <li>Frames, rules, fills and shadows are strings of characters. Hierarchy comes from which character.</li>
+      <li>Big type is a bitmap: every pixel of a headline is a character.</li>
+      <li>Color is signal: magenta acts, cyan focuses, lime confirms, yellow warns.</li>
+      <li>Glitch is feedback. It fires when you touch something or when a state changes, and the slider turns it down to zero.</li>
+      <li>Everything arrives broken and fixes itself: elements glitch in as they enter the screen, text decodes left to right.</li>
+      <li>Sound is feedback too. Square-wave blips and crushed noise, never music.</li>
+      <li>Nothing jumps. State changes travel through the ramp, one character at a time, at a low frame rate.</li>
+      <li>Underneath it is plain HTML: buttons, inputs, a dialog.</li>
+    </ul>
+  </section>
+  </div>
+
+
+  <div id="view-blocks" role="tabpanel" aria-labelledby="v-blocks" hidden>
+  <section aria-label="About blocks"><p>Components composed into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. The personal ones are about the person who asked for this.</p></section>
+  <section aria-label="Filter blocks"><div class="filters" id="blockFilters" role="group" aria-label="Filter by category"><button class="chip" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="personal" aria-pressed="false">Personal</button><button class="chip" type="button" data-f="app" aria-pressed="false">App</button><button class="chip" type="button" data-f="dashboard" aria-pressed="false">Dashboard</button><button class="chip" type="button" data-f="auth" aria-pressed="false">Auth</button><button class="chip" type="button" data-f="marketing" aria-pressed="false">Marketing</button></div></section>
+
+
+  <section data-cat="auth" aria-labelledby="s-login">
+    <h2 id="s-login" class="vh">Login</h2>
+    <pre class="poster ptitle" data-text="LOGIN" aria-hidden="true"></pre>
+    <p class="muted">Two fields, one loud button, one quiet one. Submit it empty to see it complain.</p>
+    <div class="demo lift"><div class="card frame tone-mid" id="login"><h3 class="bar-title">Sign in to Static</h3><div class="body">
+        <div class="group">
+          <label class="field-label" for="lgEmail">Email</label>
+          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgEmail" type="email" value="" placeholder="you@company.com" autocomplete="off" inputmode="email" autocapitalize="off" spellcheck="false" aria-describedby="lgEmailErr"></div></div>
+          <p class="error" id="lgEmailErr"></p>
+        </div>
+        <div class="group">
+          <label class="field-label" for="lgPass">Password</label>
+          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="8 characters or more" autocomplete="off" aria-describedby="lgPassErr"></div></div>
+          <p class="error" id="lgPassErr"></p>
+        </div>
+        <div class="row full"><button class="btn btn-primary frame tone-heavy" id="lgBtn" type="button"><span class="mid"><span class="label">Sign in</span></span></button></div>
+        <div class="sepl" role="separator">or</div>
+        <div class="row full"><button class="btn frame tone-light" id="ssoBtn" type="button"><span class="mid"><span class="label">Continue with SSO</span></span></button></div>
+    </div></div></div>
+  </section>
+
+  <section data-cat="dashboard" aria-labelledby="s-stats">
+    <h2 id="s-stats" class="vh">Stats</h2>
+    <pre class="poster ptitle" data-text="STATS" aria-hidden="true"></pre>
+    <p class="muted">The number is a bitmap, the trend is eighteen characters of ramp.</p>
+    <div class="demo kpis">
+      <div class="kpi"><p class="muted">Uptime, last 90 days</p><pre class="poster ptitle" data-text="99.98" aria-hidden="true"></pre><p><span class="vh">99.98 percent.</span><span class="badge b-ok">+0.02</span> <span class="spark" data-spark="6,7,7,6,7,7,7,5,7,7,7,7,6,7,7,7,7,7" aria-hidden="true"></span></p></div>
+      <div class="kpi"><p class="muted">p95 latency, milliseconds</p><pre class="poster ptitle" data-text="182" aria-hidden="true"></pre><p><span class="vh">182 milliseconds.</span><span class="badge b-warn">+14</span> <span class="spark" data-spark="2,3,2,3,3,4,3,5,7,4,3,3,4,3,3,4,5,4" aria-hidden="true"></span></p></div>
+      <div class="kpi"><p class="muted">Incidents this month</p><pre class="poster ptitle" data-text="2" aria-hidden="true"></pre><p><span class="vh">2 incidents.</span><span class="badge b-hot">-3</span> <span class="spark" data-spark="1,1,5,1,1,1,1,1,1,7,1,1,1,1,1,1,1,1" aria-hidden="true"></span></p></div>
+    </div>
+  </section>
+
+  <section data-cat="dashboard" aria-labelledby="s-table">
+    <h2 id="s-table" class="vh">Table</h2>
+    <pre class="poster ptitle" data-text="TABLE" aria-hidden="true"></pre>
+    <p class="muted">A real table. Tap a row to select it.</p>
+    <div class="demo tablewrap"><table class="tbl" id="incTable"><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Dur</th></tr></thead><tbody>
+      <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>12m</td></tr>
+      <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span></td><td>48m</td></tr>
+      <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>6m</td></tr>
+      <tr tabindex="0"><td>INC-478</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span></td><td>1h 02m</td></tr>
+      <tr tabindex="0"><td>INC-477</td><td>auth</td><td><span class="badge b-ok">Resolved</span></td><td>3m</td></tr>
+    </tbody></table></div>
+    <p class="muted status" id="incStatus" role="status">No incident selected.</p>
+  </section>
+
+  <section data-cat="marketing" aria-labelledby="s-pricing">
+    <h2 id="s-pricing" class="vh">Pricing</h2>
+    <pre class="poster ptitle" data-text="PRICING" aria-hidden="true"></pre>
+    <p class="muted">Three cards. The popular one gets the @ rim.</p>
+    <div class="demo grid3 pricing">
+      <div class="lift"><article class="card frame tone-mid"><h3 class="bar-title">Hobby</h3><div class="body"><p class="price">$0 <small>forever</small></p><ul class="feat"><li>3 monitors</li><li>60-second probes</li><li>1 status page</li></ul><div class="row full"><button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Start free</span></span></button></div></div></article></div>
+      <div class="lift"><article class="card frame tone-heavy"><h3 class="bar-title">Team</h3><span class="badge b-ok popular">Popular</span><div class="body"><p class="price">$29 <small>per month</small></p><ul class="feat"><li>50 monitors</li><li>10-second probes</li><li>Glitch alerts</li></ul><div class="row full"><button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Start trial</span></span></button></div></div></article></div>
+      <div class="lift"><article class="card frame tone-mid"><h3 class="bar-title">Scale</h3><div class="body"><p class="price">$199 <small>per month</small></p><ul class="feat"><li>Unlimited monitors</li><li>14 regions</li><li>SSO and audit log</li></ul><div class="row full"><button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Talk to us</span></span></button></div></div></article></div>
+    </div>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-profile">
+    <h2 id="s-profile" class="vh">Profile</h2>
+    <pre class="poster ptitle" data-text="PROFILE" aria-hidden="true"></pre>
+    <p class="muted">An about block. The portrait is an LCD panel, so load your own face.</p>
+    <div class="demo profile">
+      <figure class="pic"><div class="bezel"><canvas class="lcd " data-scene="portrait" data-cols="36" data-rows="44" data-mode="rgb" role="img" aria-label="Portrait placeholder rendered as an LCD panel"></canvas></div><figcaption>Tap a sector to change its mode.</figcaption></figure>
+      <div>
+        <p><b>Fede Kotek</b> designs B2B products in Buenos Aires. A decade of it: fintech, marketplaces, and software for people who fix machines.</p>
+        <p class="muted demo">Interaction, motion and visual craft. Thinks in systems, would rather not run the design system.</p>
+        <dl class="kv demo"><dt>Now</dt><dd>Autodesk</dd><dt>Before</dt><dd>MaintainX, Pomelo, MercadoLibre</dd><dt>Based</dt><dd>Palermo, Buenos Aires</dd><dt>Speaks</dt><dd>Rioplatense, English</dd></dl>
+        <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="sayHi" type="button"><span class="mid"><span class="label">Say hi</span></span></button><button class="btn frame tone-light" id="portLoad" type="button"><span class="mid"><span class="label">Load portrait</span></span></button><input type="file" id="portFile" accept="image/*" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-career">
+    <h2 id="s-career" class="vh">Career</h2>
+    <pre class="poster ptitle" data-text="CAREER" aria-hidden="true"></pre>
+    <p class="muted">A timeline with opinions.</p>
+    <ol class="demo timeline">
+      <li><time>Now</time><b>Autodesk</b><span>Sr. Product Designer. Asset intelligence and connected data across maintenance workflows.</span></li>
+      <li class="past"><b>MaintainX</b><span>Sr. Product Designer. Led Reporting, Search, Automations and Chat, mobile first, until the acquisition.</span></li>
+      <li class="past"><b>Pomelo</b><span>Product design for fintech infrastructure.</span></li>
+      <li class="past"><b>MercadoLibre</b><span>Product design at marketplace scale.</span></li>
+    </ol>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-cases">
+    <h2 id="s-cases" class="vh">Case studies</h2>
+    <pre class="poster ptitle" data-text="CASES" aria-hidden="true"></pre>
+    <p class="muted">Four cards, four LCD thumbnails. Tap one.</p>
+    <div class="demo grid2" id="cases"><div class="lift" data-case="Reporting" tabindex="0" role="button" aria-label="Open Reporting case study"><article class="card frame tone-mid"><h3 class="bar-title">Reporting</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui1" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Reporting case study"></canvas></div><p>Dashboards people read without being asked to.</p><div class="tags"><span class="badge b-out">B2B</span><span class="badge b-out">Data viz</span><span class="badge b-out">Mobile</span></div></div></article></div><div class="lift" data-case="Search" tabindex="0" role="button" aria-label="Open Search case study"><article class="card frame tone-mid"><h3 class="bar-title">Search</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui2" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Search case study"></canvas></div><p>One box, every work order, under 200 ms.</p><div class="tags"><span class="badge b-out">IA</span><span class="badge b-out">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div><div class="lift" data-case="Automations" tabindex="0" role="button" aria-label="Open Automations case study"><article class="card frame tone-mid"><h3 class="bar-title">Automations</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui3" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Automations case study"></canvas></div><p>If this breaks, then page someone. No code.</p><div class="tags"><span class="badge b-out">Workflow</span><span class="badge b-out">Logic</span></div></div></article></div><div class="lift" data-case="Chat" tabindex="0" role="button" aria-label="Open Chat case study"><article class="card frame tone-mid"><h3 class="bar-title">Chat</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui4" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Chat case study"></canvas></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-out">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div></div>
+    <p class="muted status" id="caseStatus" role="status">Pick a case study.</p>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-now">
+    <h2 id="s-now" class="vh">Now</h2>
+    <pre class="poster ptitle" data-text="NOW" aria-hidden="true"></pre>
+    <p class="muted">What is going on outside of work.</p>
+    <dl class="demo kv" id="nowList">
+      <dt>Reading</dt><dd>Solo Leveling <span class="statbars" id="nowRead"></span></dd>
+      <dt>Playing</dt><dd>Path of Exile 2, doing expected value math on loot</dd>
+      <dt>Next</dt><dd>Octopath Traveler, on the ROG Ally X</dd>
+      <dt>Training</dt><dd>First pull-up <span class="qty" id="nowPull">|</span></dd>
+      <dt>Cooking</dt><dd>Asado, polenta, homemade Greek yogurt</dd>
+      <dt>Walking</dt><dd>A beagle, daily, at his pace</dd>
+    </dl>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-recipe">
+    <h2 id="s-recipe" class="vh">Recipe</h2>
+    <pre class="poster ptitle" data-text="RECIPE" aria-hidden="true"></pre>
+    <p class="muted">Sunday asado. Change the servings and the quantities follow, in metric.</p>
+    <div class="demo lift"><div class="card frame tone-mid"><h3 class="bar-title">Asado de domingo</h3><div class="body">
+      <div class="stepper"><button class="ibtn" id="srvDown" type="button" aria-label="Fewer servings">-</button><span><b id="srvN">6</b> people</span><button class="ibtn" id="srvUp" type="button" aria-label="More servings">+</button></div>
+      <ul class="ing" id="ing"></ul>
+      <ol class="steps"><li>Light the fire 90 minutes before anyone is hungry.</li><li>Embers, not flames. Hand test at grill height: 6 seconds.</li><li>Bone side down first. Salt, patience, no flipping for sport.</li><li>Provoleta goes last. Chorizos go to whoever is complaining.</li></ol>
+    </div></div></div>
+  </section>
+
+  <section data-cat="personal" aria-labelledby="s-build">
+    <h2 id="s-build" class="vh">Build</h2>
+    <pre class="poster ptitle" data-text="BUILD" aria-hidden="true"></pre>
+    <p class="muted">A character sheet on the halftone bar. Reroll it.</p>
+    <div class="demo lift"><div class="card frame tone-heavy" id="build"><h3 class="bar-title">Abyss farmer, level 92</h3><div class="body">
+      <pre class="statbars" id="buildBars" aria-hidden="true"></pre><p class="vh" id="buildText"></p>
+      <div class="tags"><span class="badge b-hot">Fire 75</span><span class="badge b-ok">Cold 75</span><span class="badge b-warn">Light 76</span><span class="badge b-out">Chaos 31</span></div>
+      <div class="row"><button class="btn frame tone-light" id="buildRoll" type="button"><span class="mid"><span class="label">Reroll</span></span></button></div>
+    </div></div></div>
+  </section>
+
+  <section data-cat="app" aria-labelledby="s-workorders">
+    <h2 id="s-workorders" class="vh">Work orders</h2>
+    <pre class="poster ptitle" data-text="ORDERS" aria-hidden="true"></pre>
+    <p class="muted">A checklist that counts. The domain is maintenance, because of course it is.</p>
+    <ul class="demo wo" id="wo"><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Replace conveyor belt motor</span></label><div class="meta"><span class="badge b-hot">High</span><span>due today</span><span>JP</span></div></li><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Calibrate line 3 torque sensor</span></label><div class="meta"><span class="badge b-warn">Medium</span><span>due tomorrow</span><span>AL</span></div></li><li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Inspect forklift 07 hydraulics</span></label><div class="meta"><span class="badge b-warn">Medium</span><span>due Wed</span><span>MR</span></div></li><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Restock gloves, size L</span></label><div class="meta"><span class="badge b-out">Low</span><span>due Fri</span><span>FK</span></div></li><li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Grease palletizer bearings</span></label><div class="meta"><span class="badge b-out">Low</span><span>due next week</span><span>JP</span></div></li></ul>
+    <div class="progress demo" id="woBar" role="progressbar" aria-label="Work orders done" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+  </section>
+
+  <section data-cat="app" aria-labelledby="s-sidebar">
+    <h2 id="s-sidebar" class="vh">Sidebar</h2>
+    <pre class="poster ptitle" data-text="SIDEBAR" aria-hidden="true"></pre>
+    <p class="muted">App navigation with counts. The arrow follows the current page.</p>
+    <ul class="demo side" id="side"><li><button type="button" aria-current="page">Work orders <span>12</span></button></li><li><button type="button">Assets <span>148</span></button></li><li><button type="button">Parts <span>1,204</span></button></li><li><button type="button">Reporting <span>6</span></button></li><li><button type="button">Automations <span>9</span></button></li></ul>
+  </section>
+
+  <section data-cat="app" aria-labelledby="s-settings">
+    <h2 id="s-settings" class="vh">Settings</h2>
+    <pre class="poster ptitle" data-text="SETTINGS" aria-hidden="true"></pre>
+    <p class="muted">These two switches are wired to the real page.</p>
+    <div class="demo lift"><div class="card frame tone-mid"><h3 class="bar-title">Preferences</h3><div class="body">
+      <div class="stack"><label class="check"><input type="checkbox" role="switch" id="setSnd" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound effects</label><label class="check"><input type="checkbox" role="switch" id="setGl" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label><label class="check"><input type="checkbox" role="switch"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Weekly digest</label></div>
+      <div class="group" style="margin-top:var(--r)"><label class="field-label" for="setLang">Language</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">v</span><select id="setLang"><option>Rioplatense Spanish</option><option>English</option></select></div></div></div>
+      <div class="row"><button class="btn btn-primary frame tone-heavy" id="setSave" type="button"><span class="mid"><span class="label">Save</span></span></button></div>
+    </div></div></div>
+  </section>
+
+  <section data-cat="app" aria-labelledby="s-crit">
+    <h2 id="s-crit" class="vh">Design crit</h2>
+    <pre class="poster ptitle" data-text="CRIT" aria-hidden="true"></pre>
+    <p class="muted">A feedback form with a verdict.</p>
+    <div class="demo lift"><div class="card frame tone-mid"><h3 class="bar-title">Crit: onboarding v3</h3><div class="body">
+      <div class="group"><label class="field-label" for="critTa">What is not working?</label><div class="field frame tone-light area"><div class="body"><textarea id="critTa" rows="3" maxlength="200" placeholder="Be specific. Be kind. Pick one."></textarea></div></div><p class="error" id="critErr"></p></div>
+      <div style="margin-top:var(--r)"><div class="tgroup" role="radiogroup" aria-label="Verdict"><label><input type="radio" name="verdict" value="ship"><span>Ship it</span></label><label><input type="radio" name="verdict" value="iter" checked><span>Iterate</span></label><label><input type="radio" name="verdict" value="kill"><span>Kill it</span></label></div></div>
+      <div class="row"><button class="btn btn-primary frame tone-heavy" id="critSend" type="button"><span class="mid"><span class="label">Send crit</span></span></button></div>
+    </div></div></div>
+  </section>
+
+  <section data-cat="dashboard" aria-labelledby="s-feed">
+    <h2 id="s-feed" class="vh">Activity</h2>
+    <pre class="poster ptitle" data-text="ACTIVITY" aria-hidden="true"></pre>
+    <p class="muted">A feed is a timeline with timestamps.</p>
+    <ol class="demo timeline"><li><time>09:12</time><b>Deploy</b><span>reporting-web shipped build 4812.</span></li><li class="past"><time>08:47</time><b>Alert</b><span>Line 3 torque sensor out of range for 4 minutes.</span></li><li class="past"><time>08:03</time><b>Comment</b><span>"Can the chart be a pie?" It cannot.</span></li><li class="past"><time>Yesterday</time><b>Closed</b><span>Forklift 07 hydraulics, 2 h 10 m.</span></li></ol>
+  </section>
+
+  <section data-cat="marketing" aria-labelledby="s-lost">
+    <h2 id="s-lost" class="vh">404</h2>
+    <pre class="poster ptitle" data-text="404" aria-hidden="true"></pre>
+    <p class="muted">The page where the signal actually is lost. It never settles.</p>
+    <div class="demo lost"><pre class="poster ptitle" id="lostTitle" data-text="404" aria-hidden="true"></pre><p><span class="vh">404.</span>Signal lost. This page went for a walk and did not leave a note.</p><div class="row demo"><button class="btn btn-primary frame tone-heavy" id="lostHome" type="button"><span class="mid"><span class="label">Go home</span></span></button></div></div>
+  </section>
+
+  </div>
+
+  <div id="view-charts" role="tabpanel" aria-labelledby="v-charts" hidden>
+  <section aria-label="About charts"><p>Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></section>
+
+
+  <section aria-labelledby="s-bars">
+    <h2 id="s-bars" class="vh">Bars</h2>
+    <pre class="poster ptitle" data-text="BARS" aria-hidden="true"></pre>
+    <p class="muted">Requests per day. Bars grow through the ramp and cap out lighter.</p>
+    <pre class="chart demo" id="ch-bars" role="img" aria-label="Bar chart of requests per day, Monday to Sunday. Thursday is the peak at 1,710."></pre>
+    <p class="muted status" id="st-bars" role="status">Tap a bar.</p>
+  </section>
+
+  <section aria-labelledby="s-line">
+    <h2 id="s-line" class="vh">Line</h2>
+    <pre class="poster ptitle" data-text="LINE" aria-hidden="true"></pre>
+    <p class="muted">p95 latency, live. Spikes turn yellow. Tap the chart to break production.</p>
+    <pre class="chart demo" id="ch-line" role="img" aria-label="Live line chart of p95 latency in milliseconds."></pre>
+    <p class="muted status" id="st-line" role="status">p95 --</p>
+  </section>
+
+  <section aria-labelledby="s-regions">
+    <h2 id="s-regions" class="vh">Regions</h2>
+    <pre class="poster ptitle" data-text="REGIONS" aria-hidden="true"></pre>
+    <p class="muted">Probe success by region, on the same halftone bar as the slider.</p>
+    <pre class="chart demo" id="ch-regions" role="img" aria-label="Horizontal bars of probe success by region: iad 92, fra 81, gru 64, sin 58, syd 33 percent."></pre>
+    <p class="muted status" id="st-regions" role="status"></p>
+  </section>
+
+  <section aria-labelledby="s-heat">
+    <h2 id="s-heat" class="vh">Heatmap</h2>
+    <pre class="poster ptitle" data-text="HEATMAP" aria-hidden="true"></pre>
+    <p class="muted">Uptime by day. Lime is fine, yellow is degraded, magenta is an outage.</p>
+    <pre class="chart demo" id="ch-heat" role="img" aria-label="Heatmap of daily uptime over recent weeks."></pre>
+    <p class="muted status" id="st-heat" role="status">Tap a day.</p>
+  </section>
+
+  <section aria-labelledby="s-donut">
+    <h2 id="s-donut" class="vh">Donut</h2>
+    <pre class="poster ptitle" data-text="DONUT" aria-hidden="true"></pre>
+    <p class="muted">Traffic by source. Yes, another donut.</p>
+    <pre class="chart demo" id="ch-donut" role="img" aria-label="Donut chart of traffic by source: direct 38, search 27, social 20, email 15 percent."></pre>
+    <p class="muted status" id="st-donut" role="status">Tap a slice.</p>
+  </section>
+
+  </div>
+
+
+  <div id="view-themes" role="tabpanel" aria-labelledby="v-themes" hidden>
+  <section aria-label="About themes"><p>Six presets, six color roles and one ramp. Change any of them and the whole site follows, including the hero, the charts and the game. Copy the tokens when you like what you see.</p></section>
+
+  <section aria-labelledby="s-presets">
+    <h2 id="s-presets" class="vh">Presets</h2>
+    <pre class="poster ptitle" data-text="PRESETS" aria-hidden="true"></pre>
+    <p class="muted">Pick a signal. The page is the preview.</p>
+    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Theme preset"><label><input type="radio" name="preset" value="signal" checked><span>Signal</span></label><label><input type="radio" name="preset" value="paper"><span>Paper</span></label><label><input type="radio" name="preset" value="amber"><span>Amber CRT</span></label><label><input type="radio" name="preset" value="gameboy"><span>Game Boy</span></label><label><input type="radio" name="preset" value="blueprint"><span>Blueprint</span></label><label><input type="radio" name="preset" value="hotdog"><span>Hot dog</span></label></div></div>
+  </section>
+
+
+  <section aria-labelledby="s-colors">
+    <h2 id="s-colors" class="vh">Colors</h2>
+    <pre class="poster ptitle" data-text="COLORS" aria-hidden="true"></pre>
+    <p class="muted">Every color has a job: surface, text, action, focus, success, danger.</p>
+    <div class="demo swatches"><label class="sw"><input type="color" id="c-bg" data-var="bg" aria-label="Surface"><span>Surface<small id="h-bg">page</small></span></label><label class="sw"><input type="color" id="c-ink" data-var="ink" aria-label="Text"><span>Text<small id="h-ink">and frames</small></span></label><label class="sw"><input type="color" id="c-hot" data-var="hot" aria-label="Action"><span>Action<small id="h-hot">primary</small></span></label><label class="sw"><input type="color" id="c-cy" data-var="cy" aria-label="Focus"><span>Focus<small id="h-cy">and feedback</small></span></label><label class="sw"><input type="color" id="c-ok" data-var="ok" aria-label="Success"><span>Success<small id="h-ok">checked, on</small></span></label><label class="sw"><input type="color" id="c-warn" data-var="warn" aria-label="Danger"><span>Danger<small id="h-warn">errors</small></span></label></div>
+    <div class="row demo"><button class="btn frame tone-light" id="colReset" type="button"><span class="mid"><span class="label">Reset colors</span></span></button></div>
+  </section>
+
+
+  <section aria-labelledby="s-ramp">
+    <h2 id="s-ramp" class="vh">Ramp</h2>
+    <pre class="poster ptitle" data-text="RAMP" aria-hidden="true"></pre>
+    <p class="muted">Eight characters from lightest to heaviest. Every frame, fill, chart and explosion is an index into them. Swap the characters and you have a different kit.</p>
+    <div class="demo filters" id="rampPresets" role="group" aria-label="Ramp presets"></div>
+    <div class="demo rampcells" id="rampCells"></div>
+    <pre class="demo" id="rampSpec" aria-hidden="true"></pre>
+    <p class="muted status" id="rampStatus" role="status">Classic ramp.</p>
+  </section>
+
+
+  <section aria-labelledby="s-tokens">
+    <h2 id="s-tokens" class="vh">Tokens</h2>
+    <pre class="poster ptitle" data-text="TOKENS" aria-hidden="true"></pre>
+    <p class="muted">What you would paste into your own project.</p>
+    <pre class="demo code" id="tokensOut" tabindex="0"></pre>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button"><span class="mid"><span class="label">Copy tokens</span></span></button></div>
+  </section>
+
+  </div>
+
+  <div id="view-play" role="tabpanel" aria-labelledby="v-play" hidden>
+  <section aria-label="About play"><p>The hero, with the hood open. Type your own words, turn the knobs, feed it a photo, then take a snapshot.</p></section>
+  <section aria-label="Stage"><div id="playStage"></div></section>
+
+  <section aria-labelledby="s-words">
+    <h2 id="s-words" class="vh">Words</h2>
+    <pre class="poster ptitle" data-text="WORDS" aria-hidden="true"></pre>
+    <p class="muted">Two lines, up to 8 characters each. Five or fewer render at double size.</p>
+    <div class="demo knobs">
+      <div class="group"><label class="field-label" for="pl1">Line one</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="pl1" type="text" maxlength="8" value="ASCII" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div></div>
+      <div class="group"><label class="field-label" for="pl2">Line two</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="pl2" type="text" maxlength="8" value="/UI" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div></div>
+    </div>
+  </section>
+
+
+  <section aria-labelledby="s-knobs">
+    <h2 id="s-knobs" class="vh">Knobs</h2>
+    <pre class="poster ptitle" data-text="KNOBS" aria-hidden="true"></pre>
+    <p class="muted">Everything the glitch engine exposes.</p>
+    <div class="demo knobs"><div class="slider"><label for="kSpeed">Spin speed</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSpeed" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kSpeed">100</output></div><div class="slider"><label for="kSize">Torus size</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSize" type="range" inputmode="none" min="40" max="140" step="5" value="100"></span><output for="kSize">100</output></div><div class="slider"><label for="kSplit">RGB split</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSplit" type="range" inputmode="none" min="0" max="400" step="10" value="100"></span><output for="kSplit">100</output></div><div class="slider"><label for="kTear">Tearing</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kTear" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kTear">100</output></div><div class="slider"><label for="kStreaks">Streaks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kStreaks" type="range" inputmode="none" min="0" max="120" step="2" value="38"></span><output for="kStreaks">38</output></div><div class="slider"><label for="kBlocks">Blocks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kBlocks" type="range" inputmode="none" min="0" max="40" step="1" value="9"></span><output for="kBlocks">9</output></div></div>
+    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Color map"><label><input type="radio" name="kMap" value="0" checked><span>Signal</span></label><label><input type="radio" name="kMap" value="1"><span>Aqua</span></label><label><input type="radio" name="kMap" value="2"><span>Fire</span></label><label><input type="radio" name="kMap" value="3"><span>Mono</span></label></div></div>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst</span></span></button><button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button><button class="btn frame tone-light" id="kPhoto" type="button"><span class="mid"><span class="label">Load photo</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
+  </section>
+
+  </div>
+
+
+  <div id="view-apps" role="tabpanel" aria-labelledby="v-apps" hidden>
+  <section aria-label="About apps"><p>Three phone apps rebuilt in this language. A feed, a player, a chat. They all work as far as a prototype can, so tap around.</p></section>
+  <section aria-labelledby="s-appfeed">
+    <h2 id="s-appfeed" class="vh">Feed</h2>
+    <pre class="poster ptitle" data-text="FEED" aria-hidden="true"></pre>
+    <p class="muted">A small bird app. Like, repost, post. Counters glitch when they change.</p>
+    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Chirp</h3><div class="app">
+      <div class="app-bar"><span>Home</span><button class="ibtn" type="button" aria-label="Notifications" id="chirpBell">!</button></div>
+      <div class="compose"><span class="avatar sm hot" aria-hidden="true">FK</span><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chirpIn" type="text" maxlength="140" placeholder="What is breaking?" autocomplete="off" aria-label="New post"></div></div></div>
+      <div class="row" style="justify-content:flex-end;margin-top:calc(var(--r)/2)"><button class="btn btn-primary frame tone-heavy" id="chirpPost" type="button"><span class="mid"><span class="label">Post</span></span></button></div>
+      <div id="chirpFeed"><article class="post" data-id="0"><div class="who"><span class="avatar sm hot" aria-hidden="true">FE</span><b>fede</b><span>@fede · 2m</span></div><p>Shipped the ramp editor. Eight characters and the whole site changes clothes.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ui1" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>14</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>3</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="1"><div class="who"><span class="avatar sm" aria-hidden="true">ST</span><b>static</b><span>@static_status · 18m</span></div><p>INC-481 resolved. api-gateway is back. Please stop refreshing.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>88</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>41</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="2"><div class="who"><span class="avatar sm" aria-hidden="true">MA</span><b>mara</b><span>@mara.design · 1h</span></div><p>Hot take: every dashboard is a bar chart wearing a costume.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>231</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>57</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="3"><div class="who"><span class="avatar sm" aria-hidden="true">BE</span><b>beagle</b><span>@beagleupdates · 3h</span></div><p>Walked 2.1 km. Sniffed 44 things. Barked at one leaf.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ba" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>402</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>12</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="4"><div class="who"><span class="avatar sm" aria-hidden="true">PO</span><b>poe</b><span>@poe2_math · 5h</span></div><p>Expected value of that chest is negative. You opened it anyway. Respect.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>67</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>9</span></button><button type="button" aria-label="Reply">:: 0</button></div></article></div>
+      <nav class="tabbar" aria-label="Chirp sections"><button type="button" aria-current="page">Home</button><button type="button">Search</button><button type="button">Bell</button><button type="button">Me</button></nav>
+    </div></div></div>
+  </section>
+  <section aria-labelledby="s-appplayer">
+    <h2 id="s-appplayer" class="vh">Player</h2>
+    <pre class="poster ptitle" data-text="PLAYER" aria-hidden="true"></pre>
+    <p class="muted">A music player. Play generates a little tune from the ramp, so turn sound on.</p>
+    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Tape</h3><div class="app">
+      <div class="app-bar"><span>Now playing</span><span class="muted" id="tapeTime">0:00</span></div>
+      <div class="cover"><div class="bezel"><canvas class="lcd" data-scene="test" data-cols="48" data-rows="24" data-mode="rgb" role="img" aria-label="Album art, a moving test card" id="tapeArt"></canvas></div></div>
+      <pre class="vu" id="tapeVu" aria-hidden="true"></pre>
+      <p style="margin-top:var(--r)"><b id="tapeTitle">Bad Signal</b><br><span class="muted">Static, Bad Signal LP</span></p>
+      <div class="progress" id="tapeBar" role="progressbar" aria-label="Track progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+      <div class="transport"><button class="ibtn" type="button" id="tapePrev" aria-label="Previous">&lt;&lt;</button><button class="ibtn" type="button" id="tapePlay" aria-label="Play" aria-pressed="false">&gt;</button><button class="ibtn" type="button" id="tapeNext" aria-label="Next">&gt;&gt;</button></div>
+      <ol class="tracklist" id="tapeList"><li><button type="button" data-i="0" aria-current="true"><span>Bad Signal</span><span>3:42</span></button></li><li><button type="button" data-i="1"><span>Halftone Heart</span><span>4:05</span></button></li><li><button type="button" data-i="2"><span>Tearing Up</span><span>2:58</span></button></li><li><button type="button" data-i="3"><span>Datamosh Waltz</span><span>5:11</span></button></li><li><button type="button" data-i="4"><span>Boot Sequence</span><span>1:47</span></button></li></ol>
+    </div></div></div>
+  </section>
+  <section aria-labelledby="s-appchat">
+    <h2 id="s-appchat" class="vh">Chat</h2>
+    <pre class="poster ptitle" data-text="CHAT" aria-hidden="true"></pre>
+    <p class="muted">Messaging with a bot that answers in ramp. Send anything.</p>
+    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Static support</h3><div class="app">
+      <div class="app-bar"><span>&lt; Static</span><span class="badge b-ok">Online</span></div>
+      <ul class="thread" id="thread" aria-live="polite">
+        <li><div class="bubble">Hi. Something broke, right? <span class="meta">Static · 09:41</span></div></li>
+        <li class="me"><div class="bubble">The dashboard is all @ signs. <span class="meta">09:42</span></div></li>
+        <li><div class="bubble">That is the design. Which part is @ that should not be? <span class="meta">Static · 09:42</span></div></li>
+      </ul>
+      <p class="typing" id="typing" aria-hidden="true"></p>
+      <div class="compose"><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chatIn" type="text" maxlength="200" placeholder="Message" autocomplete="off" aria-label="Message"></div></div><button class="btn btn-primary frame tone-heavy" id="chatSend" type="button"><span class="mid"><span class="label">Send</span></span></button></div>
+    </div></div></div>
+  </section>
+  </div>
+
+  <div id="view-page" role="tabpanel" aria-labelledby="v-page" hidden>
+  <section aria-labelledby="o-signal">
+    <h2 id="o-signal" class="vh">Signal</h2>
+    <pre class="poster ptitle" data-text="SIGNAL" aria-hidden="true"></pre>
+    <p>A component kit that looks like a broken broadcast and behaves like plain HTML. Copy a component, own the code, change the characters.</p>
+    <div class="row demo">
+      <button class="btn btn-primary frame tone-heavy" id="opGet1" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
+      <button class="btn frame tone-light" id="opSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
+    </div>
+    <div class="stats demo">
+      <div class="stat"><pre class="poster ptitle" data-text="0" data-nobars aria-hidden="true"></pre><p><span class="vh">0 </span>dependencies</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="30" data-nobars aria-hidden="true"></pre><p><span class="vh">30 </span>components</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="8" data-nobars aria-hidden="true"></pre><p><span class="vh">8 </span>characters in the ramp</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="1" data-nobars aria-hidden="true"></pre><p><span class="vh">1 </span>type size</p></div>
+    </div>
+  </section>
+
+  <div class="ticker" id="ticker" aria-hidden="true"></div>
+
+  <section aria-labelledby="o-why">
+    <h2 id="o-why" class="vh">Why</h2>
+    <pre class="poster ptitle" data-text="WHY" aria-hidden="true"></pre>
+    <p class="muted">Four ideas hold the whole thing together.</p>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Weight is density</h3><div class="body"><p>Hierarchy comes from which character draws the frame. @ shouts, = talks and . whispers.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Frames are strings</h3><div class="body"><p>Every border, rule and shadow is a run of characters clipped to the box. No images and no SVG.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Glitch is feedback</h3><div class="body"><p>Tearing, RGB split and shards fire when you touch something or a state changes. One slider turns it all down.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">HTML underneath</h3><div class="body"><p>Real buttons, inputs, dialog and details. Keyboards and screen readers get the plain version.</p></div></article></div>
+  </section>
+
+  <section aria-labelledby="o-how">
+    <h2 id="o-how" class="vh">How it is made</h2>
+    <pre class="poster ptitle" data-text="HOW" aria-hidden="true"></pre>
+    <p class="muted">Five small labs. Each one is a piece of the system you can poke.</p>
+
+    <h3 class="lab-h">The ramp</h3>
+    <p class="muted">Brightness picks the character. Drag across the patch to move the light, and use the slider to change the exposure.</p>
+    <pre class="lab demo" id="rampLab" aria-hidden="true"></pre>
+    <div class="demo slider">
+      <label for="expo">Exposure</label>
+      <span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="expo" type="range" inputmode="none" min="0" max="100" step="5" value="60"></span>
+      <output for="expo">60</output>
+    </div>
+
+    <h3 class="lab-h">Frames are strings</h3>
+    <p class="muted">A border is one long string clipped by overflow. Type any character and the frame rebuilds itself out of it.</p>
+    <div class="demo group">
+      <label class="field-label" for="frameCh">Frame character</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="frameCh" type="text" maxlength="1" value="#" autocomplete="off" autocapitalize="off" spellcheck="false"></div></div>
+    </div>
+    <div class="demo"><div class="frame frame-demo" id="frameDemo"><span class="mid"><span class="label" id="frameDemoLabel">Made of #</span></span></div></div>
+
+    <h3 class="lab-h">Type is a bitmap</h3>
+    <p class="muted">Headlines are a 5 by 7 pixel face where every pixel is four characters. Type up to eight and watch it develop.</p>
+    <div class="demo group">
+      <label class="field-label" for="typeIn">Headline</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="typeIn" type="text" maxlength="8" value="HELLO" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div>
+    </div>
+    <pre class="poster ptitle demo" id="typeOut" data-text="HELLO" aria-hidden="true"></pre>
+
+    <h3 class="lab-h">The glitch engine</h3>
+    <p class="muted">Four effects, fired one at a time. On the rest of the page they fire on their own when state changes.</p>
+    <div class="row demo">
+      <button class="btn frame tone-light" id="gTear" type="button"><span class="mid"><span class="label">Tear</span></span></button>
+      <button class="btn frame tone-light" id="gSplit" type="button"><span class="mid"><span class="label">Split</span></span></button>
+      <button class="btn frame tone-light" id="gShards" type="button"><span class="mid"><span class="label">Shards</span></span></button>
+      <button class="btn frame tone-light" id="gCurtain" type="button"><span class="mid"><span class="label">Curtain</span></span></button>
+    </div>
+
+    <h3 class="lab-h">Sound is oscillators</h3>
+    <p class="muted">No audio files. Square waves for blips, a sawtooth for errors and filtered noise for the glitches.</p>
+    <div class="row demo">
+      <button class="btn frame tone-light" id="sTick" type="button"><span class="mid"><span class="label">Ticks</span></span></button>
+      <button class="btn frame tone-light" id="sNoise" type="button"><span class="mid"><span class="label">Noise</span></span></button>
+      <button class="btn frame tone-light" id="sChord" type="button"><span class="mid"><span class="label">Chord</span></span></button>
+      <button class="btn btn-danger frame tone-danger" id="sBuzz" type="button"><span class="mid"><span class="label">Buzz</span></span></button>
+    </div>
+  </section>
+
+  <section aria-labelledby="o-faq">
+    <h2 id="o-faq" class="vh">Questions</h2>
+    <pre class="poster ptitle" data-text="FAQ" aria-hidden="true"></pre>
+    <div class="demo">
+      <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
+      <details class="acc"><summary>Does it need a framework?</summary><p>No. It is one HTML file. The components are classes and custom properties, so they drop into anything.</p></details>
+      <details class="acc"><summary>Why monospace only?</summary><p>The grid is the design. Every width is a number of characters and every height a number of rows, which is what lets strings work as borders.</p></details>
+      <details class="acc"><summary>Can I turn the glitch off?</summary><p>Yes. The Glitch switch kills it, the slider scales it, and the page respects reduced motion.</p></details>
+    </div>
+  </section>
+
+  <section aria-labelledby="o-get">
+    <h2 id="o-get" class="vh">Get it</h2>
+    <pre class="poster ptitle" data-text="GET IT" aria-hidden="true"></pre>
+    <p>Bad signal on the outside, good HTML on the inside.</p>
+    <div class="row demo">
+      <button class="btn btn-primary frame tone-heavy" id="opGet2" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
+    </div>
+    <p class="foot">ascii/ui. An example one pager built from its own components. Set in Geist Mono.</p>
+  </section>
+  </div>
+
+  <footer id="foot">
+    <section aria-labelledby="s-inv">
+      <h2 id="s-inv" class="vh">Invaders</h2>
+      <pre class="poster ptitle" data-text="INVADERS" aria-hidden="true"></pre>
+      <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
+      <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
+    </section>
+    
+  </footer>
+</main>
+
+<dialog id="publishDialog" aria-labelledby="dlgTitle" aria-describedby="dlgBody">
+  <div class="lift">
+    <div class="card frame tone-heavy">
+      <h2 id="dlgTitle" class="bar-title">Publish project?</h2>
+      <div class="body">
+        <p id="dlgBody">Reporting redesign will be visible to anyone with the link. You can unpublish it at any time.</p>
+        <div class="row">
+          <button class="btn frame tone-light" id="dlgCancel" type="button"><span class="mid"><span class="label">Cancel</span></span></button>
+          <button class="btn btn-primary frame tone-heavy" id="dlgConfirm" type="button"><span class="mid"><span class="label">Publish</span></span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<div id="fx" aria-hidden="true"></div>
+<canvas id="sand" aria-hidden="true"></canvas>
+<div id="rebuild" hidden><button class="btn btn-primary frame tone-heavy" id="rebuildBtn" type="button"><span class="mid"><span class="label">Rebuild</span></span></button></div>
+<div class="hud" id="hud" aria-hidden="true"></div>
+<div class="track" id="track" aria-hidden="true"></div>
+
+
+<dialog id="sheetDlg" class="sheet" aria-labelledby="sheetTitle">
+  <div class="lift"><div class="card frame tone-heavy">
+    <h2 id="sheetTitle" class="bar-title">Filters</h2>
+    <div class="body">
+      <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label></div>
+      <div class="row"><button class="btn frame tone-light" id="sheetReset" type="button"><span class="mid"><span class="label">Reset</span></span></button><button class="btn btn-primary frame tone-heavy" id="sheetApply" type="button"><span class="mid"><span class="label">Apply</span></span></button></div>
+    </div>
+  </div></div>
+</dialog>
+
+
+<dialog id="menuDlg" class="sheet" aria-labelledby="menuTitle">
+  <div class="lift"><div class="card frame tone-heavy">
+    <h2 id="menuTitle" class="bar-title">Menu</h2>
+    <div class="body">
+      <ul class="menu-list" id="menuViews"></ul>
+      <div class="menu-sub" id="menuSecs"></div>
+      <div class="menu-foot">
+        <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
+        <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+        <button class="ibtn" id="mTheme" type="button">Theme</button>
+        <button class="ibtn" id="mCmd" type="button">&gt;_ Commands</button>
+      </div>
+      <div class="row"><button class="btn frame tone-light" id="menuClose" type="button"><span class="mid"><span class="label">Close</span></span></button></div>
+    </div>
+  </div></div>
+</dialog>
+
+<dialog id="cmdDlg" aria-labelledby="cmdTitle">
+  <div class="lift"><div class="card frame tone-heavy">
+    <h2 id="cmdTitle" class="bar-title">Command</h2>
+    <div class="body">
+      <div id="cmdLog" role="log" aria-live="polite">type <b>help</b></div>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">$</span><input id="cmdIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></div></div>
+      <div class="row"><button class="btn frame tone-light" id="cmdClose" type="button"><span class="mid"><span class="label">Close</span></span></button><button class="btn btn-primary frame tone-heavy" id="cmdRun" type="button"><span class="mid"><span class="label">Run</span></span></button></div>
+    </div>
+  </div></div>
+</dialog>
+
+<dialog id="posterDlg" aria-labelledby="posterTitle">
+  <div class="lift"><div class="card frame tone-heavy">
+    <h2 id="posterTitle" class="bar-title">Your signal</h2>
+    <div class="body">
+      <img id="posterImg" alt="Generated glitch poster with your signal code">
+      <p class="muted" style="margin-top:var(--r)">Generated from your signal code. Long-press or right-click the image to save it.</p>
+      <div class="row"><button class="btn frame tone-light" id="posterClose" type="button"><span class="mid"><span class="label">Close</span></span></button><button class="btn btn-primary frame tone-heavy" id="posterReroll" type="button"><span class="mid"><span class="label">Reroll</span></span></button></div>
+    </div>
+  </div></div>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><span id="toastText"></span></div>
+
+<script src="js/10-engine.js"></script>
+<script src="js/20-glitch-play.js"></script>
+<script src="js/30-lcd-components-docs.js"></script>
+<script src="js/40-themes-ramp-code.js"></script>
+<script src="js/50-menu-apps.js"></script>
+</body>
+</html>

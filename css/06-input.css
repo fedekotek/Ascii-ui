@@ -1,0 +1,16 @@
+/* ---------- input ---------- */
+.field-label{display:block}
+.field .mid{gap:1ch}
+.field .prompt{font-weight:700;color:var(--hot)}
+.field input{
+  font:inherit;color:var(--ink);background:none;border:0;border-radius:0;outline:0;
+  padding:0;margin:0;flex:1;min-width:0;height:var(--r);
+  caret-color:var(--hot);caret-shape:block;
+}
+.field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
+.field.invalid{--h:var(--h-error);--s:var(--s-error);--frame-color:var(--danger)}
+.field.invalid .prompt{color:var(--danger)}
+.error{color:var(--danger)}
+.error:empty{display:none}
+.group{max-width:48ch}
+.group + .group{margin-top:var(--r)}

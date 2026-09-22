@@ -1,0 +1,12 @@
+/* ---------- slider and progress: a halftone bar ---------- */
+.bar{font-weight:700;white-space:pre;display:block}
+.slider{display:flex;flex-wrap:wrap;gap:0 2ch;align-items:flex-end}
+.slider label{flex-basis:100%}
+.slider-track{position:relative;display:inline-block}
+.slider-track input{
+  position:absolute;inset:-10px 0;width:100%;height:calc(100% + 20px);
+  margin:0;opacity:0;cursor:pointer;
+}
+.slider-track:has(input:focus-visible){color:var(--accent)}
+.progress{display:flex;gap:2ch;align-items:flex-end}
+.progress .pct{white-space:pre}
