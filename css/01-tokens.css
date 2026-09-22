@@ -1,9 +1,11 @@
 /* ---------- tokens: a bad signal. magenta acts, cyan focuses, lime confirms, yellow warns ---------- */
 :root{
   --bg:#ecebe4; --ink:#111110; --muted:#5c5b55;
-  --hot:#d6156f; --pink:#e8478f; --cy:#0b7f96; --ok:#3f6b00; --warn:#c0260f;
+  /* light: cyan is focus and magenta is action, so both clear 4.5:1 on paper.
+     They were 3.9 and 4.2. Dark already passes. */
+  --hot:#c91468; --pink:#e8478f; --cy:#0a7287; --ok:#3f6b00; --warn:#c0260f;
   --deep:#2b2bd1; --violet:#6a45d9;
-  --t0:#111110; --t1:#111110; --t2:#d6156f; --t3:#2b2bd1;
+  --t0:#111110; --t1:#111110; --t2:#c91468; --t3:#2b2bd1;
   --scan:rgba(17,17,16,.06);
   --accent:var(--cy); --danger:var(--warn);
   --r:24px;

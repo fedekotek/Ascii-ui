@@ -382,7 +382,9 @@ function buildView(panel,label,skip){
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
-  toc.innerHTML='<details class="acc toc"'+(window.innerWidth>=720?' open':'')+'><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
+  /* it is the only way to a section while the sidebar is not there, so it is
+     open below the sidebar's width too */
+  toc.innerHTML='<details class="acc toc" open><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
   secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});chips.appendChild(b)});
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
@@ -397,6 +399,18 @@ $('blockFilters').addEventListener('click',e=>{
   blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f});
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
-document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles()},900)));
+document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900)));
 setTimeout(()=>LCDS.forEach(l=>l.size()),300);
+
+/* say it when a table is wider than its box: on touch there is no scrollbar
+   and the last column just is not there */
+function markWide(){
+  document.querySelectorAll('.tablewrap').forEach(w=>{
+    if(w.scrollWidth>w.clientWidth+2)w.setAttribute('data-wide','');
+    else w.removeAttribute('data-wide');
+  });
+}
+markWide();window.AUI_WIDE=markWide;
+window.addEventListener('resize',markWide);
+setTimeout(markWide,1200);
 })();

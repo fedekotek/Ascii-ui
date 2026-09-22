@@ -113,3 +113,109 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* the tooltip is one long line, which on a 320px screen pushes the page
    sideways even while it is clipped out of sight */
 .tip{max-width:calc(100vw - 4ch);white-space:normal}
+
+/* the sheet is taller than the screen on a phone: 30 chips plus switches plus
+   the close row. It scrolls now, and the close row stays put at the bottom */
+dialog.sheet{max-height:86vh;max-height:86dvh;display:flex;flex-direction:column}
+dialog.sheet[open]{display:flex}   /* the strip left above it is what you tap to close */
+dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
+/* the whole sheet scrolls, not one part of it: seven views, thirty sections,
+   the switches and the close row do not fit on a phone in any arrangement */
+dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
+dialog.sheet .body > .row:last-child{
+  position:sticky;bottom:0;background:var(--bg);
+  padding-top:var(--r);margin-top:0;
+}
+/* nothing behind a dialog scrolls while it is open */
+body:has(dialog[open]){overflow:hidden}
+
+/* the bar: the command button holds the right edge now that the hidden tab
+   list is no longer the spacer, and both icon buttons are a thumb wide */
+.barctl{margin-left:auto}
+#menuBtn,#cmdBtn{padding-left:1ch;padding-right:1ch}
+
+/* Jumping to a section used to land 168px past the title: four rows of scroll
+   margin, then five rows of section margin, then the rule. Under 768px the
+   title lands right under the bar. */
+@media (max-width:767px){
+  [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*2);scroll-margin-top:calc(var(--r)*3)}
+  [role="tabpanel"] > section[aria-labelledby] + section[aria-labelledby]::before{margin-bottom:var(--r)}
+}
+
+/* Hit areas a thumb can find. The rule is 44px, these were 20 to 40. Seven
+   calendar columns and six code cells at 44px each do not fit on the narrowest
+   phones, so there the brackets step aside rather than the target shrinking. */
+@media (max-width:1023px){
+  .cal-grid button{padding:12px 0}
+  .rampcells input{min-width:3ch}
+  .menu [role="menuitem"]{padding:12px 0}
+  .pager button,.pager a,.stepper button{padding:12px 1ch;margin:-12px 0}
+  .feed .bell,.feed .like,.feed .rt{padding:12px 1ch;margin:-12px 0}
+  .otp{flex-wrap:wrap}
+}
+@media (min-width:384px) and (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,5ch)}}
+@media (max-width:1023px){.otp input{width:4.6ch}}
+@media (max-width:479px){
+  .otp span::before,.otp span::after{display:none}
+  .otp input{text-decoration:underline;text-underline-offset:4px}
+}
+
+/* The Play stage is sticky, and on a phone it took 38% of the screen while you
+   were turning the knobs under it. */
+@media (max-width:719px){#playStage{max-height:25vh;overflow:hidden}}
+
+/* The palette printed its help as one long line and cut it mid word. */
+#cmdLog{word-break:break-word;overflow-wrap:anywhere}
+
+/* Landscape on a phone has no height to spare: the bar loses its rule row and
+   the hero keeps a third of the screen. */
+@media (max-height:480px) and (orientation:landscape){
+  .topbar::after{display:none}
+  main > header > canvas{max-height:30vh}
+}
+
+/* The REC counter is the only text under 12px and on a small screen it lands on
+   top of the chart axis and the calendar. */
+@media (max-width:479px){.hud{display:none}}
+
+/* A phone reads one column, so an open popover covers the section under it
+   rather than blending into its dotted rule. */
+[role="tabpanel"] > section:has(.menu.open),[role="tabpanel"] > section:has([aria-expanded="true"]){position:relative;z-index:6}
+.menu{box-shadow:0 0 0 1ch var(--bg)}
+
+/* A table wider than the phone scrolls sideways with nothing to say so: no
+   scrollbar on touch, no fade, and the last column simply missing. */
+@media (max-width:767px){
+  .tablewrap{position:relative}
+  .tablewrap[data-wide]::after{
+    content:"scrolls sideways";display:block;color:var(--muted);
+    line-height:var(--r);height:var(--r);position:sticky;left:0;
+  }
+}
+
+/* On the narrowest phones the two hero buttons were 10px too wide together and
+   stacked, which cost three rows. The label loses its side space there, the
+   frame still reads. */
+@media (max-width:399px){
+  #heroSrc{gap:var(--r) 1ch}
+  #heroSrc .btn .label{padding:0}
+}
+
+/* A two column list with a 10ch label does not fit a 320px screen once the
+   value is a bar of characters. */
+@media (max-width:399px){
+  .kv{grid-template-columns:1fr}
+  .kv dd{margin-bottom:var(--r)}
+  .statbars{max-width:100%}
+}
+
+/* A progress bar is a fixed run of characters next to its percentage. On a
+   320px screen the run is wider than the row and pushed the number off the
+   edge, so there the number wraps under it and the run clips. */
+@media (max-width:479px){
+  .progress{flex-wrap:wrap}
+  .progress .bar,.progress .glyph{max-width:100%;overflow:hidden}
+}
+
+/* a select is a control, it gets a thumb's worth of height on touch */
+@media (max-width:1023px){.field select,select{min-height:44px}}

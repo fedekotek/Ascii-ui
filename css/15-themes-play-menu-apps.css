@@ -36,7 +36,7 @@
 .menu-list span{color:var(--muted);font-weight:500;text-transform:none}
 .menu-sub{margin-top:var(--r);display:flex;flex-wrap:wrap;gap:0 2ch}
 .menu-foot{margin-top:var(--r);display:flex;flex-wrap:wrap;gap:var(--r) 3ch}
-@media (min-width:720px){#menuBtn{display:none}}
+@media (min-width:768px){#menuBtn{display:none}}
 /* apps */
 .phone{position:relative;max-width:40ch;margin:0 auto}
 .phone .app{padding:0 3ch calc(var(--r)*1)}

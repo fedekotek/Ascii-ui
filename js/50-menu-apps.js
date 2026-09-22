@@ -7,19 +7,46 @@ const ping=(f,d)=>{if(live())A.tone('square',f,0,d||0.05,0.4)};
 
 /* ================= menu ================= */
 const md=$('menuDlg'),tabs=[...document.querySelectorAll('[role="tablist"].views [role="tab"]')];
+let menuChips=[];
 function buildMenu(){
   $('menuViews').innerHTML=tabs.map(t=>'<li><button type="button" data-t="'+t.id+'"'+(t.getAttribute('aria-selected')==='true'?' aria-current="page"':'')+'>'+esc(t.textContent)+'</button></li>').join('');
   const cur=tabs.find(t=>t.getAttribute('aria-selected')==='true'),panel=cur&&$(cur.getAttribute('aria-controls'));
-  const secs=panel?[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden):[];
-  $('menuSecs').innerHTML=secs.map(s=>'<button class="chip" type="button" data-s="'+s.getAttribute('aria-labelledby')+'">'+esc(s.querySelector('h2').textContent)+'</button>').join('');
+  /* the chip index in the view is the list, so the sheet mirrors it rather than
+     counting sections its own way and disagreeing with it */
+  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')]:[];
+  const secs=chips.length?chips.map(c=>({id:null,name:c.textContent,chip:c}))
+    :(panel?[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden)
+        .map(s=>({id:s.getAttribute('aria-labelledby'),name:s.querySelector('h2').textContent,chip:null})):[]);
+  menuChips=secs;
+  $('menuSecs').innerHTML=secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
   $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
+  $('mTheme').textContent='Theme: '+A.currentTheme();
 }
 $('menuBtn').addEventListener('click',()=>{buildMenu();md.showModal();if(live())sfx.open()});
 $('menuClose').addEventListener('click',()=>md.close());
+/* a phone has no Esc key and the sheet is taller than the screen, so the way
+   out is tapping next to it */
+md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});
+/* whatever closed it, the button that opened it gets the focus back */
+md.addEventListener('close',()=>{const b=$('menuBtn');if(b&&b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
   const t=e.target.closest('[data-t]'),s=e.target.closest('[data-s]');
-  if(t){md.close();const tab=$(t.dataset.t);if(tab.getAttribute('aria-selected')!=='true')tab.click();else window.scrollTo(0,0)}
-  else if(s){md.close();setTimeout(()=>{const sec=document.querySelector('section[aria-labelledby="'+s.dataset.s+'"]');sec&&sec.scrollIntoView({block:'start'})},60);ping(440)}
+  if(t){
+    /* picking a view keeps the sheet open and refills it with that view's
+       sections, so reaching a section elsewhere is two taps instead of four */
+    const tab=$(t.dataset.t);
+    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(buildMenu,420)}
+    else{md.close();window.scrollTo(0,0)}
+  }
+  else if(s){
+    const entry=menuChips[+s.dataset.i];
+    md.close();
+    setTimeout(()=>{
+      if(entry&&entry.chip)entry.chip.click();
+      else{const sec=document.querySelector('section[aria-labelledby="'+s.dataset.s+'"]');sec&&sec.scrollIntoView({block:'start'})}
+    },60);
+    ping(440);
+  }
 });
 $('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
 $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});

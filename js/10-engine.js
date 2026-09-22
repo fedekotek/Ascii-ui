@@ -754,6 +754,14 @@
   [].forEach.call(document.querySelectorAll('.field input'),function(inp){
     inp.addEventListener('input',function(){ripple(inp.closest('.field'),inp)});
   });
+  /* the frame is 72px tall and reads as the target, but only the 24px line
+     inside it used to take the tap */
+  document.addEventListener('pointerdown',function(e){
+    var f=e.target.closest&&e.target.closest('.field');
+    if(!f||e.target.matches('input,select,textarea,button,a'))return;
+    var inp=f.querySelector('input,select,textarea');
+    if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+  });
   slug.addEventListener('input',function(){
     var v=slug.value,msg='';
     if(!v)msg='Enter a link for this project.';
