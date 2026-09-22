@@ -24,7 +24,7 @@
 | Select | `s-select` | Native select in the input frame. | none | css/13 `.field select` |
 | Separator | `s-separator` | Four weights of nothing. | none | css/14 `.sepd .sepl` |
 | Sheet | `s-sheet` | Bottom dialog, seven steps. | small | css/14 `dialog.sheet`, js/30 |
-| Skeleton | `s-skeleton` | Wave through the ramp. | interval | css/13 `.skel`, js/20 "sparklines, skeleton" |
+| Skeleton | `s-skeleton` | Wave through the ramp. | clock task | css/13 `.skel`, js/20 "sparklines, skeleton" |
 | Slider | `s-slider` | Halftone bar with a real range on top. Wired to glitch amount. | engine `bindSlider` | css/08, js/10 "halftone bar" |
 | Spinner | `s-spinner` | Five ways to wait. | `AUI_JS.spinners` | css/14 `.spins`, js/30 |
 | Tabs | `s-tabs` | Active tab is a slab. | engine | css/09, js/10 "tabs" |

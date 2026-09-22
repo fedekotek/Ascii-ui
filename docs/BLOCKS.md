@@ -19,7 +19,7 @@
 | Settings | `s-settings` | app | Sound and Glitch switches are two-way bound to the real header switches. |
 | Design crit | `s-crit` | app | Textarea with min length, verdict toggle group, error state. |
 | Activity | `s-feed` | dashboard | Timeline with times, static. |
-| 404 | `s-lost` | marketing | Title that never settles (`titleFrame` on an interval while in view). |
+| 404 | `s-lost` | marketing | Title that never settles (`titleFrame` on a clock task while in view). |
 
 Placeholder copy to replace before this goes anywhere public: Pomelo and MercadoLibre one-liners in Career; the asado quantities and the Malbec ratio in Recipe; every number in Build; the Now list will go stale.
 

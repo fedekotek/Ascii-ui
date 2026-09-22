@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const A=window.AUI,B=window.AUI2,$=A.$,rnd=A.rnd,rep=A.rep,RAMP=A.RAMP,reduce=A.reduce,sfx=A.sfx;
+const A=window.AUI,B=window.AUI2,$=A.$,rnd=A.rnd,rep=A.rep,RAMP=A.RAMP,reduce=A.reduce,sfx=A.sfx,every=A.every,times=A.times;
 const {esc,clamp,inView}=B;
 const root=document.documentElement;
 const live=()=>A.live();
@@ -143,7 +143,7 @@ LCD.prototype.draw=function(){
 LCD.prototype.setImage=function(file,cb){const img=new Image();img.onload=()=>{this.img=img;this.draw();cb&&cb(true)};img.onerror=()=>cb&&cb(false);img.src=URL.createObjectURL(file)};
 document.querySelectorAll('canvas.lcd').forEach(c=>new LCD(c));
 const lcdOf=el=>LCDS.find(l=>l.cv===el);A.lcdOf=lcdOf;
-if(!reduce)setInterval(()=>{if(document.hidden)return;LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(!l.cw)l.size();else l.draw()}})},125);
+if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(!l.cw)l.size();else l.draw()}})});
 window.addEventListener('resize',()=>LCDS.forEach(l=>l.size()));
 const bigPic=lcdOf(document.querySelector('figure.pic canvas[data-scene="ba"]'));
 const CAP={ba:'<b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.',desk:'<b>The desk.</b> One monitor, one plant, one chart that never stops.',mate:'<b>Mate.</b> Steam included.',test:'<b>Test card.</b> If this looks wrong, everything is fine.'};
@@ -238,7 +238,7 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.spinners=function(){
     bs[3].textContent=rep('.',1+(f>>1)%3);
     bs[4].textContent=A.TR(A.barRow((f*0.7)%9|0,false,8));
   }
-  draw();if(!reduce)setInterval(()=>{if(!document.hidden&&inView($('spins')))draw()},110);
+  draw();if(!reduce)A.every(110,draw,{el:$('spins')});
 };window.AUI_JS.spinners();
 /* textarea counters */
 function counter(ta,out){if(!ta||!out)return;const up=()=>{out.textContent=ta.value.length+'/'+ta.maxLength};ta.addEventListener('input',up);up()}
@@ -261,7 +261,7 @@ $('sayHi').addEventListener('click',()=>A.say('No inbox is wired to a prototype.
   });
 })();
 $('nowRead').innerHTML=A.colorize(A.barRow(Math.round(163/179*14),false,14))+' <span class="muted">163/179</span>';
-if(!reduce)setInterval(()=>{const e=$('nowPull');if(e&&inView(e))e.textContent='|/-\\'[Date.now()/140&3]+' loading'},140);else $('nowPull').textContent='loading';
+if(!reduce)every(140,()=>{const e=$('nowPull');if(e&&inView(e))e.textContent='|/-\\'[Date.now()/140&3]+' loading'});else $('nowPull').textContent='loading';
 (function(){
   const ING=[['Tira de asado',400,'g'],['Vacio',220,'g'],['Chorizo',1,'u'],['Provoleta',0.34,'u'],['Coarse salt',12,'g'],['Charcoal',700,'g'],['Malbec',0.25,'l']];let n=6;
   const fmt=(q,u)=>u==='g'?(q>=1000?(q/1000).toFixed(1).replace(/\.0$/,'')+' kg':Math.round(q/10)*10+' g'):(u==='l'?(Math.round(q*10)/10)+' l':Math.max(1,Math.ceil(q))+'');
@@ -302,7 +302,7 @@ $('critSend').addEventListener('click',()=>{
   $('critErr').textContent='';f.classList.remove('invalid');ta.removeAttribute('aria-invalid');A.say('Crit sent. Verdict: '+v.toLowerCase()+'.');if(live())sfx.ok();
 });
 $('lostHome').addEventListener('click',()=>{const t=$('v-kit');window.scrollTo(0,0);if(t.getAttribute('aria-selected')!=='true')t.click()});
-if(!reduce)setInterval(()=>{const p=$('lostTitle');if(p&&inView(p)&&!p._iv&&A.glitch()>0&&p._b)A.titleFrame(p,6+rnd(6))},260);
+if(!reduce)every(260,()=>{const p=$('lostTitle');if(p&&inView(p)&&!p._iv&&A.glitch()>0&&p._b)A.titleFrame(p,6+rnd(6))});
 
 /* ================= shadcn-style docs: index, preview and code tabs, filters ================= */
 function cleanHTML(node){

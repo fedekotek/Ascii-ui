@@ -4,7 +4,7 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 
 ## Now (structural, do first)
 - [ ] **ES modules.** One module per current IIFE, explicit imports instead of `window.AUI*`. Keep `build.py` producing the single file (esbuild-free: concatenate in order, or use a 20-line bundler).
-- [ ] **One scheduler.** `tick(now)` on rAF, features register `{cadence, visible(), draw()}`. Replace the 33 intervals. Global pause when hidden or `.calm`.
+- [x] **One scheduler.** Done: one rAF loop in js/10, `A.every(ms,fn,{gate,el,times,end,delay})` and `A.times(ms,n,fn,end)`, handles with `.stop()`, `A.clock.pause()/resume()/count()`. All 33 intervals migrated, `qa/clock.py` guards it.
 - [ ] **Tokens as a JSON source of truth** that generates `css/01-tokens.css` and the Tokens block, so presets and docs cannot drift.
 - [ ] **A real device pass** on iOS Safari and Firefox. Fix list in KNOWN-ISSUES.md #20.
 

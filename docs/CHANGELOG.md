@@ -16,3 +16,4 @@ Versions as published to the artifact URL. Single files for each are in `archive
 - **v9.3** Titles fit: drop bars, then halve scale, based on measured columns; handles accessibility font scaling.
 - **v9.4** Shatter uses the component's own characters, frames, glyphs and LCD pixels, with their colors.
 - **v10** This repo: split into `index.html` + `css/` + `js/`, `build.py`, docs, QA scripts, archive.
+- **v10.1** One clock: the 33 `setInterval`s become tasks on a single `requestAnimationFrame` loop (`A.every`, `A.times`), with gates, self-stopping handles, a global pause and `qa/clock.py` to keep it that way. No visible change, same cadences.

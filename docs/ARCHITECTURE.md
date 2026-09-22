@@ -85,7 +85,17 @@ Ten variables: `--bg --ink --muted --hot --pink --cy --ok --warn --deep --violet
 
 ## Timing
 
-There is no scheduler; there are 33 `setInterval`s. Every one is guarded by `document.hidden` and, where it draws, by an IntersectionObserver visibility flag. The hero runs at ~12 fps (85ms), LCDs at 8 fps (125ms), invaders at 20 fps (50ms), the tape at 4 fps. Consolidating these into one `requestAnimationFrame` loop with per-feature cadences is the first refactor on the roadmap.
+One clock, in `js/10-engine.js`. Every repeating animation is a task on a single `requestAnimationFrame` loop; there are no `setInterval`s left in the page. A task is `{ms, fn, gate}`: the loop runs `fn` when its cadence is due, the tab is visible, the clock is not paused and its gate returns true. Missed frames are dropped instead of queued, so nothing stampedes after the tab comes back. The loop stops itself when the task list empties and restarts when a task is added or the tab becomes visible again.
+
+```js
+var t = A.every(125, draw, {el: canvas});   // repeats while the node is on screen
+A.every(85, frame, {gate: function(){return visible}});
+A.times(45, 15, paintFrame, function(){ done() });   // 15 frames, then the end callback
+t.stop();                                   // handles stop themselves
+A.clock.pause(); A.clock.resume(); A.clock.count();
+```
+
+Cadences are unchanged: hero ~12 fps (85ms), LCDs 8 fps (125ms), invaders 20 fps (50ms), the tape 4 fps (250ms). `qa/clock.py` asserts the invariants (no `setInterval` survives, tasks run, pause freezes them, finite tasks get reaped).
 
 ## Sound
 

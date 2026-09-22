@@ -16,7 +16,8 @@ playwright install chromium
 | `themes-play-code.py` | Presets, ramp presets, Play words and map, Code tab, Install section screenshots. |
 | `apps-menu.py` | Scrolls the Apps view on a touch viewport and opens the menu sheet. |
 | `boot.py` | Screenshots the boot sequence and checks it is gone after 3s. |
+| `clock.py [W H]` | Guards the single rAF clock: no `setInterval` survives, tasks are registered and running, `pause()` freezes them, `resume()` restarts them, finite tasks run their count and leave the list. Exits non-zero on failure. |
 
 All scripts print `[]` when there is nothing wrong. Screenshots go next to the script.
 
-Release bar: `qa.py` clean at 390 dark, 390 light, 1440 dark, 1440 light; `audit.py` clean; one manual pass on a phone.
+Release bar: `qa.py` clean at 390 dark, 390 light, 1440 dark, 1440 light; `audit.py` clean; `clock.py` prints `clock: ok`; one manual pass on a phone.

@@ -1,6 +1,6 @@
 (function(){
 'use strict';
-const A=window.AUI,B=window.AUI2,$=A.$,rnd=A.rnd,rep=A.rep,RAMP=A.RAMP,reduce=A.reduce,sfx=A.sfx;
+const A=window.AUI,B=window.AUI2,$=A.$,rnd=A.rnd,rep=A.rep,RAMP=A.RAMP,reduce=A.reduce,sfx=A.sfx,every=A.every,times=A.times;
 const {esc,clamp,inView}=B;
 const live=()=>A.live();
 const ping=(f,d)=>{if(live())A.tone('square',f,0,d||0.05,0.4)};
@@ -29,7 +29,7 @@ $('mCmd').addEventListener('click',()=>{md.close();setTimeout(()=>$('cmdBtn').cl
 /* ================= chirp ================= */
 function bump(span,delta){
   const to=+span.textContent.replace(/,/g,'')+delta;let f=0;
-  const iv=setInterval(()=>{f++;if(f>5){clearInterval(iv);span.textContent=to.toLocaleString('en-US');return}span.textContent=RAMP[3+rnd(6)]+RAMP[3+rnd(6)]},40);
+  times(40,5,()=>{span.textContent=RAMP[3+rnd(6)]+RAMP[3+rnd(6)]},()=>{span.textContent=to.toLocaleString('en-US')});
 }
 $('chirpFeed').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
@@ -75,7 +75,7 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   $('tapeList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){load(+b.dataset.i);toggle(true)}});
   bar.addEventListener('pointerdown',e=>{const r=bar.getBoundingClientRect();pos=T[i][1]*clamp((e.clientX-r.left)/(r.width*0.8),0,1);draw()});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(bar);else vis=true;
-  setInterval(()=>{if(!document.hidden)step()},250);
+  every(250,step);
   draw();
 })();
 
@@ -88,8 +88,8 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   let typ=null;
   function send(){
     const t=inp.value.trim();if(!t){A.jolt();if(live())sfx.err();return}add(t,true);inp.value='';ping(660);
-    let f=0;clearInterval(typ);typ=setInterval(()=>{tp.textContent='Static is typing '+RAMP[2+(f++%6)]+RAMP[2+((f+2)%6)]+RAMP[2+((f+4)%6)];if(live()&&f%3===0)sfx.tick()},120);
-    setTimeout(()=>{clearInterval(typ);tp.textContent='';add(R[rnd(R.length)],false);A.kick();if(live())sfx.blip()},900+rnd(900));
+    let f=0;if(typ)typ.stop();typ=every(120,()=>{tp.textContent='Static is typing '+RAMP[2+(f++%6)]+RAMP[2+((f+2)%6)]+RAMP[2+((f+4)%6)];if(live()&&f%3===0)sfx.tick()});
+    setTimeout(()=>{typ.stop();tp.textContent='';add(R[rnd(R.length)],false);A.kick();if(live())sfx.blip()},900+rnd(900));
   }
   $('chatSend').addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});
 })();
