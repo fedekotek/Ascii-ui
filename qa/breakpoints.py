@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 
 URL='file://'+os.path.abspath(os.path.join(os.path.dirname(__file__),'..','index.html'))
 # width, height, expected gallery columns
-SIZES=[(360,780,1),(390,844,1),(820,1180,1),(1024,768,1),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
+SIZES=[(360,780,1),(390,844,1),(800,1000,1),(820,1180,1),(900,700,1),(1024,768,1),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
 GALLERIES=['kit','blocks']   # these fill every column
 VIEWS=GALLERIES+['charts']   # charts has only two sections that are not full width
 
@@ -37,6 +37,19 @@ OUTSIDE="""(p=>{
   return out.slice(0,4);
 })"""
 
+# every control in the top bar has to have its own space: the views once slid
+# under sound and theme between 768 and 1023px and nothing noticed
+BAR="""(()=>{
+  const k=[...document.querySelectorAll('.viewsbar > button,.viewsbar .views .tab,.barctl > *')]
+    .filter(e=>e.offsetParent!==null).map(e=>({n:e.id||e.textContent.trim(),r:e.getBoundingClientRect()}));
+  const bad=[];
+  for(let i=0;i<k.length;i++)for(let j=i+1;j<k.length;j++){
+    const a=k[i].r,b=k[j].r;
+    if(a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)bad.push(k[i].n+' x '+k[j].n);
+  }
+  return bad.slice(0,4);
+})()"""
+
 async def run():
     bad=0
     async with async_playwright() as p:
@@ -49,6 +62,8 @@ async def run():
             await pg.mouse.click(w//2,200); await pg.wait_for_timeout(700)
             msgs=[]
             mw=await pg.evaluate("Math.round(document.getElementById('main').getBoundingClientRect().width)")
+            bl=await pg.evaluate(BAR)
+            if bl: msgs.append('bar overlap: '+'; '.join(bl))
             for v in VIEWS:
                 await pg.evaluate(f"document.getElementById('v-{v}').click()"); await pg.wait_for_timeout(1300)
                 ov=await pg.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")

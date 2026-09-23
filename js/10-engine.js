@@ -320,6 +320,9 @@
     var ch=probe.getBoundingClientRect().width/50;
     if(!ch)return;
     CH=ch;
+    /* start from the full hero every time: a short window takes rows away
+       below, and a taller one has to be able to give them back */
+    HR=58;
     /* css/16-grid.css owns the cap, in characters, per breakpoint */
     var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
     var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
@@ -347,7 +350,9 @@
     if(hd){
       var copy=hd.getBoundingClientRect().height-hero.getBoundingClientRect().height;
       var floor=Math.min(240,Math.round(vh*0.3/24)*24);
-      var lid=Math.max(floor,Math.round((vh-192-copy)/24)*24);
+      /* and never more than 45% of the window, so the page under it shows
+         whatever the copy costs */
+      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     hero.style.height=Hpx+'px';
@@ -725,7 +730,7 @@
   });
   function themeLabel(){
     var t=currentTheme();
-    setLabel(themeBtn,t==='dark'?'Dark':'Light');
+    setLabel(themeBtn,'Theme');
     themeBtn.setAttribute('aria-label','Theme: '+t+'. Switch to '+(t==='dark'?'light':'dark')+'.');
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
@@ -999,7 +1004,7 @@
     while((n=w.nextNode())){
       if(!n.nodeValue.trim())continue;
       var pa=n.parentNode;
-      if(pa.closest('.glyph,.bar,pre,.label,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
+      if(pa.closest('.glyph,.bar,pre,.label,.check,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
       a.push(n);
     }
     return a;

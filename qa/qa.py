@@ -15,6 +15,9 @@ async def run(w,h,scheme,tag,shots=True):
             if ov>1: msgs.append(f'OVERFLOW {name} {ov}px')
             bad=await pg.evaluate("""(()=>{const out=[];const vw=document.documentElement.clientWidth;document.querySelectorAll('main *').forEach(e=>{if(e.closest('[hidden]')||e.closest('.tablewrap,.code,.views,.chart,pre'))return;const r=e.getBoundingClientRect();if(r.width>0&&r.right>vw+2)out.push(e.tagName+'.'+e.className+' '+Math.round(r.right-vw))});return out.slice(0,8)})()""")
             if bad: msgs.append(f'WIDE {name}: '+'; '.join(bad))
+            # a closed dialog is display:none, whatever the page styles say
+            shut=await pg.evaluate("[...document.querySelectorAll('dialog:not([open])')].filter(d=>getComputedStyle(d).display!=='none').map(d=>d.id)")
+            if shut: msgs.append(f'CLOSED DIALOG SHOWS {name}: '+', '.join(shut))
             if shots:
                 total=await pg.evaluate("document.documentElement.scrollHeight"); y=await pg.evaluate("window.scrollY"); i=0
                 while y<total and i<40:

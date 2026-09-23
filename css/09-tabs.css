@@ -9,7 +9,7 @@
   padding:var(--r) 2ch;cursor:pointer;text-transform:uppercase;
   outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
 }
-.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .tablist::after{color:var(--violet)}
 @media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
 .tab:focus-visible{background:var(--accent);color:var(--bg)}

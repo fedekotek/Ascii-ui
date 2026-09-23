@@ -13,23 +13,31 @@ function buildMenu(){
   const cur=tabs.find(t=>t.getAttribute('aria-selected')==='true'),panel=cur&&$(cur.getAttribute('aria-controls'));
   /* the chip index in the view is the list, so the sheet mirrors it rather than
      counting sections its own way and disagreeing with it */
-  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')]:[];
+  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')].filter(c=>!c.hidden):[];
   const secs=chips.length?chips.map(c=>({id:null,name:c.textContent,chip:c}))
     :(panel?[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden)
         .map(s=>({id:s.getAttribute('aria-labelledby'),name:s.querySelector('h2').textContent,chip:null})):[]);
   menuChips=secs;
-  $('menuSecs').innerHTML=secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
+  /* the list says whose sections these are, so picking another view visibly
+     changes it rather than silently swapping the chips */
+  const head=secs.length?'<p class="menu-h" id="menuSecsH">'+esc(cur?cur.textContent:'')+', '+secs.length+'</p>':'';
+  $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
   $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
-  $('mTheme').textContent='Theme: '+A.currentTheme();
+  $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
 }
-$('menuBtn').addEventListener('click',()=>{buildMenu();md.showModal();if(live())sfx.open()});
+$('menuBtn').addEventListener('click',()=>{
+  buildMenu();md.showModal();$('menuBtn').setAttribute('aria-expanded','true');
+  /* start where you are: the current view, not the way out */
+  const here=$('menuViews').querySelector('[aria-current="page"]');if(here)here.focus();
+  if(live())sfx.open();
+});
 $('menuClose').addEventListener('click',()=>md.close());
 $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
    out is tapping next to it */
 md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});
 /* whatever closed it, the button that opened it gets the focus back */
-md.addEventListener('close',()=>{const b=$('menuBtn');if(b&&b.offsetParent!==null)b.focus()});
+md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
   const t=e.target.closest('[data-t]'),s=e.target.closest('[data-s]');
   if(t){

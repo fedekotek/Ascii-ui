@@ -38,7 +38,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .cal-grid span{color:var(--muted);text-align:center}
 .cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:10px 0;cursor:pointer;outline:0;text-align:center}
 .cal-grid button.today{color:var(--hot);font-weight:700}
-.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0}
 .ibtn::before{content:"[";color:var(--muted)}.ibtn::after{content:"]";color:var(--muted)}
@@ -90,7 +90,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .tgroup label{position:relative;cursor:pointer}
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:calc(var(--r)/2) 2ch;color:var(--muted);text-transform:uppercase}
-.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
 /* timeline, feed */
 .timeline{list-style:none;padding:0;margin:0;max-width:60ch}
@@ -130,7 +130,7 @@ figcaption b{color:var(--ink)}
 .wo input:checked ~ .t{text-decoration:line-through;color:var(--muted)}
 .side{list-style:none;padding:0;margin:0;max-width:32ch}
 .side button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 1ch;cursor:pointer;outline:0;text-align:left}
-.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .side button:focus-visible{background:var(--accent);color:var(--bg)}
 .side button::before{content:"  "}.side button[aria-current="page"]::before{content:"> "}
 .side button span{margin-left:auto;padding-left:2ch}

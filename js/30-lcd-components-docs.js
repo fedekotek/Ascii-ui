@@ -386,7 +386,7 @@ function buildView(panel,label,skip){
      open below the sidebar's width too */
   toc.innerHTML='<details class="acc toc" open><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
-  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});chips.appendChild(b)});
+  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
@@ -396,7 +396,7 @@ const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));
-  blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f});
+  blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f;if(s._chip)s._chip.hidden=s.hidden});
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
 document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900)));

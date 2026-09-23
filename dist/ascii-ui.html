@@ -227,7 +227,7 @@ legend{padding:0;margin-bottom:var(--r)}
   padding:var(--r) 2ch;cursor:pointer;text-transform:uppercase;
   outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
 }
-.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .tablist::after{color:var(--violet)}
 @media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
 .tab:focus-visible{background:var(--accent);color:var(--bg)}
@@ -488,7 +488,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .cal-grid span{color:var(--muted);text-align:center}
 .cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:10px 0;cursor:pointer;outline:0;text-align:center}
 .cal-grid button.today{color:var(--hot);font-weight:700}
-.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0}
 .ibtn::before{content:"[";color:var(--muted)}.ibtn::after{content:"]";color:var(--muted)}
@@ -540,7 +540,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .tgroup label{position:relative;cursor:pointer}
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:calc(var(--r)/2) 2ch;color:var(--muted);text-transform:uppercase}
-.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
 /* timeline, feed */
 .timeline{list-style:none;padding:0;margin:0;max-width:60ch}
@@ -580,7 +580,7 @@ figcaption b{color:var(--ink)}
 .wo input:checked ~ .t{text-decoration:line-through;color:var(--muted)}
 .side{list-style:none;padding:0;margin:0;max-width:32ch}
 .side button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 1ch;cursor:pointer;outline:0;text-align:left}
-.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .side button:focus-visible{background:var(--accent);color:var(--bg)}
 .side button::before{content:"  "}.side button[aria-current="page"]::before{content:"> "}
 .side button span{margin-left:auto;padding-left:2ch}
@@ -628,7 +628,7 @@ figcaption b{color:var(--ink)}
 #menuBtn:focus-visible{background:var(--accent);color:var(--bg)}
 .menu-list{list-style:none;padding:0;margin:0;display:grid;gap:0}
 .menu-list button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;cursor:pointer;outline:0;text-align:left;text-transform:uppercase;font-weight:700}
-.menu-list button[aria-current="page"]{background:var(--ink);color:var(--bg);padding:12px 1ch;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.menu-list button[aria-current="page"]{background:var(--ink);color:var(--bg);padding:12px 1ch;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .menu-list button:focus-visible{background:var(--accent);color:var(--bg)}
 .menu-list span{color:var(--muted);font-weight:500;text-transform:none}
 .menu-sub{margin-top:var(--r);display:flex;flex-wrap:wrap;gap:0 2ch}
@@ -824,8 +824,8 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
 /* The controls that belong to the page rather than to the hero live on the
    right of the bar, the way a documentation header carries them: sound, theme,
-   commands. Under 900px their words are read out but not drawn, the glyph and
-   the word DARK or LIGHT carry them. */
+   commands. Each keeps its word at every width, a glyph alone does not say
+   what it does. */
 .barctl{display:flex;align-items:flex-start;gap:0 2ch;flex:none;margin-left:2ch}
 .barctl .check{padding:calc(var(--r)/2) 0;margin:0;white-space:nowrap}
 #themeToggle{
@@ -833,17 +833,18 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;white-space:nowrap;
 }
 #themeToggle:focus-visible{background:var(--accent);color:var(--bg)}
-#themeToggle .label{text-decoration:underline;text-underline-offset:3px}
 @media (hover:hover){#themeToggle:hover .label{color:var(--hot)}}
-@media (max-width:899px){
-  .barctl .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-}
-/* the bar has to fit a 320px screen: tighter gutters first, then the name goes,
-   the [=] sheet is the way back to the top down there anyway */
+/* a thumb is 44px, a character under 10: five of them */
+#themeToggle,#cmdBtn{min-width:5ch;text-align:center}
+/* the bar has to fit a 320px screen: tighter gutters first, then under 420px
+   the name goes so the controls keep their words, the [=] sheet is the way
+   back to the top down there anyway */
 @media (max-width:479px){.barctl{gap:0 1ch;margin-left:1ch}.viewsbar{gap:0}}
-@media (max-width:389px){.brand{display:none}}
-@media (max-width:767px){.viewsbar .views{display:none}}
-@media (min-width:768px){#menuBtn{display:none}}
+@media (max-width:419px){.brand{display:none}}
+/* the seven views and the controls only fit side by side from 1024px, the
+   width the sidebar arrives at, so that is the one line between small and not */
+@media (max-width:1023px){.viewsbar .views{display:none}}
+@media (min-width:1024px){#menuBtn{display:none}}
 
 /* ---- navigation -----------------------------------------------------------
    From 1024px a sidebar lists the sections of the view you are in, sticky
@@ -884,9 +885,11 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
     display:block;grid-column:1;grid-row:2;
     position:sticky;top:calc(var(--r)*3);
     max-height:calc(100vh - var(--r)*4);overflow:auto;
-    scrollbar-width:none;padding-bottom:var(--r);
+    scrollbar-width:thin;padding-bottom:var(--r);
   }
-  #sidenav::-webkit-scrollbar{display:none}
+  /* two rows between the hero and what comes after, so the sidebar title
+     does not read as the last line of the hint */
+  #sidenav,main > [role="tabpanel"]{margin-top:calc(var(--r)*2)}
   /* the chip index says the same thing twice once the sidebar is there */
   #view-kit > .toc,#view-blocks > .toc,#view-charts > .toc,
   #view-kit > section:has(> .toc),#view-blocks > section:has(> .toc),
@@ -926,7 +929,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
    things that are not the list stop taking room from it: the way out is the
    [x] in the title row and the strip of page above the sheet, not a button
    at the bottom that needs its own band. */
-dialog.sheet{max-height:82vh;max-height:82dvh;display:flex;flex-direction:column}
+dialog.sheet{max-height:82vh;max-height:82dvh;flex-direction:column}
 dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
 dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
@@ -954,6 +957,10 @@ dialog.sheet #menuSecs::before{
   white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
 }
 dialog.sheet .menu-foot{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
+dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--muted);line-height:var(--r)}
+/* the two actions are not sections: they read as commands, like the
+   switches beside them, not as one more chip in the list */
+dialog.sheet .menu-foot .ibtn{padding:12px 1ch;margin:-12px 0;box-shadow:inset 0 0 0 1px var(--muted)}
 
 /* The side walls are drawn inside the body, which is the part that scrolls, so
    they stopped after four rows and the sheet looked unfinished. On a phone the
@@ -990,15 +997,19 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   .otp{flex-wrap:wrap}
 }
 @media (min-width:384px) and (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,5ch)}}
-@media (max-width:1023px){.otp input{width:4.6ch}}
+@media (max-width:1023px){.otp input{width:5ch}}
 @media (max-width:479px){
   .otp span::before,.otp span::after{display:none}
   .otp input{text-decoration:underline;text-underline-offset:4px}
 }
 
 /* The Play stage is sticky, and on a phone it took 38% of the screen while you
-   were turning the knobs under it. */
-@media (max-width:719px){#playStage{max-height:25vh;overflow:hidden}}
+   were turning the knobs under it. It is capped in whole rows, and the canvas
+   inside is fitted to that cap so none of it is cut off. */
+@media (max-width:719px){
+  #playStage{max-height:calc(var(--r)*9);overflow:hidden}
+  #playStage canvas{height:calc(var(--r)*8)!important;object-fit:contain}
+}
 
 /* The palette printed its help as one long line and cut it mid word. */
 #cmdLog{word-break:break-word;overflow-wrap:anywhere}
@@ -1054,7 +1065,7 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 
 /* a select is a control, it gets a thumb's worth of height on touch */
-@media (max-width:1023px){.field select,select{min-height:44px}}
+@media (max-width:1023px){.field select,select{min-height:calc(var(--r)*2)}}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -1083,7 +1094,7 @@ window.AUI_TONES();
 <div class="topbar">
   <div class="topbar-in">
       <div class="viewsbar">
-    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
     <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
     <div class="tablist views" role="tablist" aria-label="Views" id="views">
       <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
@@ -1096,8 +1107,8 @@ window.AUI_TONES();
     </div>
       <div class="barctl">
         <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span><span class="lbl">Sound</span></label>
-        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
-        <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme</span></span></button>
+        <button id="cmdBtn" type="button" aria-label="Open commands">&gt;_</button>
       </div>
     </div>
   </div>
@@ -1967,8 +1978,8 @@ window.AUI_TONES();
     <h2 id="menuTitle" class="bar-title">Menu</h2>
     <button class="sheet-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
     <div class="body">
-      <ul class="menu-list" id="menuViews"></ul>
-      <div class="menu-sub" id="menuSecs"></div>
+      <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
+      <div class="menu-sub" id="menuSecs" role="group" aria-labelledby="menuSecsH"></div>
       <div class="menu-foot">
         <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
         <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
@@ -1982,7 +1993,7 @@ window.AUI_TONES();
 
 <dialog id="cmdDlg" aria-labelledby="cmdTitle">
   <div class="lift"><div class="card frame tone-heavy">
-    <h2 id="cmdTitle" class="bar-title">Command</h2>
+    <h2 id="cmdTitle" class="bar-title">Commands</h2>
     <div class="body">
       <div id="cmdLog" role="log" aria-live="polite">type <b>help</b></div>
       <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">$</span><input id="cmdIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></div></div>
@@ -2327,6 +2338,9 @@ window.AUI_TONES();
     var ch=probe.getBoundingClientRect().width/50;
     if(!ch)return;
     CH=ch;
+    /* start from the full hero every time: a short window takes rows away
+       below, and a taller one has to be able to give them back */
+    HR=58;
     /* css/16-grid.css owns the cap, in characters, per breakpoint */
     var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
     var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
@@ -2354,7 +2368,9 @@ window.AUI_TONES();
     if(hd){
       var copy=hd.getBoundingClientRect().height-hero.getBoundingClientRect().height;
       var floor=Math.min(240,Math.round(vh*0.3/24)*24);
-      var lid=Math.max(floor,Math.round((vh-192-copy)/24)*24);
+      /* and never more than 45% of the window, so the page under it shows
+         whatever the copy costs */
+      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     hero.style.height=Hpx+'px';
@@ -2732,7 +2748,7 @@ window.AUI_TONES();
   });
   function themeLabel(){
     var t=currentTheme();
-    setLabel(themeBtn,t==='dark'?'Dark':'Light');
+    setLabel(themeBtn,'Theme');
     themeBtn.setAttribute('aria-label','Theme: '+t+'. Switch to '+(t==='dark'?'light':'dark')+'.');
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
@@ -3006,7 +3022,7 @@ window.AUI_TONES();
     while((n=w.nextNode())){
       if(!n.nodeValue.trim())continue;
       var pa=n.parentNode;
-      if(pa.closest('.glyph,.bar,pre,.label,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
+      if(pa.closest('.glyph,.bar,pre,.label,.check,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
       a.push(n);
     }
     return a;
@@ -4162,7 +4178,7 @@ function buildView(panel,label,skip){
      open below the sidebar's width too */
   toc.innerHTML='<details class="acc toc" open><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
-  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});chips.appendChild(b)});
+  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
@@ -4172,7 +4188,7 @@ const blockSecs=buildView($('view-blocks'),'Blocks',[]);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));
-  blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f});
+  blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f;if(s._chip)s._chip.hidden=s.hidden});
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
 document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900)));
@@ -4359,23 +4375,31 @@ function buildMenu(){
   const cur=tabs.find(t=>t.getAttribute('aria-selected')==='true'),panel=cur&&$(cur.getAttribute('aria-controls'));
   /* the chip index in the view is the list, so the sheet mirrors it rather than
      counting sections its own way and disagreeing with it */
-  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')]:[];
+  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')].filter(c=>!c.hidden):[];
   const secs=chips.length?chips.map(c=>({id:null,name:c.textContent,chip:c}))
     :(panel?[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden)
         .map(s=>({id:s.getAttribute('aria-labelledby'),name:s.querySelector('h2').textContent,chip:null})):[]);
   menuChips=secs;
-  $('menuSecs').innerHTML=secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
+  /* the list says whose sections these are, so picking another view visibly
+     changes it rather than silently swapping the chips */
+  const head=secs.length?'<p class="menu-h" id="menuSecsH">'+esc(cur?cur.textContent:'')+', '+secs.length+'</p>':'';
+  $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
   $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
-  $('mTheme').textContent='Theme: '+A.currentTheme();
+  $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
 }
-$('menuBtn').addEventListener('click',()=>{buildMenu();md.showModal();if(live())sfx.open()});
+$('menuBtn').addEventListener('click',()=>{
+  buildMenu();md.showModal();$('menuBtn').setAttribute('aria-expanded','true');
+  /* start where you are: the current view, not the way out */
+  const here=$('menuViews').querySelector('[aria-current="page"]');if(here)here.focus();
+  if(live())sfx.open();
+});
 $('menuClose').addEventListener('click',()=>md.close());
 $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
    out is tapping next to it */
 md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});
 /* whatever closed it, the button that opened it gets the focus back */
-md.addEventListener('close',()=>{const b=$('menuBtn');if(b&&b.offsetParent!==null)b.focus()});
+md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
   const t=e.target.closest('[data-t]'),s=e.target.closest('[data-s]');
   if(t){
@@ -4471,12 +4495,12 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
 </script>
 <script>
 /* ---- the sidebar ----------------------------------------------------------
-   From 1280px the page carries a list of the sections in the view you are in,
+   From 1024px the page carries a list of the sections in the view you are in,
    the way a documentation site does. It is built from the sections themselves,
    so it cannot drift from the page: same order, same names, and it follows the
    Blocks filter. The entry you are reading is marked, from an
    IntersectionObserver rather than from scroll maths.
-   Below 1280px the css hides it and the chip index inside each view does the
+   Below 1024px the css hides it and the chip index inside each view does the
    job, so this file keeps working and simply is not seen. */
 (function(){
   const A=window.AUI,$=A.$,nav=$('sidenav');
@@ -4495,8 +4519,11 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
     return h?h.textContent.trim():(sec.getAttribute('aria-label')||'').trim();
   }
   function sections(p){
+    /* where the view has a chip index, list what it lists, so the two
+       never count differently */
+    const indexed=!!p.querySelector('.toc .chip');
     return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
-             .filter(s=>!s.hidden&&name(s));
+             .filter(s=>!s.hidden&&name(s)&&(!indexed||s._chip));
   }
 
   function build(){

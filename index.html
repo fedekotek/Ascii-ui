@@ -31,7 +31,7 @@
 <div class="topbar">
   <div class="topbar-in">
       <div class="viewsbar">
-    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog">[=]</button>
+    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
     <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
     <div class="tablist views" role="tablist" aria-label="Views" id="views">
       <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
@@ -44,8 +44,8 @@
     </div>
       <div class="barctl">
         <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span><span class="lbl">Sound</span></label>
-        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme: light</span></span></button>
-        <button id="cmdBtn" type="button" aria-label="Open command palette">&gt;_</button>
+        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme</span></span></button>
+        <button id="cmdBtn" type="button" aria-label="Open commands">&gt;_</button>
       </div>
     </div>
   </div>
@@ -915,8 +915,8 @@
     <h2 id="menuTitle" class="bar-title">Menu</h2>
     <button class="sheet-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
     <div class="body">
-      <ul class="menu-list" id="menuViews"></ul>
-      <div class="menu-sub" id="menuSecs"></div>
+      <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
+      <div class="menu-sub" id="menuSecs" role="group" aria-labelledby="menuSecsH"></div>
       <div class="menu-foot">
         <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
         <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
@@ -930,7 +930,7 @@
 
 <dialog id="cmdDlg" aria-labelledby="cmdTitle">
   <div class="lift"><div class="card frame tone-heavy">
-    <h2 id="cmdTitle" class="bar-title">Command</h2>
+    <h2 id="cmdTitle" class="bar-title">Commands</h2>
     <div class="body">
       <div id="cmdLog" role="log" aria-live="polite">type <b>help</b></div>
       <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">$</span><input id="cmdIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></div></div>

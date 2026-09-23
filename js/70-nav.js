@@ -1,10 +1,10 @@
 /* ---- the sidebar ----------------------------------------------------------
-   From 1280px the page carries a list of the sections in the view you are in,
+   From 1024px the page carries a list of the sections in the view you are in,
    the way a documentation site does. It is built from the sections themselves,
    so it cannot drift from the page: same order, same names, and it follows the
    Blocks filter. The entry you are reading is marked, from an
    IntersectionObserver rather than from scroll maths.
-   Below 1280px the css hides it and the chip index inside each view does the
+   Below 1024px the css hides it and the chip index inside each view does the
    job, so this file keeps working and simply is not seen. */
 (function(){
   const A=window.AUI,$=A.$,nav=$('sidenav');
@@ -23,8 +23,11 @@
     return h?h.textContent.trim():(sec.getAttribute('aria-label')||'').trim();
   }
   function sections(p){
+    /* where the view has a chip index, list what it lists, so the two
+       never count differently */
+    const indexed=!!p.querySelector('.toc .chip');
     return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
-             .filter(s=>!s.hidden&&name(s));
+             .filter(s=>!s.hidden&&name(s)&&(!indexed||s._chip));
   }
 
   function build(){
