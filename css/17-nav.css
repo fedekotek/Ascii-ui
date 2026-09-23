@@ -212,6 +212,8 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   /* the stage's own section is exactly its height, so sticking the stage
      inside it did nothing: the section sticks instead */
   #view-play > section:has(> #playStage){position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg)}
+  /* a jump lands a Play section under the stage, not behind it */
+  #view-play > section[aria-labelledby]{scroll-margin-top:calc(var(--r)*9)}
 }
 
 /* The palette printed its help as one long line and cut it mid word. */

@@ -27,25 +27,33 @@
              .filter(s=>!s.hidden&&name(s));
   }
 
-  /* Where the view has a chip index, the first group lists what the index
+  /* Where the view has a chip index, the counted group lists what the index
      lists, so the two count the same. The sections the index leaves out
-     (Installation, Rules) are not components, so they get a group of their
-     own rather than being dropped. */
+     (Installation, Rules) are not components: they stay in the list where
+     the page has them, before and after the group, without a heading. */
   function build(){
     const cur=panel(),all=sections(cur.p);
     nav.innerHTML='';nav.hidden=!all.length;links=[];
     if(!all.length){current=null;return}
     const indexed=!!cur.p.querySelector('.toc .chip');
-    const main=indexed?all.filter(s=>s._chip):all,rest=indexed?all.filter(s=>!s._chip):[];
-    group(LABEL[cur.v],main,true);
-    if(rest.length)group('Guide',rest,false);
+    if(!indexed)group(LABEL[cur.v],all);
+    else{
+      /* runs in page order: loose entries, the counted group, loose entries */
+      let run=[],kind=null;
+      const flush=()=>{if(run.length)group(kind?LABEL[cur.v]:null,run,all.filter(s=>s._chip).length);run=[]};
+      all.forEach(s=>{const k=!!s._chip;if(k!==kind){flush();kind=k}run.push(s)});
+      flush();
+    }
     spy();
   }
   function group(label,secs,count){
     const g=document.createElement('div');g.className='navgroup';
-    const h=document.createElement('h2');
-    h.innerHTML=label+(count?' <span class="navcount">'+secs.length+'</span>':'');
     const ul=document.createElement('ul');
+    if(label){
+      const h=document.createElement('h2');
+      h.innerHTML=label+' <span class="navcount">'+(count||secs.length)+'</span>';
+      g.appendChild(h);
+    }
     links=links.concat(secs.map(sec=>{
       const li=document.createElement('li'),b=document.createElement('button');
       b.type='button';b.className='navlink';b.textContent=name(sec);
@@ -59,7 +67,7 @@
       li.appendChild(b);ul.appendChild(li);
       return {b:b,sec:sec};
     }));
-    g.appendChild(h);g.appendChild(ul);nav.appendChild(g);
+    g.appendChild(ul);nav.appendChild(g);
   }
 
   function mark(b){
@@ -77,9 +85,16 @@
   /* You are reading the last section that has passed under the bar. In a
      gallery a whole row shares one top, and the first of that row is the one
      the eye lands on, so ties go to document order. */
-  const BAR=24*5;
+  /* A jump lands a section as far down as its scroll margin plus the page's
+     scroll padding, and that differs by width, so read it rather than guess:
+     a section counts as read once its top is at or above that line. */
+  function line(){
+    const s=links[0].sec,cs=getComputedStyle(s),hs=getComputedStyle(document.documentElement);
+    return (parseFloat(cs.scrollMarginTop)||0)+(parseFloat(hs.scrollPaddingTop)||0)+4;
+  }
   function spy(){
     if(!links.length||Date.now()<pinned)return;
+    const BAR=line();
     let top=-Infinity,row=[];
     for(let i=0;i<links.length;i++){
       const t=links[i].sec.getBoundingClientRect().top;
