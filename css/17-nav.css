@@ -144,7 +144,12 @@ body:has(dialog[open]){overflow:hidden}
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.sheet-x:hover{color:var(--hot)}}
-/* the Filters sheet closes the same way, from its own [x] or the page above it */
+/* the Filters sheet closes the same way, from its own [x] or the page above it.
+   Its body is 80 characters, so on a wide screen the [x] sits on that column's
+   edge rather than the window's, and the body takes the whole 80 rather than
+   shrinking to its checkboxes */
+#sheetDlg .body{width:100%}
+#sheetDlg .sheet-x{right:max(2ch,calc(50% - 40ch))}
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
@@ -226,7 +231,7 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   /* a third of 390px showed the top of one word and the edge of the torus,
      which reads as broken; the hero, its photo buttons and its glow step out,
      and Play still has it on its own stage */
-  main > header > #hero,main > header > #heroSrc{display:none}
+  main > header > #hero,main > header > #heroSrc > .btn{display:none}
   body{background:var(--bg)}
 }
 

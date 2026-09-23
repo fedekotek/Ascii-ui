@@ -948,7 +948,12 @@ body:has(dialog[open]){overflow:hidden}
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.sheet-x:hover{color:var(--hot)}}
-/* the Filters sheet closes the same way, from its own [x] or the page above it */
+/* the Filters sheet closes the same way, from its own [x] or the page above it.
+   Its body is 80 characters, so on a wide screen the [x] sits on that column's
+   edge rather than the window's, and the body takes the whole 80 rather than
+   shrinking to its checkboxes */
+#sheetDlg .body{width:100%}
+#sheetDlg .sheet-x{right:max(2ch,calc(50% - 40ch))}
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
@@ -1030,7 +1035,7 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   /* a third of 390px showed the top of one word and the edge of the torus,
      which reads as broken; the hero, its photo buttons and its glow step out,
      and Play still has it on its own stage */
-  main > header > #hero,main > header > #heroSrc{display:none}
+  main > header > #hero,main > header > #heroSrc > .btn{display:none}
   body{background:var(--bg)}
 }
 
@@ -2763,6 +2768,15 @@ window.AUI_TONES();
   }
 
 
+  /* ---- a sheet closes when you tap the page above it: on click, so the tap
+     does not land on the page once the sheet is gone, and only when the press
+     started there too, so a drag out of the sheet does not close it ---- */
+  function backdropClose(d){
+    var down=false;
+    d.addEventListener('pointerdown',function(e){down=e.target===d});
+    d.addEventListener('click',function(e){if(down&&e.target===d)d.close();down=false});
+  }
+
   /* ---- grid overlay and theme ---- */
   $('gridToggle').addEventListener('change',function(e){main.classList.toggle('show-grid',e.target.checked)});
   var themeBtn=$('themeToggle');
@@ -2810,11 +2824,15 @@ window.AUI_TONES();
     var f=e.target.closest&&e.target.closest('.field');
     if(!f||e.target.matches('input,select,textarea,button,a'))return;
     var inp=f.querySelector('input,select,textarea');
-    if(inp&&!inp.disabled){
-      e.preventDefault();inp.focus();
-      /* focus alone does not open a dropdown, so the tap would still feel dead */
-      if(inp.tagName==='SELECT'&&inp.showPicker)try{inp.showPicker()}catch(err){}
-    }
+    if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+  });
+  /* focus alone does not open a dropdown, so the tap would still feel dead. On
+     click, not touch-down, so a scroll that starts on the frame stays a scroll */
+  document.addEventListener('click',function(e){
+    var f=e.target.closest&&e.target.closest('.field');
+    if(!f||e.target.matches('input,select,textarea,button,a'))return;
+    var sel=f.querySelector('select');
+    if(sel&&!sel.disabled&&sel.showPicker)try{sel.showPicker()}catch(err){}
   });
   slug.addEventListener('input',function(){
     var v=slug.value,msg='';
@@ -3121,7 +3139,7 @@ window.AUI_TONES();
     };
   }
 
-  window.AUI={$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:wipe,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,
@@ -4056,7 +4074,7 @@ $('sheetBtn').addEventListener('click',()=>{const d=$('sheetDlg');if(d.showModal
 /* a phone has no Esc key: the [x] and the strip of page above the sheet close
    it, on click so the same tap does not land on the page underneath */
 $('sheetX').addEventListener('click',()=>$('sheetDlg').close());
-$('sheetDlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+A.backdropClose($('sheetDlg'));
 $('sheetReset').addEventListener('click',()=>{$('sheetDlg').querySelectorAll('input').forEach(i=>{i.checked=false})});
 $('sheetApply').addEventListener('click',()=>{const n=$('sheetDlg').querySelectorAll('input:checked').length;$('sheetDlg').close();A.say(n+' filter'+(n===1?'':'s')+' applied.')});
 /* spinners */
@@ -4438,7 +4456,7 @@ $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
    out is tapping next to it. On click, not on touch-down, or the same tap
    lands on whatever is under it once the sheet is gone. */
-md.addEventListener('click',e=>{if(e.target===md)md.close()});
+A.backdropClose(md);
 /* whatever closed it, the button that opened it gets the focus back */
 md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{

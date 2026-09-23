@@ -228,7 +228,7 @@ $('sheetBtn').addEventListener('click',()=>{const d=$('sheetDlg');if(d.showModal
 /* a phone has no Esc key: the [x] and the strip of page above the sheet close
    it, on click so the same tap does not land on the page underneath */
 $('sheetX').addEventListener('click',()=>$('sheetDlg').close());
-$('sheetDlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
+A.backdropClose($('sheetDlg'));
 $('sheetReset').addEventListener('click',()=>{$('sheetDlg').querySelectorAll('input').forEach(i=>{i.checked=false})});
 $('sheetApply').addEventListener('click',()=>{const n=$('sheetDlg').querySelectorAll('input:checked').length;$('sheetDlg').close();A.say(n+' filter'+(n===1?'':'s')+' applied.')});
 /* spinners */

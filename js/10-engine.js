@@ -726,6 +726,15 @@
   }
 
 
+  /* ---- a sheet closes when you tap the page above it: on click, so the tap
+     does not land on the page once the sheet is gone, and only when the press
+     started there too, so a drag out of the sheet does not close it ---- */
+  function backdropClose(d){
+    var down=false;
+    d.addEventListener('pointerdown',function(e){down=e.target===d});
+    d.addEventListener('click',function(e){if(down&&e.target===d)d.close();down=false});
+  }
+
   /* ---- grid overlay and theme ---- */
   $('gridToggle').addEventListener('change',function(e){main.classList.toggle('show-grid',e.target.checked)});
   var themeBtn=$('themeToggle');
@@ -773,11 +782,15 @@
     var f=e.target.closest&&e.target.closest('.field');
     if(!f||e.target.matches('input,select,textarea,button,a'))return;
     var inp=f.querySelector('input,select,textarea');
-    if(inp&&!inp.disabled){
-      e.preventDefault();inp.focus();
-      /* focus alone does not open a dropdown, so the tap would still feel dead */
-      if(inp.tagName==='SELECT'&&inp.showPicker)try{inp.showPicker()}catch(err){}
-    }
+    if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+  });
+  /* focus alone does not open a dropdown, so the tap would still feel dead. On
+     click, not touch-down, so a scroll that starts on the frame stays a scroll */
+  document.addEventListener('click',function(e){
+    var f=e.target.closest&&e.target.closest('.field');
+    if(!f||e.target.matches('input,select,textarea,button,a'))return;
+    var sel=f.querySelector('select');
+    if(sel&&!sel.disabled&&sel.showPicker)try{sel.showPicker()}catch(err){}
   });
   slug.addEventListener('input',function(){
     var v=slug.value,msg='';
@@ -1084,7 +1097,7 @@
     };
   }
 
-  window.AUI={$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:wipe,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,

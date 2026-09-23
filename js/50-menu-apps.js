@@ -35,7 +35,7 @@ $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
    out is tapping next to it. On click, not on touch-down, or the same tap
    lands on whatever is under it once the sheet is gone. */
-md.addEventListener('click',e=>{if(e.target===md)md.close()});
+A.backdropClose(md);
 /* whatever closed it, the button that opened it gets the focus back */
 md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
