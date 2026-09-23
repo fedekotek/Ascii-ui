@@ -355,6 +355,11 @@
       var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
+    /* on a phone the Play stage is sticky over the knobs and capped at nine
+       rows (css/17-nav.css), so the hero is drawn eight rows tall in there */
+    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>192){
+      Hpx=192;HR=Math.max(10,Math.floor(Hpx/LH));
+    }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
     /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a

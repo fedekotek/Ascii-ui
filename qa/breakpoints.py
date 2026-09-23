@@ -64,6 +64,9 @@ async def run():
             mw=await pg.evaluate("Math.round(document.getElementById('main').getBoundingClientRect().width)")
             bl=await pg.evaluate(BAR)
             if bl: msgs.append('bar overlap: '+'; '.join(bl))
+            # and the views are always reachable: the tabs, or the [=] that holds them
+            nv=await pg.evaluate("[document.getElementById('menuBtn'),document.getElementById('v-page')].some(e=>e.offsetParent!==null)")
+            if not nv: msgs.append('no way to change views: neither the tabs nor [=] is visible')
             for v in VIEWS:
                 await pg.evaluate(f"document.getElementById('v-{v}').click()"); await pg.wait_for_timeout(1300)
                 ov=await pg.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")

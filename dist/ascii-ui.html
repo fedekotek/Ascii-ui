@@ -633,7 +633,6 @@ figcaption b{color:var(--ink)}
 .menu-list span{color:var(--muted);font-weight:500;text-transform:none}
 .menu-sub{margin-top:var(--r);display:flex;flex-wrap:wrap;gap:0 2ch}
 .menu-foot{margin-top:var(--r);display:flex;flex-wrap:wrap;gap:var(--r) 3ch}
-@media (min-width:768px){#menuBtn{display:none}}
 /* apps */
 .phone{position:relative;max-width:40ch;margin:0 auto}
 .phone .app{padding:0 3ch calc(var(--r)*1)}
@@ -833,14 +832,17 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;white-space:nowrap;
 }
 #themeToggle:focus-visible{background:var(--accent);color:var(--bg)}
+#themeToggle .label{text-decoration:underline;text-underline-offset:3px}
 @media (hover:hover){#themeToggle:hover .label{color:var(--hot)}}
 /* a thumb is 44px, a character under 10: five of them */
 #themeToggle,#cmdBtn{min-width:5ch;text-align:center}
-/* the bar has to fit a 320px screen: tighter gutters first, then under 420px
+/* the bar has to fit a 320px screen: tighter gutters first, then under 450px
    the name goes so the controls keep their words, the [=] sheet is the way
    back to the top down there anyway */
-@media (max-width:479px){.barctl{gap:0 1ch;margin-left:1ch}.viewsbar{gap:0}}
-@media (max-width:419px){.brand{display:none}}
+@media (max-width:479px){.barctl{margin-left:1ch}.viewsbar{gap:0}}
+@media (max-width:449px){.brand{display:none}}
+/* a 320px screen has no room for the full gaps, one character has to do */
+@media (max-width:359px){.barctl{gap:0 1ch}}
 /* the seven views and the controls only fit side by side from 1024px, the
    width the sidebar arrives at, so that is the one line between small and not */
 @media (max-width:1023px){.viewsbar .views{display:none}}
@@ -951,16 +953,20 @@ dialog.sheet .body > .row:last-child{display:none}   /* the old close row */
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
-dialog.sheet #menuSecs{margin-top:0}
+/* the controls sit between the views and the section list, so they are a
+   few tabs away rather than behind thirty chips */
+dialog.sheet #menuSecs{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
 dialog.sheet #menuSecs::before{
   content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
   white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
 }
-dialog.sheet .menu-foot{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
-dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--muted);line-height:var(--r)}
-/* the two actions are not sections: they read as commands, like the
-   switches beside them, not as one more chip in the list */
-dialog.sheet .menu-foot .ibtn{padding:12px 1ch;margin:-12px 0;box-shadow:inset 0 0 0 1px var(--muted)}
+dialog.sheet .menu-foot{margin-top:var(--r)}
+/* set like the sidebar's heading: the view in ink, the count muted */
+dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--ink);font-weight:700;line-height:var(--r)}
+dialog.sheet .menu-h .navcount{color:var(--muted);font-weight:500}
+/* the two actions are not sections: ink and bold inside their brackets,
+   where a section chip is muted inside violet ones */
+dialog.sheet .menu-foot .ibtn{padding:12px 0;margin:-12px 0}
 
 /* The side walls are drawn inside the body, which is the part that scrolls, so
    they stopped after four rows and the sheet looked unfinished. On a phone the
@@ -1004,11 +1010,13 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 
 /* The Play stage is sticky, and on a phone it took 38% of the screen while you
-   were turning the knobs under it. It is capped in whole rows, and the canvas
-   inside is fitted to that cap so none of it is cut off. */
+   were turning the knobs under it. It is capped in whole rows, and layout()
+   draws the hero eight rows tall in there so none of it is cut off. */
 @media (max-width:719px){
-  #playStage{max-height:calc(var(--r)*9);overflow:hidden}
-  #playStage canvas{height:calc(var(--r)*8)!important;object-fit:contain}
+  #playStage{position:static;max-height:calc(var(--r)*9);overflow:hidden;padding-bottom:var(--r)}
+  /* the stage's own section is exactly its height, so sticking the stage
+     inside it did nothing: the section sticks instead */
+  #view-play > section:has(> #playStage){position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg)}
 }
 
 /* The palette printed its help as one long line and cut it mid word. */
@@ -1979,13 +1987,13 @@ window.AUI_TONES();
     <button class="sheet-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
     <div class="body">
       <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
-      <div class="menu-sub" id="menuSecs" role="group" aria-labelledby="menuSecsH"></div>
       <div class="menu-foot">
         <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
         <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
         <button class="ibtn" id="mTheme" type="button">Theme</button>
         <button class="ibtn" id="mCmd" type="button">&gt;_ Commands</button>
       </div>
+      <div class="menu-sub" id="menuSecs" role="group" aria-label="Sections"></div>
       <div class="row"><button class="btn frame tone-light" id="menuClose" type="button"><span class="mid"><span class="label">Close</span></span></button></div>
     </div>
   </div></div>
@@ -2372,6 +2380,11 @@ window.AUI_TONES();
          whatever the copy costs */
       var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
+    }
+    /* on a phone the Play stage is sticky over the knobs and capped at nine
+       rows (css/17-nav.css), so the hero is drawn eight rows tall in there */
+    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>192){
+      Hpx=192;HR=Math.max(10,Math.floor(Hpx/LH));
     }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
@@ -4189,6 +4202,7 @@ $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));
   blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f;if(s._chip)s._chip.hidden=s.hidden});
+  const sum=$('view-blocks').querySelector('.toc summary');if(sum)sum.textContent='Blocks, '+blockSecs.filter(s=>!s.hidden).length;
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
 document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900)));
@@ -4382,7 +4396,7 @@ function buildMenu(){
   menuChips=secs;
   /* the list says whose sections these are, so picking another view visibly
      changes it rather than silently swapping the chips */
-  const head=secs.length?'<p class="menu-h" id="menuSecsH">'+esc(cur?cur.textContent:'')+', '+secs.length+'</p>':'';
+  const head=secs.length?'<p class="menu-h">'+esc(cur?cur.textContent:'')+' <span class="navcount">'+secs.length+'</span></p>':'';
   $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
   $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
   $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
@@ -4519,22 +4533,30 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
     return h?h.textContent.trim():(sec.getAttribute('aria-label')||'').trim();
   }
   function sections(p){
-    /* where the view has a chip index, list what it lists, so the two
-       never count differently */
-    const indexed=!!p.querySelector('.toc .chip');
     return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
-             .filter(s=>!s.hidden&&name(s)&&(!indexed||s._chip));
+             .filter(s=>!s.hidden&&name(s));
   }
 
+  /* Where the view has a chip index, the first group lists what the index
+     lists, so the two count the same. The sections the index leaves out
+     (Installation, Rules) are not components, so they get a group of their
+     own rather than being dropped. */
   function build(){
-    const cur=panel(),secs=sections(cur.p);
-    nav.innerHTML='';nav.hidden=!secs.length;
-    if(!secs.length){links=[];current=null;return}
+    const cur=panel(),all=sections(cur.p);
+    nav.innerHTML='';nav.hidden=!all.length;links=[];
+    if(!all.length){current=null;return}
+    const indexed=!!cur.p.querySelector('.toc .chip');
+    const main=indexed?all.filter(s=>s._chip):all,rest=indexed?all.filter(s=>!s._chip):[];
+    group(LABEL[cur.v],main,true);
+    if(rest.length)group('Guide',rest,false);
+    spy();
+  }
+  function group(label,secs,count){
     const g=document.createElement('div');g.className='navgroup';
     const h=document.createElement('h2');
-    h.innerHTML=LABEL[cur.v]+' <span class="navcount">'+secs.length+'</span>';
+    h.innerHTML=label+(count?' <span class="navcount">'+secs.length+'</span>':'');
     const ul=document.createElement('ul');
-    links=secs.map(sec=>{
+    links=links.concat(secs.map(sec=>{
       const li=document.createElement('li'),b=document.createElement('button');
       b.type='button';b.className='navlink';b.textContent=name(sec);
       b.addEventListener('click',function(){
@@ -4546,9 +4568,8 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
       });
       li.appendChild(b);ul.appendChild(li);
       return {b:b,sec:sec};
-    });
+    }));
     g.appendChild(h);g.appendChild(ul);nav.appendChild(g);
-    spy();
   }
 
   function mark(b){
@@ -4576,7 +4597,8 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
       if(t>top+2){top=t;row=[links[i].b]}
       else if(t>top-2)row.push(links[i].b);
     }
-    if(!row.length)row=[links[0].b];
+    /* above the first section (the hero, an intro) nothing is being read */
+    if(!row.length){mark(null);return}
     /* a gallery row shares one top: if you picked one of them from the list,
        that one stays marked, otherwise the row's first entry speaks for it */
     mark(row.indexOf(current)>=0?current:row[0]);

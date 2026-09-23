@@ -27,14 +27,17 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;white-space:nowrap;
 }
 #themeToggle:focus-visible{background:var(--accent);color:var(--bg)}
+#themeToggle .label{text-decoration:underline;text-underline-offset:3px}
 @media (hover:hover){#themeToggle:hover .label{color:var(--hot)}}
 /* a thumb is 44px, a character under 10: five of them */
 #themeToggle,#cmdBtn{min-width:5ch;text-align:center}
-/* the bar has to fit a 320px screen: tighter gutters first, then under 420px
+/* the bar has to fit a 320px screen: tighter gutters first, then under 450px
    the name goes so the controls keep their words, the [=] sheet is the way
    back to the top down there anyway */
-@media (max-width:479px){.barctl{gap:0 1ch;margin-left:1ch}.viewsbar{gap:0}}
-@media (max-width:419px){.brand{display:none}}
+@media (max-width:479px){.barctl{margin-left:1ch}.viewsbar{gap:0}}
+@media (max-width:449px){.brand{display:none}}
+/* a 320px screen has no room for the full gaps, one character has to do */
+@media (max-width:359px){.barctl{gap:0 1ch}}
 /* the seven views and the controls only fit side by side from 1024px, the
    width the sidebar arrives at, so that is the one line between small and not */
 @media (max-width:1023px){.viewsbar .views{display:none}}
@@ -145,16 +148,20 @@ dialog.sheet .body > .row:last-child{display:none}   /* the old close row */
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
-dialog.sheet #menuSecs{margin-top:0}
+/* the controls sit between the views and the section list, so they are a
+   few tabs away rather than behind thirty chips */
+dialog.sheet #menuSecs{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
 dialog.sheet #menuSecs::before{
   content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
   white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
 }
-dialog.sheet .menu-foot{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
-dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--muted);line-height:var(--r)}
-/* the two actions are not sections: they read as commands, like the
-   switches beside them, not as one more chip in the list */
-dialog.sheet .menu-foot .ibtn{padding:12px 1ch;margin:-12px 0;box-shadow:inset 0 0 0 1px var(--muted)}
+dialog.sheet .menu-foot{margin-top:var(--r)}
+/* set like the sidebar's heading: the view in ink, the count muted */
+dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--ink);font-weight:700;line-height:var(--r)}
+dialog.sheet .menu-h .navcount{color:var(--muted);font-weight:500}
+/* the two actions are not sections: ink and bold inside their brackets,
+   where a section chip is muted inside violet ones */
+dialog.sheet .menu-foot .ibtn{padding:12px 0;margin:-12px 0}
 
 /* The side walls are drawn inside the body, which is the part that scrolls, so
    they stopped after four rows and the sheet looked unfinished. On a phone the
@@ -198,11 +205,13 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 
 /* The Play stage is sticky, and on a phone it took 38% of the screen while you
-   were turning the knobs under it. It is capped in whole rows, and the canvas
-   inside is fitted to that cap so none of it is cut off. */
+   were turning the knobs under it. It is capped in whole rows, and layout()
+   draws the hero eight rows tall in there so none of it is cut off. */
 @media (max-width:719px){
-  #playStage{max-height:calc(var(--r)*9);overflow:hidden}
-  #playStage canvas{height:calc(var(--r)*8)!important;object-fit:contain}
+  #playStage{position:static;max-height:calc(var(--r)*9);overflow:hidden;padding-bottom:var(--r)}
+  /* the stage's own section is exactly its height, so sticking the stage
+     inside it did nothing: the section sticks instead */
+  #view-play > section:has(> #playStage){position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg)}
 }
 
 /* The palette printed its help as one long line and cut it mid word. */

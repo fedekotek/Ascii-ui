@@ -20,7 +20,7 @@ function buildMenu(){
   menuChips=secs;
   /* the list says whose sections these are, so picking another view visibly
      changes it rather than silently swapping the chips */
-  const head=secs.length?'<p class="menu-h" id="menuSecsH">'+esc(cur?cur.textContent:'')+', '+secs.length+'</p>':'';
+  const head=secs.length?'<p class="menu-h">'+esc(cur?cur.textContent:'')+' <span class="navcount">'+secs.length+'</span></p>':'';
   $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
   $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
   $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');

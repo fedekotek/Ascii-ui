@@ -23,22 +23,30 @@
     return h?h.textContent.trim():(sec.getAttribute('aria-label')||'').trim();
   }
   function sections(p){
-    /* where the view has a chip index, list what it lists, so the two
-       never count differently */
-    const indexed=!!p.querySelector('.toc .chip');
     return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
-             .filter(s=>!s.hidden&&name(s)&&(!indexed||s._chip));
+             .filter(s=>!s.hidden&&name(s));
   }
 
+  /* Where the view has a chip index, the first group lists what the index
+     lists, so the two count the same. The sections the index leaves out
+     (Installation, Rules) are not components, so they get a group of their
+     own rather than being dropped. */
   function build(){
-    const cur=panel(),secs=sections(cur.p);
-    nav.innerHTML='';nav.hidden=!secs.length;
-    if(!secs.length){links=[];current=null;return}
+    const cur=panel(),all=sections(cur.p);
+    nav.innerHTML='';nav.hidden=!all.length;links=[];
+    if(!all.length){current=null;return}
+    const indexed=!!cur.p.querySelector('.toc .chip');
+    const main=indexed?all.filter(s=>s._chip):all,rest=indexed?all.filter(s=>!s._chip):[];
+    group(LABEL[cur.v],main,true);
+    if(rest.length)group('Guide',rest,false);
+    spy();
+  }
+  function group(label,secs,count){
     const g=document.createElement('div');g.className='navgroup';
     const h=document.createElement('h2');
-    h.innerHTML=LABEL[cur.v]+' <span class="navcount">'+secs.length+'</span>';
+    h.innerHTML=label+(count?' <span class="navcount">'+secs.length+'</span>':'');
     const ul=document.createElement('ul');
-    links=secs.map(sec=>{
+    links=links.concat(secs.map(sec=>{
       const li=document.createElement('li'),b=document.createElement('button');
       b.type='button';b.className='navlink';b.textContent=name(sec);
       b.addEventListener('click',function(){
@@ -50,9 +58,8 @@
       });
       li.appendChild(b);ul.appendChild(li);
       return {b:b,sec:sec};
-    });
+    }));
     g.appendChild(h);g.appendChild(ul);nav.appendChild(g);
-    spy();
   }
 
   function mark(b){
@@ -80,7 +87,8 @@
       if(t>top+2){top=t;row=[links[i].b]}
       else if(t>top-2)row.push(links[i].b);
     }
-    if(!row.length)row=[links[0].b];
+    /* above the first section (the hero, an intro) nothing is being read */
+    if(!row.length){mark(null);return}
     /* a gallery row shares one top: if you picked one of them from the list,
        that one stays marked, otherwise the row's first entry speaks for it */
     mark(row.indexOf(current)>=0?current:row[0]);
