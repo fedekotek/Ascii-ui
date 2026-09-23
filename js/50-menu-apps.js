@@ -22,7 +22,7 @@ function buildMenu(){
      changes it rather than silently swapping the chips */
   const head=secs.length?'<p class="menu-h">'+esc(cur?cur.textContent:'')+' <span class="navcount">'+secs.length+'</span></p>':'';
   $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
-  $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
+  $('mSnd').checked=$('soundToggle').checked;$('mGrid').checked=$('gridToggle').checked;$('mGl').checked=$('glitchToggle').checked;
   $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
 }
 $('menuBtn').addEventListener('click',()=>{
@@ -31,11 +31,11 @@ $('menuBtn').addEventListener('click',()=>{
   const here=$('menuViews').querySelector('[aria-current="page"]');if(here)here.focus();
   if(live())sfx.open();
 });
-$('menuClose').addEventListener('click',()=>md.close());
 $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
-   out is tapping next to it */
-md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});
+   out is tapping next to it. On click, not on touch-down, or the same tap
+   lands on whatever is under it once the sheet is gone. */
+md.addEventListener('click',e=>{if(e.target===md)md.close()});
 /* whatever closed it, the button that opened it gets the focus back */
 md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
@@ -44,7 +44,7 @@ md.addEventListener('click',e=>{
     /* picking a view keeps the sheet open and refills it with that view's
        sections, so reaching a section elsewhere is two taps instead of four */
     const tab=$(t.dataset.t);
-    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(buildMenu,420)}
+    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(()=>{buildMenu();if(md.open){const h=$('menuViews').querySelector('[aria-current="page"]');if(h)h.focus()}},420)}
     else{md.close();window.scrollTo(0,0)}
   }
   else if(s){
@@ -58,6 +58,7 @@ md.addEventListener('click',e=>{
   }
 });
 $('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
+$('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
 $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
 $('mTheme').addEventListener('click',()=>{md.close();$('themeToggle').click()});
 $('mCmd').addEventListener('click',()=>{md.close();setTimeout(()=>$('cmdBtn').click(),80)});

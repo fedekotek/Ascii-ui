@@ -791,7 +791,6 @@ main{max-width:calc(var(--maxcols)*1ch)}
   main > header > .lede{grid-column:1;grid-row:2;margin-top:var(--r)}
   main > header > .hint{grid-column:1;grid-row:3}
   main > header > #heroSrc{grid-column:2;grid-row:2;margin-top:var(--r)}
-  main > header > #heroStatus{grid-column:2;grid-row:3}
   main > header > div.row:nth-of-type(2){grid-column:3;grid-row:2;margin-top:var(--r)}
   main > header > div.row:nth-of-type(3){grid-column:3;grid-row:3}
 }
@@ -935,7 +934,7 @@ dialog.sheet{max-height:82vh;max-height:82dvh;flex-direction:column}
 dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
 dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
-dialog.sheet .body,dialog.sheet .body > *{max-width:100%}
+#menuDlg .body,#menuDlg .body > *{max-width:100%}
 /* nothing behind a dialog scrolls while it is open */
 body:has(dialog[open]){overflow:hidden}
 
@@ -949,7 +948,7 @@ body:has(dialog[open]){overflow:hidden}
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.sheet-x:hover{color:var(--hot)}}
-dialog.sheet .body > .row:last-child{display:none}   /* the old close row */
+/* the Filters sheet closes the same way, from its own [x] or the page above it */
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
@@ -972,8 +971,8 @@ dialog.sheet .menu-foot .ibtn{padding:12px 0;margin:-12px 0}
    they stopped after four rows and the sheet looked unfinished. On a phone the
    sheet reads as a card from its top and bottom rows and the MENU slab, so the
    walls step out rather than be faked. */
-dialog.sheet .body::before,dialog.sheet .body::after{display:none}
-dialog.sheet .body{padding-left:2ch;padding-right:2ch}
+#menuDlg .body::before,#menuDlg .body::after{display:none}
+#menuDlg .body{padding-left:2ch;padding-right:2ch}
 /* the frame rows get a background so the list disappears under them instead
    of showing half a row through the characters */
 dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
@@ -1028,7 +1027,11 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
    the hero keeps a third of the screen. */
 @media (max-height:480px) and (orientation:landscape){
   .topbar::after{display:none}
-  main > header > canvas{max-height:30vh}
+  /* a third of 390px showed the top of one word and the edge of the torus,
+     which reads as broken; the hero, its photo buttons and its glow step out,
+     and Play still has it on its own stage */
+  main > header > #hero,main > header > #heroSrc{display:none}
+  body{background:var(--bg)}
 }
 
 /* The REC counter is the only text under 12px and on a small screen it lands on
@@ -1076,6 +1079,11 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 
 /* a select is a control, it gets a thumb's worth of height on touch */
 @media (max-width:1023px){.field select,select{min-height:calc(var(--r)*2)}}
+
+/* The camera and photo messages print under their own buttons, not a grid row
+   further down beside the poster button. Empty, the line gives its row back. */
+#heroSrc > #heroStatus{flex-basis:100%;margin:0}
+#heroSrc > #heroStatus:empty{min-height:0;margin-top:calc(var(--r)*-1)}
 </style>
 <script>
 /* character tones: every frame, rule and shadow is one of these strings */
@@ -1134,14 +1142,14 @@ window.AUI_TONES();
       <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
       <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Torus</span></span></button>
       <input type="file" id="photoFile" accept="image/*" hidden>
+      <p class="muted status" id="heroStatus" role="status"></p>
     </div>
-    <p class="muted status" id="heroStatus" role="status"></p>
     <p class="lede demo">shadcn-style components with a brutalist ASCII skin and a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense the character is, and every state change glitches a little. Native HTML underneath.</p>
     <div class="row demo">
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
     </div>
-    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or tap <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
+    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or click <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
     <div class="row demo">
       <span class="muted" id="sigText">SIG ----</span>
       <button class="btn frame tone-light" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
@@ -1975,8 +1983,9 @@ window.AUI_TONES();
 <dialog id="sheetDlg" class="sheet" aria-labelledby="sheetTitle">
   <div class="lift"><div class="card frame tone-heavy">
     <h2 id="sheetTitle" class="bar-title">Filters</h2>
+    <button class="sheet-x" id="sheetX" type="button" aria-label="Close the filters">[x]</button>
     <div class="body">
-      <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label></div>
+      <div class="stack"><label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label></div>
       <div class="row"><button class="btn frame tone-light" id="sheetReset" type="button"><span class="mid"><span class="label">Reset</span></span></button><button class="btn btn-primary frame tone-heavy" id="sheetApply" type="button"><span class="mid"><span class="label">Apply</span></span></button></div>
     </div>
   </div></div>
@@ -1991,12 +2000,12 @@ window.AUI_TONES();
       <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
       <div class="menu-foot">
         <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
+        <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
         <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
         <button class="ibtn" id="mTheme" type="button">Theme</button>
         <button class="ibtn" id="mCmd" type="button">&gt;_ Commands</button>
       </div>
       <div class="menu-sub" id="menuSecs" role="group" aria-label="Sections"></div>
-      <div class="row"><button class="btn frame tone-light" id="menuClose" type="button"><span class="mid"><span class="label">Close</span></span></button></div>
     </div>
   </div></div>
 </dialog>
@@ -2757,9 +2766,12 @@ window.AUI_TONES();
   /* ---- grid overlay and theme ---- */
   $('gridToggle').addEventListener('change',function(e){main.classList.toggle('show-grid',e.target.checked)});
   var themeBtn=$('themeToggle');
+  /* the page only changes once the curtain lands, so a second tap before then
+     reads the theme it is heading to, and two quick taps cancel out */
+  var themeWant=null;
   themeBtn.addEventListener('click',function(){
-    var next=currentTheme()==='dark'?'light':'dark';
-    wipe(function(){root.setAttribute('data-theme',next)});
+    themeWant=(themeWant||currentTheme())==='dark'?'light':'dark';
+    wipe(function(){if(themeWant){root.setAttribute('data-theme',themeWant);themeWant=null}});
   });
   function themeLabel(){
     var t=currentTheme();
@@ -2798,7 +2810,11 @@ window.AUI_TONES();
     var f=e.target.closest&&e.target.closest('.field');
     if(!f||e.target.matches('input,select,textarea,button,a'))return;
     var inp=f.querySelector('input,select,textarea');
-    if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+    if(inp&&!inp.disabled){
+      e.preventDefault();inp.focus();
+      /* focus alone does not open a dropdown, so the tap would still feel dead */
+      if(inp.tagName==='SELECT'&&inp.showPicker)try{inp.showPicker()}catch(err){}
+    }
   });
   slug.addEventListener('input',function(){
     var v=slug.value,msg='';
@@ -2873,8 +2889,13 @@ window.AUI_TONES();
         var tr=(window.AUI&&AUI.mosh&&(viewN++%2))?AUI.mosh:wipe;
         tr(function(){
           apply(tab);
-          var hd=document.querySelector('header');
-          window.scrollTo(0,hd.offsetTop+hd.offsetHeight);
+          /* Play takes the hero out of the header, so that happens before the
+             landing is measured, not on a timer after it. Then the view's first
+             block lands one row under the bar, whatever margin it carries. */
+          if(window.AUI&&AUI.onView)AUI.onView(tab);
+          var p=$(tab.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
+          var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
+          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
           if(window._labs)window._labs();
         });
       }else{
@@ -4032,6 +4053,10 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.pagination=function(){
 };window.AUI_JS.pagination();
 /* sheet */
 $('sheetBtn').addEventListener('click',()=>{const d=$('sheetDlg');if(d.showModal){d.showModal();if(live())sfx.open()}});
+/* a phone has no Esc key: the [x] and the strip of page above the sheet close
+   it, on click so the same tap does not land on the page underneath */
+$('sheetX').addEventListener('click',()=>$('sheetDlg').close());
+$('sheetDlg').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.close()});
 $('sheetReset').addEventListener('click',()=>{$('sheetDlg').querySelectorAll('input').forEach(i=>{i.checked=false})});
 $('sheetApply').addEventListener('click',()=>{const n=$('sheetDlg').querySelectorAll('input:checked').length;$('sheetDlg').close();A.say(n+' filter'+(n===1?'':'s')+' applied.')});
 /* spinners */
@@ -4305,7 +4330,7 @@ function placeHero(){
   else if(!on&&hero.parentNode===stage)home.parentNode.insertBefore(hero,home);
   A.layout();
 }
-document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(placeHero,430)));
+A.onView=placeHero;
 const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
 ['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));
 const KN={kSpeed:['speed',100],kSize:['rad',100],kSplit:['split',100],kTear:['tear',100],kStreaks:['streaks',1],kBlocks:['blocks',1]};
@@ -4400,7 +4425,7 @@ function buildMenu(){
      changes it rather than silently swapping the chips */
   const head=secs.length?'<p class="menu-h">'+esc(cur?cur.textContent:'')+' <span class="navcount">'+secs.length+'</span></p>':'';
   $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
-  $('mSnd').checked=$('soundToggle').checked;$('mGl').checked=$('glitchToggle').checked;
+  $('mSnd').checked=$('soundToggle').checked;$('mGrid').checked=$('gridToggle').checked;$('mGl').checked=$('glitchToggle').checked;
   $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
 }
 $('menuBtn').addEventListener('click',()=>{
@@ -4409,11 +4434,11 @@ $('menuBtn').addEventListener('click',()=>{
   const here=$('menuViews').querySelector('[aria-current="page"]');if(here)here.focus();
   if(live())sfx.open();
 });
-$('menuClose').addEventListener('click',()=>md.close());
 $('menuX').addEventListener('click',()=>md.close());
 /* a phone has no Esc key and the sheet is taller than the screen, so the way
-   out is tapping next to it */
-md.addEventListener('pointerdown',e=>{if(e.target===md)md.close()});
+   out is tapping next to it. On click, not on touch-down, or the same tap
+   lands on whatever is under it once the sheet is gone. */
+md.addEventListener('click',e=>{if(e.target===md)md.close()});
 /* whatever closed it, the button that opened it gets the focus back */
 md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
 md.addEventListener('click',e=>{
@@ -4422,7 +4447,7 @@ md.addEventListener('click',e=>{
     /* picking a view keeps the sheet open and refills it with that view's
        sections, so reaching a section elsewhere is two taps instead of four */
     const tab=$(t.dataset.t);
-    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(buildMenu,420)}
+    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(()=>{buildMenu();if(md.open){const h=$('menuViews').querySelector('[aria-current="page"]');if(h)h.focus()}},420)}
     else{md.close();window.scrollTo(0,0)}
   }
   else if(s){
@@ -4436,6 +4461,7 @@ md.addEventListener('click',e=>{
   }
 });
 $('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
+$('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
 $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
 $('mTheme').addEventListener('click',()=>{md.close();$('themeToggle').click()});
 $('mCmd').addEventListener('click',()=>{md.close();setTimeout(()=>$('cmdBtn').click(),80)});

@@ -79,7 +79,7 @@ function placeHero(){
   else if(!on&&hero.parentNode===stage)home.parentNode.insertBefore(hero,home);
   A.layout();
 }
-document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(placeHero,430)));
+A.onView=placeHero;
 const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
 ['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));
 const KN={kSpeed:['speed',100],kSize:['rad',100],kSplit:['split',100],kTear:['tear',100],kStreaks:['streaks',1],kBlocks:['blocks',1]};

@@ -729,9 +729,12 @@
   /* ---- grid overlay and theme ---- */
   $('gridToggle').addEventListener('change',function(e){main.classList.toggle('show-grid',e.target.checked)});
   var themeBtn=$('themeToggle');
+  /* the page only changes once the curtain lands, so a second tap before then
+     reads the theme it is heading to, and two quick taps cancel out */
+  var themeWant=null;
   themeBtn.addEventListener('click',function(){
-    var next=currentTheme()==='dark'?'light':'dark';
-    wipe(function(){root.setAttribute('data-theme',next)});
+    themeWant=(themeWant||currentTheme())==='dark'?'light':'dark';
+    wipe(function(){if(themeWant){root.setAttribute('data-theme',themeWant);themeWant=null}});
   });
   function themeLabel(){
     var t=currentTheme();
@@ -770,7 +773,11 @@
     var f=e.target.closest&&e.target.closest('.field');
     if(!f||e.target.matches('input,select,textarea,button,a'))return;
     var inp=f.querySelector('input,select,textarea');
-    if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+    if(inp&&!inp.disabled){
+      e.preventDefault();inp.focus();
+      /* focus alone does not open a dropdown, so the tap would still feel dead */
+      if(inp.tagName==='SELECT'&&inp.showPicker)try{inp.showPicker()}catch(err){}
+    }
   });
   slug.addEventListener('input',function(){
     var v=slug.value,msg='';
@@ -845,8 +852,13 @@
         var tr=(window.AUI&&AUI.mosh&&(viewN++%2))?AUI.mosh:wipe;
         tr(function(){
           apply(tab);
-          var hd=document.querySelector('header');
-          window.scrollTo(0,hd.offsetTop+hd.offsetHeight);
+          /* Play takes the hero out of the header, so that happens before the
+             landing is measured, not on a timer after it. Then the view's first
+             block lands one row under the bar, whatever margin it carries. */
+          if(window.AUI&&AUI.onView)AUI.onView(tab);
+          var p=$(tab.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
+          var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
+          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
           if(window._labs)window._labs();
         });
       }else{

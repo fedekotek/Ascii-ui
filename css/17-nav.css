@@ -130,7 +130,7 @@ dialog.sheet{max-height:82vh;max-height:82dvh;flex-direction:column}
 dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
 dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
-dialog.sheet .body,dialog.sheet .body > *{max-width:100%}
+#menuDlg .body,#menuDlg .body > *{max-width:100%}
 /* nothing behind a dialog scrolls while it is open */
 body:has(dialog[open]){overflow:hidden}
 
@@ -144,7 +144,7 @@ body:has(dialog[open]){overflow:hidden}
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.sheet-x:hover{color:var(--hot)}}
-dialog.sheet .body > .row:last-child{display:none}   /* the old close row */
+/* the Filters sheet closes the same way, from its own [x] or the page above it */
 
 /* the views read as one list, the sections as another */
 dialog.sheet #menuViews{margin-bottom:var(--r)}
@@ -167,8 +167,8 @@ dialog.sheet .menu-foot .ibtn{padding:12px 0;margin:-12px 0}
    they stopped after four rows and the sheet looked unfinished. On a phone the
    sheet reads as a card from its top and bottom rows and the MENU slab, so the
    walls step out rather than be faked. */
-dialog.sheet .body::before,dialog.sheet .body::after{display:none}
-dialog.sheet .body{padding-left:2ch;padding-right:2ch}
+#menuDlg .body::before,#menuDlg .body::after{display:none}
+#menuDlg .body{padding-left:2ch;padding-right:2ch}
 /* the frame rows get a background so the list disappears under them instead
    of showing half a row through the characters */
 dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
@@ -223,7 +223,11 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
    the hero keeps a third of the screen. */
 @media (max-height:480px) and (orientation:landscape){
   .topbar::after{display:none}
-  main > header > canvas{max-height:30vh}
+  /* a third of 390px showed the top of one word and the edge of the torus,
+     which reads as broken; the hero, its photo buttons and its glow step out,
+     and Play still has it on its own stage */
+  main > header > #hero,main > header > #heroSrc{display:none}
+  body{background:var(--bg)}
 }
 
 /* The REC counter is the only text under 12px and on a small screen it lands on
@@ -271,3 +275,8 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 
 /* a select is a control, it gets a thumb's worth of height on touch */
 @media (max-width:1023px){.field select,select{min-height:calc(var(--r)*2)}}
+
+/* The camera and photo messages print under their own buttons, not a grid row
+   further down beside the poster button. Empty, the line gives its row back. */
+#heroSrc > #heroStatus{flex-basis:100%;margin:0}
+#heroSrc > #heroStatus:empty{min-height:0;margin-top:calc(var(--r)*-1)}

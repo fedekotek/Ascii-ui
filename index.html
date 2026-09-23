@@ -61,14 +61,14 @@
       <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
       <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Torus</span></span></button>
       <input type="file" id="photoFile" accept="image/*" hidden>
+      <p class="muted status" id="heroStatus" role="status"></p>
     </div>
-    <p class="muted status" id="heroStatus" role="status"></p>
     <p class="lede demo">shadcn-style components with a brutalist ASCII skin and a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense the character is, and every state change glitches a little. Native HTML underneath.</p>
     <div class="row demo">
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
     </div>
-    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or tap <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
+    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or click <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
     <div class="row demo">
       <span class="muted" id="sigText">SIG ----</span>
       <button class="btn frame tone-light" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
@@ -902,8 +902,9 @@
 <dialog id="sheetDlg" class="sheet" aria-labelledby="sheetTitle">
   <div class="lift"><div class="card frame tone-heavy">
     <h2 id="sheetTitle" class="bar-title">Filters</h2>
+    <button class="sheet-x" id="sheetX" type="button" aria-label="Close the filters">[x]</button>
     <div class="body">
-      <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label></div>
+      <div class="stack"><label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label></div>
       <div class="row"><button class="btn frame tone-light" id="sheetReset" type="button"><span class="mid"><span class="label">Reset</span></span></button><button class="btn btn-primary frame tone-heavy" id="sheetApply" type="button"><span class="mid"><span class="label">Apply</span></span></button></div>
     </div>
   </div></div>
@@ -918,12 +919,12 @@
       <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
       <div class="menu-foot">
         <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
+        <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
         <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
         <button class="ibtn" id="mTheme" type="button">Theme</button>
         <button class="ibtn" id="mCmd" type="button">&gt;_ Commands</button>
       </div>
       <div class="menu-sub" id="menuSecs" role="group" aria-label="Sections"></div>
-      <div class="row"><button class="btn frame tone-light" id="menuClose" type="button"><span class="mid"><span class="label">Close</span></span></button></div>
     </div>
   </div></div>
 </dialog>
