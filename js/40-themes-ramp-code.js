@@ -117,7 +117,7 @@ function cssFor(panel,baseOnly){
   if(!cls.size)return '';
   const res=[...cls].map(c=>new RegExp('\\.'+c.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')+'(?![\\w-])'));
   const seen=new Set(),out=[];
-  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|\.views|\.viewsbar|dialog)/.test(r.selectorText))return;
+  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|#views|#sidenav|#menuDlg|#soundBar|\.menu-|\.views|\.viewsbar|\.barctl|\.topbar|dialog)/.test(r.selectorText))return;
     if(res.some(re=>re.test(r.selectorText))&&!seen.has(r.cssText)){seen.add(r.cssText);out.push(r.cssText.replace(/\{\s*/,'{\n  ').replace(/;\s*(?!\s*})/g,';\n  ').replace(/\s*}$/,'\n}'))}});
   return out.join('\n');
 }

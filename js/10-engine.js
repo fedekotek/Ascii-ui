@@ -686,16 +686,42 @@
     });
   });
 
+  /* ---- one transition at a time ----
+     The curtain and the datamosh used to keep a lock each, so a view picked
+     during a theme change ran both at once and the later pick could land
+     first. Now there is one lock: a transition asked for while another is
+     running waits its turn, and the overlay swallows taps while it covers.
+     The curtain is for the theme and the presets, the datamosh for views. */
+  var busy=false,waiting=[];
+  /* the overlay eats taps, except one on a view link under it: that one
+     becomes the new target, so rapid picks still end where you stopped */
+  function hold(wrap){
+    busy=true;if(!wrap)return;
+    wrap.addEventListener('click',function(e){
+      wrap.style.pointerEvents='none';
+      var el=document.elementFromPoint(e.clientX,e.clientY);
+      wrap.style.pointerEvents='auto';
+      var t=el&&el.closest&&el.closest('#views [role="tab"]');
+      if(t)t.click();
+    });
+  }
+  function free(){busy=false;while(!busy&&waiting.length)waiting.shift()()}
+  function transition(kind,cb){
+    if(reduce){cb();return}
+    if(busy){waiting.push(function(){transition(kind,cb)});return}
+    if(kind==='mosh'&&window.AUI&&AUI.mosh)AUI.mosh(cb);else curtain(cb);
+  }
+
   /* ---- theme: a halftone curtain sweeps the page ---- */
-  var EDGE='.:=+*#%@',wiping=false;
-  function wipe(cb){
-    if(reduce||wiping){cb();return}
-    wiping=true;sfx.wipe();
+  var EDGE='.:=+*#%@';
+  function curtain(cb){
+    if(reduce){cb();return}
+    sfx.wipe();
     var cs=getComputedStyle(document.body),ink=cs.color;
     var cols=Math.ceil(window.innerWidth/CH)+1,rows=Math.ceil(window.innerHeight/24)+1,skew=Math.ceil(rows*0.5);
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
-    wrap.setAttribute('aria-hidden','true');
-    wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:none';
+    wrap.setAttribute('aria-hidden','true');hold(wrap);
+    wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
     var bc=['pink','warn','cy','deep','ink','hot','violet'],grad=[],bi;
     for(bi=0;bi<bc.length;bi++)grad.push(PAL[bc[bi]]+' '+(bi*72)+'px '+((bi+1)*72)+'px');
     solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(to bottom,'+grad.join(',')+')';
@@ -720,7 +746,7 @@
       p+=step;frame();
       if(p>=end){
         if(!out){out=true;p=-8;cb();}
-        else{iv.stop();wrap.remove();wiping=false;readPalette();kick()}
+        else{iv.stop();wrap.remove();readPalette();kick();free()}
       }
     });
   }
@@ -739,16 +765,24 @@
   $('gridToggle').addEventListener('change',function(e){main.classList.toggle('show-grid',e.target.checked)});
   var themeBtn=$('themeToggle');
   /* the page only changes once the curtain lands, so a second tap before then
-     reads the theme it is heading to, and two quick taps cancel out */
-  var themeWant=null;
+     reads the theme it is heading to, and two quick taps cancel out. A tap
+     after the landing queues one more curtain rather than running two. */
+  var themeWant=null,themeQueued=false;
   themeBtn.addEventListener('click',function(){
     themeWant=(themeWant||currentTheme())==='dark'?'light':'dark';
-    wipe(function(){if(themeWant){root.setAttribute('data-theme',themeWant);themeWant=null}});
+    themeLabel();
+    if(themeQueued)return;themeQueued=true;
+    transition('wipe',function(){
+      themeQueued=false;
+      if(themeWant&&themeWant!==currentTheme())root.setAttribute('data-theme',themeWant);
+      themeWant=null;themeLabel();
+    });
   });
+  /* the button names where it takes you, not where you are */
   function themeLabel(){
-    var t=currentTheme();
-    setLabel(themeBtn,'Theme');
-    themeBtn.setAttribute('aria-label','Theme: '+t+'. Switch to '+(t==='dark'?'light':'dark')+'.');
+    var to=(themeWant||currentTheme())==='dark'?'light':'dark';
+    setLabel(themeBtn,to==='light'?'Light':'Dark');
+    themeBtn.setAttribute('aria-label','Switch to '+to+' theme');
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
@@ -847,10 +881,51 @@
   }
   bindSlider($('speed'),function(fr){G.amt=fr});
 
-  var viewN=0;
-  /* ---- tabs: one group per tablist. the view switch rides the curtain ---- */
+  /* ---- views: the seven are links (#components, #blocks ...) and
+     js/70-nav.js owns the address, the clicks and the keyboard. This owns the
+     swap: one datamosh at a time, and a pick made while one is running
+     replaces where it goes rather than starting another. `then` lands
+     somewhere once the new view shows; without it the view's first block
+     lands one row under the bar. `instant` skips the transition (a deep link
+     on load). ---- */
+  var viewTabs=[].slice.call(document.querySelectorAll('#views [role="tab"]')),
+      viewWant=null,viewThen=null,viewQueued=false;
+  function applyView(tab){
+    viewTabs.forEach(function(x){
+      var on=x===tab;
+      x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1;
+      $(x.getAttribute('aria-controls')).hidden=!on;
+    });
+  }
+  function showView(tab,then,instant){
+    if(!viewQueued&&tab.getAttribute('aria-selected')==='true'){if(then)then();return}
+    viewWant=tab;viewThen=then||null;
+    if(viewQueued)return;viewQueued=true;
+    function swap(){
+      viewQueued=false;
+      var t=viewWant,fn=viewThen;viewWant=viewThen=null;
+      if(t.getAttribute('aria-selected')!=='true'){
+        applyView(t);
+        /* Play takes the hero out of the header, so that happens before the
+           landing is measured, not on a timer after it */
+        if(window.AUI&&AUI.onView)AUI.onView(t);
+        if(window._labs)window._labs();
+        if(!fn){
+          var p=$(t.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
+          var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
+          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
+        }
+        document.dispatchEvent(new CustomEvent('aui:view',{detail:t}));
+      }
+      if(fn)fn();
+    }
+    if(instant)swap();else transition('mosh',swap);
+  }
+
+  /* ---- tabs: one group per tablist, the views excepted (above) ---- */
   [].forEach.call(document.querySelectorAll('[role="tablist"]'),function(list){
-    var tabs=[].slice.call(list.querySelectorAll('[role="tab"]')),isViews=list.id==='views';
+    if(list.id==='views')return;
+    var tabs=[].slice.call(list.querySelectorAll('[role="tab"]'));
     function apply(tab){
       tabs.forEach(function(x){
         var on=x===tab;
@@ -861,23 +936,8 @@
     function select(tab,focus){
       if(tab.getAttribute('aria-selected')==='true')return;
       if(focus)tab.focus();
-      if(isViews){
-        var tr=(window.AUI&&AUI.mosh&&(viewN++%2))?AUI.mosh:wipe;
-        tr(function(){
-          apply(tab);
-          /* Play takes the hero out of the header, so that happens before the
-             landing is measured, not on a timer after it. Then the view's first
-             block lands one row under the bar, whatever margin it carries. */
-          if(window.AUI&&AUI.onView)AUI.onView(tab);
-          var p=$(tab.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
-          var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
-          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
-          if(window._labs)window._labs();
-        });
-      }else{
-        sfx.tab();apply(tab);
-        if(window._revealTree)window._revealTree($(tab.getAttribute('aria-controls')));
-      }
+      sfx.tab();apply(tab);
+      if(window._revealTree)window._revealTree($(tab.getAttribute('aria-controls')));
     }
     tabs.forEach(function(tab,idx){
       tab.addEventListener('click',function(){select(tab,false)});
@@ -1009,7 +1069,7 @@
     }
     sfx.burst();
   });
-  $('gCurtain').addEventListener('click',function(){wipe(function(){})});
+  $('gCurtain').addEventListener('click',function(){transition('wipe',function(){})});
   $('sTick').addEventListener('click',function(){
     times(55,10,function(){SND.last=0;sfx.tick()});
   });
@@ -1098,7 +1158,7 @@
   }
 
   window.AUI={backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
-    scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:wipe,
+    scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,
     decode:decode,reveal:reveal,fitTitles:fitTitles,live:sndLive,src:null,onLayout:null,HP:HP,TR:TR,setRamp:setRamp,rampString:function(){return rampNow},

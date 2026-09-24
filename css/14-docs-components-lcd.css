@@ -7,7 +7,8 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .chip::before{content:"[";color:var(--violet)}.chip::after{content:"]";color:var(--violet)}
 .chip:focus-visible{background:var(--accent);color:var(--bg)}
 .chip[aria-pressed="true"]{color:var(--bg);background:var(--ink);background-clip:content-box;box-shadow:none}
-@media (hover:hover){.chip:hover{color:var(--ink)}}
+/* a pressed chip is ink on paper already, hovering it must not turn the text into the paper */
+@media (hover:hover){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
 .filters{display:flex;flex-wrap:wrap;gap:0 2ch}
 .doc{margin-top:var(--r)}
 .doc-tabs{padding-bottom:var(--r)}

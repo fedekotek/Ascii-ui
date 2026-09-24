@@ -8,7 +8,7 @@ from playwright.async_api import async_playwright
 
 URL='file://'+os.path.abspath(os.path.join(os.path.dirname(__file__),'..','index.html'))
 # width, height, expected gallery columns
-SIZES=[(360,780,1),(390,844,1),(800,1000,1),(820,1180,1),(900,700,1),(1024,768,1),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
+SIZES=[(360,780,1),(390,844,1),(768,1024,1),(800,1000,1),(820,1180,1),(900,700,1),(1024,768,1),(1280,800,2),(1440,900,2),(1600,1000,3),(1920,1080,3)]
 GALLERIES=['kit','blocks']   # these fill every column
 VIEWS=GALLERIES+['charts']   # charts has only two sections that are not full width
 
@@ -67,6 +67,10 @@ async def run():
             # and the views are always reachable: the tabs, or the [=] that holds them
             nv=await pg.evaluate("[document.getElementById('menuBtn'),document.getElementById('v-page')].some(e=>e.offsetParent!==null)")
             if not nv: msgs.append('no way to change views: neither the tabs nor [=] is visible')
+            # where the views are in the bar, all seven show: a tab scrolled out
+            # of sight is a view nobody finds
+            hid=await pg.evaluate("(v=>v.offsetParent===null?0:v.scrollWidth-v.clientWidth)(document.getElementById('views'))")
+            if hid>1: msgs.append(f'the views scroll {hid}px out of sight in the bar')
             for v in VIEWS:
                 await pg.evaluate(f"document.getElementById('v-{v}').click()"); await pg.wait_for_timeout(1300)
                 ov=await pg.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")

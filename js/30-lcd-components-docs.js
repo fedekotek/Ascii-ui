@@ -386,11 +386,11 @@ function buildView(panel,label,skip){
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
-  /* it is the only way to a section while the sidebar is not there, so it is
-     open below the sidebar's width too */
-  toc.innerHTML='<details class="acc toc" open><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
+  /* under 1024px the [=] menu is the index now, so this starts closed; from
+     1024px the sidebar is, and css hides it */
+  toc.innerHTML='<details class="acc toc"><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
-  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
+  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{if(A.jump)A.jump(s);else s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
   const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
   return secs;
 }
@@ -404,7 +404,7 @@ $('blockFilters').addEventListener('click',e=>{
   const sum=$('view-blocks').querySelector('.toc summary');if(sum)sum.textContent='Blocks, '+blockSecs.filter(s=>!s.hidden).length;
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
-document.querySelectorAll('[role="tablist"].views [role="tab"]').forEach(t=>t.addEventListener('click',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900)));
+document.addEventListener('aui:view',()=>setTimeout(()=>{LCDS.forEach(l=>l.size());A.fitTitles();if(window.AUI_WIDE)AUI_WIDE()},900));
 setTimeout(()=>LCDS.forEach(l=>l.size()),300);
 
 /* say it when a table is wider than its box: on touch there is no scrollbar

@@ -48,12 +48,13 @@ function rearm(el){
 }
 
 /* ================= datamosh transition ================= */
-let moshing=false;
+/* it holds the engine's one transition lock (A.hold/A.free), so it never runs
+   beside the curtain, and it takes the taps while it covers the page */
 function mosh(cb){
-  if(reduce||A.glitch()<=0||moshing){cb();return}
-  moshing=true;const P=A.pal(),keys=['hot','pink','cy','warn','deep','violet','ok'];
-  const wrap=document.createElement('div');wrap.setAttribute('aria-hidden','true');
-  wrap.style.cssText='position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:none';
+  if(reduce||A.glitch()<=0){cb();return}
+  const P=A.pal(),keys=['hot','pink','cy','warn','deep','violet','ok'];
+  const wrap=document.createElement('div');wrap.setAttribute('aria-hidden','true');A.hold(wrap);
+  wrap.style.cssText='position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:auto;touch-action:none';
   const rows=Math.ceil(window.innerHeight/24),els=[];
   for(let y=0;y<rows;y++){
     const d=document.createElement('div'),solid=Math.random()<0.24,side=Math.random()<0.5?-1:1;
@@ -63,7 +64,7 @@ function mosh(cb){
   document.body.appendChild(wrap);noise(0.3,0.12);
   requestAnimationFrame(()=>requestAnimationFrame(()=>els.forEach(d=>d.style.transform='translateX(0)')));
   setTimeout(()=>{cb();els.forEach(d=>d.style.transform='translateX('+(-d._s*101)+'%)');
-    setTimeout(()=>{wrap.remove();moshing=false;A.kick()},170)},175);
+    setTimeout(()=>{wrap.remove();A.kick();A.free()},170)},175);
 }
 A.mosh=mosh;
 function show(name){const t=$('v-'+name);if(t){t.click();return true}return false}
@@ -377,11 +378,16 @@ const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badg
 async function run(line){
   line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto kit|blocks|charts|themes|play|apps|page\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · torus · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto components|blocks|charts|themes|play|apps|onepager\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · torus · tilt · clear');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
-  else if(c==='goto'||c==='cd'){const n=(a[1]||'kit').replace(/^[#\/]/,'');if($('v-'+n)){cmdDlg.close();B.show(n)}else out('no such view: '+esc(n))}
+  else if(c==='goto'||c==='cd'){
+    /* the names the address bar uses, plus the old kit and page */
+    const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit',onepager:'page'},v=n.split('/')[0];
+    if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
+    else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
+    else out('no such view: '+esc(n))}
   else if(c==='rm'){
     const what=a[a.length-1].toLowerCase();
     if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
