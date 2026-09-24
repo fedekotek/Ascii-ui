@@ -12,15 +12,24 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .doc{margin-top:var(--r)}
 .doc-tabs{padding-bottom:var(--r)}
 .doc-tabs .tab{padding:calc(var(--r)/2) 2ch}
+/* docs chrome is quieter than the exhibits: no slab, the active tab is ink
+   with a heavy violet rule under it, so it never reads as a Tabs demo */
+.doc-tabs .tab{position:relative}
+.doc-tabs .tab[aria-selected="true"]{background:none;color:var(--ink);box-shadow:none;font-weight:700}
+.doc-tabs .tab[aria-selected="true"]::after{
+  content:var(--h-heavy);position:absolute;left:0;right:0;top:100%;height:var(--r);
+  overflow:hidden;white-space:nowrap;color:var(--violet);background:var(--bg);z-index:1;
+}
+.doc-tabs .tab:focus-visible{background:var(--accent);color:var(--bg)}
 .doc-panel{padding-top:var(--r)}
 .doc-panel > .demo:first-child,.doc-panel > :first-child{margin-top:0}
 .code{white-space:pre;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 var(--r) 2ch;border-left:0;position:relative}
-.code .t{color:var(--hot)}.code .a{color:var(--cy)}.code .s{color:var(--ok)}
+.code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
 .copyrow{margin-top:var(--r)}
 [hidden]{display:none !important}
 
 /* avatar */
-.avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot);overflow:hidden;flex:none}
+.avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);overflow:hidden;flex:none}
 .avatar.sm{width:5ch;height:calc(var(--r)*2)}
 .avatar.hot{background:var(--hot)}.avatar.ok{background:var(--ok)}
 .avatar canvas{width:100%;height:100%;display:block}
@@ -57,7 +66,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
 .menu .sepd{margin:0}
 .menu kbd{color:inherit;font-weight:500;opacity:.7}
-.tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
+.tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
 .tip::after{content:"v";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
 .pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
 /* otp */
@@ -101,7 +110,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .timeline li.past::before{content:var(--k6,"#") var(--k6,"#");color:var(--ink)}
 .timeline b{display:block;text-transform:uppercase}
 .timeline span{color:var(--muted)}
-.timeline time{color:var(--cy);font-weight:700}
+.timeline time{color:var(--violet);font-weight:700}
 /* toast variant, sheet */
 .toast.err span{background:var(--hot)}
 dialog.sheet{margin:auto 0 0 0;width:100%;max-width:100%}
@@ -114,7 +123,7 @@ dialog.sheet .body{max-width:80ch;margin:0 auto}
 /* LCD pictures */
 figure.pic{margin:0;max-width:480px}
 figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y;background:#05030a}
-figure.pic .bezel{padding:6px;background:#05030a;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+figure.pic .bezel{padding:6px;background:#05030a;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 figcaption{color:var(--muted);margin-top:calc(var(--r)/2)}
 figcaption b{color:var(--ink)}
 .thumb{margin:0 0 var(--r)}
@@ -136,7 +145,7 @@ figcaption b{color:var(--ink)}
 .side button span{margin-left:auto;padding-left:2ch}
 .kv{display:grid;grid-template-columns:10ch 1fr;gap:0 1ch}
 .kv dt{color:var(--muted)}
-.qty{font-weight:700;color:var(--cy);white-space:nowrap}
+.qty{font-weight:700;color:var(--hot);white-space:nowrap}
 .ing{list-style:none;padding:0;margin:var(--r) 0 0}
 .ing li{display:flex;justify-content:space-between;gap:2ch}
 .ing li span:first-child{color:var(--muted)}

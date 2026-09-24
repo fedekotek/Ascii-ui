@@ -215,7 +215,8 @@
     pre.innerHTML=html;
   }
   function makeBars(cols){
-    var rows=[],y,k,cs=['pink','warn','cy','deep','ink'].sort(function(){return Math.random()-0.5});
+    /* tbar is ink in dark and magenta on paper, see css/01 */
+    var rows=[],y,k,cs=['pink','warn','cy','deep','tbar'].sort(function(){return Math.random()-0.5});
     var seg=[];for(k=0;k<5;k++)seg.push([Math.floor(Math.random()*6),8+Math.floor(Math.random()*6)]);
     for(y=0;y<14;y++){
       var r='';
@@ -544,13 +545,32 @@
     d.style.cssText='left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;opacity:'+op+';background:var(--'+c+')';
     fx.appendChild(d);setTimeout(function(){d.remove()},life);
   }
+  /* ambient sparks are runs of = on the character grid, and they only land
+     where there is no text: the gutters either side of the column and the
+     hero. As 2px lines over body copy they read as broken underlines. */
+  function run(x,y,n,c,op,life){
+    var d=document.createElement('div');
+    d.textContent=TR(rep('=',n));
+    d.style.cssText='left:'+x+'px;top:'+y+'px;line-height:24px;font-weight:700;white-space:pre;opacity:'+op+';color:var(--'+c+')';
+    fx.appendChild(d);setTimeout(function(){d.remove()},life);
+  }
+  function sparkSpots(){
+    var vw=window.innerWidth,vh=window.innerHeight,m=main.getBoundingClientRect(),pad=CH*2,out=[],h;
+    var lg=Math.floor((m.left+pad)/CH),rg=Math.floor((vw-m.right+pad)/CH);
+    if(lg>=2)out.push([0,lg,0,vh]);
+    if(rg>=2)out.push([vw-rg*CH,rg,0,vh]);
+    h=hero.getBoundingClientRect();
+    if(h.height&&h.bottom>24&&h.top<vh-24)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
+    return out;
+  }
   if(!reduce)every(650,function(){
     var g=glitch();if(g<=0||Math.random()>g*1.3)return;
-    var n=1+rnd(Math.ceil(3*g)),vw=window.innerWidth,vh=window.innerHeight;
+    var spots=sparkSpots();if(!spots.length)return;
+    var n=1+rnd(Math.ceil(3*g));
     while(n--){
-      var w=20+Math.random()*180,left=Math.random()<0.5;
-      var x=left?Math.random()*vw*0.3-20:vw-w-Math.random()*vw*0.3+20;
-      spark(x,rnd(Math.floor(vh/4))*4,w,2,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
+      var s=spots[rnd(spots.length)],len=Math.max(1,Math.min(s[1],2+rnd(18)));
+      var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/24)))*24;
+      run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
   });
   var SH=['hot','pink','cy','warn','ok','deep','violet','ink'];
@@ -819,7 +839,9 @@
     }
     return (rep('@',n)+tail).slice(-k)+rep('.',n-k);
   }
-  function barText(k,jit){return barRow(k,jit)+'\n'+barRow(k-1,jit)}
+  /* one row, like every other halftone bar in the kit (tape, work orders,
+     regions). It was two rows here, so the kit had bars in two heights. */
+  function barText(k,jit){return barRow(k,jit)}
   var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'warn','=':'warn',':':'ink','.':'muted'};
   function colorize(txt){
     var out='',cur='',run='',i,c,k;

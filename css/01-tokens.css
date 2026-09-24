@@ -2,10 +2,13 @@
 :root{
   --bg:#ecebe4; --ink:#111110; --muted:#5c5b55;
   /* light: cyan is focus and magenta is action, so both clear 4.5:1 on paper.
-     They were 3.9 and 4.2. Dark already passes. */
-  --hot:#c91468; --pink:#e8478f; --cy:#0a7287; --ok:#3f6b00; --warn:#c0260f;
+     They were 3.9 and 4.2. Dark already passes. Warning is a dark amber, not
+     red, so Degraded still reads milder than Down (magenta), as it does in
+     dark. 4.96:1 on paper. */
+  --hot:#c91468; --pink:#e8478f; --cy:#0a7287; --ok:#3f6b00; --warn:#8a5a00;
   --deep:#2b2bd1; --violet:#6a45d9;
   --t0:#111110; --t1:#111110; --t2:#c91468; --t3:#2b2bd1;
+  --tbar:var(--hot);   /* the ink colour bar behind titles: black on paper reads as a censor bar */
   --scan:rgba(17,17,16,.06);
   /* the scanline texture, one line in four. body::before lays it over the page,
      dialogs lay it over themselves because the top layer is out of reach */
@@ -24,6 +27,7 @@
     --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
     --deep:#4a3dff; --violet:#9b7bea;
     --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+    --tbar:var(--ink);
     --scan:rgba(0,0,0,.28);
     color-scheme:dark;
   }
@@ -33,6 +37,7 @@
   --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
   --deep:#4a3dff; --violet:#9b7bea;
   --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+  --tbar:var(--ink);
   --scan:rgba(0,0,0,.28);
   color-scheme:dark;
 }

@@ -29,8 +29,11 @@ See ARCHITECTURE.md. Motifs live in `sfx`. `human()` is the variation + fatigue.
 ## Datamosh (`js/20` "datamosh transition")
 `mosh(cb)`: one absolutely positioned row per 24px of viewport, each a div with random ramp text and a random palette color, sliding in from a random side with a random duration, then out. The other half of view switches.
 
+## Ambient sparks (`js/10` "fx layer")
+Every 650ms, scaled by the glitch amount, a few runs of `=` in magenta or pink appear on the character grid and vanish after 80..300ms. They only land in the gutters either side of the column (when a gutter is at least 2ch) and over the hero, never over body text. Tap shards and the cursor trail are still blocks, since they answer your pointer.
+
 ## Tear (`js/20` "fx helpers")
-`tear(n)`: n horizontal strips in `#fx` with a `backdrop-filter: hue-rotate(...) saturate(2.4)` and a small translateX, removed after 80..220ms. Fast scroll calls it (velocity > 1300 px/s).
+`tear(n)`: n horizontal strips in `#fx` with a `backdrop-filter: hue-rotate(-45..-75deg) saturate(1.6)` and a small translateX, removed after 80..220ms. The small backward turn keeps the band in the pink, violet and cyan family; bigger turns made oranges and browns. Fast scroll calls it (velocity > 1300 px/s).
 
 ## Jolt (`css/02` `@keyframes jolt`, `A.jolt`)
 260ms `steps(1)` keyframe on `main`: translateX, skewX, hue-rotate, saturate. Fires on success states, errors, shatter, hits in invaders.

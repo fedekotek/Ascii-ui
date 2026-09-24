@@ -151,7 +151,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <p class="muted">The active tab is a solid slab. Arrow keys move between tabs.</p>
     <div class="demo">
       <div class="tablist" role="tablist" aria-label="Button source">
-        <button class="tab" role="tab" id="t-prev" aria-controls="p-prev" aria-selected="true" type="button">Preview</button>
+        <button class="tab" role="tab" id="t-prev" aria-controls="p-prev" aria-selected="true" type="button">Button</button>
         <button class="tab" role="tab" id="t-html" aria-controls="p-html" aria-selected="false" tabindex="-1" type="button">HTML</button>
         <button class="tab" role="tab" id="t-css" aria-controls="p-css" aria-selected="false" tabindex="-1" type="button">CSS</button>
       </div>
@@ -186,7 +186,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     </div>
   </section>
 
-  <section aria-labelledby="s-card">
+  <section aria-labelledby="s-card" data-span="full">
     <h2 id="s-card" class="vh">Card and dialog</h2>
     <pre class="poster ptitle" data-text="CARD" aria-hidden="true"></pre>
     <p class="muted">Title on a bar of @, walls of #, and a shadow made of colons. Publishing opens the dialog.</p>
@@ -223,7 +223,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <pre class="poster ptitle" data-text="DETAILS" aria-hidden="true"></pre>
     <p class="muted">A native details element. The marker flips between [+] and [-] and the answer decodes as it opens.</p>
     <div class="demo">
-      <details class="acc"><summary>What ships in the kit?</summary><p>Thirteen components, one stylesheet and a few hundred lines of JavaScript. No build step.</p></details>
+      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty components, one HTML file and no build step. Copy the base once, then any component.</p></details>
       <details class="acc"><summary>Can I change the characters?</summary><p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p></details>
     </div>
   </section>
@@ -272,13 +272,13 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-breadcrumb">
-    <h2 id="s-breadcrumb" class="vh">Breadcrumb</h2>
+    <h2 id="s-breadcrumb" class="vh">Crumbs</h2>
     <pre class="poster ptitle" data-text="CRUMBS" aria-hidden="true"></pre>
     <p class="muted">Slashes do the separating. The current page is a slab.</p>
     <nav class="demo" aria-label="Breadcrumb"><ol class="crumbs"><li><a href="#">Portfolio</a></li><li><a href="#">Case studies</a></li><li><a href="#">MaintainX</a></li><li aria-current="page"><span>Reporting</span></li></ol></nav>
   </section>
 
-  <section aria-labelledby="s-calendar">
+  <section aria-labelledby="s-calendar" data-span="full">
     <h2 id="s-calendar" class="vh">Calendar</h2>
     <pre class="poster ptitle" data-text="CALENDAR" aria-hidden="true"></pre>
     <p class="muted">A month of buttons. Today is magenta, your pick is a slab.</p>
@@ -289,15 +289,15 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-command">
     <h2 id="s-command" class="vh">Command</h2>
     <pre class="poster ptitle" data-text="COMMAND" aria-hidden="true"></pre>
-    <p class="muted">The palette is a component too. It runs this site.</p>
-    <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open command palette</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
+    <p class="muted">Commands is a component too. It runs this site.</p>
+    <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open commands</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
   </section>
 
   <section aria-labelledby="s-dropdown">
     <h2 id="s-dropdown" class="vh">Dropdown</h2>
     <pre class="poster ptitle" data-text="DROPDOWN" aria-hidden="true"></pre>
     <p class="muted">A button that opens a menu. Arrows move, Escape closes.</p>
-    <div class="demo pop" id="dd"><button class="btn frame tone-light" id="ddBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="ddMenu"><span class="mid"><span class="label">Actions v</span></span></button>
+    <div class="demo pop" id="dd"><button class="btn frame tone-light" id="ddBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="ddMenu"><span class="mid"><span class="label">Actions <span aria-hidden="true">v</span></span></span></button>
       <div class="menu" id="ddMenu" role="menu" aria-label="Actions" hidden><div class="lift"><div class="card frame tone-heavy"><div class="body">
         <button role="menuitem" type="button" tabindex="-1">Duplicate <kbd>d</kbd></button>
         <button role="menuitem" type="button" tabindex="-1">Copy link <kbd>l</kbd></button>
@@ -331,7 +331,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-pagination">
-    <h2 id="s-pagination" class="vh">Pagination</h2>
+    <h2 id="s-pagination" class="vh">Pager</h2>
     <pre class="poster ptitle" data-text="PAGER" aria-hidden="true"></pre>
     <p class="muted">Brackets around every page, a slab under the current one.</p>
     <nav class="demo row" id="pager" aria-label="Pagination"></nav>
@@ -341,7 +341,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-picture">
     <h2 id="s-picture" class="vh">Picture</h2>
     <pre class="poster ptitle" data-text="PICTURE" aria-hidden="true"></pre>
-    <p class="muted">A sectorized LCD. Every cell is three subpixels, the panel is twelve sectors, and each sector can run its own mode. Tap a sector.</p>
+    <p class="muted">An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector.</p>
     <figure class="pic demo"><div class="bezel"><canvas class="lcd " data-scene="ba" data-cols="64" data-rows="48" data-mode="rgb" role="img" aria-label="Buenos Aires at dusk with the Obelisco, rendered as an LCD panel"></canvas></div><figcaption id="picCap"><b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.</figcaption></figure>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Panel mode"><label><input type="radio" name="picMode" value="rgb" checked><span>RGB</span></label><label><input type="radio" name="picMode" value="mono"><span>Mono</span></label><label><input type="radio" name="picMode" value="ascii"><span>ASCII</span></label></div></div>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Picture"><label><input type="radio" name="picScene" value="ba" checked><span>Dusk</span></label><label><input type="radio" name="picScene" value="desk"><span>Desk</span></label><label><input type="radio" name="picScene" value="mate"><span>Mate</span></label><label><input type="radio" name="picScene" value="test"><span>Test</span></label></div></div>
@@ -349,7 +349,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-separator">
-    <h2 id="s-separator" class="vh">Separator</h2>
+    <h2 id="s-separator" class="vh">Divider</h2>
     <pre class="poster ptitle" data-text="DIVIDER" aria-hidden="true"></pre>
     <p class="muted">Four weights of nothing.</p>
     <div class="demo"><div class="sepd heavy" role="separator"></div><div class="sepd" role="separator"></div><div class="sepd shade" role="separator"></div><div class="sepd faint" role="separator"></div><div class="sepl" role="separator">or</div></div>
@@ -393,7 +393,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-togglegroup">
-    <h2 id="s-togglegroup" class="vh">Toggle group</h2>
+    <h2 id="s-togglegroup" class="vh">Segment</h2>
     <pre class="poster ptitle" data-text="SEGMENT" aria-hidden="true"></pre>
     <p class="muted">Radios dressed as slabs.</p>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div></div>
@@ -414,7 +414,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <ul class="rules demo muted">
       <li>Weight is character density. @ is the loudest thing on the page and . is the quietest.</li>
       <li>Frames, rules, fills and shadows are strings of characters. Hierarchy comes from which character.</li>
-      <li>Big type is a bitmap: every pixel of a headline is a character.</li>
+      <li>Big type is a bitmap: every pixel of a headline is a block of characters.</li>
       <li>Color is signal: magenta acts, cyan focuses, lime confirms, yellow warns.</li>
       <li>Glitch is feedback. It fires when you touch something or when a state changes, and the slider turns it down to zero.</li>
       <li>Everything arrives broken and fixes itself: elements glitch in as they enter the screen, text decodes left to right.</li>
@@ -443,7 +443,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         </div>
         <div class="group">
           <label class="field-label" for="lgPass">Password</label>
-          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="8 characters or more" autocomplete="off" aria-describedby="lgPassErr"></div></div>
+          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="Min. 8 characters" autocomplete="off" aria-describedby="lgPassErr"></div></div>
           <p class="error" id="lgPassErr"></p>
         </div>
         <div class="row full"><button class="btn btn-primary frame tone-heavy" id="lgBtn" type="button"><span class="mid"><span class="label">Sign in</span></span></button></div>
@@ -467,7 +467,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-table" class="vh">Table</h2>
     <pre class="poster ptitle" data-text="TABLE" aria-hidden="true"></pre>
     <p class="muted">A real table. Tap a row to select it.</p>
-    <div class="demo tablewrap"><table class="tbl" id="incTable"><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Dur</th></tr></thead><tbody>
+    <div class="demo tablewrap"><table class="tbl" id="incTable"><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Time</th></tr></thead><tbody>
       <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>12m</td></tr>
       <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span></td><td>48m</td></tr>
       <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>6m</td></tr>
@@ -516,7 +516,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section data-cat="personal" aria-labelledby="s-cases">
-    <h2 id="s-cases" class="vh">Case studies</h2>
+    <h2 id="s-cases" class="vh">Cases</h2>
     <pre class="poster ptitle" data-text="CASES" aria-hidden="true"></pre>
     <p class="muted">Four cards, four LCD thumbnails. Tap one.</p>
     <div class="demo grid2" id="cases"><div class="lift" data-case="Reporting" tabindex="0" role="button" aria-label="Open Reporting case study"><article class="card frame tone-mid"><h3 class="bar-title">Reporting</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui1" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Reporting case study"></canvas></div><p>Dashboards people read without being asked to.</p><div class="tags"><span class="badge b-out">B2B</span><span class="badge b-out">Data viz</span><span class="badge b-out">Mobile</span></div></div></article></div><div class="lift" data-case="Search" tabindex="0" role="button" aria-label="Open Search case study"><article class="card frame tone-mid"><h3 class="bar-title">Search</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui2" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Search case study"></canvas></div><p>One box, every work order, under 200 ms.</p><div class="tags"><span class="badge b-out">IA</span><span class="badge b-out">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div><div class="lift" data-case="Automations" tabindex="0" role="button" aria-label="Open Automations case study"><article class="card frame tone-mid"><h3 class="bar-title">Automations</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui3" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Automations case study"></canvas></div><p>If this breaks, then page someone. No code.</p><div class="tags"><span class="badge b-out">Workflow</span><span class="badge b-out">Logic</span></div></div></article></div><div class="lift" data-case="Chat" tabindex="0" role="button" aria-label="Open Chat case study"><article class="card frame tone-mid"><h3 class="bar-title">Chat</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui4" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Chat case study"></canvas></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-out">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div></div>
@@ -560,7 +560,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section data-cat="app" aria-labelledby="s-workorders">
-    <h2 id="s-workorders" class="vh">Work orders</h2>
+    <h2 id="s-workorders" class="vh">Orders</h2>
     <pre class="poster ptitle" data-text="ORDERS" aria-hidden="true"></pre>
     <p class="muted">A checklist that counts. The domain is maintenance, because of course it is.</p>
     <ul class="demo wo" id="wo"><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Replace conveyor belt motor</span></label><div class="meta"><span class="badge b-hot">High</span><span>due today</span><span>JP</span></div></li><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Calibrate line 3 torque sensor</span></label><div class="meta"><span class="badge b-warn">Medium</span><span>due tomorrow</span><span>AL</span></div></li><li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Inspect forklift 07 hydraulics</span></label><div class="meta"><span class="badge b-warn">Medium</span><span>due Wed</span><span>MR</span></div></li><li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Restock gloves, size L</span></label><div class="meta"><span class="badge b-out">Low</span><span>due Fri</span><span>FK</span></div></li><li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">Grease palletizer bearings</span></label><div class="meta"><span class="badge b-out">Low</span><span>due next week</span><span>JP</span></div></li></ul>
@@ -600,13 +600,13 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-feed" class="vh">Activity</h2>
     <pre class="poster ptitle" data-text="ACTIVITY" aria-hidden="true"></pre>
     <p class="muted">A feed is a timeline with timestamps.</p>
-    <ol class="demo timeline"><li><time>09:12</time><b>Deploy</b><span>reporting-web shipped build 4812.</span></li><li class="past"><time>08:47</time><b>Alert</b><span>Line 3 torque sensor out of range for 4 minutes.</span></li><li class="past"><time>08:03</time><b>Comment</b><span>"Can the chart be a pie?" It cannot.</span></li><li class="past"><time>Yesterday</time><b>Closed</b><span>Forklift 07 hydraulics, 2 h 10 m.</span></li></ol>
+    <ol class="demo timeline"><li><time>09:12</time><b>Deploy</b><span>reporting-web shipped build 4812.</span></li><li class="past"><time>08:47</time><b>Alert</b><span>Line 3 torque sensor out of range for 4 minutes.</span></li><li class="past"><time>08:03</time><b>Comment</b><span>"Can the chart be a pie?" It cannot.</span></li><li class="past"><time>Yesterday</time><b>Closed</b><span>Forklift 07 hydraulics, 2h 10m.</span></li></ol>
   </section>
 
   <section data-cat="marketing" aria-labelledby="s-lost">
     <h2 id="s-lost" class="vh">404</h2>
     <pre class="poster ptitle" data-text="404" aria-hidden="true"></pre>
-    <p class="muted">The page where the signal actually is lost. It never settles.</p>
+    <p class="muted">The one page where the signal is lost for real. It never settles.</p>
     <div class="demo lost"><pre class="poster ptitle" id="lostTitle" data-text="404" aria-hidden="true"></pre><p><span class="vh">404.</span>Signal lost. This page went for a walk and did not leave a note.</p><div class="row demo"><button class="btn btn-primary frame tone-heavy" id="lostHome" type="button"><span class="mid"><span class="label">Go home</span></span></button></div></div>
   </section>
 
@@ -660,7 +660,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-themes" role="tabpanel" aria-labelledby="v-themes" hidden>
-  <section aria-label="About themes"><p>Six presets, six color roles and one ramp. Change any of them and the whole site follows, including the hero, the charts and the game. Copy the tokens when you like what you see.</p></section>
+  <section aria-label="About themes"><p>Six presets, six color roles, four support shades and one ramp. Change any of them and the whole site follows, including the hero, the charts and the game. Copy the tokens when you like what you see.</p></section>
 
   <section aria-labelledby="s-presets">
     <h2 id="s-presets" class="vh">Presets</h2>
@@ -673,8 +673,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-colors">
     <h2 id="s-colors" class="vh">Colors</h2>
     <pre class="poster ptitle" data-text="COLORS" aria-hidden="true"></pre>
-    <p class="muted">Every color has a job: surface, text, action, focus, success, danger.</p>
-    <div class="demo swatches"><label class="sw"><input type="color" id="c-bg" data-var="bg" aria-label="Surface"><span>Surface<small id="h-bg">page</small></span></label><label class="sw"><input type="color" id="c-ink" data-var="ink" aria-label="Text"><span>Text<small id="h-ink">and frames</small></span></label><label class="sw"><input type="color" id="c-hot" data-var="hot" aria-label="Action"><span>Action<small id="h-hot">primary</small></span></label><label class="sw"><input type="color" id="c-cy" data-var="cy" aria-label="Focus"><span>Focus<small id="h-cy">and feedback</small></span></label><label class="sw"><input type="color" id="c-ok" data-var="ok" aria-label="Success"><span>Success<small id="h-ok">checked, on</small></span></label><label class="sw"><input type="color" id="c-warn" data-var="warn" aria-label="Danger"><span>Danger<small id="h-warn">errors</small></span></label></div>
+    <p class="muted">Every color has a job: surface, text, action, focus, success, warning. The four support shades follow the preset.</p>
+    <div class="demo swatches"><label class="sw"><input type="color" id="c-bg" data-var="bg" aria-label="Surface"><span>Surface<small>page</small><small id="h-bg"></small></span></label><label class="sw"><input type="color" id="c-ink" data-var="ink" aria-label="Text"><span>Text<small>and frames</small><small id="h-ink"></small></span></label><label class="sw"><input type="color" id="c-hot" data-var="hot" aria-label="Action"><span>Action<small>primary</small><small id="h-hot"></small></span></label><label class="sw"><input type="color" id="c-cy" data-var="cy" aria-label="Focus"><span>Focus<small>keyboard</small><small id="h-cy"></small></span></label><label class="sw"><input type="color" id="c-ok" data-var="ok" aria-label="Success"><span>Success<small>checked, on</small><small id="h-ok"></small></span></label><label class="sw"><input type="color" id="c-warn" data-var="warn" aria-label="Warning"><span>Warning<small>errors, degraded</small><small id="h-warn"></small></span></label></div>
     <div class="row demo"><button class="btn frame tone-light" id="colReset" type="button"><span class="mid"><span class="label">Reset colors</span></span></button></div>
   </section>
 
@@ -721,7 +721,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <p class="muted">Everything the glitch engine exposes.</p>
     <div class="demo knobs"><div class="slider"><label for="kSpeed">Spin speed</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSpeed" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kSpeed">100</output></div><div class="slider"><label for="kSize">Torus size</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSize" type="range" inputmode="none" min="40" max="140" step="5" value="100"></span><output for="kSize">100</output></div><div class="slider"><label for="kSplit">RGB split</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSplit" type="range" inputmode="none" min="0" max="400" step="10" value="100"></span><output for="kSplit">100</output></div><div class="slider"><label for="kTear">Tearing</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kTear" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kTear">100</output></div><div class="slider"><label for="kStreaks">Streaks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kStreaks" type="range" inputmode="none" min="0" max="120" step="2" value="38"></span><output for="kStreaks">38</output></div><div class="slider"><label for="kBlocks">Blocks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kBlocks" type="range" inputmode="none" min="0" max="40" step="1" value="9"></span><output for="kBlocks">9</output></div></div>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Color map"><label><input type="radio" name="kMap" value="0" checked><span>Signal</span></label><label><input type="radio" name="kMap" value="1"><span>Aqua</span></label><label><input type="radio" name="kMap" value="2"><span>Fire</span></label><label><input type="radio" name="kMap" value="3"><span>Mono</span></label></div></div>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst</span></span></button><button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button><button class="btn frame tone-light" id="kPhoto" type="button"><span class="mid"><span class="label">Load photo</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst glitch</span></span></button><button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button><button class="btn frame tone-light" id="kPhoto" type="button"><span class="mid"><span class="label">Load photo</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
   </section>
 
   </div>
@@ -734,11 +734,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <pre class="poster ptitle" data-text="FEED" aria-hidden="true"></pre>
     <p class="muted">A small bird app. Like, repost, post. Counters glitch when they change.</p>
     <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Chirp</h3><div class="app">
-      <div class="app-bar"><span>Home</span><button class="ibtn" type="button" aria-label="Notifications" id="chirpBell">!</button></div>
-      <div class="compose"><span class="avatar sm hot" aria-hidden="true">FK</span><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chirpIn" type="text" maxlength="140" placeholder="What is breaking?" autocomplete="off" aria-label="New post"></div></div></div>
+      <div class="app-bar"><span>Home</span><button class="ibtn" type="button" aria-label="Alerts" id="chirpBell">!</button></div>
+      <div class="compose"><span class="avatar sm hot" aria-hidden="true">FK</span><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chirpIn" type="text" maxlength="140" placeholder="What broke?" autocomplete="off" aria-label="New post"></div></div></div>
       <div class="row" style="justify-content:flex-end;margin-top:calc(var(--r)/2)"><button class="btn btn-primary frame tone-heavy" id="chirpPost" type="button"><span class="mid"><span class="label">Post</span></span></button></div>
       <div id="chirpFeed"><article class="post" data-id="0"><div class="who"><span class="avatar sm hot" aria-hidden="true">FE</span><b>fede</b><span>@fede · 2m</span></div><p>Shipped the ramp editor. Eight characters and the whole site changes clothes.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ui1" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>14</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>3</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="1"><div class="who"><span class="avatar sm" aria-hidden="true">ST</span><b>static</b><span>@static_status · 18m</span></div><p>INC-481 resolved. api-gateway is back. Please stop refreshing.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>88</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>41</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="2"><div class="who"><span class="avatar sm" aria-hidden="true">MA</span><b>mara</b><span>@mara.design · 1h</span></div><p>Hot take: every dashboard is a bar chart wearing a costume.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>231</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>57</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="3"><div class="who"><span class="avatar sm" aria-hidden="true">BE</span><b>beagle</b><span>@beagleupdates · 3h</span></div><p>Walked 2.1 km. Sniffed 44 things. Barked at one leaf.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ba" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>402</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>12</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="4"><div class="who"><span class="avatar sm" aria-hidden="true">PO</span><b>poe</b><span>@poe2_math · 5h</span></div><p>Expected value of that chest is negative. You opened it anyway. Respect.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>67</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>9</span></button><button type="button" aria-label="Reply">:: 0</button></div></article></div>
-      <nav class="tabbar" aria-label="Chirp sections"><button type="button" aria-current="page">Home</button><button type="button">Search</button><button type="button">Bell</button><button type="button">Me</button></nav>
+      <nav class="tabbar" aria-label="Chirp sections"><button type="button" aria-current="page">Home</button><button type="button">Search</button><button type="button">Alerts</button><button type="button">Me</button></nav>
     </div></div></div>
   </section>
   <section aria-labelledby="s-appplayer">
@@ -798,11 +798,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Weight is density</h3><div class="body"><p>Hierarchy comes from which character draws the frame. @ shouts, = talks and . whispers.</p></div></article></div>
     <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Frames are strings</h3><div class="body"><p>Every border, rule and shadow is a run of characters clipped to the box. No images and no SVG.</p></div></article></div>
     <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Glitch is feedback</h3><div class="body"><p>Tearing, RGB split and shards fire when you touch something or a state changes. One slider turns it all down.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">HTML underneath</h3><div class="body"><p>Real buttons, inputs, dialog and details. Keyboards and screen readers get the plain version.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Plain HTML</h3><div class="body"><p>Real buttons, inputs, dialog and details. Keyboards and screen readers get the plain version.</p></div></article></div>
   </section>
 
   <section aria-labelledby="o-how">
-    <h2 id="o-how" class="vh">How it is made</h2>
+    <h2 id="o-how" class="vh">How</h2>
     <pre class="poster ptitle" data-text="HOW" aria-hidden="true"></pre>
     <p class="muted">Five small labs. Each one is a piece of the system you can poke.</p>
 

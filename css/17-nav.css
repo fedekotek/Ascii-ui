@@ -203,11 +203,17 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   .otp{flex-wrap:wrap}
 }
 @media (min-width:384px) and (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,5ch)}}
-@media (max-width:1023px){.otp input{width:5ch}}
-@media (max-width:479px){
-  .otp span::before,.otp span::after{display:none}
-  .otp input{text-decoration:underline;text-underline-offset:4px}
+/* the brackets move inside the 5ch target, so a cell reads [ _ ] and is
+   still 48px wide. Six of them and five gaps are 35 columns, which fits from
+   384px. Below that the gaps go and it is 30. */
+@media (max-width:1023px){
+  .otp{flex-wrap:nowrap}
+  .otp span{position:relative}
+  .otp span::before,.otp span::after{position:absolute;top:0;pointer-events:none}
+  .otp span::before{left:0}.otp span::after{right:0}
+  .otp input{width:5ch}
 }
+@media (max-width:383px){.otp{gap:0}}
 
 /* The Play stage is sticky, and on a phone it took 38% of the screen while you
    were turning the knobs under it. It is capped in whole rows, and layout()

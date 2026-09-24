@@ -8,7 +8,7 @@
 .btn .mid{display:inline-flex}
 .btn .label{padding:0 1ch}
 .btn-primary{--frame-color:var(--hot)}
-.btn-primary .label{background:var(--hot);color:var(--bg);box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--warn)}
+.btn-primary .label{background:var(--hot);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
 .btn:not(:disabled):active .label{text-shadow:-2px 0 var(--cy),2px 0 var(--hot)}
 .btn-danger .label{color:var(--danger)}
 .btn-danger{--frame-color:var(--danger)}

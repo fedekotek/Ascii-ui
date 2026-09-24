@@ -7,7 +7,7 @@
 | Alert | `s-alert` | A card with a hazard rim. | none | css/13 `.alert` |
 | Avatar | `s-avatar` | Initials on a slab, or a picture pushed through the LCD. | LCD | css/14 `.avatar`, js/30 LCD |
 | Badge | `s-badge` | Inverse slabs for status, brackets for everything else. | none | css/13 `.badge` |
-| Breadcrumb | `s-breadcrumb` | Slashes separate, current page is a slab. | none | css/14 `.crumbs` |
+| Crumbs (breadcrumb) | `s-breadcrumb` | Slashes separate, current page is a slab. | none | css/14 `.crumbs` |
 | Button | `s-button` | Rim says how loud: @ primary, = default, / danger. | engine (scramble, rim march, burst) | css/05, js/10 "button labels", "button rims" |
 | Calendar | `s-calendar` | Month of buttons, today magenta, pick is a slab. | `AUI_JS.calendar` | css/14 `.cal`, js/30 |
 | Card and dialog | `s-card` | Title bar of @, walls of #, colon shadow. | engine | css/10, js/10 "card and dialog" |
@@ -16,22 +16,22 @@
 | Dropdown | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `AUI_JS.dropdown` | css/14 `.pop .menu`, js/30 |
 | Empty | `s-empty` | Nothing here, plus the next step. | one toast | css/04 tone-faint |
 | Input | `s-input` | Frame turns cyan on focus, wall of ! on error. | engine (ripple, validation) | css/06, js/10 "input validation" |
-| Input OTP | `s-otp` | Six brackets, auto-advance, paste. | `AUI_JS.otp` | css/14 `.otp`, js/30 |
+| Input OTP | `s-otp` | Six brackets, auto-advance, paste. Under 1024px the brackets sit inside each 5ch target, `[ _ ]`. | `AUI_JS.otp` | css/14 `.otp`, js/30 |
 | Kbd | `s-kbd` | Keys in brackets. | none | css/13 `kbd` |
-| Pagination | `s-pagination` | Brackets on every page, slab on current. | `AUI_JS.pagination` | css/14 `.ibtn`, js/30 |
+| Pager (pagination) | `s-pagination` | Brackets on every page, slab on current. | `AUI_JS.pagination` | css/14 `.ibtn`, js/30 |
 | Picture | `s-picture` | Sectorized LCD, tap a sector. | LCD | css/14 `figure.pic .lcd`, js/30 LCD |
 | Progress | `s-progress` | Halftone bar, spinner in the button. | engine | css/08, js/10 "progress" |
 | Select | `s-select` | Native select in the input frame. | none | css/13 `.field select` |
-| Separator | `s-separator` | Four weights of nothing. | none | css/14 `.sepd .sepl` |
+| Divider (separator) | `s-separator` | Four weights of nothing. | none | css/14 `.sepd .sepl` |
 | Sheet | `s-sheet` | Bottom dialog, seven steps. | small | css/14 `dialog.sheet`, js/30 |
-| Skeleton | `s-skeleton` | Wave through the ramp. | clock task | css/13 `.skel`, js/20 "sparklines, skeleton" |
+| Skeleton | `s-skeleton` | A card silhouette (faint frame, a slab line, two text lines) with a wave through the ramp, sized to its column. | clock task | css/13 `.skel`, js/20 "sparklines, skeleton" |
 | Slider | `s-slider` | Halftone bar with a real range on top. Wired to glitch amount. | engine `bindSlider` | css/08, js/10 "halftone bar" |
 | Spinner | `s-spinner` | Five ways to wait. | `AUI_JS.spinners` | css/14 `.spins`, js/30 |
 | Tabs | `s-tabs` | Active tab is a slab. | engine | css/09, js/10 "tabs" |
 | Textarea | `s-textarea` | Four-row frame with a counter. | counter | css/14 `.field.area`, js/30 |
 | Timeline | `s-timeline` | Nodes are @, wire is colons. | none | css/14 `.timeline` |
 | Toast | `s-toast` | One line typed in, lime or magenta. | engine `say` | css/12, js/10 "toast", js/30 error variant |
-| Toggle group | `s-togglegroup` | Radios dressed as slabs. | status only | css/14 `.tgroup` |
+| Segment (toggle group) | `s-togglegroup` | Radios dressed as slabs. | status only | css/14 `.tgroup` |
 | Toggles | `s-toggles` | Checkbox, radio, switch; glyph is only paint. | engine (develop through ramp) | css/07, js/10 "checkbox and radio" |
 | Tooltip | `s-tooltip` | Hover, focus or tap; types itself in. | tap fallback | css/14 `.tip` |
 

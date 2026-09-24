@@ -7,7 +7,7 @@
 .ticker{
   background:var(--hot);color:var(--bg);font-weight:700;white-space:pre;overflow:hidden;
   padding:var(--r) 0;margin-top:calc(var(--r)*3);
-  box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--warn);
+  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep);
 }
 .lab-h{margin-top:calc(var(--r)*3);text-transform:uppercase}
 .lab-h::before{content:"## ";color:var(--hot);font-weight:700}
