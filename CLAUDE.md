@@ -47,7 +47,7 @@ Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class
 
 ## Things that look like bugs and are not
 - The boot screen only runs once per session (`sessionStorage['aui-boot']`). Type `boot` in the palette to see it again.
-- The `Torus` button in the hero is hidden until a photo or camera is loaded.
+- The `Ring` button in Play's Source block is hidden until a photo or camera is loaded.
 - Titles drop their color bars, then go to single scale, on narrow screens or with large accessibility font sizes. That is `fitTitles()`, on purpose.
 - Sounds get quieter when repeated fast. That is the fatigue curve in `human()`.
 - Frames and titles "rot" after 14 seconds idle. Any touch repairs them.

@@ -76,25 +76,22 @@ const hero=$('hero'),HP=A.HP,stage=$('playStage'),home=$('heroLine'),header=docu
 /* The header is the front door of Components and of nothing else: every other
    view starts with its own content right under the bar, and ends with one line
    instead of the game. Play borrows the canvas for its stage. */
-let landing=null,landT=0;
 function placeHero(){
   const sel=v=>$('v-'+v).getAttribute('aria-selected')==='true',on=sel('play'),kit=sel('kit');
   if(on&&hero.parentNode!==stage)stage.appendChild(hero);
   else if(!on&&hero.parentNode===stage)header.insertBefore(hero,home);
   header.hidden=!kit;$('footGame').hidden=!kit;$('footLine').hidden=kit;
   A.layout();
-  /* the switch scrolls to the top of the view right after this, so a jump
-     asked for with goTo waits for it */
-  if(landing){const f=landing;landing=null;setTimeout(f,0)}
 }
 A.onView=placeHero;
 /* go to a view and land on something in it */
 function goTo(view,el,block,then){
+  /* a section goes through the router (js/70), so it lands under the bar and
+     gets an address; anything else is scrolled to once the view shows */
+  const N=window.AUI_NAV;
+  if(N&&el.matches('section[aria-labelledby]')){N.go(view,el,{push:true,after:then});return}
   const jump=()=>{el.scrollIntoView({block:block||'start'});if(then)then()};
-  const t=$('v-'+view);
-  if(!t||t.getAttribute('aria-selected')==='true'){jump();return}
-  landing=jump;clearTimeout(landT);landT=setTimeout(()=>{landing=null},3000);
-  t.click();
+  if(N)N.go(view,null,{push:true,after:jump});else jump();
 }
 A.goTo=goTo;
 const firstKit=()=>$('s-button').parentNode;

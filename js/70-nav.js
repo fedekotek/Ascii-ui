@@ -285,6 +285,16 @@
       if(t>top+2){top=t;row=[l]}
       else if(t>top-2)row.push(l);
     }
+    /* the last sections of a short view can never reach the line: at the
+       bottom of the page the last one whose title is on screen is the one */
+    if(window.scrollY>=document.documentElement.scrollHeight-window.innerHeight-2){
+      for(let i=links.length-1;i>=0;i--){
+        const a=anchor(links[i].sec);if(!a)continue;
+        const t=a.getBoundingClientRect().top;
+        if(t>L&&t<window.innerHeight-48){row=[links[i]];break}
+        if(t<=L)break;
+      }
+    }
     mark(row.length?(row.indexOf(reading)>=0?reading:row[0]):null);
   }
   let ticking=false;

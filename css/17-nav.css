@@ -77,6 +77,9 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #themeToggle{min-width:7ch;text-align:left}
 
 @media (max-width:1023px){#soundBar,#themeToggle{display:none}}
+/* on a phone, a thumb wide as well as tall: the glyphs alone are 29 and 39px.
+   From 768 the row is counted to the character, so there they stay as drawn */
+@media (max-width:767px){#menuBtn,#cmdBtn{min-width:44px}#cmdBtn{text-align:right}#menuBtn{text-align:left}}
 @media (min-width:1024px){#menuBtn{display:none}}
 @media (min-width:768px) and (max-width:1023px){
   /* no side padding: at 768 the row is counted to the character */
