@@ -177,6 +177,12 @@
         const l=links.find(x=>x.sec===sec);
         land(()=>yOf(sec,v),opt.smooth);
         if(l){mark(l);if(opt.smooth)pinned=Date.now()+1200}
+      }else if(opt.el){
+        /* something that is not a section (the footer game): land on it and
+           keep it there while the view settles, like a section */
+        const el=opt.el,mid=opt.block==='center';
+        land(()=>{const r=el.getBoundingClientRect(),tb=document.querySelector('.topbar');
+          return Math.max(0,window.scrollY+r.top-(mid?(window.innerHeight-r.height)/2:(tb?tb.offsetHeight:0)))},opt.smooth);
       }else if(opt.top0)land(()=>0,opt.smooth);
       else land(()=>yTop(v),opt.smooth);
       if(opt.after)opt.after();

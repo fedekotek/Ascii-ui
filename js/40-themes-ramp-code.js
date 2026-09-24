@@ -90,8 +90,8 @@ function goTo(view,el,block,then){
      gets an address; anything else is scrolled to once the view shows */
   const N=window.AUI_NAV;
   if(N&&el.matches('section[aria-labelledby]')){N.go(view,el,{push:true,after:then});return}
-  const jump=()=>{el.scrollIntoView({block:block||'start'});if(then)then()};
-  if(N)N.go(view,null,{push:true,after:jump});else jump();
+  if(N){N.go(view,null,{push:true,el:el,block:block,after:then});return}
+  el.scrollIntoView({block:block||'start'});if(then)then();
 }
 A.goTo=goTo;
 const firstKit=()=>$('s-button').parentNode;
@@ -133,7 +133,7 @@ function cssFor(panel,baseOnly){
   if(!cls.size)return '';
   const res=[...cls].map(c=>new RegExp('\\.'+c.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')+'(?![\\w-])'));
   const seen=new Set(),out=[];
-  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|#views|#sidenav|#menuDlg|#soundBar|\.menu-|\.views|\.viewsbar|\.barctl|\.topbar|dialog)/.test(r.selectorText))return;
+  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|#views|#sidenav|#menuDlg|#soundBar|\.menu-|\.views|\.viewsbar|\.barctl|\.topbar|dialog|#boot)/.test(r.selectorText))return;
     if(res.some(re=>re.test(r.selectorText))&&!seen.has(r.cssText)){seen.add(r.cssText);out.push(r.cssText.replace(/\{\s*/,'{\n  ').replace(/;\s*(?!\s*})/g,';\n  ').replace(/\s*}$/,'\n}'))}});
   return out.join('\n');
 }

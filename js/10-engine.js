@@ -639,6 +639,9 @@
   });
   $('glitchToggle').checked=G.on;
   $('soundToggle').checked=SND.on;
+  /* reduced motion keeps the page silent, so the switch says so rather than
+     turning on and playing nothing */
+  if(reduce)['soundToggle','mSnd'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;

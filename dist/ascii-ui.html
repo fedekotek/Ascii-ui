@@ -2891,6 +2891,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   });
   $('glitchToggle').checked=G.on;
   $('soundToggle').checked=SND.on;
+  /* reduced motion keeps the page silent, so the switch says so rather than
+     turning on and playing nothing */
+  if(reduce)['soundToggle','mSnd'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
@@ -4847,8 +4850,8 @@ function goTo(view,el,block,then){
      gets an address; anything else is scrolled to once the view shows */
   const N=window.AUI_NAV;
   if(N&&el.matches('section[aria-labelledby]')){N.go(view,el,{push:true,after:then});return}
-  const jump=()=>{el.scrollIntoView({block:block||'start'});if(then)then()};
-  if(N)N.go(view,null,{push:true,after:jump});else jump();
+  if(N){N.go(view,null,{push:true,el:el,block:block,after:then});return}
+  el.scrollIntoView({block:block||'start'});if(then)then();
 }
 A.goTo=goTo;
 const firstKit=()=>$('s-button').parentNode;
@@ -4890,7 +4893,7 @@ function cssFor(panel,baseOnly){
   if(!cls.size)return '';
   const res=[...cls].map(c=>new RegExp('\\.'+c.replace(/[-\/\\^$*+?.()|[\]{}]/g,'\\$&')+'(?![\\w-])'));
   const seen=new Set(),out=[];
-  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|#views|#sidenav|#menuDlg|#soundBar|\.menu-|\.views|\.viewsbar|\.barctl|\.topbar|dialog)/.test(r.selectorText))return;
+  RULES.forEach(r=>{if(!r.selectorText||/^(main|body|html|:root|#nav|#views|#sidenav|#menuDlg|#soundBar|\.menu-|\.views|\.viewsbar|\.barctl|\.topbar|dialog|#boot)/.test(r.selectorText))return;
     if(res.some(re=>re.test(r.selectorText))&&!seen.has(r.cssText)){seen.add(r.cssText);out.push(r.cssText.replace(/\{\s*/,'{\n  ').replace(/;\s*(?!\s*})/g,';\n  ').replace(/\s*}$/,'\n}'))}});
   return out.join('\n');
 }
@@ -5183,6 +5186,12 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
         const l=links.find(x=>x.sec===sec);
         land(()=>yOf(sec,v),opt.smooth);
         if(l){mark(l);if(opt.smooth)pinned=Date.now()+1200}
+      }else if(opt.el){
+        /* something that is not a section (the footer game): land on it and
+           keep it there while the view settles, like a section */
+        const el=opt.el,mid=opt.block==='center';
+        land(()=>{const r=el.getBoundingClientRect(),tb=document.querySelector('.topbar');
+          return Math.max(0,window.scrollY+r.top-(mid?(window.innerHeight-r.height)/2:(tb?tb.offsetHeight:0)))},opt.smooth);
       }else if(opt.top0)land(()=>0,opt.smooth);
       else land(()=>yTop(v),opt.smooth);
       if(opt.after)opt.after();
