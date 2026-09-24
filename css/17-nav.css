@@ -3,8 +3,12 @@
    the first pixel, not from wherever the hero ends. Inside, a container the
    width of the content column keeps the name aligned with the page. The rule
    underneath runs the full width, the way a header border does.
-   Under 768px the views collapse into the [=] sheet, which already lists them
-   and the sections of the view you are in. */
+   Three shapes, by width:
+     under 768    [=] ascii/ui / Blocks          >_
+     768 to 1023  ascii/ui  seven views     [=] >_
+     1024 and up  ascii/ui  seven views    [Sound] [Light] [>_]
+   Sound and theme live in the [=] menu below 1024. Everything is counted in
+   characters: at 768 the row is 75 of 76, at 1024 it is 94 of 96. */
 .topbar{
   position:sticky;top:0;z-index:40;background:var(--bg);
   padding-top:env(safe-area-inset-top,0px);
@@ -16,50 +20,87 @@
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
-/* The controls that belong to the page rather than to the hero live on the
-   right of the bar, the way a documentation header carries them: sound, theme,
-   commands. Each keeps its word at every width, a glyph alone does not say
-   what it does. */
-.barctl{display:flex;align-items:flex-start;gap:0 2ch;flex:none;margin-left:2ch}
-.barctl .check{padding:calc(var(--r)/2) 0;margin:0;white-space:nowrap}
-#themeToggle{
-  font:inherit;background:none;border:0;border-radius:0;color:var(--ink);
-  padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;white-space:nowrap;
+/* the first thing a keyboard reaches. It is moved above the window rather than
+   clipped, so it keeps a thumb's height, and it comes down when focused */
+.skip{
+  position:fixed;top:env(safe-area-inset-top,0px);left:2ch;z-index:120;
+  padding:12px 1ch;line-height:var(--r);font-weight:700;text-decoration:none;
+  background:var(--accent);color:var(--bg);outline:0;transform:translateY(-200%);
 }
-#themeToggle:focus-visible{background:var(--accent);color:var(--bg)}
-#themeToggle .label{text-decoration:underline;text-underline-offset:3px}
-@media (hover:hover){#themeToggle:hover .label{color:var(--hot)}}
-/* a thumb is 44px, a character under 10: five of them */
-#themeToggle,#cmdBtn{min-width:5ch;text-align:center}
-/* the bar has to fit a 320px screen: tighter gutters first, then under 450px
-   the name goes so the controls keep their words, the [=] sheet is the way
-   back to the top down there anyway */
-@media (max-width:479px){.barctl{margin-left:1ch}.viewsbar{gap:0}}
-@media (max-width:449px){.brand{display:none}}
-/* a 320px screen has no room for the full gaps, one character has to do */
-@media (max-width:359px){.barctl{gap:0 1ch}}
-/* the seven views and the controls only fit side by side from 1024px, the
-   width the sidebar arrives at, so that is the one line between small and not */
-@media (max-width:1023px){.viewsbar .views{display:none}}
-@media (min-width:1024px){#menuBtn{display:none}}
+.skip:focus{transform:none}
 
-/* ---- navigation -----------------------------------------------------------
-   From 1024px a sidebar lists the sections of the view you are in, sticky
-   under the bar, with the one you are reading marked. Below that there is no
-   room for it, so the chip index inside each view stays and the sidebar is not
-   rendered. Everything is measured in characters and rows: the sidebar is 26
-   wide with a 4 gutter, which leaves whole columns for the gallery beside it
-   (66 at 1024px, 43 at 1280px, 41 at 1600px). */
+.viewsbar{display:flex;align-items:flex-start;padding-bottom:var(--r)}
+.viewsbar > *{flex:none}
 
+/* one idiom for everything in the bar: ink text, brackets where it is a
+   control, a thumb tall. Magenta on hover, blue only for focus */
+.bbtn{
+  font:inherit;font-weight:700;line-height:var(--r);background:none;border:0;border-radius:0;
+  color:var(--ink);padding:calc(var(--r)/2) 0;margin:0;cursor:pointer;outline:0;
+  white-space:nowrap;text-decoration:none;-webkit-tap-highlight-color:transparent;
+}
+.bbtn:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover){.bbtn:hover{color:var(--hot)}}
+
+/* the name is the way back to the top, at every width */
 .brand{
-  font:inherit;font-weight:700;background:none;border:0;border-radius:0;
-  color:var(--ink);padding:calc(var(--r)/2) 2ch calc(var(--r)/2) 0;
-  cursor:pointer;outline:0;flex:none;white-space:nowrap;
+  font:inherit;font-weight:700;line-height:var(--r);background:none;border:0;border-radius:0;
+  color:var(--ink);padding:calc(var(--r)/2) 0;margin:0 1ch 0 0;
+  cursor:pointer;outline:0;white-space:nowrap;
 }
 .brand .slash{color:var(--hot)}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
-.brand:hover .slash{color:var(--pink)}
+.brand:focus-visible .slash{color:inherit}
+@media (hover:hover){.brand:hover .slash{color:var(--pink)}}
 
+/* the phone's crumb says which view you are in and opens the menu */
+.crumb{display:none;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.crumb [aria-hidden]{color:var(--muted);font-weight:500}
+.crumb:focus-visible [aria-hidden]{color:inherit}
+
+/* the views, in the same sentence case as everything else in the bar. The
+   list may scroll sideways as a last resort, but it is sized not to */
+#views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+#views::-webkit-scrollbar{display:none}
+#views::after{display:none}
+#views .tab{display:block;flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;text-decoration:none;line-height:var(--r)}
+
+/* the controls group: [Sound] [Light] [>_]. Sound is still a switch, it just
+   does not shout: ink when on, muted and struck through when off. The theme
+   button names where it takes you */
+.barctl{display:flex;align-items:flex-start;gap:0 2ch;margin-left:4ch}
+#soundBar{gap:0;padding:calc(var(--r)/2) 0;margin:0;white-space:nowrap;font-weight:700;line-height:var(--r)}
+#soundToggle:not(:checked) ~ .lbl{color:var(--muted);text-decoration:line-through}
+#soundBar:has(#soundToggle:focus-visible){background:var(--accent);color:var(--bg)}
+#soundBar:has(#soundToggle:focus-visible) .lbl{color:inherit}
+@media (hover:hover){#soundBar:hover{color:var(--hot)}}
+#themeToggle{min-width:7ch;text-align:left}
+
+@media (max-width:1023px){#soundBar,#themeToggle{display:none}}
+@media (min-width:1024px){#menuBtn{display:none}}
+@media (min-width:768px) and (max-width:1023px){
+  /* no side padding: at 768 the row is counted to the character */
+  #menuBtn{order:1;margin-left:auto}
+  .barctl{order:2;margin-left:0}
+  #cmdBtn{padding-left:1ch}
+  #cmdBtn .br{display:none}
+}
+@media (max-width:767px){
+  #views{display:none}
+  .crumb{display:block;flex:0 1 auto}
+  #menuBtn{padding-right:1ch}
+  .barctl{margin-left:auto}
+  #cmdBtn{padding-left:1ch}
+  #cmdBtn .br{display:none}
+}
+
+/* ---- the sidebar ----------------------------------------------------------
+   From 1024px a sidebar lists the sections of the view you are in, sticky
+   under the bar, with the one you are reading marked. Below that there is no
+   room, so the [=] menu carries the same list. Everything is measured in
+   characters and rows: the sidebar is 26 wide with a 4 gutter, which leaves
+   whole columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at
+   1600px). */
 #sidenav{display:none}
 
 @media (min-width:1024px){
@@ -78,10 +119,14 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   /* a view with nothing to list gives the width back to the content */
   main:has(#sidenav[hidden]){grid-template-columns:1fr}
   main:has(#sidenav[hidden]) > [role="tabpanel"]{grid-column:1/-1}
-  #sidenav{
-    display:block;grid-column:1;grid-row:2;
-    position:sticky;top:calc(var(--r)*3);
-    max-height:calc(100vh - var(--r)*4);overflow:auto;
+  /* Chrome keeps a sticky grid item inside the grid, not inside its row, so a
+     sticky nav rode down over the footer's title. The nav is a plain cell as
+     tall as its row, and the list inside it is what sticks, so it stops where
+     the row does */
+  #sidenav{display:block;grid-column:1;grid-row:2;align-self:stretch}
+  #sidenav .side-in{
+    position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));
+    max-height:calc(100vh - var(--r)*4 - env(safe-area-inset-top,0px));overflow:auto;
     scrollbar-width:thin;padding-bottom:var(--r);
   }
   /* two rows between the hero and what comes after, so the sidebar title
@@ -93,25 +138,37 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   #view-charts > section:has(> .toc){display:none}
 }
 
-#sidenav h2{
-  font:inherit;font-weight:700;color:var(--ink);
-  margin:0 0 var(--r) 0;line-height:var(--r);
+/* the list, shared by the sidebar and the menu: the view and its count first,
+   then Start, the counted sections, About */
+.navh{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
+.navcount{color:var(--muted);font-weight:500}
+/* the heading stays put while the list scrolls under it */
+#sidenav .navh{position:sticky;top:0;z-index:1;background:var(--bg);margin:0;padding-bottom:var(--r)}
+.navgroup + .navgroup{margin-top:var(--r)}
+.navlabel{margin:0;padding-left:1ch;line-height:var(--r);color:var(--muted);text-transform:uppercase}
+.navgroup ul{list-style:none;margin:0;padding:0}
+.navgroup li{line-height:var(--r)}
+/* A row is one row. With a mouse that is the target; 12px of extra hit area
+   above and below made every entry overlap its neighbours, so the bottom half
+   of Alert opened Avatar. A thumb gets a whole 48px row instead: always in the
+   menu, and in the sidebar on a touch screen (a tablet held sideways). */
+.navlink{
+  display:block;width:100%;text-align:left;color:var(--muted);text-decoration:none;
+  padding:0 1ch;margin:0;cursor:pointer;outline:0;line-height:var(--r);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent;
 }
-#sidenav .navgroup + .navgroup{margin-top:calc(var(--r)*2)}
-#sidenav ul{list-style:none;margin:0;padding:0}
-#sidenav li{line-height:var(--r)}
-#sidenav .navlink{
-  display:block;width:100%;text-align:left;font:inherit;
-  background:none;border:0;border-radius:0;color:var(--muted);
-  padding:12px 1ch;margin:-12px 0;cursor:pointer;outline:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-#sidenav .navlink::before{content:"  ";white-space:pre}
-#sidenav .navlink:hover{color:var(--ink)}
-#sidenav .navlink:focus-visible{background:var(--accent);color:var(--bg)}
-#sidenav .navlink[aria-current="true"]{color:var(--ink);font-weight:700}
-#sidenav .navlink[aria-current="true"]::before{content:"> ";color:var(--hot);white-space:pre}
-#sidenav .navcount{color:var(--muted);font-weight:500}
+#menuSecs .navlink{padding:12px 1ch}
+@media (pointer:coarse){#sidenav .navlink{padding:12px 1ch}}
+/* a link reached by Tab is not left under the sticky heading */
+#sidenav .side-in{scroll-padding-top:calc(var(--r)*2)}
+.navlink::before{content:"  ";white-space:pre}
+@media (hover:hover){.navlink:hover{color:var(--ink)}}
+.navlink:focus-visible{background:var(--accent);color:var(--bg)}
+.navlink[aria-current]{color:var(--ink);font-weight:700}
+.navlink[aria-current]::before{content:"> ";color:var(--hot)}
+.navlink[aria-current]:focus-visible,.navlink:focus-visible::before{color:var(--bg)}
+/* a section reached from a list takes the focus, quietly */
+[role="tabpanel"] > section[tabindex="-1"]:focus{outline:0}
 
 /* ---- small screens --------------------------------------------------------
    Fixes that only matter under a phone's width. */
@@ -120,17 +177,13 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
    sideways even while it is clipped out of sight */
 .tip{max-width:calc(100vw - 4ch);white-space:normal}
 
-/* ---- the menu sheet -------------------------------------------------------
-   A phone gets seven views, thirty section chips, two switches, theme and
-   commands. That is more than any screen, so the sheet scrolls, and the
-   things that are not the list stop taking room from it: the way out is the
-   [x] in the title row and the strip of page above the sheet, not a button
-   at the bottom that needs its own band. */
+/* ---- sheets ----------------------------------------------------------------
+   The Filters sheet scrolls inside itself, and the way out is the [x] in its
+   title row or the strip of page above it. */
 dialog.sheet{max-height:82vh;max-height:82dvh;flex-direction:column}
 dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
 dialog.sheet .body{min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
-#menuDlg .body,#menuDlg .body > *{max-width:100%}
 /* nothing behind a dialog scrolls while it is open */
 body:has(dialog[open]){overflow:hidden}
 
@@ -150,44 +203,65 @@ body:has(dialog[open]){overflow:hidden}
    shrinking to its checkboxes */
 #sheetDlg .body{width:100%}
 #sheetDlg .sheet-x{right:max(2ch,calc(50% - 40ch))}
-
-/* the views read as one list, the sections as another */
-dialog.sheet #menuViews{margin-bottom:var(--r)}
-/* the controls sit between the views and the section list, so they are a
-   few tabs away rather than behind thirty chips */
-dialog.sheet #menuSecs{margin-top:calc(var(--r)*2);padding-bottom:var(--r)}
-dialog.sheet #menuSecs::before{
-  content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
-  white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
-}
-dialog.sheet .menu-foot{margin-top:var(--r)}
-/* set like the sidebar's heading: the view in ink, the count muted */
-dialog.sheet .menu-h{flex:0 0 100%;margin:0;color:var(--ink);font-weight:700;line-height:var(--r)}
-dialog.sheet .menu-h .navcount{color:var(--muted);font-weight:500}
-/* the two actions are not sections: ink and bold inside their brackets,
-   where a section chip is muted inside violet ones */
-dialog.sheet .menu-foot .ibtn{padding:12px 0;margin:-12px 0}
-
-/* The side walls are drawn inside the body, which is the part that scrolls, so
-   they stopped after four rows and the sheet looked unfinished. On a phone the
-   sheet reads as a card from its top and bottom rows and the MENU slab, so the
-   walls step out rather than be faked. */
-#menuDlg .body::before,#menuDlg .body::after{display:none}
-#menuDlg .body{padding-left:2ch;padding-right:2ch}
 /* the frame rows get a background so the list disappears under them instead
    of showing half a row through the characters */
 dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 
-/* the bar: the command button holds the right edge now that the hidden tab
-   list is no longer the spacer, and both icon buttons are a thumb wide */
-.barctl{margin-left:auto}
-#menuBtn,#cmdBtn{padding-left:1ch;padding-right:1ch}
+/* ---- the [=] menu -----------------------------------------------------------
+   Below 1024px this is the index: the whole screen, opaque, in rows.
+     MENU                                  [x]
+     Components Blocks Charts ...              (scrolls sideways)
+     Components 30
+       Button
+     > Card                                    (the one you are reading)
+     [ ] Show grid  [@@..] Glitch  [@@..] Sound  [Light]
+   Picking a view up top only refills the list; the page changes when you pick
+   a section. It comes in and goes out with the same four steps. */
+#menuDlg{
+  position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
+  background:var(--bg);color:var(--ink);overflow:hidden;
+}
+#menuDlg[open]{display:flex;animation:menuin .16s steps(4) both}
+#menuDlg.out{animation:menuout .16s steps(4) both}
+@keyframes menuin{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes menuout{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 100% 0)}}
+@media (prefers-reduced-motion:reduce){#menuDlg[open],#menuDlg.out{animation:none}}
+/* nothing shows through while it steps in */
+#menuDlg::backdrop{background:var(--bg)}
+.menu-in{display:flex;flex-direction:column;flex:1;min-height:0;width:100%;max-width:80ch;margin:0 auto;padding:0 2ch}
+.menu-top{display:flex;justify-content:space-between;align-items:flex-start;flex:none}
+.menu-slab{
+  font:inherit;font-weight:700;line-height:var(--r);margin:calc(var(--r)/2) 0;padding:0 1ch;
+  background:var(--hot);color:var(--bg);text-transform:uppercase;
+  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--warn);
+}
+.menu-x{padding:calc(var(--r)/2) 1ch;margin-right:-1ch}
+.menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
+.menu-views::-webkit-scrollbar{display:none}
+.menu-views .tab{flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;line-height:var(--r)}
+.menu-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;padding:var(--r) 0}
+.menu-h{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
+.menu-foot{
+  flex:none;display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 3ch;
+  position:relative;padding:var(--r) 0 calc(var(--r)/2);
+}
+.menu-foot::before{
+  content:var(--h-faint);position:absolute;left:0;right:0;top:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;
+}
+.menu-foot .check{padding:12px 0;margin:0}
+.menu-foot .bbtn{padding:12px 0}
 
-/* Jumping to a section used to land 168px past the title: four rows of scroll
-   margin, then five rows of section margin, then the rule. Under 768px the
-   title lands right under the bar. */
+/* A jump lands the section's title in the first row under the bar: the
+   landing is measured in js/70-nav.js from the title itself, so the rule and
+   the margin above it do not push it down. Native jumps (focus, find) get no
+   extra margin either. Under 768px sections are also closer together. */
+@media (max-width:1023px){
+  [role="tabpanel"] > section[aria-labelledby]{scroll-margin-top:0}
+}
 @media (max-width:767px){
-  [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*2);scroll-margin-top:calc(var(--r)*3)}
+  [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*2)}
   [role="tabpanel"] > section[aria-labelledby] + section[aria-labelledby]::before{margin-bottom:var(--r)}
 }
 

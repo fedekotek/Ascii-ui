@@ -34,24 +34,26 @@
 <script>(function(){var s;try{s=sessionStorage.getItem('aui-boot')}catch(e){}
 if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElementById('boot').remove();else document.documentElement.classList.add('aui-booting')})()</script>
 <span id="probe" aria-hidden="true">MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
+<a class="skip" id="skip" href="#main">Skip to content</a>
 <div class="topbar">
   <div class="topbar-in">
-      <div class="viewsbar">
-    <button id="menuBtn" type="button" aria-label="Open menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
-    <button class="brand" id="brand" type="button" aria-label="Back to the top">ascii<span class="slash">/</span>ui</button>
-    <div class="tablist views" role="tablist" aria-label="Views" id="views">
-      <button class="tab" role="tab" id="v-kit" aria-controls="view-kit" aria-selected="true" type="button">Components</button>
-      <button class="tab" role="tab" id="v-blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1" type="button">Blocks</button>
-      <button class="tab" role="tab" id="v-charts" aria-controls="view-charts" aria-selected="false" tabindex="-1" type="button">Charts</button>
-      <button class="tab" role="tab" id="v-themes" aria-controls="view-themes" aria-selected="false" tabindex="-1" type="button">Themes</button>
-      <button class="tab" role="tab" id="v-play" aria-controls="view-play" aria-selected="false" tabindex="-1" type="button">Play</button>
-      <button class="tab" role="tab" id="v-apps" aria-controls="view-apps" aria-selected="false" tabindex="-1" type="button">Apps</button>
-      <button class="tab" role="tab" id="v-page" aria-controls="view-page" aria-selected="false" tabindex="-1" type="button">One pager</button>
-    </div>
+    <div class="viewsbar">
+      <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
+      <button class="brand" id="brand" type="button" title="Back to the top">ascii<span class="slash">/</span>ui</button>
+      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Components, open the menu"><span aria-hidden="true">/ </span><span id="crumbName">Components</span></button>
+      <div class="tablist views" role="tablist" aria-label="Views" id="views">
+        <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="true">Components</a>
+        <a class="tab" role="tab" id="v-blocks" href="#blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1">Blocks</a>
+        <a class="tab" role="tab" id="v-charts" href="#charts" aria-controls="view-charts" aria-selected="false" tabindex="-1">Charts</a>
+        <a class="tab" role="tab" id="v-themes" href="#themes" aria-controls="view-themes" aria-selected="false" tabindex="-1">Themes</a>
+        <a class="tab" role="tab" id="v-play" href="#play" aria-controls="view-play" aria-selected="false" tabindex="-1">Play</a>
+        <a class="tab" role="tab" id="v-apps" href="#apps" aria-controls="view-apps" aria-selected="false" tabindex="-1">Apps</a>
+        <a class="tab" role="tab" id="v-page" href="#onepager" aria-controls="view-page" aria-selected="false" tabindex="-1">One pager</a>
+      </div>
       <div class="barctl">
-        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span><span class="lbl">Sound</span></label>
-        <button id="themeToggle" type="button"><span class="mid"><span class="label">Theme</span></span></button>
-        <button id="cmdBtn" type="button" aria-label="Open commands">&gt;_</button>
+        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span aria-hidden="true">[</span><span class="lbl">Sound</span><span aria-hidden="true">]</span></label>
+        <button id="themeToggle" class="bbtn" type="button">[<span class="label">Light</span>]</button>
+        <button id="cmdBtn" class="bbtn" type="button" aria-label="Open commands"><span class="br" aria-hidden="true">[</span>&gt;_<span class="br" aria-hidden="true">]</span></button>
       </div>
     </div>
   </div>
@@ -937,22 +939,24 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 </dialog>
 
 
-<dialog id="menuDlg" class="sheet" aria-labelledby="menuTitle">
-  <div class="lift"><div class="card frame tone-heavy">
-    <h2 id="menuTitle" class="bar-title">Menu</h2>
-    <button class="sheet-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
-    <div class="body">
-      <ul class="menu-list" id="menuViews" aria-label="Views"></ul>
-      <div class="menu-foot">
-        <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
-        <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
-        <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-        <button class="ibtn" id="mTheme" type="button">Theme</button>
-        <button class="ibtn" id="mCmd" type="button">&gt;_ Commands</button>
-      </div>
-      <div class="menu-sub" id="menuSecs" role="group" aria-label="Sections"></div>
+<dialog id="menuDlg" aria-labelledby="menuTitle">
+  <div class="menu-in">
+    <div class="menu-top">
+      <h2 id="menuTitle" class="menu-slab">Menu</h2>
+      <button class="bbtn menu-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
     </div>
-  </div></div>
+    <div class="tablist menu-views" id="menuViews" aria-label="Views"></div>
+    <div class="menu-body" id="menuPanel">
+      <h3 class="menu-h" id="menuH"></h3>
+      <div id="menuSecs"></div>
+    </div>
+    <div class="menu-foot">
+      <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
+      <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+      <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
+      <button class="bbtn" id="mTheme" type="button">[<span class="label">Light</span>]</button>
+    </div>
+  </div>
 </dialog>
 
 <dialog id="cmdDlg" aria-labelledby="cmdTitle">

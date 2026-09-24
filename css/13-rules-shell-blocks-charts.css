@@ -132,10 +132,3 @@
 .hint{color:var(--muted)}
 kbd{font:inherit;font-weight:700;color:var(--ink)}
 kbd::before{content:"["}kbd::after{content:"]"}
-.viewsbar{display:flex;align-items:flex-start;padding-bottom:var(--r)}
-.viewsbar .views{position:static;margin-top:0;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none;padding-bottom:0}
-.viewsbar .views::-webkit-scrollbar{display:none}
-.viewsbar .views::after{display:none}
-.viewsbar .views .tab{flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch}
-#cmdBtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--hot);padding:calc(var(--r)/2) 0 calc(var(--r)/2) 2ch;cursor:pointer;outline:0;flex:none}
-#cmdBtn:focus-visible{background:var(--accent);color:var(--bg)}

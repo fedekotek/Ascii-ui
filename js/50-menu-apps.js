@@ -5,63 +5,7 @@ const {esc,clamp,inView}=B;
 const live=()=>A.live();
 const ping=(f,d)=>{if(live())A.tone('square',f,0,d||0.05,0.4)};
 
-/* ================= menu ================= */
-const md=$('menuDlg'),tabs=[...document.querySelectorAll('[role="tablist"].views [role="tab"]')];
-let menuChips=[];
-function buildMenu(){
-  $('menuViews').innerHTML=tabs.map(t=>'<li><button type="button" data-t="'+t.id+'"'+(t.getAttribute('aria-selected')==='true'?' aria-current="page"':'')+'>'+esc(t.textContent)+'</button></li>').join('');
-  const cur=tabs.find(t=>t.getAttribute('aria-selected')==='true'),panel=cur&&$(cur.getAttribute('aria-controls'));
-  /* the chip index in the view is the list, so the sheet mirrors it rather than
-     counting sections its own way and disagreeing with it */
-  const chips=panel?[...panel.querySelectorAll('.toc .chips .chip')].filter(c=>!c.hidden):[];
-  const secs=chips.length?chips.map(c=>({id:null,name:c.textContent,chip:c}))
-    :(panel?[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden)
-        .map(s=>({id:s.getAttribute('aria-labelledby'),name:s.querySelector('h2').textContent,chip:null})):[]);
-  menuChips=secs;
-  /* the list says whose sections these are, so picking another view visibly
-     changes it rather than silently swapping the chips */
-  const head=secs.length?'<p class="menu-h">'+esc(cur?cur.textContent:'')+' <span class="navcount">'+secs.length+'</span></p>':'';
-  $('menuSecs').innerHTML=head+secs.map((s,i)=>'<button class="chip" type="button" data-s="'+(s.id||'')+'" data-i="'+i+'">'+esc(s.name)+'</button>').join('');
-  $('mSnd').checked=$('soundToggle').checked;$('mGrid').checked=$('gridToggle').checked;$('mGl').checked=$('glitchToggle').checked;
-  $('mTheme').textContent='Theme';$('mTheme').setAttribute('aria-label','Theme: '+A.currentTheme()+'. Switch to '+(A.currentTheme()==='dark'?'light':'dark')+'.');
-}
-$('menuBtn').addEventListener('click',()=>{
-  buildMenu();md.showModal();$('menuBtn').setAttribute('aria-expanded','true');
-  /* start where you are: the current view, not the way out */
-  const here=$('menuViews').querySelector('[aria-current="page"]');if(here)here.focus();
-  if(live())sfx.open();
-});
-$('menuX').addEventListener('click',()=>md.close());
-/* a phone has no Esc key and the sheet is taller than the screen, so the way
-   out is tapping next to it. On click, not on touch-down, or the same tap
-   lands on whatever is under it once the sheet is gone. */
-A.backdropClose(md);
-/* whatever closed it, the button that opened it gets the focus back */
-md.addEventListener('close',()=>{const b=$('menuBtn');if(!b)return;b.setAttribute('aria-expanded','false');if(b.offsetParent!==null)b.focus()});
-md.addEventListener('click',e=>{
-  const t=e.target.closest('[data-t]'),s=e.target.closest('[data-s]');
-  if(t){
-    /* picking a view keeps the sheet open and refills it with that view's
-       sections, so reaching a section elsewhere is two taps instead of four */
-    const tab=$(t.dataset.t);
-    if(tab.getAttribute('aria-selected')!=='true'){tab.click();setTimeout(()=>{buildMenu();if(md.open){const h=$('menuViews').querySelector('[aria-current="page"]');if(h)h.focus()}},420)}
-    else{md.close();window.scrollTo(0,0)}
-  }
-  else if(s){
-    const entry=menuChips[+s.dataset.i];
-    md.close();
-    setTimeout(()=>{
-      if(entry&&entry.chip)entry.chip.click();
-      else{const sec=document.querySelector('section[aria-labelledby="'+s.dataset.s+'"]');sec&&sec.scrollIntoView({block:'start'})}
-    },60);
-    ping(440);
-  }
-});
-$('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
-$('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
-$('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
-$('mTheme').addEventListener('click',()=>{md.close();$('themeToggle').click()});
-$('mCmd').addEventListener('click',()=>{md.close();setTimeout(()=>$('cmdBtn').click(),80)});
+/* the [=] menu lives in js/70-nav.js with the rest of the navigation */
 
 /* ================= chirp ================= */
 function bump(span,delta){

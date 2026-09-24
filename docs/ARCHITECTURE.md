@@ -30,9 +30,9 @@ js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, drop
                             the v7 blocks (profile, recipe, build, work orders, settings, crit, 404),
                             the shadcn-style docs builder (sort, index, Preview/Code tabs, filters).
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Play view knobs, Code tab CSS/JS extraction, Install section.
-js/50-menu-apps.js          mobile menu sheet, Chirp (feed), Tape (player), Static support (chat).
-js/70-nav.js                the sidebar: builds the section list for the view you are in, marks the one
-                            you are reading, rebuilds when a view or a filter changes.
+js/50-menu-apps.js          Chirp (feed), Tape (player), Static support (chat).
+js/70-nav.js                navigation: the addresses (#view/section), the view links in the bar, the
+                            sidebar, the [=] menu, the crumb, the skip link, the scroll spy and the landing.
 ```
 
 Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
@@ -47,10 +47,12 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
 
 ```
 <span id="probe">           50 M's, used to measure the real character width
+<a #skip>                   Skip to content, the first thing Tab reaches
+<div class="topbar">        [=], the name, the crumb (phone), 7 view links, [Sound] [Light] [>_]
 <main id="main">
   <header>                  Components only (hidden on the other views). Hero canvas, one line about the ring, lede,
                             See components + Open in Play, hint and grid + glitch switches (desktop only)
-  <div class="viewsbar">    [=] menu button (mobile), tablist of 7 views, >_ command button
+  <nav id="sidenav">        the sections of the view you are in (from 1024px)
   <div id="view-kit">       Components: intro, index, Button pinned first, the rest A to Z, Get the kit, Rules
   <div id="view-blocks">    Blocks: intro, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5)
@@ -67,15 +69,15 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
 <div #rebuild>              Rebuild button, shown after a shatter
 <div #hud> <div #track>     VHS timecode, rolling tracking band
 <dialog #sheetDlg .sheet>   bottom sheet demo
-<dialog #menuDlg .sheet>    mobile menu
+<dialog #menuDlg>           the [=] menu, full screen, below 1024px
 <dialog #cmdDlg>            command palette
 <dialog #posterDlg>         generated poster / snapshot
 <div #toast>
 ```
 
-The header and the game belong to Components: `placeHero()` in js/40 runs on every view switch (`A.onView`), moves the canvas to the Play stage and back, and hides the header and the game everywhere else, so each view starts one row under the bar.
+Views are links in a tablist (`#views`, `<a role="tab" href="#blocks">`). Switching a view runs `mosh` (datamosh, horizontal slices); the theme and the presets run `wipe` (the color-bar curtain). Both hold one lock, see Navigation. Section reveal uses IntersectionObserver on `[data-rv]` elements; `reveal()` adds `.in`, plays the glitch-in keyframe, decodes text, draws frames, and calls `el._anim()` if the element has one (charts use this to grow in).
 
-Views are a tablist (`.views`). Switching runs `wipe` (color-bar curtain) or `mosh` (datamosh), alternating. Section reveal uses IntersectionObserver on `[data-rv]` elements; `reveal()` adds `.in`, plays the glitch-in keyframe, decodes text, draws frames, and calls `el._anim()` if the element has one (charts use this to grow in).
+The header and the game belong to Components: `placeHero()` in js/40 runs on every view switch (`A.onView`), moves the canvas to the Play stage and back, and hides the header and the game everywhere else, so each view starts one row under the bar.
 
 ## The grid
 
@@ -83,15 +85,33 @@ Everything is a character. `--r` is 24px, everywhere, at every width. `main` wid
 
 ## Navigation
 
-Two pieces, both in `css/17-nav.css` and `js/70-nav.js`.
+All of it lives in `css/17-nav.css` and `js/70-nav.js`, except the view swap itself, which is the engine's (`A.showView`).
 
-The bar at the top lives outside `main`, so it spans the window and sticks from the first pixel rather than from wherever the hero ends. Inside it, a container the width of the content column keeps the name aligned with the page, and the rule underneath runs the full width the way a header border does. It carries the name of the kit on the left, which doubles as "back to the top", then the seven views, then sound, theme and commands, each with its word. Under 1024px the views collapse into the `[=]` sheet, which already lists them and the sections of the view you are in: between 768 and 1023px the views and the controls did not fit side by side, and 1024px is where the sidebar arrives, so there is one line between small and not. Under 450px the name goes too, so the controls keep their words. `qa/breakpoints.py` checks that nothing in the bar overlaps.
+**The bar** lives outside `main`, so it spans the window and sticks from the first pixel rather than from wherever the hero ends. Inside it, a container the width of the content column keeps the name aligned with the page, and the rule underneath runs the full width the way a header border does. It has three shapes, counted in characters so each one fits:
 
-From 1024px the page grows a sidebar: the sections of the view you are in, listed in the order the page shows them, sticky, with the one you are reading marked. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`: views are swapped by toggling that attribute, and so is the Blocks filter, but neither happens on the click (the theme curtain and the docs builder take their time), so watching the attribute beats guessing a delay. Clicking an entry pins it for 1.2s while the smooth scroll arrives, otherwise the sections passing by would steal the mark.
+```
+under 768     [=] ascii/ui / Blocks                 >_
+768 to 1023   ascii/ui  Components Blocks ... One pager  [=] >_
+1024 and up   ascii/ui  Components Blocks ... One pager    [Sound] [Light] [>_]
+```
 
-Reading position is plain maths on scroll, rAF throttled: the last section whose top has passed under the bar. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry.
+The name is always there and goes back to the top. On a phone the crumb says which view you are in and opens the menu. Sound and theme leave the bar under 1024px and live in the menu. The controls are one idiom, bracketed ink words; the theme button names where it takes you (`Light` while dark is on), Sound is still a switch but ink, muted and struck through when off. The views share the bar's sentence case. `qa/breakpoints.py` checks that nothing in the bar overlaps and that the views never scroll out of sight.
 
-Below 1024px there is no room, so the sidebar is not shown and the chip index inside each view does the job. `main` becomes a two column grid at that width: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at 1600px). Its rows are pinned, because the panels all share one cell and once one row is explicit the others have to be, or the footer flows into the gap.
+**Addresses.** Every view and every section has one: `#components`, `#components/button`, `#onepager/faq` (the section heading's id minus `s-` or `o-`; views are components, blocks, charts, themes, play, apps, onepager). The view tabs and the sidebar and menu entries are real links, so they can be copied or opened in a new tab. Picking a view or a section pushes a history entry, so Back works; the scroll spy only replaces the current entry as you read, so reading does not fill up Back. Loading an address, Back, Forward and a hand-typed hash all go through `route()`. It is only hashes, so it works from `file://`. The palette's `goto` takes the same names.
+
+**The views** are links with `role="tab"`, so they keep the tablist's keyboard: arrows and Home/End move the focus, Enter or Space picks (manual activation, so reading the list does not switch pages under you). The swap is `A.showView(tab, then)`: one datamosh, and a pick made while it runs replaces where it goes instead of starting a second one. The curtain (theme, presets) and the datamosh share one lock in the engine (`hold`/`free`): a transition asked for while another runs waits its turn, and the overlay eats taps while it covers the page, except a tap on a view link, which becomes the new target. `AUI.onView(tab)` runs before the landing is measured (Play moves the hero into its stage there), then `aui:view` fires on `document`. Reduced motion swaps instantly.
+
+**The landing.** A jump puts the section's title (its first visible child) in the first row under the bar, measured from the title rather than from css margins, and under Play's stage where that is sticky (found by looking for anything sticky in the view, not by name). For a moment after a jump the page is still moving (the font, charts sizing themselves, titles refitting), so the landing is redone whenever `main` changes size until you touch, scroll or press anything.
+
+**The list.** The sidebar and the menu print the same model: the view and its count, then the sections in page order. Where a view has a chip index, the count is what the index counts, and the sections it leaves out get small labelled groups, Start (Installation) before and About (Rules) after. After a Blocks filter the heading says so, `Blocks, Personal 6`. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`, because views and the Blocks filter both work by toggling it.
+
+**Reading position** is plain maths on scroll, rAF throttled: the last section whose title has reached the line a jump lands on. Above the first section nothing is marked. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry. Clicking a sidebar entry pins the mark for 1.2s while the smooth scroll arrives.
+
+**The sidebar** appears from 1024px. `main` becomes a two column grid there: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at 1600px). Its rows are pinned, because the panels all share one cell and once one row is explicit the others have to be, or the footer flows into the gap. Chrome constrains a sticky grid item to the whole grid, not its row, so a sticky `#sidenav` rode down over the footer; the nav is a plain cell stretched to its row and the list inside it (`.side-in`) is what sticks, so it stops where the row does. Its heading sticks inside the list's own scroll. With a mouse each entry is one 24px row; on a touch screen the rows are 48px.
+
+**The menu** (`[=]`, below 1024px) is the index on small screens: the whole screen, opaque. MENU and `[x]` (Escape too), then the seven views as a row of tabs that scrolls sideways, then the list, one section per 48px row, with `> ` on the one you are reading, then Show grid, Glitch, Sound and Theme. The row of views only refills the list; the page changes when you pick a section: the view swaps if it has to, the title lands under the bar, then the menu steps out and the focus goes to that section. It comes in and goes out with the same four-step wipe, none with reduced motion. The chip index inside each view starts closed below 1024px, since the menu does its job, and is hidden from 1024px, where the sidebar does.
+
+A visually hidden `Skip to content` link is the first thing Tab reaches.
 
 ## Page width and the galleries
 

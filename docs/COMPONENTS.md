@@ -35,7 +35,7 @@
 | Toggles | `s-toggles` | Checkbox, radio, switch; glyph is only paint. | engine (develop through ramp) | css/07, js/10 "checkbox and radio" |
 | Tooltip | `s-tooltip` | Hover, focus or tap; types itself in. | tap fallback | css/14 `.tip` |
 
-Not in the kit view but built as components: Menu sheet (`#menuDlg`, js/50), Command palette (`#cmdDlg`, js/20), Poster dialog (`#posterDlg`), Rebuild pill (`#rebuild`), HUD (`#hud`), Tracking band (`#track`), Chips (`.chip`, used by indexes and filters), Icon button (`.ibtn`).
+Not in the kit view but built as components: Menu (`#menuDlg`, full screen, js/70), Command palette (`#cmdDlg`, js/20), Poster dialog (`#posterDlg`), Rebuild pill (`#rebuild`), HUD (`#hud`), Tracking band (`#track`), Chips (`.chip`, used by indexes and filters), Icon button (`.ibtn`).
 
 ## Anatomy of a section
 
