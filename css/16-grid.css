@@ -45,12 +45,12 @@ main{max-width:calc(var(--maxcols)*1ch)}
    tallest card, which leaves air under the short ones and is the price of that
    promise. Because every card in a row starts at the same height, the dashed
    rule reads as the top edge of a card again, so it goes on all of them and not
-   only on the ones that follow another. Two rows of air above a card, five was
-   a hole. */
+   only on the ones that follow another. One row of air, the rule, one row of
+   air, then the title. Five was a hole and four still was. */
 @media (min-width:1024px){
   #view-kit > section[aria-labelledby],
   #view-blocks > section[aria-labelledby],
-  #view-charts > section[aria-labelledby]{margin-top:calc(var(--r)*2)}
+  #view-charts > section[aria-labelledby]{margin-top:var(--r)}
   #view-kit > section[aria-labelledby]::before,
   #view-blocks > section[aria-labelledby]::before,
   #view-charts > section[aria-labelledby]::before{

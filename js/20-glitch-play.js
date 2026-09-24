@@ -14,12 +14,15 @@ function arp(fs,gap){if(!A.live())return;fs.forEach(function(f,i){A.tone('square
 
 /* ================= fx helpers ================= */
 const fx=$('fx');
+/* the band only turns hues backwards a little: magenta goes violet, violet
+   goes cyan, paper goes pink. Quarter and half turns made oranges and browns
+   that are not in the palette. */
 function tear(n){
   if(A.glitch()<=0||reduce)return;
   n=n||2;const vh=window.innerHeight;
   while(n--){
-    const d=document.createElement('div'),h=8+rnd(44),deg=[90,180,270,-60][rnd(4)];
-    d.style.cssText='left:0;right:0;top:'+rnd(vh-h)+'px;height:'+h+'px;-webkit-backdrop-filter:hue-rotate('+deg+'deg) saturate(2.4) contrast(1.2);backdrop-filter:hue-rotate('+deg+'deg) saturate(2.4) contrast(1.2);transform:translateX('+(rnd(17)-8)+'px)';
+    const d=document.createElement('div'),h=8+rnd(44),deg=[-45,-60,-75][rnd(3)];
+    d.style.cssText='left:0;right:0;top:'+rnd(vh-h)+'px;height:'+h+'px;-webkit-backdrop-filter:hue-rotate('+deg+'deg) saturate(1.6) contrast(1.2);backdrop-filter:hue-rotate('+deg+'deg) saturate(1.6) contrast(1.2);transform:translateX('+(rnd(17)-8)+'px)';
     fx.appendChild(d);setTimeout(()=>d.remove(),80+rnd(140));
   }
 }
@@ -377,7 +380,7 @@ const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badg
 async function run(line){
   line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto kit|blocks|charts|themes|play|apps|page\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · torus · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto components|blocks|charts|themes|play|apps|onepager\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · torus · tilt · clear');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
@@ -401,7 +404,7 @@ async function run(line){
   else if(c==='jolt'){cmdDlg.close();A.jolt()}
   else if(c==='boot'){cmdDlg.close();B.boot(true)}
   else if(c==='poster'){cmdDlg.close();openPoster()}
-  else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('signal for '+esc(n)+': '+sig())}}
+  else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
   else if(c==='invaders'){cmdDlg.close();$('inv').scrollIntoView({block:'center'});setTimeout(()=>INV.start(),400)}
   else if(c==='photo'){cmdDlg.close();window.scrollTo(0,0);$('photoFile').click()}
   else if(c==='torus'){toTorus();out('torus restored')}
@@ -650,10 +653,16 @@ function drawCharts(){drawBars();line1.draw();drawRegions();drawHeat();drawDonut
 function drawSparks(){document.querySelectorAll('.spark').forEach(s=>{s.textContent=A.TR(s.getAttribute('data-spark').split(',').map(n=>RAMP[clamp(+n+1,1,8)]).join(''))})}
 drawSparks();
 let skT=0;
+/* a card's silhouette: a faint frame, a slab-wide title line and two text
+   lines, with the wave running through the lines. It is sized to its own
+   column, so in a gallery card it does not run out of the box. */
 function drawSkel(){
-  const el=$('skel');if(!el)return;const cols=Math.max(12,Math.floor(W/A.CH())),ws=[0.92,0.7,0.48];let o='';
-  ws.forEach((f,r)=>{const n=Math.floor(cols*f);for(let x=0;x<n;x++)o+=RAMP[1+Math.round(1.6+1.6*Math.sin(x*0.45-skT+r*0.8))];o+='\n'});
-  el.textContent=A.TR(o);
+  const el=$('skel');if(!el)return;
+  const box=el.parentNode.clientWidth||W,cols=clamp(Math.floor(box/A.CH()),16,48),inner=cols-4;
+  const wave=(n,r)=>{let s='';for(let x=0;x<n;x++)s+=RAMP[1+Math.round(1.6+1.6*Math.sin(x*0.45-skT+r*0.8))];return esc(A.TR(s))};
+  const edge='<span class="f">'+'- '.repeat(cols).slice(0,cols)+'</span>',side='<span class="f">:</span>';
+  const line=(n,r)=>side+' '+(n?wave(n,r):'')+' '.repeat(inner-n+1)+side;
+  el.innerHTML=[edge,line(Math.min(12,inner),0),line(0,0),line(Math.floor(inner*0.9),1),line(Math.floor(inner*0.6),2),edge].join('\n');
 }
 if(!reduce)every(110,()=>{const el=$('skel');if(el&&inView(el)){skT+=0.5;drawSkel()}});
 
@@ -670,7 +679,7 @@ $('lgBtn').addEventListener('click',()=>{
   else{A.say('Signed in as '+em+'.');arp([523,659,784],60)}
 });
 ['lgEmail','lgPass'].forEach(id=>$(id).addEventListener('input',()=>{if($(id).getAttribute('aria-invalid')==='true')setErr(id,'')}));
-$('ssoBtn').addEventListener('click',()=>A.say('SSO is not wired in a prototype.'));
+$('ssoBtn').addEventListener('click',()=>A.say('SSO is not wired in this prototype.'));
 const rows=[...document.querySelectorAll('#incTable tbody tr')];
 function pickRow(tr){
   rows.forEach(r=>r.setAttribute('aria-selected',r===tr?'true':'false'));

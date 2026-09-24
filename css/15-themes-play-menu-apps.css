@@ -4,9 +4,9 @@
 :root[data-preset="blueprint"]{--bg:#0b2a6b;--ink:#eaf2ff;--muted:#a9c0ee;--hot:#ffffff;--pink:#cfe0ff;--cy:#7fe0ff;--ok:#b8ffda;--warn:#ffd86b;--deep:#5f8ae0;--violet:#8fb0ff;--t0:#ffffff;--t1:#cfe0ff;--t2:#8fb0ff;--t3:#5f8ae0;--scan:rgba(0,10,40,.3);color-scheme:dark}
 :root[data-preset="hotdog"]{--bg:#c40000;--ink:#ffee00;--muted:#ffd0a0;--hot:#000000;--pink:#ffee00;--cy:#ffffff;--ok:#ffffff;--warn:#000000;--deep:#7a0000;--violet:#ff9a9a;--t0:#ffee00;--t1:#ffffff;--t2:#000000;--t3:#7a0000;--scan:rgba(0,0,0,.18);color-scheme:dark}
 :root[data-preset="hotdog"] .btn-primary .label,:root[data-preset="hotdog"] .bar-title{color:#ffee00}
-.swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(16ch,1fr));max-width:60ch}
+.swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(23ch,1fr));max-width:76ch}   /* 23ch: a 6ch chip, a gap and "errors, degraded" on one line */
 .sw{display:flex;gap:1ch;align-items:center}
-.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*2);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)}
+.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .sw input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
 .sw input[type="color"]::-webkit-color-swatch{border:0;border-radius:0}
 .sw input[type="color"]::-moz-color-swatch{border:0;border-radius:0}
@@ -75,7 +75,7 @@
 .thread li{display:flex;margin-top:calc(var(--r)/2)}
 .thread li.me{justify-content:flex-end}
 .bubble{max-width:80%;padding:0 1ch}
-.thread li.me .bubble{background:var(--hot);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--warn)}
+.thread li.me .bubble{background:var(--hot);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
 .thread li:not(.me) .bubble{background:color-mix(in srgb,var(--ink) 12%,transparent)}
 .thread .meta{display:block;color:var(--muted);font-size:12px;line-height:14px}
 .typing{color:var(--muted)}

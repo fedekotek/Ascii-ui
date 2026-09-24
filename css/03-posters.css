@@ -5,6 +5,8 @@
 }
 #hero{display:block;width:100%;touch-action:pan-y;cursor:crosshair}
 .ptitle{font-size:6px;line-height:5px;height:calc(var(--r)*3);padding-top:1px;cursor:pointer}
+/* one row of air between a title's bottom dots and its caption */
+.ptitle + p{margin-top:var(--r)}
 .ptitle .tr{display:block}
 .ptitle .c0{color:var(--t0)}.ptitle .c1{color:var(--t1)}.ptitle .c2{color:var(--t2)}.ptitle .c3{color:var(--t3)}
 .ptitle b{font-weight:700}

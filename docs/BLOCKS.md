@@ -10,11 +10,11 @@
 | Pricing | `s-pricing` | marketing | Three cards, Popular badge, buttons toast the plan. |
 | Profile | `s-profile` | personal | LCD portrait (load your own), key/value list, Say hi toast. |
 | Career | `s-career` | personal | Timeline, static. |
-| Case studies | `s-cases` | personal | Four cards with animated LCD thumbnails (`ui1..ui4` scenes), click/Enter sets status and glitches the thumb. |
+| Cases | `s-cases` | personal | Four cards with animated LCD thumbnails (`ui1..ui4` scenes), click/Enter sets status and glitches the thumb. |
 | Now | `s-now` | personal | Reading progress bar, "loading" spinner on the pull-up. |
 | Recipe | `s-recipe` | personal | Servings stepper 1..20 rescales quantities, metric formatting (g/kg, l). |
 | Build | `s-build` | personal | Five stats on halftone bars, Reroll randomizes and jolts. |
-| Work orders | `s-workorders` | app | Checklist with a progress bar that counts, toast + jolt at 5/5. |
+| Orders | `s-workorders` | app | Checklist with a progress bar that counts, toast + jolt at 5/5. |
 | Sidebar | `s-sidebar` | app | aria-current follows the click. |
 | Settings | `s-settings` | app | Sound and Glitch switches are two-way bound to the real header switches. |
 | Design crit | `s-crit` | app | Textarea with min length, verdict toggle group, error state. |

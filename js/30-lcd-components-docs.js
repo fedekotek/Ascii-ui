@@ -256,7 +256,7 @@ $('toastErr').addEventListener('click',()=>{toast('Something broke. It was you.'
 $('ttBtn').addEventListener('click',()=>{const p=$('tt');p.classList.add('on');setTimeout(()=>p.classList.remove('on'),1800)});
 
 /* ================= blocks ================= */
-$('sayHi').addEventListener('click',()=>A.say('No inbox is wired to a prototype. Hi anyway.'));
+$('sayHi').addEventListener('click',()=>A.say('Hi. No inbox is wired in this prototype.'));
 (function(){
   const st=$('caseStatus'),D={Reporting:'Reporting: led at MaintainX. Dashboards for plant managers, built mobile first.',Search:'Search: global search across work orders, assets and parts.',Automations:'Automations: triggers and actions for maintenance teams, no code.',Chat:'Chat: messaging for frontline teams, tied to the work order.'};
   document.querySelectorAll('#cases [data-case]').forEach(c=>{

@@ -73,7 +73,7 @@ $('chirpFeed').addEventListener('click',e=>{
   if(b.classList.contains('like')||b.classList.contains('rt')){
     const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on?'true':'false');bump(b.querySelector('span'),on?1:-1);
     if(on){if(live())sfx.on();A.kick()}else ping(330);
-  }else A.say('Replies are not wired. It is a prototype.');
+  }else A.say('Replies are not wired in this prototype.');
 });
 function post(){
   const inp=$('chirpIn'),t=inp.value.trim();if(!t){A.jolt();if(live())sfx.err();inp.focus();return}
@@ -83,8 +83,8 @@ function post(){
 }
 $('chirpPost').addEventListener('click',post);
 $('chirpIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();post()}});
-$('chirpBell').addEventListener('click',()=>A.say('3 new likes, 1 repost, 0 sleep.'));
-document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.currentTarget.querySelectorAll('button').forEach(x=>x===b?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'));ping(520);if(b.textContent!=='Home')A.say(b.textContent+' is a tab in a prototype.')});
+$('chirpBell').addEventListener('click',()=>A.say('Alerts: 3 likes, 1 repost, 0 sleep.'));
+document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.currentTarget.querySelectorAll('button').forEach(x=>x===b?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'));ping(520);if(b.textContent!=='Home')A.say(b.textContent+' is not wired in this prototype.')});
 
 /* ================= tape ================= */
 (function(){
