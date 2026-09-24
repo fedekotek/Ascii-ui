@@ -135,8 +135,22 @@
   };
   function unlock(){audio()}
   document.addEventListener('pointerdown',unlock,true);
-  /* some Android keyboards pop up for a focused range input; a slider never needs the keyboard, so drop focus after a touch */
-  document.addEventListener('pointerup',function(e){var el=e.target;if(el&&el.matches&&el.matches('input[type="range"]')&&e.pointerType!=='mouse')setTimeout(function(){el.blur()},0)},true);
+  /* Some Android keyboards pop up for a focused range input, and a slider
+     never needs one. Focus used to be dropped only on a pointerup on the
+     slider itself, which missed two ways in: a drag ends in pointercancel
+     rather than pointerup, and a tap on the slider's label focuses it with
+     the finger on the label. So any slider that takes focus from a touch
+     lets go of it as soon as the touch is over. A keyboard keeps its focus. */
+  var touchAt=0,touchOn=null;
+  document.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'){touchAt=Date.now();touchOn=e.target}},true);
+  function isRange(el){return el&&el.matches&&el.matches('input[type="range"]')}
+  function letGo(){var el=document.activeElement;if(isRange(el)&&Date.now()-touchAt<5000)setTimeout(function(){el.blur()},0)}
+  ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(t){document.addEventListener(t,letGo,true)});
+  document.addEventListener('change',function(e){if(isRange(e.target)&&Date.now()-touchAt<5000)letGo()},true);
+  document.addEventListener('focusin',function(e){
+    /* focused from a label or anything that is not the slider: nothing to drag, let go now */
+    if(isRange(e.target)&&Date.now()-touchAt<1000&&touchOn!==e.target)setTimeout(function(){e.target.blur()},0);
+  },true);
   document.addEventListener('keydown',unlock,true);
 
   /* ---- 5x7 bitmap face, squared off ---- */
@@ -888,10 +902,20 @@
   /* the frame is 72px tall and reads as the target, but only the 24px line
      inside it used to take the tap */
   document.addEventListener('pointerdown',function(e){
+    /* with a mouse on touch-down, as before. A finger waits for the click,
+       which never comes if the touch turns into a scroll: focusing on
+       touch-down opened the keyboard whenever a scroll started on a frame */
+    if(e.pointerType!=='mouse')return;
     var f=e.target.closest&&e.target.closest('.field');
     if(!f||e.target.matches('input,select,textarea,button,a'))return;
     var inp=f.querySelector('input,select,textarea');
     if(inp&&!inp.disabled){e.preventDefault();inp.focus()}
+  });
+  document.addEventListener('click',function(e){
+    var f=e.target.closest&&e.target.closest('.field');
+    if(!f||e.target.matches('input,select,textarea,button,a')||f.contains(document.activeElement))return;
+    var inp=f.querySelector('input,textarea');
+    if(inp&&!inp.disabled)inp.focus();
   });
   /* focus alone does not open a dropdown, so the tap would still feel dead. On
      click, not touch-down, so a scroll that starts on the frame stays a scroll */
