@@ -89,38 +89,55 @@ main{max-width:calc(var(--maxcols)*1ch)}
    the title used to stop mid character, a cut that reads as a mistake rather
    than as a frame. Six characters of fade on the sides and two rows top and
    bottom let them leave instead. The measurements are grid units, like
-   everything else. */
+   everything else. On a phone six characters is a sixth of the canvas and ate
+   the A of ASCII, so there it is two. layout() reads --fade and starts the
+   words where the fade ends. */
 #hero{
+  --fade:6;
   -webkit-mask-image:
-    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to right,transparent 0,#000 calc(var(--fade)*1ch),#000 calc(100% - var(--fade)*1ch),transparent 100%),
     linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
   -webkit-mask-composite:source-in;
   mask-image:
-    linear-gradient(to right,transparent 0,#000 6ch,#000 calc(100% - 6ch),transparent 100%),
+    linear-gradient(to right,transparent 0,#000 calc(var(--fade)*1ch),#000 calc(100% - var(--fade)*1ch),transparent 100%),
     linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
   mask-composite:intersect;
 }
+@media (max-width:719px){#hero{--fade:2}}
 
 /* ---- the hero fold --------------------------------------------------------
-   Under the canvas the hero stacks seven short rows, which on a wide screen
-   pushed the first component past the bottom of the window: the page looked
-   like it ended at the hero. From 1024px those rows sit in three columns, the
-   copy on the left, the controls in the middle and the right, which is about
-   300px shorter and leaves the first row of components showing. */
+   The header says what this is and offers two ways in, nothing else: the
+   photo, the camera and the poster are toys and live in Play, where they have
+   a stage. From 1024px the rows under the canvas sit in three columns, the
+   copy on the left, the two actions and the line about the ring in the middle,
+   the page switches on the right, so the first row of components still shows. */
 @media (min-width:1024px){
   main > header{display:grid;grid-template-columns:repeat(3,1fr);column-gap:4ch;align-items:start}
   main > header > h1,main > header > canvas{grid-column:1/-1}
   main > header > .lede{grid-column:1;grid-row:2;margin-top:var(--r)}
   main > header > .hint{grid-column:1;grid-row:3}
-  main > header > #heroSrc{grid-column:2;grid-row:2;margin-top:var(--r)}
-  main > header > div.row:nth-of-type(2){grid-column:3;grid-row:2;margin-top:var(--r)}
-  main > header > div.row:nth-of-type(3){grid-column:3;grid-row:3}
+  main > header > #heroGo{grid-column:2;grid-row:2;margin-top:var(--r)}
+  main > header > #heroLine{grid-column:2;grid-row:3}
+  main > header > #heroSw{grid-column:3;grid-row:2;margin-top:var(--r)}
+}
+/* from 124 columns the middle one takes what the two buttons need side by
+   side (40ch), which saves the three rows a stacked pair costs */
+@media (min-width:1280px){
+  main > header{grid-template-columns:1fr auto 1fr}
+  /* the line under them wraps to that width instead of setting it */
+  main > header > #heroLine{width:0;min-width:100%}
 }
 
-/* On a phone the same rows are stacked, and the two that the [=] sheet already
-   carries (the switches and the theme button) are the ones that push the page
-   under the fold, so down there they live in the sheet only. The tip goes with
-   them: it describes gestures you find by trying. */
+/* On a phone the rows stack: the canvas, one line naming the toy, the lede,
+   the two actions. The switches are in the [=] sheet already, and the tip
+   describes gestures you find by trying, so down here they are not shown. */
 @media (max-width:1023px){
-  main > header > div.row:nth-of-type(2),main > header > .hint{display:none}
+  main > header > #heroSw,main > header > .hint{display:none}
 }
+
+/* Only Components has the header. Every other view starts with its own
+   content one row under the bar: no hero margin, no section margin. */
+main > header[hidden]{display:none}
+main > header[hidden] ~ #sidenav,main > header[hidden] ~ [role="tabpanel"]{margin-top:0}
+main > header[hidden] ~ [role="tabpanel"] > :first-child{margin-top:0}
+#foot > .foot{margin-top:calc(var(--r)*3)}

@@ -73,7 +73,14 @@ async def run():
                 if ov>1: msgs.append(f'{v} overflow {ov}px')
                 # count where sections actually sit, not how many tracks the
                 # template declares: a gallery that collapsed would still declare three
-                n=await pg.evaluate("(p=>new Set([...document.querySelectorAll(p+' > section[aria-labelledby]')].filter(s=>!s.hidden&&s.getAttribute('data-span')!=='full').map(s=>Math.round(s.getBoundingClientRect().left))).size)('#view-"+v+"')")
+                # A card's width says how many columns it shares the row with,
+                # whatever the order: Blocks opens with Login beside a full-width
+                # Stats, so no row there ever holds three cards to count.
+                n=await pg.evaluate("""(p=>{const P=document.querySelector(p),g=parseFloat(getComputedStyle(P).columnGap)||0;
+                  const s=[...P.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!s.hidden&&s.getAttribute('data-span')!=='full'&&s.offsetParent!==null);
+                  const lefts=new Set(s.map(s=>Math.round(s.getBoundingClientRect().left))).size;
+                  if(!s.length)return 0;const w=Math.min(...s.map(s=>s.getBoundingClientRect().width));
+                  return Math.max(lefts,Math.round((P.clientWidth+g)/(w+g)))})('#view-"""+v+"')")
                 if v in GALLERIES:
                     if n!=want: msgs.append(f'{v} sections sit in {n} columns, wanted {want}')
                 elif n>want or n<1:

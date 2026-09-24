@@ -427,12 +427,15 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-function buildView(panel,label,skip){
-  spanSections(panel);
-  const secs=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>!skip.includes(s.getAttribute('aria-labelledby')));
-  const tail=[...panel.querySelectorAll(':scope > section[aria-labelledby]')].filter(s=>skip.includes(s.getAttribute('aria-labelledby'))&&s.getAttribute('aria-labelledby')==='s-rules');
-  const name=s=>s.querySelector('h2').textContent.trim();
-  secs.sort((a,b)=>name(a).localeCompare(name(b)));
+/* skip: sections that stay out of the index and go last (Rules). pin: sections
+   that open the view, in that order, ahead of the alphabet: Button is the first
+   thing anyone looks for, and a 404 page is a strange first block. */
+function buildView(panel,label,skip,pin){
+  spanSections(panel);pin=pin||[];
+  const id=s=>s.getAttribute('aria-labelledby'),all=[...panel.querySelectorAll(':scope > section[aria-labelledby]')];
+  const secs=all.filter(s=>!skip.includes(id(s))),tail=all.filter(s=>skip.includes(id(s)));
+  const name=s=>s.querySelector('h2').textContent.trim(),rank=s=>{const i=pin.indexOf(id(s));return i<0?pin.length:i};
+  secs.sort((a,b)=>rank(a)-rank(b)||name(a).localeCompare(name(b)));
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
@@ -441,12 +444,14 @@ function buildView(panel,label,skip){
   toc.innerHTML='<details class="acc toc" open><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
   secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
-  const first=panel.querySelector(':scope > section');panel.insertBefore(toc,first&&!first.hasAttribute('aria-labelledby')?first.nextSibling:first);
+  /* after the intro and anything else that is not a section of its own (the
+     Blocks filters), right before the first card */
+  panel.insertBefore(toc,panel.querySelector(':scope > section[aria-labelledby]'));
   return secs;
 }
 spanSections($('view-charts'));
-buildView($('view-kit'),'Components',['s-rules']);
-const blockSecs=buildView($('view-blocks'),'Blocks',[]);
+buildView($('view-kit'),'Components',['s-rules'],['s-button']);
+const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));

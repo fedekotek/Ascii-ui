@@ -48,16 +48,18 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
 ```
 <span id="probe">           50 M's, used to measure the real character width
 <main id="main">
-  <header>                  hero canvas, load photo / camera / torus, lede, grid + glitch + sound toggles, theme button, hint, SIG + poster
+  <header>                  Components only (hidden on the other views). Hero canvas, one line about the ring, lede,
+                            See components + Open in Play, hint and grid + glitch switches (desktop only)
   <div class="viewsbar">    [=] menu button (mobile), tablist of 7 views, >_ command button
-  <div id="view-kit">       Components (30 sections + Rules)
-  <div id="view-blocks">    Blocks (16 sections, category filters)
+  <div id="view-kit">       Components: intro, index, Button pinned first, the rest A to Z, Get the kit, Rules
+  <div id="view-blocks">    Blocks: intro, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5)
   <div id="view-themes">    Presets, Colors, Ramp, Tokens
-  <div id="view-play">      #playStage (the hero moves here), Words, Knobs
+  <div id="view-play">      #playStage (the hero moves here), Source (photo, camera, Ring), Words, Knobs,
+                            Poster (code, Make poster, Snapshot)
   <div id="view-apps">      Feed, Player, Chat
   <div id="view-page">      One pager (Static, the fake uptime monitor) + Lab toys
-  <footer id="foot">        Invaders
+  <footer id="foot">        Invaders on Components, one line on every other view
 </main>
 <dialog #publishDialog>     card demo
 <div #fx>                   sparks and tears (fixed, pointer-events:none)
@@ -70,6 +72,8 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
 <dialog #posterDlg>         generated poster / snapshot
 <div #toast>
 ```
+
+The header and the game belong to Components: `placeHero()` in js/40 runs on every view switch (`A.onView`), moves the canvas to the Play stage and back, and hides the header and the game everywhere else, so each view starts one row under the bar.
 
 Views are a tablist (`.views`). Switching runs `wipe` (color-bar curtain) or `mosh` (datamosh), alternating. Section reveal uses IntersectionObserver on `[data-rv]` elements; `reveal()` adds `.in`, plays the glitch-in keyframe, decodes text, draws frames, and calls `el._anim()` if the element has one (charts use this to grow in).
 

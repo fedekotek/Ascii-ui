@@ -53,7 +53,7 @@ All scripts are IIFEs. The public surface is three objects on `window`, plus two
 | `src` | set by 20: `(w,h) => Float32Array luminance` when a photo/camera is loaded, else null |
 | `onLayout` | set by 20: called with the content width after `layout()` |
 
-Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.codeExtra(section, panel)`.
+Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.codeExtra(section, panel)`, `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled).
 
 ## window.AUI2 (fx, from js/20)
 `blip, noise, arp, tick` (wrappers over `A.tone`), `rearm(el)` (re-run an entrance), `show(viewName)`, `boot`, `tear(n)`, `mosh(cb)`, `frameDraw(el)` (frames draw themselves), `esc(str)`, `clamp(v,a,b)`, `inView(el)`.
@@ -68,7 +68,7 @@ Registry of component source for the Code tab: `{calendar, dropdown, otp, pagina
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
 
 ## Command palette (`/` or `>_`)
-`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto kit|blocks|charts|themes|play|apps|page`, `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders`, `photo`, `torus`, `tilt`, `clear`, `sudo`.
+`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto kit|blocks|charts|themes|play|apps|page`, `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to Components first), `photo` (opens the picker and lands on Play's Source), `ring` (alias `torus`), `tilt`, `clear`, `sudo`.
 
 ## Keyboard
 `/` palette, `g` glitch jolt, arrows + space in invaders, arrows/Home/End in tablists, arrows/Escape in the dropdown, Backspace/arrows/paste in OTP.
