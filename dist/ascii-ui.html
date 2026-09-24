@@ -115,7 +115,7 @@ h1,h2,h3,p,ul,dl,dd,pre{margin:0;font:inherit}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 section{margin-top:calc(var(--r)*3)}
 [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*5)}
-[role="tabpanel"] > section[aria-labelledby] + section[aria-labelledby]::before{content:var(--h-faint);display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2)}
+[role="tabpanel"] > section[aria-labelledby]:not([hidden]) ~ section[aria-labelledby]:not([hidden])::before{content:var(--h-faint);display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2)}
 .demo{margin-top:var(--r)}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
 .stack{display:grid;gap:var(--r);justify-items:start}
@@ -872,18 +872,17 @@ main{max-width:calc(var(--maxcols)*1ch)}
 @media (min-width:1024px){
   main > header{display:grid;grid-template-columns:repeat(3,1fr);column-gap:4ch;align-items:start}
   main > header > h1,main > header > canvas{grid-column:1/-1}
-  main > header > .lede{grid-column:1;grid-row:2;margin-top:var(--r)}
-  main > header > .hint{grid-column:1;grid-row:3}
-  main > header > #heroGo{grid-column:2;grid-row:2;margin-top:var(--r)}
-  main > header > #heroLine{grid-column:2;grid-row:3}
-  main > header > #heroSw{grid-column:3;grid-row:2;margin-top:var(--r)}
+  /* the line about the ring sits right under the ring, the width of it */
+  main > header > #heroLine{grid-column:1/-1;grid-row:2}
+  main > header > .lede{grid-column:1;grid-row:3;margin-top:var(--r)}
+  main > header > .hint{grid-column:1;grid-row:4}
+  main > header > #heroGo{grid-column:2;grid-row:3;margin-top:var(--r)}
+  main > header > #heroSw{grid-column:3;grid-row:3;margin-top:var(--r)}
 }
 /* from 124 columns the middle one takes what the two buttons need side by
    side (40ch), which saves the three rows a stacked pair costs */
 @media (min-width:1280px){
   main > header{grid-template-columns:1fr auto 1fr}
-  /* the line under them wraps to that width instead of setting it */
-  main > header > #heroLine{width:0;min-width:100%}
 }
 
 /* On a phone the rows stack: the canvas, one line naming the toy, the lede,
@@ -1144,6 +1143,9 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 .menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
 .menu-views::-webkit-scrollbar{display:none}
 .menu-views .tab{flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;line-height:var(--r)}
+/* on a phone the seven views wrap to two rows rather than scroll sideways and
+   cut a word in half; the menu has the height */
+@media (max-width:767px){.menu-views{flex-wrap:wrap;overflow:visible}}
 .menu-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;padding:var(--r) 0}
 .menu-h{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
 .menu-foot{
@@ -1450,7 +1452,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-card" data-span="full">
-    <h2 id="s-card" class="vh">Card and dialog</h2>
+    <h2 id="s-card" class="vh">Card</h2>
     <pre class="poster ptitle" data-text="CARD" aria-hidden="true"></pre>
     <p class="muted">Title on a bar of @, walls of #, and a shadow made of colons. Publishing opens the dialog.</p>
     <div class="demo lift">
@@ -1579,7 +1581,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="s-otp">
-    <h2 id="s-otp" class="vh">Input OTP</h2>
+    <h2 id="s-otp" class="vh">OTP</h2>
     <pre class="poster ptitle" data-text="OTP" aria-hidden="true"></pre>
     <p class="muted">Six brackets. They advance on their own and take a paste.</p>
     <div class="demo otp" id="otp" role="group" aria-label="One-time code"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
@@ -1849,7 +1851,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section data-cat="app" aria-labelledby="s-crit">
-    <h2 id="s-crit" class="vh">Design crit</h2>
+    <h2 id="s-crit" class="vh">Crit</h2>
     <pre class="poster ptitle" data-text="CRIT" aria-hidden="true"></pre>
     <p class="muted">A feedback form with a verdict.</p>
     <div class="demo lift"><div class="card frame tone-mid"><h3 class="bar-title">Crit: onboarding v3</h3><div class="body">
@@ -2139,7 +2141,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </section>
 
   <section aria-labelledby="o-faq">
-    <h2 id="o-faq" class="vh">Questions</h2>
+    <h2 id="o-faq" class="vh">FAQ</h2>
     <pre class="poster ptitle" data-text="FAQ" aria-hidden="true"></pre>
     <div class="demo">
       <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
@@ -2845,8 +2847,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   function sparkSpots(){
     var vw=window.innerWidth,vh=window.innerHeight,m=main.getBoundingClientRect(),pad=CH*2,out=[],h;
     var lg=Math.floor((m.left+pad)/CH),rg=Math.floor((vw-m.right+pad)/CH);
-    if(lg>=2)out.push([0,lg,0,vh]);
-    if(rg>=2)out.push([vw-rg*CH,rg,0,vh]);
+    /* a gutter narrower than six characters turns a streak into a stub on the bezel */
+    if(lg>=6)out.push([0,lg,0,vh]);
+    if(rg>=6)out.push([vw-rg*CH,rg,0,vh]);
     h=hero.getBoundingClientRect();
     if(h.height&&h.bottom>24&&h.top<vh-24)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
     return out;
@@ -3482,7 +3485,15 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       if(root.classList.contains('aui-booting'))return;
       entries.forEach(function(en){
         var el=en.target;
-        if(en.isIntersecting&&en.intersectionRatio>=0.12){rio.unobserve(el);if(!el.classList.contains('in'))reveal(el,k++)}
+        if(en.isIntersecting&&en.intersectionRatio>=0.12){
+          rio.unobserve(el);if(el.classList.contains('in'))return;
+          /* a jump scrolls past a whole view in one batch: what is already off
+             screen again just settles, and the stagger for what you landed on
+             is capped, so it does not wait behind everything it passed */
+          var r=el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=window.innerHeight){el.classList.add('in','done');if(el._anim)el._anim();if(window.AUI2&&AUI2.frameDraw)AUI2.frameDraw(el)}
+          else reveal(el,Math.min(k++,8));
+        }
       });
     },{threshold:[0,0.12],rootMargin:'0px 0px -5% 0px'});
     rvEls.forEach(function(el){rio.observe(el)});
@@ -4855,7 +4866,9 @@ function goTo(view,el,block,then){
 }
 A.goTo=goTo;
 const firstKit=()=>$('s-button').parentNode;
-$('heroSee').addEventListener('click',()=>{goTo('kit',firstKit());A.kick()});
+/* the page moves to Button and so does the keyboard, or the next Tab would
+   pull it back up to the hero */
+$('heroSee').addEventListener('click',()=>{const s=firstKit();goTo('kit',s,null,()=>{s.tabIndex=-1;s.focus({preventScroll:true})});A.kick()});
 $('heroPlay').addEventListener('click',()=>$('v-play').click());
 const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
 ['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));

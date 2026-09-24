@@ -95,7 +95,9 @@ function goTo(view,el,block,then){
 }
 A.goTo=goTo;
 const firstKit=()=>$('s-button').parentNode;
-$('heroSee').addEventListener('click',()=>{goTo('kit',firstKit());A.kick()});
+/* the page moves to Button and so does the keyboard, or the next Tab would
+   pull it back up to the hero */
+$('heroSee').addEventListener('click',()=>{const s=firstKit();goTo('kit',s,null,()=>{s.tabIndex=-1;s.focus({preventScroll:true})});A.kick()});
 $('heroPlay').addEventListener('click',()=>$('v-play').click());
 const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
 ['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));

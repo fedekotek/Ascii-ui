@@ -243,6 +243,9 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 .menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
 .menu-views::-webkit-scrollbar{display:none}
 .menu-views .tab{flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;line-height:var(--r)}
+/* on a phone the seven views wrap to two rows rather than scroll sideways and
+   cut a word in half; the menu has the height */
+@media (max-width:767px){.menu-views{flex-wrap:wrap;overflow:visible}}
 .menu-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;padding:var(--r) 0}
 .menu-h{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
 .menu-foot{

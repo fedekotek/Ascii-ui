@@ -593,8 +593,9 @@
   function sparkSpots(){
     var vw=window.innerWidth,vh=window.innerHeight,m=main.getBoundingClientRect(),pad=CH*2,out=[],h;
     var lg=Math.floor((m.left+pad)/CH),rg=Math.floor((vw-m.right+pad)/CH);
-    if(lg>=2)out.push([0,lg,0,vh]);
-    if(rg>=2)out.push([vw-rg*CH,rg,0,vh]);
+    /* a gutter narrower than six characters turns a streak into a stub on the bezel */
+    if(lg>=6)out.push([0,lg,0,vh]);
+    if(rg>=6)out.push([vw-rg*CH,rg,0,vh]);
     h=hero.getBoundingClientRect();
     if(h.height&&h.bottom>24&&h.top<vh-24)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
     return out;
@@ -1230,7 +1231,15 @@
       if(root.classList.contains('aui-booting'))return;
       entries.forEach(function(en){
         var el=en.target;
-        if(en.isIntersecting&&en.intersectionRatio>=0.12){rio.unobserve(el);if(!el.classList.contains('in'))reveal(el,k++)}
+        if(en.isIntersecting&&en.intersectionRatio>=0.12){
+          rio.unobserve(el);if(el.classList.contains('in'))return;
+          /* a jump scrolls past a whole view in one batch: what is already off
+             screen again just settles, and the stagger for what you landed on
+             is capped, so it does not wait behind everything it passed */
+          var r=el.getBoundingClientRect();
+          if(r.bottom<=0||r.top>=window.innerHeight){el.classList.add('in','done');if(el._anim)el._anim();if(window.AUI2&&AUI2.frameDraw)AUI2.frameDraw(el)}
+          else reveal(el,Math.min(k++,8));
+        }
       });
     },{threshold:[0,0.12],rootMargin:'0px 0px -5% 0px'});
     rvEls.forEach(function(el){rio.observe(el)});
