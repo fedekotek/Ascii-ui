@@ -72,14 +72,34 @@ rampIns.forEach(inp=>inp.addEventListener('input',()=>{
 $('rampSpec').innerHTML=A.colorize(A.barRow(12,false,12)+'  '+CANON.split('').reverse().join(' '))+'\n'+A.colorize(A.barRow(8,false,12));
 
 /* ================= play: the hero with the hood open ================= */
-const hero=$('hero'),HP=A.HP,stage=$('playStage'),home=$('heroSrc');
+const hero=$('hero'),HP=A.HP,stage=$('playStage'),home=$('heroLine'),header=document.querySelector('main > header');
+/* The header is the front door of Components and of nothing else: every other
+   view starts with its own content right under the bar, and ends with one line
+   instead of the game. Play borrows the canvas for its stage. */
+let landing=null,landT=0;
 function placeHero(){
-  const on=$('v-play').getAttribute('aria-selected')==='true';
+  const sel=v=>$('v-'+v).getAttribute('aria-selected')==='true',on=sel('play'),kit=sel('kit');
   if(on&&hero.parentNode!==stage)stage.appendChild(hero);
-  else if(!on&&hero.parentNode===stage)home.parentNode.insertBefore(hero,home);
+  else if(!on&&hero.parentNode===stage)header.insertBefore(hero,home);
+  header.hidden=!kit;$('footGame').hidden=!kit;$('footLine').hidden=kit;
   A.layout();
+  /* the switch scrolls to the top of the view right after this, so a jump
+     asked for with goTo waits for it */
+  if(landing){const f=landing;landing=null;setTimeout(f,0)}
 }
 A.onView=placeHero;
+/* go to a view and land on something in it */
+function goTo(view,el,block,then){
+  const jump=()=>{el.scrollIntoView({block:block||'start'});if(then)then()};
+  const t=$('v-'+view);
+  if(!t||t.getAttribute('aria-selected')==='true'){jump();return}
+  landing=jump;clearTimeout(landT);landT=setTimeout(()=>{landing=null},3000);
+  t.click();
+}
+A.goTo=goTo;
+const firstKit=()=>$('s-button').parentNode;
+$('heroSee').addEventListener('click',()=>{goTo('kit',firstKit());A.kick()});
+$('heroPlay').addEventListener('click',()=>$('v-play').click());
 const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
 ['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));
 const KN={kSpeed:['speed',100],kSize:['rad',100],kSplit:['split',100],kTear:['tear',100],kStreaks:['streaks',1],kBlocks:['blocks',1]};
@@ -88,10 +108,9 @@ Object.keys(KN).forEach(id=>A.bindSlider($(id),(fr,v)=>{
 }));
 document.addEventListener('change',e=>{if(e.target.name==='kMap'){HP.map=+e.target.value;A.drawHero();ping(440)}});
 $('kBurst').addEventListener('click',()=>{A.G.burst=1;A.jolt()});
-$('kPhoto').addEventListener('click',()=>$('photoFile').click());
 $('kSnap').addEventListener('click',()=>{
   try{const pal=A.pal(),c=document.createElement('canvas');c.width=hero.width;c.height=hero.height;const x=c.getContext('2d');x.fillStyle=pal.bg;x.fillRect(0,0,c.width,c.height);x.drawImage(hero,0,0);
-    $('posterImg').src=c.toDataURL('image/png');const d=$('posterDlg');if(!d.open)d.showModal();if(live())sfx.ok()}
+    A.picDialog(c.toDataURL('image/png'),'snap');if(live())sfx.ok()}
   catch(err){A.say('Snapshot is blocked for this picture.')}
 });
 $('kReset').addEventListener('click',()=>{
@@ -131,15 +150,17 @@ A.codeExtra=function(sec,p1){
   return {html:h,text:(css?'/* css */\n'+css+'\n':'')+(fn?'/* js */\n('+fn.toString()+')();\n':'')};
 };
 (function install(){
-  const kit=$('view-kit'),toc=kit.querySelector('.toc');if(!toc)return;
+  /* Get the kit is where you end up once you have seen the components, so it
+     closes the view, just before the rules. The id stays s-install. */
+  const kit=$('view-kit'),rules=$('s-rules');if(!rules)return;
   const sec=document.createElement('section');sec.setAttribute('aria-labelledby','s-install');
-  sec.setAttribute('data-span','full');   /* it opens the view, it is not a card */
+  sec.setAttribute('data-span','full');   /* a set of steps, not a card */
   const tokens=()=>$('tokensOut').textContent;
-  sec.innerHTML='<h2 id="s-install" class="vh">Installation</h2><p><b>Installation.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
-    '<ol class="demo timeline"><li><b>Tokens</b><span>Ten colors and the ramp. Tune them in Themes first.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
+  sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><b>Get the kit.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
+    '<ol class="demo timeline"><li><b>Tokens</b><span>Six color roles, four support shades and the ramp. The defaults are fine, Themes is where you change them.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
     '<li class="past"><b>Frame engine</b><span>The css that turns a string into a border, and the script that builds the strings.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="frame"><span class="mid"><span class="label">Copy frame engine</span></span></button></div></li>'+
-    '<li class="past"><b>Components</b><span>Open any Code tab below. It has the html, the css and the js.</span></li></ol>';
-  toc.closest('section').after(sec);
+    '<li class="past"><b>Components</b><span>Open any Code tab above. It has the html, the css and the js.</span></li></ol>';
+  kit.insertBefore(sec,rules.parentNode);
   sec.addEventListener('click',e=>{
     const b=e.target.closest('[data-cp]');if(!b)return;
     if(b.dataset.cp==='tokens')copy(tokens(),'the tokens');

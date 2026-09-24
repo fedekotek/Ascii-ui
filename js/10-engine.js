@@ -257,7 +257,7 @@
 
   /* ---- layout: snap the page to a whole number of columns ---- */
   var probe=$('probe'),hero=$('hero'),ctx=hero.getContext('2d');
-  var HC=60,HR=58,mask=null,t=0,CH=9.6,CW=6,LH=7,FS=10,DPR=1,A=1.1,B=0.4,spinX=0,spinY=0,PAL=null;
+  var HC=60,HR=58,mask=null,wbox=[],t=0,CH=9.6,CW=6,LH=7,FS=10,DPR=1,A=1.1,B=0.4,spinX=0,spinY=0,PAL=null;
   var G={on:!reduce,amt:0.5,burst:0,next:0,scroll:0};
   var HP={t1:'ASCII',t2:'/UI',speed:1,rad:1,split:1,tear:1,streaks:38,blocks:9,map:0};
   var MAPS=[null,['deep','deep','cy','cy','ok','ok','ink'],['deep','warn','warn','hot','hot','pink','ink'],['muted','muted','muted','ink','ink','ink','ink']];
@@ -277,14 +277,27 @@
        58 rows now, so they sit at the same fractions of whatever it is, and
        they drop to one character per pixel when there are too few rows to hold
        two words at two. */
-    var half=HR<44,sc=function(t){return (t&&t.length>5)||half?1:2};
+    /* The words start where the side fade (css/16-grid.css, --fade) ends, so
+       the first letter is never half gone. A line that would not fit between
+       the two fades at double size drops to single. */
+    var fade=(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*CH;
+    var x0=Math.ceil(fade/CW)+1;
+    var half=HR<44,sc=function(t){t=t||' ';return t.length>5||half||x0*2+t.length*12-2>HC?1:2};
     var m=[],y,x,l1=bitmap(HP.t1||' ',sc(HP.t1)),l2=bitmap(HP.t2||' ',sc(HP.t2));
     for(y=0;y<HR;y++){m.push([]);for(x=0;x<HC;x++)m[y].push(0)}
-    function put(b,x0,y0){for(var y=0;y<b.length;y++)for(var x=0;x<b[y].length;x++)
-      if(b[y][x]&&m[y0+y]&&x0+x<HC)m[y0+y][x0+x]=1}
-    put(l1,1,Math.round(HR*0.034));
-    put(l2,1,Math.min(HR-l2.length,Math.round(HR*0.724)));
+    wbox=[];
+    function put(b,y0){for(var y=0;y<b.length;y++)for(var x=0;x<b[y].length;x++)
+      if(b[y][x]&&m[y0+y]&&x0+x<HC)m[y0+y][x0+x]=1;
+      /* the box around the word, one cell of air on every side: the torus and
+         the colour bars stay out of it, so the letters read as letters */
+      if(b.length)wbox.push([x0-1,y0-1,x0+b[0].length,y0+b.length])}
+    put(l1,Math.round(HR*0.034));
+    put(l2,Math.min(HR-l2.length,Math.round(HR*0.724)));
     mask=m;
+  }
+  function inWord(x,y){
+    for(var i=0;i<wbox.length;i++){var w=wbox[i];if(x>=w[0]&&x<=w[2]&&y>=w[1]&&y<=w[3])return true}
+    return false;
   }
   function charWidth(fs){
     probe.style.fontSize=fs+'px';probe.style.fontWeight='700';
@@ -426,6 +439,31 @@
         if(sx>=0&&sx<HC)ctx.fillText(s.ch,(sx+shift[s.y])*CW,s.y*LH);
       }
     }
+    /* The torus is sized by both dimensions and centred by fraction, so a
+       shorter hero shows a smaller torus instead of half of one. It is measured
+       here, before the blocks, because the blocks keep out of it. */
+    var ext=(window.AUI&&AUI.src)?AUI.src(HC,HR):null;
+    var rr=Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*0.64);
+    /* A colour bar laid over the ring or through a letter read as a smudge on a
+       phone, where everything is close. Bars now run up to the words and the
+       ring and stop, a row at a time. With a photo there is no ring to avoid. */
+    var rx2=Math.max(1,rad*0.95),ry2=rx2/1.25;
+    function open(x,y){
+      if(inWord(x,y))return false;
+      if(ext)return true;
+      var dx=(x-cx)/rx2,dy=(y-cy)/ry2;return dx*dx+dy*dy>1;
+    }
+    function runs(x0,y0,w,h,x1){
+      for(var yy=y0;yy<y0+h&&yy<HR;yy++){
+        if(yy<0)continue;
+        var s=-1;
+        for(var xx=x0;xx<=x0+w;xx++){
+          var ok=xx<x0+w&&xx>=0&&xx<HC&&open(xx,yy);
+          if(ok&&s<0)s=xx;
+          if(!ok&&s>=0){ctx.fillRect((s+x1)*CW,yy*LH,(xx-s)*CW+0.5,LH);s=-1}
+        }
+      }
+    }
     /* blocks and colour bars */
     ctx.globalAlpha=0.92;
     for(i=0;i<blocks.length;i++){
@@ -435,22 +473,21 @@
       if(b.bars){
         for(k=0;k<b.w/2;k++){
           ctx.fillStyle=PAL[BAR[k%BAR.length]];
-          ctx.fillRect((bx+k*2+shift[b.y])*CW,b.y*LH,2*CW+0.5,b.h*LH);
+          runs(bx+k*2,b.y,2,b.h,shift[b.y]);
         }
       }else{
         ctx.fillStyle=PAL[b.c];
-        ctx.fillRect((bx+shift[b.y])*CW,b.y*LH,b.w*CW,b.h*LH);
+        runs(bx,b.y,b.w,b.h,shift[b.y]);
       }
     }
     ctx.globalAlpha=1;
 
-    var ext=(window.AUI&&AUI.src)?AUI.src(HC,HR):null;
     if(ext){
       var dk=currentTheme()==='dark',TRm=MAPS[HP.map]||(dk?TOR_D:TOR_L);
       for(y=0;y<HR;y++){
         var o2=shift[y]*CW;
         for(x=0;x<HC;x++){
-          if(mask[y][x])continue;
+          if(mask[y][x]||inWord(x,y))continue;
           var q2=Math.round(ext[y*HC+x]*6);if(dk?q2===0:q2===6)continue;
           ctx.fillStyle=PAL.bg;ctx.fillRect(x*CW+o2,y*LH,CW+0.5,LH);
           ctx.fillStyle=PAL[TRm[q2]];ctx.fillText(RAMP.charAt(dk?2+q2:8-q2),x*CW+o2,y*LH);
@@ -460,10 +497,7 @@
     /* torus */
     if(!zb||zb.length!==n){zb=new Float32Array(n);lu=new Float32Array(n)}
     for(i=0;i<n;i++){zb[i]=0;lu[i]=-9}
-    /* the torus is sized by both dimensions and centred by fraction, so a
-       shorter hero shows a smaller torus instead of half of one */
-    var rr=Math.min(HC*0.36,HR*0.47,27);
-    var rad=rr*HP.rad,K2=8,K1=rad*K2/3*0.86,cx=HC-rr-2,cy=Math.round(HR*0.64);
+    var K2=8,K1=rad*K2/3*0.86;
     var cA=Math.cos(A),sA=Math.sin(A),cB=Math.cos(B),sB=Math.sin(B),th,ph;
     for(th=0;th<6.283;th+=0.08){
       var ct=Math.cos(th),st=Math.sin(th);
@@ -483,7 +517,7 @@
       var oxp=shift[y]*CW;
       for(x=0;x<HC;x++){
         var L=lu[y*HC+x];
-        if(L<=-9||mask[y][x])continue;
+        if(L<=-9||mask[y][x]||inWord(x,y))continue;
         var ln=Math.max(0,Math.min(1,(L+0.95)/2.3)),q=Math.round(Math.pow(ln,1.25)*6);
         ctx.fillStyle=PAL.bg;ctx.fillRect(x*CW+oxp,y*LH,CW+0.5,LH);
         ctx.fillStyle=PAL[TOR[q]];
@@ -1022,10 +1056,13 @@
       if(d.open){sfx.on();var a=d.querySelector('p');if(a)decode(a)}else sfx.off();
     });
   });
-  function getKit(){say('Example page. Nothing to download yet.');jolt();sfx.ok()}
+  /* the kit is the page itself: Get the kit lands on the install steps at the
+     end of Components, See components on the first card. AUI.goTo is js/40. */
+  function land(id){var h=$(id);if(h&&window.AUI&&AUI.goTo)AUI.goTo('kit',h.parentNode);else $('v-kit').click()}
+  function getKit(){land('s-install');sfx.ok()}
   $('opGet1').addEventListener('click',getKit);
   $('opGet2').addEventListener('click',getKit);
-  $('opSee').addEventListener('click',function(){$('v-kit').click()});
+  $('opSee').addEventListener('click',function(){land('s-button')});
 
   /* ---- everything arrives broken: glitch-in on enter, text decodes left to right ---- */
   var NOISE='@%#*+=:./\\|-_<>';

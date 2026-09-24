@@ -56,22 +56,16 @@
   <header>
     <h1 class="vh">ascii/ui</h1>
     <canvas id="hero" aria-hidden="true"></canvas>
-    <div class="row demo" id="heroSrc">
-      <button class="btn frame tone-light" id="photoBtn" type="button"><span class="mid"><span class="label">Load photo</span></span></button>
-      <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
-      <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Torus</span></span></button>
-      <input type="file" id="photoFile" accept="image/*" hidden>
-      <p class="muted status" id="heroStatus" role="status"></p>
+    <p class="muted demo" id="heroLine">The ring is the hero. Tap it to tear it, or feed it a photo in Play.</p>
+    <p class="lede demo">shadcn-style components in a brutalist ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
+    <div class="row demo" id="heroGo">
+      <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
+      <button class="btn frame tone-light" id="heroPlay" type="button"><span class="mid"><span class="label">Open in Play</span></span></button>
     </div>
-    <p class="lede demo">shadcn-style components with a brutalist ASCII skin and a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense the character is, and every state change glitches a little. Native HTML underneath.</p>
-    <div class="row demo">
+    <p class="hint demo">Press <kbd>/</kbd> for commands. Long-press anything to break it. Scroll fast and the signal tears. The footer is a game.</p>
+    <div class="row demo" id="heroSw">
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-    </div>
-    <p class="hint demo">Long-press anything to break it. Press <kbd>/</kbd> or click <kbd>&gt;_</kbd> for commands. Scroll fast and the signal tears. The footer is a game.</p>
-    <div class="row demo">
-      <span class="muted" id="sigText">SIG ----</span>
-      <button class="btn frame tone-light" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
     </div>
   </header>
 
@@ -79,6 +73,7 @@
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit">
+  <section aria-label="About components"><p>Thirty components. Weight is character density, frames are strings, color is signal, glitch is feedback. The full rules are at the bottom.</p></section>
 
   <section aria-labelledby="s-button">
     <h2 id="s-button" class="vh">Button</h2>
@@ -421,7 +416,7 @@
 
 
   <div id="view-blocks" role="tabpanel" aria-labelledby="v-blocks" hidden>
-  <section aria-label="About blocks"><p>Components composed into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. The personal ones are about the person who asked for this.</p></section>
+  <section aria-label="About blocks"><p>Components composed into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six of them are about Fede, who made this. Filter by Personal to see only those.</p></section>
   <section aria-label="Filter blocks"><div class="filters" id="blockFilters" role="group" aria-label="Filter by category"><button class="chip" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="personal" aria-pressed="false">Personal</button><button class="chip" type="button" data-f="app" aria-pressed="false">App</button><button class="chip" type="button" data-f="dashboard" aria-pressed="false">Dashboard</button><button class="chip" type="button" data-f="auth" aria-pressed="false">Auth</button><button class="chip" type="button" data-f="marketing" aria-pressed="false">Marketing</button></div></section>
 
 
@@ -695,8 +690,21 @@
   </div>
 
   <div id="view-play" role="tabpanel" aria-labelledby="v-play" hidden>
-  <section aria-label="About play"><p>The hero, with the hood open. Type your own words, turn the knobs, feed it a photo, then take a snapshot.</p></section>
+  <section aria-label="About play"><p>The hero, with the hood open. Feed it a picture, type your own words, turn the knobs, then leave with a poster or a snapshot.</p></section>
   <section aria-label="Stage"><div id="playStage"></div></section>
+
+  <section aria-labelledby="s-source">
+    <h2 id="s-source" class="vh">Source</h2>
+    <pre class="poster ptitle" data-text="SOURCE" aria-hidden="true"></pre>
+    <p class="muted">Feed the hero a picture. A photo, or the camera. Nothing leaves this page. Ring brings it back.</p>
+    <div class="row demo" id="heroSrc">
+      <button class="btn frame tone-light" id="photoBtn" type="button"><span class="mid"><span class="label">Load photo</span></span></button>
+      <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
+      <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Ring</span></span></button>
+      <input type="file" id="photoFile" accept="image/*" hidden>
+      <p class="muted status" id="heroStatus" role="status"></p>
+    </div>
+  </section>
 
   <section aria-labelledby="s-words">
     <h2 id="s-words" class="vh">Words</h2>
@@ -715,7 +723,19 @@
     <p class="muted">Everything the glitch engine exposes.</p>
     <div class="demo knobs"><div class="slider"><label for="kSpeed">Spin speed</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSpeed" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kSpeed">100</output></div><div class="slider"><label for="kSize">Torus size</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSize" type="range" inputmode="none" min="40" max="140" step="5" value="100"></span><output for="kSize">100</output></div><div class="slider"><label for="kSplit">RGB split</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSplit" type="range" inputmode="none" min="0" max="400" step="10" value="100"></span><output for="kSplit">100</output></div><div class="slider"><label for="kTear">Tearing</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kTear" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kTear">100</output></div><div class="slider"><label for="kStreaks">Streaks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kStreaks" type="range" inputmode="none" min="0" max="120" step="2" value="38"></span><output for="kStreaks">38</output></div><div class="slider"><label for="kBlocks">Blocks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kBlocks" type="range" inputmode="none" min="0" max="40" step="1" value="9"></span><output for="kBlocks">9</output></div></div>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Color map"><label><input type="radio" name="kMap" value="0" checked><span>Signal</span></label><label><input type="radio" name="kMap" value="1"><span>Aqua</span></label><label><input type="radio" name="kMap" value="2"><span>Fire</span></label><label><input type="radio" name="kMap" value="3"><span>Mono</span></label></div></div>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst</span></span></button><button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button><button class="btn frame tone-light" id="kPhoto" type="button"><span class="mid"><span class="label">Load photo</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
+  </section>
+
+
+  <section aria-labelledby="s-poster">
+    <h2 id="s-poster" class="vh">Poster</h2>
+    <pre class="poster ptitle" data-text="POSTER" aria-hidden="true"></pre>
+    <p class="muted">A random poster from your code. Reroll until you like one, then save it.</p>
+    <div class="row demo">
+      <span class="muted" id="sigText">CODE ----</span>
+      <button class="btn btn-primary frame tone-heavy" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
+      <button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button>
+    </div>
   </section>
 
   </div>
@@ -867,13 +887,13 @@
   </div>
 
   <footer id="foot">
-    <section aria-labelledby="s-inv">
+    <section aria-labelledby="s-inv" id="footGame">
       <h2 id="s-inv" class="vh">Invaders</h2>
       <pre class="poster ptitle" data-text="INVADERS" aria-hidden="true"></pre>
       <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
       <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
     </section>
-    
+    <p class="foot" id="footLine" hidden>ascii/ui. One HTML file. The footer on Components is a game.</p>
   </footer>
 </main>
 
@@ -945,7 +965,7 @@
     <h2 id="posterTitle" class="bar-title">Your signal</h2>
     <div class="body">
       <img id="posterImg" alt="Generated glitch poster with your signal code">
-      <p class="muted" style="margin-top:var(--r)">Generated from your signal code. Long-press or right-click the image to save it.</p>
+      <p class="muted" id="posterCap" style="margin-top:var(--r)">Generated from your signal code. Long-press or right-click the image to save it.</p>
       <div class="row"><button class="btn frame tone-light" id="posterClose" type="button"><span class="mid"><span class="label">Close</span></span></button><button class="btn btn-primary frame tone-heavy" id="posterReroll" type="button"><span class="mid"><span class="label">Reroll</span></span></button></div>
     </div>
   </div></div>

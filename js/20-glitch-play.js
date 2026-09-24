@@ -337,7 +337,7 @@ const hex=n=>('00000000'+n.toString(16).toUpperCase()).slice(-8);
 const sig=()=>hex(SEED).slice(0,4)+'-'+hex(SEED).slice(4);
 function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function fnv(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
-function showSig(){$('sigText').textContent='SIG '+sig()}
+function showSig(){$('sigText').textContent='CODE '+sig()}
 function makePoster(){
   const pal=A.pal(),W=1080,H=1350,c=document.createElement('canvas'),x=c.getContext('2d'),r=mulberry(SEED);
   c.width=W;c.height=H;x.fillStyle=pal.bg;x.fillRect(0,0,W,H);
@@ -363,7 +363,18 @@ function makePoster(){
   x.fillStyle='rgba(0,0,0,.22)';for(let y=0;y<H;y+=4)x.fillRect(0,y+3,W,1);
   return c.toDataURL('image/png');
 }
-function openPoster(){$('posterImg').src=makePoster();const d=$('posterDlg');if(!d.open)d.showModal()}
+/* One dialog, two pictures. A poster can be rerolled, a snapshot is what the
+   stage showed, so it says so and has nothing to reroll. */
+const PIC={
+  poster:['Your signal','Generated from your signal code. Long-press or right-click the image to save it.','Generated glitch poster with your signal code'],
+  snap:['Snapshot','Your stage, as a PNG. Long-press or right-click to save it.','Snapshot of the Play stage']};
+function picDialog(src,kind){
+  const k=PIC[kind]||PIC.poster,d=$('posterDlg');
+  $('posterTitle').textContent=k[0];$('posterCap').textContent=k[1];$('posterImg').alt=k[2];
+  $('posterReroll').hidden=kind==='snap';$('posterImg').src=src;if(!d.open)d.showModal();
+}
+A.picDialog=picDialog;
+function openPoster(){picDialog(makePoster(),'poster')}
 $('posterBtn').addEventListener('click',openPoster);
 $('posterClose').addEventListener('click',()=>$('posterDlg').close());
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
@@ -377,7 +388,7 @@ const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badg
 async function run(line){
   line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto kit|blocks|charts|themes|play|apps|page\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · torus · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto kit|blocks|charts|themes|play|apps|page\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
@@ -402,9 +413,10 @@ async function run(line){
   else if(c==='boot'){cmdDlg.close();B.boot(true)}
   else if(c==='poster'){cmdDlg.close();openPoster()}
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('signal for '+esc(n)+': '+sig())}}
-  else if(c==='invaders'){cmdDlg.close();$('inv').scrollIntoView({block:'center'});setTimeout(()=>INV.start(),400)}
-  else if(c==='photo'){cmdDlg.close();window.scrollTo(0,0);$('photoFile').click()}
-  else if(c==='torus'){toTorus();out('torus restored')}
+  else if(c==='invaders'){cmdDlg.close();A.goTo('kit',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
+  /* the photo lands on Play, where the Source buttons and the stage are */
+  else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('play',$('s-source').parentNode)}
+  else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());
   else if(c==='clear')cmdLog.innerHTML='type <b>help</b>';
   else if(c==='sudo')out('nice try.');
