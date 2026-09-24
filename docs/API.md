@@ -22,7 +22,8 @@ All scripts are IIFEs. The public surface is three objects on `window`, plus two
 | `develop(pre)`, `titleFrame(pre, f)` | animate / draw a bitmap title (f=99 is final) |
 | `titles` | array of every `.ptitle` |
 | `fitTitles()` | re-measure titles, drop bars or halve scale to fit |
-| `say(msg)` | toast (overridden in 30 to also clear the error variant) |
+| `say(msg, err)` | toast; lime, or yellow with `!!` when `err` is true |
+| `flash(el)` | success: the nearest card or frame goes lime for 120ms, plus a hero burst |
 | `wipe(cb)` | theme curtain, calls `cb` under it |
 | `currentTheme()` | `'dark'|'light'` |
 | `layout()` | remeasure everything, resize hero, then `onLayout(W)` |

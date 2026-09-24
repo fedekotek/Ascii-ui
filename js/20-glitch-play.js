@@ -125,19 +125,20 @@ window.addEventListener('scroll',()=>{
   const n=performance.now(),dy=Math.abs(window.scrollY-ly),dt=Math.max(16,n-lt);ly=window.scrollY;lt=n;
   const v=dy/dt*1000;G.scroll=Math.min(1,Math.max(G.scroll,v/2600));
   if(v>1300&&n-lastTear>90){lastTear=n;tear(1+rnd(2))}
-  touch();
+  touch(true);
 },{passive:true});
 every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0});
-function touch(){
+/* the repair only sounds when you touched something; a scroll repairs quietly */
+function touch(quiet){
   idleAt=Date.now();
   if(rotten.length){
     rotten.forEach(f=>{f.style.removeProperty('--h');f.style.removeProperty('--hb');f._rot=0});
     const r=rotten;rotten=[];r.slice(0,8).forEach(f=>frameDraw(f));
-    A.titles.forEach(p=>{if(p._rot){p._rot=0;A.develop(p)}});
-    arp([220,440,880],40);
+    A.titles.forEach(p=>{if(p._rot){p._rot=0;A.develop(p,quiet===true)}});
+    if(quiet!==true)arp([220,440,880],40);
   }
 }
-['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,touch,{passive:true}));
+['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>touch(),{passive:true}));
 function inView(el){const r=el.getBoundingClientRect();return r.bottom>0&&r.top<window.innerHeight&&r.width>0}
 if(!reduce)every(1100,()=>{
   if(A.glitch()<=0||Date.now()-idleAt<14000)return;
@@ -146,7 +147,8 @@ if(!reduce)every(1100,()=>{
     const f=fr[rnd(fr.length)];
     let H=(f.style.getPropertyValue('--h')||getComputedStyle(f).getPropertyValue('--h')).trim().replace(/^"|"$/g,'').slice(0,90);
     if(!H)continue;
-    H=H.replace(/[^ ]/g,c=>{if(Math.random()>0.22)return c;const i=RAMP.indexOf(c);return i>1?RAMP[i-1-rnd(Math.min(2,i-1))]:'.'});
+    /* two ramp steps at a time: one step read as nothing happening */
+    H=H.replace(/[^ ]/g,c=>{if(Math.random()>0.22)return c;const i=RAMP.indexOf(c);return i>2?RAMP[i-2]:'.'});
     f.style.setProperty('--h','"'+H+'"');f.style.setProperty('--hb','"'+H.split('').reverse().join('')+'"');
     if(!f._rot){f._rot=1;rotten.push(f)}
   }
@@ -180,6 +182,9 @@ function drawSand(){
   for(const s of pile){sx.fillStyle=s.col||pal[s.k];sx.fillText(s.c,s.col2*CW,sh-(s.row+1)*CHh)}
   for(const p of P){sx.fillStyle=p.col||pal[p.k];sx.fillText(p.c,p.x,p.y)}
 }
+/* the fall runs on the page clock like every other animation, a frame at a
+   time, and stops itself when the last piece lands */
+let simTask=null;
 function sim(){
   const cap=Math.floor(sh*0.34/CHh);
   for(let i=P.length-1;i>=0;i--){
@@ -196,7 +201,7 @@ function sim(){
     }
   }
   drawSand();
-  if(P.length)requestAnimationFrame(sim);else simOn=false;
+  if(!P.length){simOn=false;if(simTask){simTask.stop();simTask=null}}
 }
 const KEYS=['ink','ink','hot','pink','cy','warn','violet','ok'];
 /* the pieces are the component's own characters: its text, its frames, its glyphs, its pixels */
@@ -262,7 +267,7 @@ function harvest(el,cw){
   return out;
 }
 function shatter(el){
-  if(!el||el._dead)return;
+  if(reduce||!el||el._dead)return;
   const r=el.getBoundingClientRect();if(!r.width)return;
   el._dead=1;dead.push(el);
   let bits=harvest(el,CW);
@@ -273,7 +278,7 @@ function shatter(el){
   el.style.visibility='hidden';
   A.jolt();noise(0.35,0.22);B.tear(3);
   $('rebuild').hidden=false;
-  if(!simOn){simOn=true;requestAnimationFrame(sim)}
+  if(!simOn){simOn=true;simTask=every(16,sim)}
 }
 function rebuild(){
   dead.forEach(el=>{el.style.visibility='';el._dead=0;B.rearm(el)});
@@ -285,6 +290,7 @@ window.addEventListener('resize',sandSize);sandSize();
 const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker';
 let lp=null,swallow=false;
 document.addEventListener('pointerdown',e=>{
+  if(reduce)return;
   const t=e.target.closest&&e.target.closest(DEST);
   if(!t||t.closest('dialog,#rebuild')||e.target.closest('input,select,textarea'))return;
   const x=e.clientX,y=e.clientY;
@@ -318,14 +324,14 @@ function toTorus(){stopCam();srcImg=null;srcLum=null;$('torusBtn').hidden=true;h
 $('photoBtn').addEventListener('click',()=>$('photoFile').click());
 $('photoFile').addEventListener('change',e=>{
   const f=e.target.files&&e.target.files[0];if(!f)return;
-  const img=new Image();img.onload=()=>{stopCam();srcImg=img;srcKey='';$('torusBtn').hidden=false;heroMsg('You are now the hero. Tap it.');A.jolt();A.drawHero()};
+  const img=new Image();img.onload=()=>{stopCam();srcImg=img;srcKey='';$('torusBtn').hidden=false;heroMsg('You are now the hero. Tap it.');A.flash($('photoBtn'));A.drawHero()};
   img.onerror=()=>heroMsg('That file did not decode as an image.');img.src=URL.createObjectURL(f);
 });
 $('camBtn').addEventListener('click',async()=>{
   try{
     const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:400}});
     const v=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=st;await v.play();
-    srcImg=null;srcVid=v;$('torusBtn').hidden=false;heroMsg('Live. Nothing leaves this page.');A.jolt();
+    srcImg=null;srcVid=v;$('torusBtn').hidden=false;heroMsg('Live. Nothing leaves this page.');A.flash($('camBtn'));
   }catch(err){heroMsg('The camera is blocked here. Load a photo instead.')}
 });
 $('torusBtn').addEventListener('click',toTorus);
@@ -405,6 +411,7 @@ async function run(line){
   else if(c==='rm'){
     const what=a[a.length-1].toLowerCase();
     if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
+    else if(reduce)out('reduced motion is on. nothing shatters.');
     else{
       const sel=what==='all'?Object.values(RM).join(','):RM[what];
       if(!sel)out('rm: cannot remove '+esc(what));
@@ -562,6 +569,10 @@ Grid.prototype.html=function(){
 };
 function grow(draw){return function(){if(reduce){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
 function cellAt(el,e){const r=el.getBoundingClientRect();return {x:Math.floor((e.clientX-r.left)/CCW),y:Math.floor((e.clientY-r.top)/14)}}
+/* every chart you can tap you can also drive: it takes a Tab stop, the arrows
+   move the pick and Enter or Space does what a tap does. fn(key) returns true
+   when it used the key */
+function keys(el,fn){el.tabIndex=0;el.addEventListener('keydown',e=>{if(fn(e.key))e.preventDefault()})}
 
 /* bars */
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],REQ=[1204,1482,1390,1710,1655,820,640];let selBar=3,barP=1;
@@ -577,9 +588,13 @@ function drawBars(p){
   el.innerHTML=g.html();
   $('st-bars').textContent=DAYS[selBar]+'  '+REQ[selBar].toLocaleString('en-US')+' requests';
 }
+function pickBar(i){selBar=clamp(i,0,6);drawBars();blip(300+REQ[selBar]/3,0.06,'square',0.09)}
 $('ch-bars').addEventListener('pointerdown',e=>{
-  const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((CC-5)/7)-1),i=clamp(Math.floor((c.x-5)/(bw+1)),0,6);
-  selBar=i;drawBars();blip(300+REQ[i]/3,0.06,'square',0.09);
+  const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((CC-5)/7)-1);pickBar(Math.floor((c.x-5)/(bw+1)));
+});
+keys($('ch-bars'),k=>{
+  const n={ArrowLeft:selBar-1,ArrowRight:selBar+1,Home:0,End:6,Enter:selBar,' ':selBar}[k];
+  if(n===undefined)return false;pickBar(n);return true;
 });
 $('ch-bars')._anim=grow(drawBars);
 
@@ -600,7 +615,9 @@ function Line(id){
     el.innerHTML=g.html();const last=s[s.length-1];
     st.textContent='p95 '+last+' ms'+(last>380?'   SPIKE':'');
   }
-  el.addEventListener('pointerdown',()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5)});
+  const hit=()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5)};
+  el.addEventListener('pointerdown',hit);
+  keys(el,k=>{if(k!=='Enter'&&k!==' ')return false;hit();return true});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(el);
   every(700,()=>{if(reduce)return;d.push(next());if(d.length>300)d.shift();const last=d[d.length-1];if(last>380)blip(1200,0.03,'square',0.05);draw()},{gate:()=>vis});
   el._anim=grow(draw);this.draw=draw;
@@ -632,12 +649,18 @@ function drawHeat(p){
   }
   $('ch-heat').innerHTML=g.html();
 }
-$('ch-heat').addEventListener('pointerdown',e=>{
-  const c=cellAt($('ch-heat'),e),weeks=Math.min(26,Math.floor((CC-5)/2)),w=Math.floor((c.x-5)/2);
-  if(w<0||w>=weeks||c.y<0||c.y>6)return;selH={y:c.y,w};drawHeat();
-  const v=heat[c.y*26+w],names=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  $('st-heat').textContent=names[c.y]+', '+(weeks-w)+' weeks ago: '+(v*100).toFixed(2)+'%'+(v<0.78?'  outage':(v<0.93?'  degraded':''));
+const heatWeeks=()=>Math.min(26,Math.floor((CC-5)/2));
+function pickHeat(y,w){
+  const weeks=heatWeeks();if(w<0||w>=weeks||y<0||y>6)return;selH={y,w};drawHeat();
+  const v=heat[y*26+w],names=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  $('st-heat').textContent=names[y]+', '+(weeks-w)+' weeks ago: '+(v*100).toFixed(2)+'%'+(v<0.78?'  outage':(v<0.93?'  degraded':''));
   blip(v>0.93?880:(v>0.78?440:160),0.06,'square',0.09);if(v<0.78)A.kick();
+}
+$('ch-heat').addEventListener('pointerdown',e=>{const c=cellAt($('ch-heat'),e);pickHeat(c.y,Math.floor((c.x-5)/2))});
+keys($('ch-heat'),k=>{
+  const d={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0],Enter:[0,0],' ':[0,0]}[k];if(!d)return false;
+  /* the first key lands on the newest week, where the eye starts */
+  const s=selH||{y:0,w:heatWeeks()-1};pickHeat(clamp(s.y+(selH?d[0]:0),0,6),clamp(s.w+(selH?d[1]:0),0,heatWeeks()-1));return true;
 });
 $('ch-heat')._anim=grow(drawHeat);
 
@@ -659,9 +682,20 @@ $('ch-donut').addEventListener('pointerdown',e=>{
   const c=cellAt($('ch-donut'),e);let i=-1;
   if(c.x>=29){i=Math.floor((c.y-3)/2);if(i<0||i>=SEG.length||(c.y-3)%2)i=-1}
   else{const dx=c.x-13,dy=(c.y-6)*(14/CCW),r=Math.hypot(dx,dy);if(r>=5&&r<=13.2){let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;i=segAt(a)}}
-  selD=(i===selD)?-1:i;drawDonut();
+  pickDonut(i===selD?-1:i);
+});
+function pickDonut(i){
+  selD=i;drawDonut();
   $('st-donut').textContent=selD<0?'Tap a slice.':SEG[selD][0]+': '+Math.round(SEG[selD][1]*100)+'% of traffic';
   blip(400+i*120,0.06,'square',0.09);
+}
+keys($('ch-donut'),k=>{
+  const n=SEG.length;
+  if(k==='ArrowRight'||k==='ArrowDown')pickDonut((selD+1)%n);
+  else if(k==='ArrowLeft'||k==='ArrowUp')pickDonut(selD<0?n-1:(selD-1+n)%n);
+  else if(k==='Enter'||k===' ')pickDonut(selD<0?0:-1);
+  else return false;
+  return true;
 });
 $('ch-donut')._anim=grow(drawDonut);
 function drawCharts(){drawBars();line1.draw();drawRegions();drawHeat();drawDonut()}
@@ -688,19 +722,21 @@ function setErr(id,msg){
   const inp=$(id),f=inp.closest('.field');$(id+'Err').textContent=msg;
   f.classList.toggle('invalid',!!msg);inp.setAttribute('aria-invalid',msg?'true':'false');
 }
-$('lgBtn').addEventListener('click',()=>{
+/* the fields sit in a form, so Enter in either one submits like the button */
+$('lgForm').addEventListener('submit',e=>{
+  e.preventDefault();
   const em=$('lgEmail').value.trim(),pw=$('lgPass').value;let bad=false;
   if(!em){setErr('lgEmail','Enter your email.');bad=true}else if(!/^\S+@\S+\.\S+$/.test(em)){setErr('lgEmail','That does not look like an email.');bad=true}else setErr('lgEmail','');
   if(pw.length<8){setErr('lgPass',pw?'Use 8 characters or more.':'Enter your password.');bad=true}else setErr('lgPass','');
   if(bad){A.jolt();blip(120,0.25,'sawtooth',0.14,0.6);(($('lgEmail').getAttribute('aria-invalid')==='true')?$('lgEmail'):$('lgPass')).focus()}
-  else{A.say('Signed in as '+em+'.');arp([523,659,784],60)}
+  else{A.say('Signed in as '+em+'.');A.flash($('lgBtn'));arp([523,659,784],60)}
 });
 ['lgEmail','lgPass'].forEach(id=>$(id).addEventListener('input',()=>{if($(id).getAttribute('aria-invalid')==='true')setErr(id,'')}));
 $('ssoBtn').addEventListener('click',()=>A.say('SSO is not wired in this prototype.'));
 const rows=[...document.querySelectorAll('#incTable tbody tr')];
 function pickRow(tr){
   rows.forEach(r=>r.setAttribute('aria-selected',r===tr?'true':'false'));
-  const c=tr.children;$('incStatus').textContent=c[0].textContent+': '+c[1].textContent+', '+c[2].textContent.toLowerCase()+' for '+c[3].textContent+'.';
+  const c=tr.children;$('incStatus').textContent=c[0].textContent+': '+c[1].textContent+', '+c[2].querySelector('.badge').textContent.toLowerCase()+' for '+c[3].textContent+'.';
   if(/down/i.test(c[2].textContent))A.kick();
 }
 rows.forEach(tr=>{tr.addEventListener('click',()=>pickRow(tr));tr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pickRow(tr)}})});

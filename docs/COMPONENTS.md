@@ -30,7 +30,7 @@
 | Tabs | `s-tabs` | Active tab is a slab. | engine | css/09, js/10 "tabs" |
 | Textarea | `s-textarea` | Four-row frame with a counter. | counter | css/14 `.field.area`, js/30 |
 | Timeline | `s-timeline` | Nodes are @, wire is colons. | none | css/14 `.timeline` |
-| Toast | `s-toast` | One line typed in, lime or magenta. | engine `say` | css/12, js/10 "toast", js/30 error variant |
+| Toast | `s-toast` | One line typed in, lime or yellow. | engine `say(msg, err)` | css/12, js/10 "toast" |
 | Segment (toggle group) | `s-togglegroup` | Radios dressed as slabs. | status only | css/14 `.tgroup` |
 | Toggles | `s-toggles` | Checkbox, radio, switch; glyph is only paint. | engine (develop through ramp) | css/07, js/10 "checkbox and radio" |
 | Tooltip | `s-tooltip` | Hover, focus or tap; types itself in. | tap fallback | css/14 `.tip` |
