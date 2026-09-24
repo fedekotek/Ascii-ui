@@ -9,9 +9,10 @@ body{
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }
 ::selection{background:var(--hot);color:var(--bg)}
+/* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
 body::before{
-  content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
-  background:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:250;
+  background:var(--scanlines);
 }
 #fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
 #fx div{position:absolute}

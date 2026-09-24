@@ -1081,6 +1081,8 @@
     });
     var rio=new IntersectionObserver(function(entries){
       var k=0;
+      /* the loader covers the page: boot()'s exit reveals what is on screen, once */
+      if(root.classList.contains('aui-booting'))return;
       entries.forEach(function(en){
         var el=en.target;
         if(en.isIntersecting&&en.intersectionRatio>=0.12){if(!el.classList.contains('in'))reveal(el,k++)}

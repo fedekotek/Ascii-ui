@@ -60,7 +60,7 @@ See CHARTS.md.
 `deviceorientation` feeds `A.spin()`. iOS needs `DeviceOrientationEvent.requestPermission()`, exposed as the `tilt` palette command.
 
 ## Boot (`js/20` "boot")
-Once per session. A full-screen `<pre>` with the split bitmap title developing, the color-bar strip, a BIOS log typed line by line with sounds, a halftone progress bar, magenta streaks, then a clip-path exit and a hero kick. Tap skips. `boot` command replays.
+Once per session. `#boot` is static markup at the top of `index.html`, so it is the first paint; an inline script under it removes it at once on a return visit or with reduced motion. `boot()` fills it: the section-poster bitmap title developing (fitted to an 80ch column), a colour strip one row tall, five log lines at 60ms with sounds, a halftone progress bar, magenta streaks, then a 150ms clip-path exit as soon as the bar hits 100% (about 1.3s from navigation). A tap or any key skips. While it is up, `aui-booting` on `:root` holds the page's entrances, so the header decodes once, after it leaves. `boot` command replays. `body::before` (the scanlines) sits above it at z-index 250, and every `dialog` carries its own scanlines in `::after` and `::backdrop`, since the top layer is out of any z-index's reach.
 
 ## Ramp editor (`js/40` "the ramp editor")
 Presets and eight single-character inputs. `setRamp` validates (8 distinct, no space/quote/backslash/angle bracket), then `A.setRamp()` sets `AUI_MAP`, rebuilds tones, re-renders titles, sliders, charts, invaders (via `layout()`), and everything that goes through `A.TR()` or the patched `fillText`. Known gap: the progress bar and the ramp lab in One pager keep old characters until they next redraw.

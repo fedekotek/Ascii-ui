@@ -36,8 +36,16 @@ dialog .lift{max-width:none}
 dialog::backdrop{
   background-color:rgba(236,235,228,.86);
   background-color:color-mix(in srgb,var(--bg) 86%,transparent);
-  background-image:radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
-  background-size:9.6px 12px;
+  /* scanlines over the dots. The fallback is for browsers where ::backdrop does not inherit tokens */
+  background-image:var(--scanlines,repeating-linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)),
+    radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
+  background-size:auto,9.6px 12px;
+}
+/* a modal dialog lives in the top layer, above body::before, so it brings its own scanlines.
+   Fixed attachment keeps them in step with the backdrop's; z-index 5 clears .bar-title and .sheet-x */
+dialog::after{
+  content:"";position:absolute;inset:0;z-index:5;pointer-events:none;
+  background:var(--scanlines);background-attachment:fixed;
 }
 dialog[open] .lift{animation:glitchin .34s steps(1) both}
 @keyframes glitchin{

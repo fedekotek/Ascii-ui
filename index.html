@@ -27,6 +27,12 @@
 <script src="js/00-tones.js"></script>
 </head>
 <body>
+<!-- the loader, painted first. boot() in js/20 fills it (keep in step with BOOTSKEL there);
+     the script under it drops it at once for a return visit or reduced motion -->
+<div id="boot" aria-hidden="true"><div class="bin"><div class="bt"></div><div class="bs"><b style="background:var(--pink);color:var(--pink)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--warn);color:var(--warn)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--cy);color:var(--cy)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--deep);color:var(--deep)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--ink);color:var(--ink)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--hot);color:var(--hot)">@@@@@@@@@@@@@@@@@@@@@@@@</b><b style="background:var(--violet);color:var(--violet)">@@@@@@@@@@@@@@@@@@@@@@@@</b></div><div class="log">ASCII/UI BIOS v0.9  (c) nobody
+</div><div class="pb"><span style="color:var(--muted)">........................</span>   0%</div><div class="skip">Tap or press any key to skip.</div></div></div>
+<script>(function(){var s;try{s=sessionStorage.getItem('aui-boot')}catch(e){}
+if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElementById('boot').remove();else document.documentElement.classList.add('aui-booting')})()</script>
 <span id="probe" aria-hidden="true">MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
 <div class="topbar">
   <div class="topbar-in">

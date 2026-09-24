@@ -69,33 +69,50 @@ A.mosh=mosh;
 function show(name){const t=$('v-'+name);if(t){t.click();return true}return false}
 
 /* ================= boot ================= */
+/* index.html paints #boot before anything else and drops it for a return visit or
+   reduced motion; this fills it, or builds it again for the palette's `boot`.
+   Keep BOOTSKEL in step with the markup in index.html. About 0.6s, then out. */
+const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
+  ['pink','warn','cy','deep','ink','hot','violet'].map(k=>'<b style="background:var(--'+k+');color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
+  '</div><div class="log">ASCII/UI BIOS v0.9  (c) nobody\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
+let booting=false;
 function boot(force,done){
-  done=done||function(){};
-  if(reduce){done();return}
-  try{if(!force&&sessionStorage.getItem('aui-boot')){done();return}sessionStorage.setItem('aui-boot','1')}catch(e){}
-  const pre=document.createElement('pre');pre.id='boot';pre.setAttribute('aria-hidden','true');
-  const L=[['ASCII/UI BIOS v0.9  (c) nobody',''],['',''],['cpu ......... 1 x very tired','ok'],['mem ......... 640K','ok'],
-    ['ramp ........ @%#*+=:.','ok'],['button ......','ok'],['charts ......','ok'],['invaders ....','armed'],
-    ['signal ......','BAD'],['',''],['bad signal is intended. booting_','']];
-  const bm=A.bitmap('ASCII/UI',2),RC=['@','@','%','%','#','#','*'],rows=bm.map((r,y)=>r.map(v=>v?RC[y>>1]:' ').join(''));
-  const tx=rows.join('\n'),bars=['pink','warn','cy','deep','ink','hot','violet'].map(k=>'<span style="background:var(--'+k+')"></span>').join('');
-  pre.innerHTML='<div class="bt"><i class="c">'+tx+'</i><i class="h">'+tx+'</i>'+tx+'</div><div class="bars">'+bars+'</div><div class="log"></div><div class="pb"></div>';
-  const title=pre.querySelector('.bt'),log=pre.querySelector('.log'),pb=pre.querySelector('.pb');
-  const dev=[];bm.forEach(r=>dev.push(r.map(()=>Math.floor(Math.random()*6))));
-  document.body.appendChild(pre);let i=0,over=false,f=0;
-  const paint=()=>{f++;let o='';for(let y=0;y<bm.length;y++){for(let x=0;x<bm[y].length;x++){if(!bm[y][x]){o+=' ';continue}const lv=f-dev[y][x];o+=lv<=0?'.':RAMP[Math.min(1+lv,'.:=+*#%@'.indexOf(RC[y>>1]))]}o+='\n'}
-    [...title.children].forEach(c=>c.textContent=A.TR(o));title.lastChild.textContent=A.TR(o);
-    if(!reduce&&Math.random()<0.35){const st=document.createElement('div');st.className='strk';st.style.top=(Math.random()*100)+'%';st.style.width=(20+Math.random()*60)+'%';st.style.left=(Math.random()*40)+'%';pre.appendChild(st);setTimeout(()=>st.remove(),90+Math.random()*160)}};
-  const tiv=every(45,()=>{paint();if(f>14)tiv.stop()});
-  const end=()=>{if(over)return;over=true;iv.stop();tiv.stop();pre.classList.add('out');noise(0.2,0.1);A.kick();setTimeout(()=>{pre.remove();done()},300)};
-  pre.addEventListener('pointerdown',end);
-  const iv=every(95,()=>{
-    if(i>=L.length){iv.stop();setTimeout(end,420);return}
+  if(booting)return;
+  const fin=()=>{root.classList.remove('aui-booting');if(done)done()};
+  let el=$('boot'),seen=false;
+  try{seen=!!sessionStorage.getItem('aui-boot')}catch(e){}
+  if(reduce||(!force&&seen)){if(el)el.remove();fin();return}
+  try{sessionStorage.setItem('aui-boot','1')}catch(e){}
+  booting=true;
+  if(!el){el=document.createElement('div');el.id='boot';el.setAttribute('aria-hidden','true');document.body.appendChild(el)}
+  el.innerHTML=BOOTSKEL;
+  const bin=el.querySelector('.bin'),title=el.querySelector('.bt'),log=el.querySelector('.log'),pb=el.querySelector('.pb');
+  const L=[['ramp ........ '+A.TR('@%#*+=:.'),'ok'],['charts ......','ok'],['invaders ....','armed'],['signal ......','BAD'],['booting .....','ok']];
+  const bar=k=>{pb.innerHTML=A.colorize(A.barRow(Math.round(k/L.length*24),true,24))+' '+String(Math.round(k/L.length*100)).padStart(3)+'%'};
+  bar(0);
+  /* the section posters' title, fitted to the column like fitTitles(): two characters
+     a pixel, one if even the smallest font will not fit. Twice the poster cap, it is the only thing on screen */
+  const W=bin.clientWidth,cap=2*(parseFloat(getComputedStyle(root).getPropertyValue('--ptitle'))||6);
+  const tt=A.fit(96,W,cap),scale=tt.cw*94>W?1:2,lh=Math.max(4,Math.round(tt.cw*1.3)),bm=A.bitmap('ASCII/UI',scale);
+  title.style.fontSize=tt.fs+'px';title.style.lineHeight=lh+'px';title.style.height=(Math.ceil(bm.length*lh/24)*24)+'px';
+  title._b=bm;title._n=bm.map(r=>r.map(()=>rnd(6)));title._scale=scale;title._bars=[];
+  A.titleFrame(title,0);
+  let i=0,over=false,titled=false,logged=false;
+  const streak=()=>{if(Math.random()>=0.35)return;const st=document.createElement('div');st.className='strk';st.style.top=(Math.random()*100)+'%';st.style.width=(20+Math.random()*60)+'%';st.style.left=(Math.random()*40)+'%';el.appendChild(st);setTimeout(()=>st.remove(),90+rnd(160))};
+  /* the title develops (14 frames) while the log types (5 lines); the bar hits 100% and it leaves */
+  const tiv=times(30,14,f=>{A.titleFrame(title,f);streak()},()=>{A.titleFrame(title,99);titled=true;if(logged)end()});
+  const iv=times(60,L.length,()=>{
     const l=L[i++],c=l[1]==='BAD'?'hot':(l[1]==='armed'?'warn':'ok');
-    log.insertAdjacentHTML('beforeend',esc(l[0])+(l[1]?' <span style="color:var(--'+c+')">'+l[1]+'</span>':'')+'\n');
-    pb.innerHTML=A.colorize(A.barRow(Math.round(i/L.length*24),true,24))+' '+Math.round(i/L.length*100)+'%';
-    blip(l[1]==='BAD'?120:700+i*40,0.04,'square',0.06);
-  });
+    log.insertAdjacentHTML('beforeend',esc(l[0])+'  <span class="'+c+'">'+l[1]+'</span>\n');
+    bar(i);blip(l[1]==='BAD'?120:700+i*40,0.04,'square',0.06);
+  },()=>{logged=true;if(titled)end()});
+  function end(){
+    if(over)return;over=true;tiv.stop();iv.stop();document.removeEventListener('keydown',end,true);
+    bar(L.length);el.classList.add('out');noise(0.2,0.1);A.kick();
+    /* js/10 holds the page's entrances while aui-booting is set, so the header decodes once, now */
+    setTimeout(()=>{el.remove();booting=false;fin()},150);
+  }
+  el.addEventListener('pointerdown',end);document.addEventListener('keydown',end,true);
 }
 A.boot=boot;
 
