@@ -92,11 +92,32 @@ function LCD(cv){
   if(this.cols>=60){this.sect[rnd(this.sect.length)].mode='ascii';this.sect[rnd(this.sect.length)].mode='mono'}
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{this.vis=en[0].isIntersecting}).observe(cv);else this.vis=true;
   cv.addEventListener('pointerdown',e=>{
-    const r=cv.getBoundingClientRect(),i=Math.floor((e.clientX-r.left)/r.width*this.sx)+Math.floor((e.clientY-r.top)/r.height*this.sy)*this.sx,s=this.sect[i];if(!s)return;
-    const order=['rgb','mono','ascii'],cur=s.mode||this.mode;s.mode=order[(order.indexOf(cur)+1)%3];s.shift=rnd(7)-3;s.swap=4;ping(300+i*60,0.06);this.draw();
+    const r=cv.getBoundingClientRect();this.tap(Math.floor((e.clientX-r.left)/r.width*this.sx)+Math.floor((e.clientY-r.top)/r.height*this.sy)*this.sx);
   });
+  /* a picture on its own is a control too: arrows walk the sectors, Enter or
+     Space does what a tap does. Thumbnails inside a card leave it to the card */
+  this.key=-1;
+  if(cv.closest('figure.pic')&&!cv.closest('[role="button"]')){
+    cv.tabIndex=0;
+    cv.addEventListener('focus',()=>{if(this.key<0)this.key=0;this.draw()});
+    cv.addEventListener('blur',()=>this.draw());
+    cv.addEventListener('keydown',e=>{
+      const k=this.key,x=k%this.sx,y=Math.floor(k/this.sx);let n=k;
+      if(e.key==='ArrowRight')n=y*this.sx+Math.min(this.sx-1,x+1);
+      else if(e.key==='ArrowLeft')n=y*this.sx+Math.max(0,x-1);
+      else if(e.key==='ArrowDown')n=Math.min(this.sy-1,y+1)*this.sx+x;
+      else if(e.key==='ArrowUp')n=Math.max(0,y-1)*this.sx+x;
+      else if(e.key==='Enter'||e.key===' '){e.preventDefault();this.tap(k);return}
+      else return;
+      e.preventDefault();this.key=n;this.draw();
+    });
+  }
   LCDS.push(this);this.size();
 }
+LCD.prototype.tap=function(i){
+  const s=this.sect[i];if(!s)return;
+  const order=['rgb','mono','ascii'],cur=s.mode||this.mode;s.mode=order[(order.indexOf(cur)+1)%3];s.shift=rnd(7)-3;s.swap=4;ping(300+i*60,0.06);this.draw();
+};
 LCD.prototype.size=function(){
   const w=this.cv.clientWidth||this.cv.parentNode.clientWidth;if(!w)return;
   this.dpr=Math.min(window.devicePixelRatio||1,2);this.cw=w/this.cols;this.chh=this.cw;
@@ -138,6 +159,10 @@ LCD.prototype.draw=function(){
   x.fillStyle='#05030a';
   for(let i=1;i<this.sx;i++)x.fillRect(Math.round(i*secW)*cw-gap,0,gap*1.6,rows*ch);
   for(let j=1;j<this.sy;j++)x.fillRect(0,Math.round(j*secH)*ch-gap,cols*cw,gap*1.6);
+  if(this.key>=0&&document.activeElement===this.cv){
+    const kx=this.key%this.sx,ky=Math.floor(this.key/this.sx),x0=Math.round(kx*secW)*cw,y0=Math.round(ky*secH)*ch;
+    x.strokeStyle=pal.cy||'#35e6f0';x.lineWidth=2;x.strokeRect(x0+1,y0+1,Math.round((kx+1)*secW)*cw-x0-2,Math.round((ky+1)*secH)*ch-y0-2);
+  }
   this.sect.forEach(s=>{if(s.swap>0)s.swap--;else if(s.shift&&Math.random()<0.3)s.shift=0;if(burst&&Math.random()<0.25){s.shift=rnd(9)-4;s.swap=2}});
 };
 LCD.prototype.setImage=function(file,cb){const img=new Image();img.onload=()=>{this.img=img;this.draw();cb&&cb(true)};img.onerror=()=>cb&&cb(false);img.src=URL.createObjectURL(file)};
@@ -156,7 +181,7 @@ document.addEventListener('change',e=>{
 });
 function wireLoad(btnId,fileId,lcd,after){
   $(btnId).addEventListener('click',()=>$(fileId).click());
-  $(fileId).addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)lcd.setImage(f,ok=>{if(ok){A.jolt();after&&after()}else A.say('That file did not decode as an image.')})});
+  $(fileId).addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)lcd.setImage(f,ok=>{if(ok){A.flash(lcd.cv);after&&after()}else A.say('That file did not decode as an image.',true)})});
 }
 wireLoad('picLoad','picFile',bigPic,()=>{$('picCap').innerHTML='<b>Your photo.</b> It never leaves this page.'});
 wireLoad('portLoad','portFile',lcdOf(document.querySelector('.profile canvas.lcd')));
@@ -164,21 +189,37 @@ wireLoad('portLoad','portFile',lcdOf(document.querySelector('.profile canvas.lcd
 /* ================= components ================= */
 /* calendar */
 window.AUI_JS=window.AUI_JS||{};window.AUI_JS.calendar=function(){
-  const el=$('cal'),today=new Date();let view=new Date(today.getFullYear(),today.getMonth(),1),sel=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  const el=$('cal'),today=new Date();let view=new Date(today.getFullYear(),today.getMonth(),1),sel=new Date(today.getFullYear(),today.getMonth(),today.getDate()),foc=sel;
   const same=(a,b)=>a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate();
+  /* one Tab stop for the whole month: only the focused day is in the tab order,
+     arrows move it (roving tabindex) */
   function draw(){
     const y=view.getFullYear(),m=view.getMonth(),first=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
+    if(foc.getFullYear()!==y||foc.getMonth()!==m)foc=(sel.getFullYear()===y&&sel.getMonth()===m)?sel:new Date(y,m,Math.min(foc.getDate(),n));
     let h='<div class="cal-head"><button class="ibtn" type="button" data-d="-1" aria-label="Previous month">&lt;</button><span>'+view.toLocaleString('en-US',{month:'long'})+' '+y+'</span><button class="ibtn" type="button" data-d="1" aria-label="Next month">&gt;</button></div><div class="cal-grid">';
     'MTWTFSS'.split('').forEach(d=>h+='<span aria-hidden="true">'+d+'</span>');
     for(let i=0;i<first;i++)h+='<span></span>';
-    for(let d=1;d<=n;d++){const dt=new Date(y,m,d);h+='<button type="button" data-day="'+d+'" class="'+(same(dt,today)?'today':'')+'" aria-pressed="'+(same(dt,sel)?'true':'false')+'" aria-label="'+dt.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'})+'">'+d+'</button>'}
+    for(let d=1;d<=n;d++){const dt=new Date(y,m,d);h+='<button type="button" data-day="'+d+'" tabindex="'+(same(dt,foc)?0:-1)+'" class="'+(same(dt,today)?'today':'')+'" aria-pressed="'+(same(dt,sel)?'true':'false')+'" aria-label="'+dt.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long'})+'">'+d+'</button>'}
     el.innerHTML=h+'</div>';
     $('calStatus').textContent=sel.toLocaleDateString('en-US',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   }
   el.addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;
     if(b.dataset.d){view=new Date(view.getFullYear(),view.getMonth()+(+b.dataset.d),1);draw();ping(330);el.querySelector('[data-d="'+b.dataset.d+'"]').focus()}
-    else{sel=new Date(view.getFullYear(),view.getMonth(),+b.dataset.day);draw();ping(660);el.querySelector('[data-day="'+b.dataset.day+'"]').focus()}
+    else{sel=foc=new Date(view.getFullYear(),view.getMonth(),+b.dataset.day);draw();ping(660);el.querySelector('[data-day="'+b.dataset.day+'"]').focus()}
+  });
+  /* arrows by day and week, Home and End to the ends of the week, Page Up and
+     Page Down by month. Crossing a month edge turns the page */
+  el.addEventListener('keydown',e=>{
+    if(!e.target.closest('[data-day]'))return;
+    const K={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7},wd=(foc.getDay()+6)%7;let d;
+    if(e.key in K)d=new Date(foc.getFullYear(),foc.getMonth(),foc.getDate()+K[e.key]);
+    else if(e.key==='Home')d=new Date(foc.getFullYear(),foc.getMonth(),foc.getDate()-wd);
+    else if(e.key==='End')d=new Date(foc.getFullYear(),foc.getMonth(),foc.getDate()+6-wd);
+    else if(e.key==='PageUp'||e.key==='PageDown'){const t=foc.getMonth()+(e.key==='PageUp'?-1:1);d=new Date(foc.getFullYear(),t,Math.min(foc.getDate(),new Date(foc.getFullYear(),t+1,0).getDate()))}
+    else return;
+    e.preventDefault();foc=d;view=new Date(d.getFullYear(),d.getMonth(),1);draw();
+    el.querySelector('[data-day="'+d.getDate()+'"]').focus();
   });
   draw();
 };window.AUI_JS.calendar();
@@ -197,6 +238,9 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.dropdown=function(){
   });
   items.forEach(it=>it.addEventListener('click',()=>{open(false);btn.focus();const t=it.firstChild.textContent.trim();if(it.classList.contains('danger')){toast(t+'. It is gone.',true);A.jolt()}else A.say(t+'.')}));
   document.addEventListener('pointerdown',e=>{if(!menu.hidden&&!e.target.closest('#dd'))open(false)});
+  /* Tab out of the menu closes it. Focus going nowhere (a click on the page)
+     is left to the pointerdown above */
+  $('dd').addEventListener('focusout',e=>{if(!menu.hidden&&e.relatedTarget&&!$('dd').contains(e.relatedTarget))open(false)});
 };window.AUI_JS.dropdown();
 /* empty */
 $('emptyBtn').addEventListener('click',()=>A.say('Work order created. So much for nothing.'));
@@ -214,7 +258,10 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.otp=function(){
 window.AUI_JS=window.AUI_JS||{};window.AUI_JS.pagination=function(){
   const el=$('pager'),N=9;let cur=3;
   function draw(){
-    const pages=[1];for(let p=cur-1;p<=cur+1;p++)if(p>1&&p<N)pages.push(p);pages.push(N);
+    /* every page is a 48px target; nine of them with two gaps need 374px, so a
+       narrower box drops the neighbours rather than wrapping to a second row */
+    const near=el.clientWidth&&el.clientWidth<374?0:1;
+    const pages=[1];for(let p=cur-near;p<=cur+near;p++)if(p>1&&p<N)pages.push(p);pages.push(N);
     let h='<button class="ibtn" type="button" data-p="'+(cur-1)+'"'+(cur===1?' disabled':'')+' aria-label="Previous page">&lt;</button>',last=0;
     pages.forEach(p=>{if(p-last>1)h+='<span class="muted" aria-hidden="true">..</span>';h+='<button class="ibtn" type="button" data-p="'+p+'"'+(p===cur?' aria-current="page"':'')+' aria-label="Page '+p+'">'+p+'</button>';last=p});
     el.innerHTML=h+'<button class="ibtn" type="button" data-p="'+(cur+1)+'"'+(cur===N?' disabled':'')+' aria-label="Next page">&gt;</button>';
@@ -245,22 +292,25 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.spinners=function(){
   draw();if(!reduce)A.every(110,draw,{el:$('spins')});
 };window.AUI_JS.spinners();
 /* textarea counters */
-function counter(ta,out){if(!ta||!out)return;const up=()=>{out.textContent=ta.value.length+'/'+ta.maxLength};ta.addEventListener('input',up);up()}
+/* at the limit the counter warns: the next key does nothing, so say so */
+function counter(ta,out){if(!ta||!out)return;const up=()=>{out.textContent=ta.value.length+'/'+ta.maxLength;out.classList.toggle('full',ta.value.length>=ta.maxLength)};ta.addEventListener('input',up);up()}
 counter($('ta'),$('taCount'));
 /* toast */
-function toast(msg,err){A.say(msg);$('toast').classList.toggle('err',!!err);if(err&&live())sfx.err()}
-const _say=A.say;A.say=function(m){$('toast').classList.remove('err');_say(m)};
+function toast(msg,err){A.say(msg,err);if(err&&live())sfx.err()}
 $('toastOk').addEventListener('click',()=>{A.say('Changes saved.');if(live())sfx.ok()});
 $('toastErr').addEventListener('click',()=>{toast('Something broke. It was you.',true);A.jolt()});
 /* tooltip on touch */
-$('ttBtn').addEventListener('click',()=>{const p=$('tt');p.classList.add('on');setTimeout(()=>p.classList.remove('on'),1800)});
+$('ttBtn').addEventListener('click',()=>{const p=$('tt');clearTimeout(p._t);p.classList.add('on');p._t=setTimeout(()=>p.classList.remove('on'),1800)});
 
 /* ================= blocks ================= */
 $('sayHi').addEventListener('click',()=>A.say('No inbox is wired to a prototype. Hi anyway.'));
 (function(){
   const st=$('caseStatus'),D={Reporting:'Reporting: led at MaintainX. Dashboards for plant managers, built mobile first.',Search:'Search: global search across work orders, assets and parts.',Automations:'Automations: triggers and actions for maintenance teams, no code.',Chat:'Chat: messaging for frontline teams, tied to the work order.'};
   document.querySelectorAll('#cases [data-case]').forEach(c=>{
-    const go=()=>{st.textContent=D[c.dataset.case];A.kick();ping(520);const l=lcdOf(c.querySelector('canvas'));if(l){l.sect.forEach(s=>{s.swap=4;s.shift=rnd(9)-4});l.draw()}};
+    c.setAttribute('aria-pressed','false');
+    /* the status line is a screen away on a phone, so the card shows it was
+       picked and the toast says what it is */
+    const go=()=>{st.textContent=D[c.dataset.case];document.querySelectorAll('#cases [data-case]').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));A.say(D[c.dataset.case]);A.kick();ping(520);const l=lcdOf(c.querySelector('canvas'));if(l){l.sect.forEach(s=>{s.swap=4;s.shift=rnd(9)-4});l.draw()}};
     c.addEventListener('click',go);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});
   });
 })();
@@ -280,14 +330,14 @@ if(!reduce)every(140,()=>{const e=$('nowPull');if(e&&inView(e))e.textContent='|/
     S.forEach(s=>{const v=s[3]===1?s[1]+'%':(s[3]===2?s[1]+'k':s[1].toLocaleString('en-US'));h+='<span style="color:var(--muted)">'+s[0].padEnd(8,' ')+'</span>'+A.colorize(A.barRow(Math.round(s[1]/s[2]*10),false,10))+' '+v+'\n';t+=s[0]+' '+v+'. '});
     $('buildBars').innerHTML=h;$('buildText').textContent=t;
   }
-  $('buildRoll').addEventListener('click',()=>{S.forEach(s=>{s[1]=Math.round(s[2]*(0.2+Math.random()*0.75))});draw();A.jolt()});draw();
+  $('buildRoll').addEventListener('click',()=>{S.forEach(s=>{s[1]=Math.round(s[2]*(0.2+Math.random()*0.75))});draw();A.flash($('buildRoll'))});draw();
 })();
 (function(){
   const list=$('wo'),bar=$('woBar');
   function draw(){
     const all=list.querySelectorAll('input').length,done=list.querySelectorAll('input:checked').length;
     bar.querySelector('.bar').innerHTML=A.colorize(A.barRow(Math.round(done/all*24),false,24));bar.querySelector('.pct').textContent=' '+done+' of '+all;
-    bar.setAttribute('aria-valuenow',done);if(done===all){A.say('All work orders closed. Go home.');A.jolt()}
+    bar.setAttribute('aria-valuenow',done);if(done===all){A.say('All work orders closed. Go home.');A.flash(bar)}
   }
   list.addEventListener('change',draw);draw();
 })();
@@ -315,7 +365,7 @@ function cleanHTML(node){
   c.querySelectorAll('[style]').forEach(e=>e.removeAttribute('style'));
   c.querySelectorAll('.in,.done').forEach(e=>e.classList.remove('in','done'));
   c.querySelectorAll('pre.ptitle,pre.chart,canvas,.bar,.skel,.statbars,#cal,#pager,#ing,.spins b').forEach(e=>{e.textContent=''});
-  c.querySelectorAll('[class=""]').forEach(e=>e.removeAttribute('class'));
+  c.querySelectorAll('[class]').forEach(e=>{const v=e.getAttribute('class').trim().replace(/\s+/g,' ');if(v)e.setAttribute('class',v);else e.removeAttribute('class')});
   return c.innerHTML;
 }
 function pretty(html){
@@ -359,7 +409,7 @@ function docify(sec){
       p2.querySelector('pre').innerHTML='<b class="h4">html</b>'+hl(src)+(ex?ex.html.replace(/<h4>/g,'<b class="h4">').replace(/<\/h4>/g,'</b>'):'');
       if(ex)src='<!-- html -->\n'+src+'\n'+ex.text;
       const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">Copy</span></span>';
-      b.addEventListener('click',()=>{const done=ok=>A.say(ok?'Copied '+src.split('\n').length+' lines.':'Copy is blocked here. Select the code instead.');
+      b.addEventListener('click',()=>{const done=ok=>ok?A.say('Copied '+src.split('\n').length+' lines.'):A.say('Copy is blocked here. Select it and copy by hand.',true);
         if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(src).then(()=>done(true),()=>done(false));else done(false)});
       p2.querySelector('.copyrow').appendChild(b);
     }

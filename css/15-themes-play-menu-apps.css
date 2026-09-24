@@ -79,3 +79,10 @@
 .thread li:not(.me) .bubble{background:color-mix(in srgb,var(--ink) 12%,transparent)}
 .thread .meta{display:block;color:var(--muted);font-size:12px;line-height:14px}
 .typing{color:var(--muted)}
+
+/* Thumb-wide targets in the Chirp demo. The post actions sit 2ch apart, so a
+   character of padding each side fills the gap without two targets touching;
+   the bell and the shortest tab label get the same 5ch floor. */
+.post .acts button{padding:12px 1ch;margin:-12px -1ch}
+.app-bar .ibtn{padding:12px 1ch;margin:-12px 0}
+.tabbar button{min-width:5ch}

@@ -8,3 +8,11 @@
   clip-path:inset(0 100% 0 0);transition:clip-path .24s steps(12);
 }
 .toast.on span{clip-path:inset(0 0 0 0)}
+/* A failure is a warning, so it is yellow; lime only confirms. */
+.toast.err span{background:var(--warn)}
+/* On a phone the toast sat on the bottom row, which is where the thumb just
+   was: it covered Copy, Send crit and Sign in right after you tapped them. It
+   drops in under the sticky bar instead, clear of whatever you touched. */
+@media (max-width:1023px),(pointer:coarse){
+  .toast{bottom:auto;top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
+}

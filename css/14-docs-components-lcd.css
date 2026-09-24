@@ -45,7 +45,10 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .ibtn:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn:disabled{color:var(--muted);cursor:not-allowed}
 .ibtn[aria-current="page"]{background:var(--ink);color:var(--bg);background-clip:content-box}
-#pager{gap:var(--r) 1ch}
+/* a bracketed digit is 3ch, 29px, too narrow for a thumb. A character of
+   padding each side makes every page 5ch wide and the padding is the gap */
+#pager{gap:var(--r) 0}
+#pager .ibtn{padding:12px 1ch}
 .cal-head .ibtn,.stepper .ibtn{padding:12px 1ch}
 /* dropdown, tooltip */
 .pop{position:relative;display:inline-block}
@@ -60,6 +63,16 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
 .tip::after{content:"v";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
 .pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
+/* On touch a tap leaves both hover and focus behind, so the tip stayed up for
+   good, and it opened over the Preview and Code tabs. There it opens below the
+   button and only the tap timer shows it. */
+@media (pointer:coarse){
+  .tip{bottom:auto;top:calc(var(--r)*3 + 6px)}
+  .tip::after{content:"^";top:-12px}
+  .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
+  .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
+  #view-kit > section:has(.pop.on){z-index:6}
+}
 /* otp */
 .otp{display:flex;gap:1ch}
 .otp span{display:inline-flex;font-weight:700}
@@ -85,6 +98,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .field:focus-within{--v:var(--v-heavy)}
 .field.area .body::before,.field.area .body::after{color:var(--frame-color,var(--ink))}
 .count{color:var(--muted);text-align:right}
+.count.full{color:var(--warn);font-weight:700}
 /* toggle group */
 .tgroup{display:inline-flex;flex-wrap:wrap}
 .tgroup label{position:relative;cursor:pointer}
@@ -103,7 +117,6 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .timeline span{color:var(--muted)}
 .timeline time{color:var(--cy);font-weight:700}
 /* toast variant, sheet */
-.toast.err span{background:var(--hot)}
 dialog.sheet{margin:auto 0 0 0;width:100%;max-width:100%}
 dialog.sheet .lift{padding:0;max-width:none}
 dialog.sheet .lift::before,dialog.sheet .lift::after{display:none}
@@ -145,3 +158,17 @@ figcaption b{color:var(--ink)}
 .statbars{white-space:pre;font-weight:700;overflow:hidden}
 .lost{text-align:left}
 .lost .ptitle{cursor:pointer}
+
+/* success: the frame that worked goes lime for one beat (js/10 flash) */
+.okflash{--frame-color:var(--ok)}
+.okflash .bar-title{background:var(--ok)}
+.okflash .bar span{color:var(--ok)!important}
+/* case studies: the picked card keeps a slab title, and the card as a whole
+   takes the kit's focus colour instead of the browser ring */
+#cases .lift{outline:0}
+#cases .lift[aria-pressed="true"] .bar-title{background:var(--ink);color:var(--bg)}
+#cases .lift[aria-pressed="true"] .card{--frame-color:var(--hot)}
+#cases .lift:focus-visible .card{--frame-color:var(--accent)}
+#cases .lift:focus-visible .bar-title{background:var(--accent);color:var(--bg)}
+/* charts and pictures you can drive from the keyboard */
+.chart:focus-visible,figure.pic canvas:focus-visible{outline:0;box-shadow:0 0 0 2px var(--accent)}

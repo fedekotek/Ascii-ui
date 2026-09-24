@@ -382,7 +382,7 @@
   <section aria-labelledby="s-toast">
     <h2 id="s-toast" class="vh">Toast</h2>
     <pre class="poster ptitle" data-text="TOAST" aria-hidden="true"></pre>
-    <p class="muted">One line, typed in from the left. Lime for good news, magenta for the other kind.</p>
+    <p class="muted">One line, typed in from the left. Lime for good news, yellow for the other kind.</p>
     <div class="row demo"><button class="btn frame tone-light" id="toastOk" type="button"><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" id="toastErr" type="button"><span class="mid"><span class="label">Break something</span></span></button></div>
   </section>
 
@@ -429,7 +429,7 @@
     <h2 id="s-login" class="vh">Login</h2>
     <pre class="poster ptitle" data-text="LOGIN" aria-hidden="true"></pre>
     <p class="muted">Two fields, one loud button, one quiet one. Submit it empty to see it complain.</p>
-    <div class="demo lift"><div class="card frame tone-mid" id="login"><h3 class="bar-title">Sign in to Static</h3><div class="body">
+    <div class="demo lift"><div class="card frame tone-mid" id="login"><h3 class="bar-title">Sign in to Static</h3><form class="body" id="lgForm" novalidate>
         <div class="group">
           <label class="field-label" for="lgEmail">Email</label>
           <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgEmail" type="email" value="" placeholder="you@company.com" autocomplete="off" inputmode="email" autocapitalize="off" spellcheck="false" aria-describedby="lgEmailErr"></div></div>
@@ -440,10 +440,10 @@
           <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="8 characters or more" autocomplete="off" aria-describedby="lgPassErr"></div></div>
           <p class="error" id="lgPassErr"></p>
         </div>
-        <div class="row full"><button class="btn btn-primary frame tone-heavy" id="lgBtn" type="button"><span class="mid"><span class="label">Sign in</span></span></button></div>
+        <div class="row full"><button class="btn btn-primary frame tone-heavy" id="lgBtn" type="submit"><span class="mid"><span class="label">Sign in</span></span></button></div>
         <div class="sepl" role="separator">or</div>
         <div class="row full"><button class="btn frame tone-light" id="ssoBtn" type="button"><span class="mid"><span class="label">Continue with SSO</span></span></button></div>
-    </div></div></div>
+    </form></div></div>
   </section>
 
   <section data-cat="dashboard" aria-labelledby="s-stats">
@@ -462,11 +462,11 @@
     <pre class="poster ptitle" data-text="TABLE" aria-hidden="true"></pre>
     <p class="muted">A real table. Tap a row to select it.</p>
     <div class="demo tablewrap"><table class="tbl" id="incTable"><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Dur</th></tr></thead><tbody>
-      <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>12m</td></tr>
-      <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span></td><td>48m</td></tr>
-      <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>6m</td></tr>
-      <tr tabindex="0"><td>INC-478</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span></td><td>1h 02m</td></tr>
-      <tr tabindex="0"><td>INC-477</td><td>auth</td><td><span class="badge b-ok">Resolved</span></td><td>3m</td></tr>
+      <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span><span class="dur">12m</span></td><td>12m</td></tr>
+      <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span><span class="dur">48m</span></td><td>48m</td></tr>
+      <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span><span class="dur">6m</span></td><td>6m</td></tr>
+      <tr tabindex="0"><td>INC-478</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span><span class="dur">1h 02m</span></td><td>1h 02m</td></tr>
+      <tr tabindex="0"><td>INC-477</td><td>auth</td><td><span class="badge b-ok">Resolved</span><span class="dur">3m</span></td><td>3m</td></tr>
     </tbody></table></div>
     <p class="muted status" id="incStatus" role="status">No incident selected.</p>
   </section>

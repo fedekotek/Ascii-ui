@@ -6,7 +6,7 @@ const root=document.documentElement;
 const live=()=>A.live();
 const ping=(f,d)=>{if(live())A.tone('square',f,0,d||0.05,0.4)};
 function copy(txt,what){
-  const done=ok=>A.say(ok?'Copied '+what+'.':'Copy is blocked here. Select the text instead.');
+  const done=ok=>ok?A.say('Copied '+what+'.'):A.say('Copy is blocked here. Select it and copy by hand.',true);
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(()=>done(true),()=>done(false));else done(false);
 }
 A.copy=copy;
@@ -92,7 +92,7 @@ $('kPhoto').addEventListener('click',()=>$('photoFile').click());
 $('kSnap').addEventListener('click',()=>{
   try{const pal=A.pal(),c=document.createElement('canvas');c.width=hero.width;c.height=hero.height;const x=c.getContext('2d');x.fillStyle=pal.bg;x.fillRect(0,0,c.width,c.height);x.drawImage(hero,0,0);
     $('posterImg').src=c.toDataURL('image/png');const d=$('posterDlg');if(!d.open)d.showModal();if(live())sfx.ok()}
-  catch(err){A.say('Snapshot is blocked for this picture.')}
+  catch(err){A.say('Snapshot is blocked for this picture.',true)}
 });
 $('kReset').addEventListener('click',()=>{
   const D={kSpeed:100,kSize:100,kSplit:100,kTear:100,kStreaks:38,kBlocks:9};

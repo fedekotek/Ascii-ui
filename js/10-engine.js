@@ -77,9 +77,11 @@
   document.addEventListener('visibilitychange',function(){if(!document.hidden)clockStart()});
 
   /* ---- sound: square waves and crushed noise, unlocked by the first touch ---- */
-  var AC=null,master=null,nbuf=null,SND={on:true,last:0};
+  /* reduced motion is quiet too: this is the one gate every sound passes, so
+     nothing needs its own check, and the switch starts off */
+  var AC=null,master=null,nbuf=null,SND={on:!reduce,last:0};
   function audio(){
-    if(!SND.on)return null;
+    if(!SND.on||reduce)return null;
     if(!AC){
       var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;
       AC=new C();master=AC.createGain();master.gain.value=0.07;master.connect(AC.destination);
@@ -228,9 +230,9 @@
     }
     return rows;
   }
-  function develop(pre){
+  function develop(pre,quiet){
     if(reduce){titleFrame(pre,99);return}
-    if(sndLive())sfx.dev();
+    if(!quiet&&sndLive())sfx.dev();
     if(pre._iv)pre._iv.stop();
     pre._iv=times(45,15,function(f){titleFrame(pre,f)},function(){pre._iv=null;titleFrame(pre,99)});
   }
@@ -568,10 +570,21 @@
     main.classList.remove('jolt');void main.offsetWidth;main.classList.add('jolt');kick();sfx.burst();
   }
   main.addEventListener('animationend',function(e){if(e.animationName==='jolt')main.classList.remove('jolt')});
+  /* jolt is for errors. Good news gets one lime frame on the thing that worked
+     and a hero burst, then the frame goes back to its own colour */
+  function flash(el){
+    kick();
+    if(reduce||!el)return;
+    var f=el.closest('.lift')||el.closest('.frame,.progress')||el;
+    if(f._ok)f._ok.stop();
+    f.classList.add('okflash');
+    f._ok=times(120,1,function(){},function(){f.classList.remove('okflash');f._ok=null});
+  }
   document.addEventListener('keydown',function(e){
     if(e.key==='g'&&!/INPUT|TEXTAREA/.test(e.target.tagName))jolt();
   });
   $('glitchToggle').checked=G.on;
+  $('soundToggle').checked=SND.on;
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
@@ -622,7 +635,11 @@
   }
   var canHover=window.matchMedia('(hover:hover)').matches;
   [].forEach.call(document.querySelectorAll('.btn'),function(b){
-    if(canHover)b.addEventListener('pointerenter',function(){scramble(b)});
+    /* a label that just resolved does not scramble again for 2s, so running
+       the pointer back and forth over a row of buttons is not a slot machine */
+    if(canHover)b.addEventListener('pointerenter',function(){
+      var n=Date.now();if(b._sAt&&n-b._sAt<2000)return;b._sAt=n;scramble(b);
+    });
   });
   document.addEventListener('click',function(e){
     var b=e.target.closest&&e.target.closest('.btn');if(b)scramble(b);
@@ -894,8 +911,10 @@
 
   /* ---- toast ---- */
   var toast=$('toast'),toastText=$('toastText'),toastTimer;
-  function say(msg){
-    clearTimeout(toastTimer);toastText.textContent='@@ '+msg;
+  /* say(msg) is good news in lime, say(msg,true) is a failure in yellow */
+  function say(msg,err){
+    clearTimeout(toastTimer);toastText.textContent=(err?'!! ':'@@ ')+msg;
+    toast.classList.toggle('err',!!err);
     toast.classList.add('on');
     toastTimer=setTimeout(function(){toast.classList.remove('on')},3600);
   }
@@ -906,14 +925,14 @@
     if(live){
       live=false;status.textContent='draft';
       publishBtn.className='btn btn-primary frame tone-heavy';setLabel(publishBtn,'Publish');
-      say('Unpublished Reporting redesign.');jolt();
+      say('Unpublished Reporting redesign.');flash(publishBtn);
     }else if(dlg.showModal){dlg.showModal();sfx.open()}
   });
   $('dlgCancel').addEventListener('click',function(){dlg.close()});
   $('dlgConfirm').addEventListener('click',function(){
     dlg.close();live=true;status.textContent='live';
     publishBtn.className='btn frame tone-light';setLabel(publishBtn,'Unpublish');
-    say('Published Reporting redesign.');jolt();sfx.ok();
+    say('Published Reporting redesign.');flash(publishBtn);sfx.ok();
   });
 
   /* ---- progress ---- */
@@ -940,7 +959,7 @@
       if(p>=100){
         run.stop();spin.stop();
         exportBtn.disabled=false;setLabel(exportBtn,'Export case study');
-        exportStatus.textContent='Exported case study.';jolt();sfx.ok();
+        exportStatus.textContent='Exported case study.';flash(bar);sfx.ok();
       }
     });
   });
@@ -1022,7 +1041,7 @@
       if(d.open){sfx.on();var a=d.querySelector('p');if(a)decode(a)}else sfx.off();
     });
   });
-  function getKit(){say('Example page. Nothing to download yet.');jolt();sfx.ok()}
+  function getKit(e){say('Example page. Nothing to download yet.');flash(e&&e.currentTarget);sfx.ok()}
   $('opGet1').addEventListener('click',getKit);
   $('opGet2').addEventListener('click',getKit);
   $('opSee').addEventListener('click',function(){$('v-kit').click()});
@@ -1034,7 +1053,9 @@
     while((n=w.nextNode())){
       if(!n.nodeValue.trim())continue;
       var pa=n.parentNode;
-      if(pa.closest('.glyph,.bar,pre,.label,.check,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
+      /* labels and legends are accessible names: scrambled, a screen reader
+         would read the noise */
+      if(pa.closest('.glyph,.bar,pre,.label,.check,label,legend,[aria-hidden="true"],[role="status"],output,#cardStatus,.btn,input'))continue;
       a.push(n);
     }
     return a;
@@ -1054,7 +1075,6 @@
         }
         n.nodeValue=out;
       });
-      sfx.tick();
       if(f>=frames){el._dec.stop();el._dec=null;nodes.forEach(function(n,k){n.nodeValue=orig[k]})}
     });
   }
@@ -1065,10 +1085,11 @@
     el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');
     setTimeout(function(){
-      sfx.tick();
+      /* one tick for the batch, not one per element */
+      if(!i)sfx.tick();
       if(el._anim)el._anim();
       if(window.AUI2&&AUI2.frameDraw)AUI2.frameDraw(el);
-      if(/^(P|LI|LEGEND|LABEL|H3)$/.test(el.tagName))decode(el);
+      if(/^(P|LI|H3)$/.test(el.tagName))decode(el);
       else if(el.classList.contains('btn'))scramble(el);
     },i*48);
   }
@@ -1079,12 +1100,13 @@
     document.addEventListener('animationend',function(e){
       if(e.animationName==='rvin')e.target.classList.add('done');
     });
+    /* an entrance happens once. It used to re-arm when the element left the
+       screen, so scrolling back up replayed thirty of them, with a tick each */
     var rio=new IntersectionObserver(function(entries){
       var k=0;
       entries.forEach(function(en){
         var el=en.target;
-        if(en.isIntersecting&&en.intersectionRatio>=0.12){if(!el.classList.contains('in'))reveal(el,k++)}
-        else if(!en.isIntersecting){el.classList.remove('in','done')}
+        if(en.isIntersecting&&en.intersectionRatio>=0.12){rio.unobserve(el);if(!el.classList.contains('in'))reveal(el,k++)}
       });
     },{threshold:[0,0.12],rootMargin:'0px 0px -5% 0px'});
     rvEls.forEach(function(el){rio.observe(el)});
@@ -1101,6 +1123,6 @@
     scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:wipe,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,
-    decode:decode,reveal:reveal,fitTitles:fitTitles,live:sndLive,src:null,onLayout:null,HP:HP,TR:TR,setRamp:setRamp,rampString:function(){return rampNow},
+    decode:decode,reveal:reveal,flash:flash,fitTitles:fitTitles,live:sndLive,src:null,onLayout:null,HP:HP,TR:TR,setRamp:setRamp,rampString:function(){return rampNow},
     bindSlider:bindSlider,every:every,times:times,clock:clock,onScreen:onScreen,reseed:function(){seedScene();drawHero()},refresh:function(){readPalette();drawHero()}};
 })();

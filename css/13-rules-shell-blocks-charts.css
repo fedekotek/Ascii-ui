@@ -46,6 +46,15 @@
 .tbl tbody tr[aria-selected="true"]{background:var(--hot);color:var(--bg)}
 .tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink);box-shadow:none}
 .tbl tbody tr:focus-visible{box-shadow:inset 1ch 0 0 var(--accent)}
+/* At 390px four columns needed 42 characters in a 36 character box and the
+   last one showed a single digit. Under 480px the duration rides in the status
+   cell, on the row under the badge, and its own column steps out, so the table
+   fits without scrolling. */
+.tbl .dur{display:none}
+@media (max-width:479px){
+  .tbl .dur{display:block}
+  .tbl th:nth-child(4),.tbl td:nth-child(4){display:none}
+}
 .price{font-weight:700}
 .price small{font:inherit;font-weight:500;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}

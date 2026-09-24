@@ -25,9 +25,9 @@ Ordered by how much they will hurt the next person.
 16. `harvest()` calls `getBoundingClientRect` per character. Fine up to a few thousand; the cap protects it.
 
 ## Accessibility
-17. Bitmap titles are `aria-hidden` with a visually hidden `<h2>`; charts have `role="img"` + `aria-label` and a status line; games and posters are labeled. Toasts are `role="status"`. Focus is visible everywhere tested. Not audited by a screen reader user yet.
+17. Bitmap titles are `aria-hidden` with a visually hidden `<h2>`; charts have `role="img"` + `aria-label` and a status line, and the ones you can tap take a Tab stop (arrows pick, Enter acts), as do standalone LCD pictures; games and posters are labeled. Toasts are `role="status"`. Focus is visible everywhere tested. Not audited by a screen reader user yet.
 18. Sound has no captions and no per-sound mute; the master switch is the only control.
-19. `prefers-reduced-motion` disables animation, sound autoplay, boot, entrances, hero spin (drag still works). The tearing backdrop filter is also off.
+19. `prefers-reduced-motion` disables animation, boot, entrances, hero spin (drag still works), long-press destruction and all sound (one gate in `audio()`, and the sound switch starts off). The tearing backdrop filter is also off.
 
 ## Browser
 20. Tested: headless Chromium (Playwright) at 320/360/390/430/820/1440, dark and light; the owner's Android phone in the claude.ai artifact frame. Not tested: Safari/iOS, Firefox. Suspects for Safari: `color-mix()`, `:has()` in slider focus styling, `caret-shape`, `backdrop-filter` prefix (present), `dialog` animations, `AudioContext` unlock rules (should be fine, unlock is on pointerdown).
