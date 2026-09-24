@@ -14,3 +14,8 @@
 .error:empty{display:none}
 .group{max-width:48ch}
 .group + .group{margin-top:var(--r)}
+
+/* the frame is a tap target (js/10); iOS only sends a tap on a plain box up
+   the page when the box says it takes one */
+.field{cursor:text}
+.field:has(select){cursor:pointer}

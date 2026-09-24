@@ -143,6 +143,8 @@
      lets go of it as soon as the touch is over. A keyboard keeps its focus. */
   var touchAt=0,touchOn=null;
   document.addEventListener('pointerdown',function(e){if(e.pointerType!=='mouse'){touchAt=Date.now();touchOn=e.target}},true);
+  /* a key after the touch means a keyboard is driving now: it keeps its focus */
+  document.addEventListener('keydown',function(){touchAt=0},true);
   function isRange(el){return el&&el.matches&&el.matches('input[type="range"]')}
   function letGo(){var el=document.activeElement;if(isRange(el)&&Date.now()-touchAt<5000)setTimeout(function(){el.blur()},0)}
   ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(t){document.addEventListener(t,letGo,true)});

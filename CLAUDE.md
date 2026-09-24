@@ -16,8 +16,9 @@ python3 qa/qa.py 1440 900 light d x    # same on desktop light
 python3 qa/breakpoints.py              # columns, overflow and overlap, 360 to 1920
 python3 qa/clock.py                    # the single animation clock still holds
 python3 qa/audit.py                    # tap targets under 40px, text under 12px
+python3 qa/keyboard.py                 # sliders and field frames never open the phone keyboard by accident
 ```
-There is no unit test suite, no linter and no type checker. The QA scripts are the test suite. Release bar: `qa.py` clean at 390 and 1440 in both themes, `breakpoints.py` ok, `clock.py` ok, `audit.py` clean, and `dist/ascii-ui.html` loads clean.
+There is no unit test suite, no linter and no type checker. The QA scripts are the test suite. Release bar: `qa.py` clean at 390 and 1440 in both themes, `breakpoints.py` ok, `clock.py` ok, `audit.py` clean, `keyboard.py` clean, and `dist/ascii-ui.html` loads clean.
 
 Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 
