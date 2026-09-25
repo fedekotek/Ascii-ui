@@ -136,7 +136,7 @@ A.codeExtra=function(sec,p1){
   const sec=document.createElement('section');sec.setAttribute('aria-labelledby','s-install');
   sec.setAttribute('data-span','full');   /* a set of steps, not a card */
   const tokens=()=>$('tokensOut').textContent;
-  sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><b>Get the kit.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
+  sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Six color roles, four support shades and the ramp. The defaults are fine, Themes is where you change them.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
     '<li class="past"><b>Frame engine</b><span>The css that turns a string into a border, and the script that builds the strings.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="frame"><span class="mid"><span class="label">Copy frame engine</span></span></button></div></li>'+
     '<li class="past"><b>Components</b><span>Open any Code tab below. It has the html, the css and the js.</span></li></ol>';

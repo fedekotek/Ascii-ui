@@ -431,12 +431,14 @@ function spanSections(panel){
    site starts with Getting started (Rules; Get the kit joins it from js/40).
    pin: sections that open the index, in that order, ahead of the alphabet: a
    404 page is a strange first block. */
-function buildView(panel,label,skip,pin){
+function buildView(panel,label,skip,pin,group){
   spanSections(panel);pin=pin||[];
   const id=s=>s.getAttribute('aria-labelledby'),all=[...panel.querySelectorAll(':scope > section[aria-labelledby]')];
   const secs=all.filter(s=>!skip.includes(id(s))),tail=all.filter(s=>skip.includes(id(s)));
   const name=s=>s.querySelector('h2').textContent.trim(),rank=s=>{const i=pin.indexOf(id(s));return i<0?pin.length:i};
-  secs.sort((a,b)=>rank(a)-rank(b)||name(a).localeCompare(name(b)));
+  /* grouped views sort by group first; the group rides on the section for the sidebar */
+  const G=group?s=>{const g=group(id(s));s.dataset.group=g[1];return g[0]}:()=>0;
+  secs.sort((a,b)=>G(a)-G(b)||rank(a)-rank(b)||name(a).localeCompare(name(b)));
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
@@ -451,7 +453,17 @@ function buildView(panel,label,skip,pin){
   return secs;
 }
 spanSections($('view-charts'));
-buildView($('view-kit'),'Components',['s-rules']);
+/* the thirty, by what they do, the way a docs site groups them */
+const KIT_GROUPS=[
+  ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
+  ['Overlay',['s-command','s-dropdown','s-sheet','s-tooltip']],
+  ['Display',['s-avatar','s-badge','s-card','s-details','s-kbd','s-picture','s-separator','s-timeline']],
+  ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
+  ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
+buildView($('view-kit'),'Components',['s-rules'],[],id=>{
+  const i=KIT_GROUPS.findIndex(g=>g[1].includes(id));
+  return i<0?[KIT_GROUPS.length,'Other']:[i,KIT_GROUPS[i][0]];
+});
 const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;

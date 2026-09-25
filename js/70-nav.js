@@ -67,11 +67,15 @@
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
     if(!counted.length)return {title:title,count:all.length,groups:all.length?[{items:all}]:[]};
     const i0=all.indexOf(counted[0]);
+    /* a grouped view (Components) lists its parts under their groups */
+    const mid=[];
+    counted.forEach(s=>{const g=s.dataset.group,last=mid[mid.length-1];
+      if(last&&last.label===g)last.items.push(s);else mid.push({label:g,items:[s]})});
     return {title:title,count:counted.length,groups:[
-      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)},
-      {items:counted},
+      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)}
+    ].concat(mid,[
       {label:'About',items:all.filter((s,i)=>!s._chip&&i>i0)}
-    ].filter(g=>g.items.length)};
+    ]).filter(g=>g.items.length)};
   }
   function heading(el,m){
     el.textContent=m.title+' ';

@@ -891,23 +891,41 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
    Bands with a plain bold label, so the ASCII/UI bitmap stays the only big
    title on the page. */
 .band{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);text-transform:uppercase;letter-spacing:0}
-#view-home > section{margin-top:calc(var(--r)*2)}
+#view-home > section{margin-top:var(--r)}
+#view-home > section::before{margin-bottom:var(--r)!important}
 #view-home .stats{grid-template-columns:repeat(auto-fit,minmax(20ch,1fr))}
-#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(34ch,1fr));gap:var(--r) 4ch}
+#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(44ch,1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
 #view-home > section[aria-labelledby="s-ideas"] > .demo{margin:0}
-/* the way in: four tiles, the whole tile is the link */
+/* the way in: four tiles, each one a frame of = that thickens to # under the
+   pointer and to a blue @ with the keyboard. The whole tile is the link */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(26ch,1fr));gap:var(--r) 2ch}
-.tile{
-  display:flex;flex-direction:column;gap:0;min-height:calc(var(--r)*5);padding:calc(var(--r)/2) 2ch;
-  color:var(--ink);text-decoration:none;outline:0;position:relative;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent);
-}
-.tile b{line-height:var(--r)}
-.tile .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
-@media (hover:hover){.tile:hover{box-shadow:inset 0 0 0 2px var(--hot)}.tile:hover b{color:var(--hot)}}
-.tile:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.tile{display:block;color:var(--ink);text-decoration:none;outline:0}
+.tile .mid{height:100%}
+.tile-in{display:flex;flex-direction:column;flex:1;min-width:0;padding:0 1ch;min-height:calc(var(--r)*4)}
+.tile-in b{line-height:var(--r)}
+.tile-in .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
+@media (hover:hover){.tile:hover{--h:var(--h-mid);--s:var(--s-mid);--frame-color:var(--hot)}.tile:hover b{color:var(--hot)}}
+.tile:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
 .tile:focus-visible b{color:var(--accent)}
+
+/* ---- the docs pages: one bitmap, in the header ------------------------------
+   Components, Blocks, Charts and Themes open the same way: the view's name as
+   the only big title on the page, one line on what is in it, a faint rule.
+   Each section below is a bold word, not another bitmap: thirty posters in a
+   row was a wall of shouting. */
+.dochead{grid-column:1/-1}
+.dochead .ptitle{margin:0}
+.dochead .lede{margin:var(--r) 0 var(--r);max-width:72ch;color:var(--muted)}
+#view-kit > section > pre.ptitle,#view-blocks > section > pre.ptitle,
+#view-charts > section > pre.ptitle,#view-themes > section > pre.ptitle{display:none}
+#view-kit > section > h2.vh,#view-blocks > section > h2.vh,
+#view-charts > section > h2.vh,#view-themes > section > h2.vh{
+  position:static;width:auto;height:auto;margin:0;padding:0;overflow:visible;clip:auto;clip-path:none;white-space:normal;
+  font:inherit;font-weight:700;color:var(--ink);text-transform:uppercase;line-height:var(--r);
+}
+/* Blocks are page-sized: one per row, so a card shows at the width it is for */
+#view-blocks > section[aria-labelledby]{grid-column:1/-1!important}
 
 /* Only Home has the header. Every other view starts with its own
    content one row under the bar: no hero margin, no section margin. */
@@ -1373,10 +1391,10 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
-      <a class="tile" href="#components" data-v="kit"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 -&gt;</span></a>
-      <a class="tile" href="#blocks" data-v="blocks"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 -&gt;</span></a>
-      <a class="tile" href="#charts" data-v="charts"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 -&gt;</span></a>
-      <a class="tile" href="#themes" data-v="themes"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">5 -&gt;</span></a>
+      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">5 -&gt;</span></span></span></a>
     </div>
   </section>
 
@@ -1410,7 +1428,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
-  <section aria-label="About components"><p>Thirty components. Open Code on any of them and take the html, the css and the js.</p></section>
+  <div class="dochead"><pre class="poster ptitle" data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Open Code on any of them and take the html, the css and the js.</p></div>
   <section aria-labelledby="s-rules" data-span="full">
     <h2 id="s-rules" class="vh">Rules</h2>
     <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
@@ -1753,7 +1771,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-blocks" role="tabpanel" aria-labelledby="v-blocks" hidden>
-  <section aria-label="About blocks"><p>Components composed into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six of them are about Fede, who made this. Filter by Personal to see only those.</p></section>
+  <div class="dochead"><pre class="poster ptitle" data-text="BLOCKS" aria-hidden="true"></pre><p class="lede">Components put together into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six are about Fede, who made this.</p></div>
   <section aria-label="Filter blocks"><div class="filters" id="blockFilters" role="group" aria-label="Filter by category"><button class="chip" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="personal" aria-pressed="false">Personal</button><button class="chip" type="button" data-f="app" aria-pressed="false">App</button><button class="chip" type="button" data-f="dashboard" aria-pressed="false">Dashboard</button><button class="chip" type="button" data-f="auth" aria-pressed="false">Auth</button><button class="chip" type="button" data-f="marketing" aria-pressed="false">Marketing</button></div></section>
 
 
@@ -1939,7 +1957,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-charts" role="tabpanel" aria-labelledby="v-charts" hidden>
-  <section aria-label="About charts"><p>Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></section>
+  <div class="dochead"><pre class="poster ptitle" data-text="CHARTS" aria-hidden="true"></pre><p class="lede">Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></div>
 
 
   <section aria-labelledby="s-bars" data-span="full">
@@ -1986,7 +2004,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-themes" role="tabpanel" aria-labelledby="v-themes" hidden>
-  <section aria-label="About themes"><p>Six presets, six color roles, four support shades and one ramp. Change any of them and the whole site follows, including the hero, the charts and the game. Copy the tokens when you like what you see.</p></section>
+  <div class="dochead"><pre class="poster ptitle" data-text="THEMES" aria-hidden="true"></pre><p class="lede">Six presets, six color roles, four support shades and one ramp. Change any of them and the whole site follows. Copy the tokens when you like what you see.</p></div>
 
   <section aria-labelledby="s-presets">
     <h2 id="s-presets" class="vh">Presets</h2>
@@ -4676,12 +4694,14 @@ function spanSections(panel){
    site starts with Getting started (Rules; Get the kit joins it from js/40).
    pin: sections that open the index, in that order, ahead of the alphabet: a
    404 page is a strange first block. */
-function buildView(panel,label,skip,pin){
+function buildView(panel,label,skip,pin,group){
   spanSections(panel);pin=pin||[];
   const id=s=>s.getAttribute('aria-labelledby'),all=[...panel.querySelectorAll(':scope > section[aria-labelledby]')];
   const secs=all.filter(s=>!skip.includes(id(s))),tail=all.filter(s=>skip.includes(id(s)));
   const name=s=>s.querySelector('h2').textContent.trim(),rank=s=>{const i=pin.indexOf(id(s));return i<0?pin.length:i};
-  secs.sort((a,b)=>rank(a)-rank(b)||name(a).localeCompare(name(b)));
+  /* grouped views sort by group first; the group rides on the section for the sidebar */
+  const G=group?s=>{const g=group(id(s));s.dataset.group=g[1];return g[0]}:()=>0;
+  secs.sort((a,b)=>G(a)-G(b)||rank(a)-rank(b)||name(a).localeCompare(name(b)));
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
@@ -4696,7 +4716,17 @@ function buildView(panel,label,skip,pin){
   return secs;
 }
 spanSections($('view-charts'));
-buildView($('view-kit'),'Components',['s-rules']);
+/* the thirty, by what they do, the way a docs site groups them */
+const KIT_GROUPS=[
+  ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
+  ['Overlay',['s-command','s-dropdown','s-sheet','s-tooltip']],
+  ['Display',['s-avatar','s-badge','s-card','s-details','s-kbd','s-picture','s-separator','s-timeline']],
+  ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
+  ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
+buildView($('view-kit'),'Components',['s-rules'],[],id=>{
+  const i=KIT_GROUPS.findIndex(g=>g[1].includes(id));
+  return i<0?[KIT_GROUPS.length,'Other']:[i,KIT_GROUPS[i][0]];
+});
 const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
@@ -4860,7 +4890,7 @@ A.codeExtra=function(sec,p1){
   const sec=document.createElement('section');sec.setAttribute('aria-labelledby','s-install');
   sec.setAttribute('data-span','full');   /* a set of steps, not a card */
   const tokens=()=>$('tokensOut').textContent;
-  sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><b>Get the kit.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
+  sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Six color roles, four support shades and the ramp. The defaults are fine, Themes is where you change them.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
     '<li class="past"><b>Frame engine</b><span>The css that turns a string into a border, and the script that builds the strings.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="frame"><span class="mid"><span class="label">Copy frame engine</span></span></button></div></li>'+
     '<li class="past"><b>Components</b><span>Open any Code tab below. It has the html, the css and the js.</span></li></ol>';
@@ -4944,11 +4974,15 @@ syncPickers();
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
     if(!counted.length)return {title:title,count:all.length,groups:all.length?[{items:all}]:[]};
     const i0=all.indexOf(counted[0]);
+    /* a grouped view (Components) lists its parts under their groups */
+    const mid=[];
+    counted.forEach(s=>{const g=s.dataset.group,last=mid[mid.length-1];
+      if(last&&last.label===g)last.items.push(s);else mid.push({label:g,items:[s]})});
     return {title:title,count:counted.length,groups:[
-      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)},
-      {items:counted},
+      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)}
+    ].concat(mid,[
       {label:'About',items:all.filter((s,i)=>!s._chip&&i>i0)}
-    ].filter(g=>g.items.length)};
+    ]).filter(g=>g.items.length)};
   }
   function heading(el,m){
     el.textContent=m.title+' ';

@@ -128,23 +128,41 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
    Bands with a plain bold label, so the ASCII/UI bitmap stays the only big
    title on the page. */
 .band{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);text-transform:uppercase;letter-spacing:0}
-#view-home > section{margin-top:calc(var(--r)*2)}
+#view-home > section{margin-top:var(--r)}
+#view-home > section::before{margin-bottom:var(--r)!important}
 #view-home .stats{grid-template-columns:repeat(auto-fit,minmax(20ch,1fr))}
-#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(34ch,1fr));gap:var(--r) 4ch}
+#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(44ch,1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
 #view-home > section[aria-labelledby="s-ideas"] > .demo{margin:0}
-/* the way in: four tiles, the whole tile is the link */
+/* the way in: four tiles, each one a frame of = that thickens to # under the
+   pointer and to a blue @ with the keyboard. The whole tile is the link */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(26ch,1fr));gap:var(--r) 2ch}
-.tile{
-  display:flex;flex-direction:column;gap:0;min-height:calc(var(--r)*5);padding:calc(var(--r)/2) 2ch;
-  color:var(--ink);text-decoration:none;outline:0;position:relative;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent);
-}
-.tile b{line-height:var(--r)}
-.tile .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
-@media (hover:hover){.tile:hover{box-shadow:inset 0 0 0 2px var(--hot)}.tile:hover b{color:var(--hot)}}
-.tile:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.tile{display:block;color:var(--ink);text-decoration:none;outline:0}
+.tile .mid{height:100%}
+.tile-in{display:flex;flex-direction:column;flex:1;min-width:0;padding:0 1ch;min-height:calc(var(--r)*4)}
+.tile-in b{line-height:var(--r)}
+.tile-in .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
+@media (hover:hover){.tile:hover{--h:var(--h-mid);--s:var(--s-mid);--frame-color:var(--hot)}.tile:hover b{color:var(--hot)}}
+.tile:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
 .tile:focus-visible b{color:var(--accent)}
+
+/* ---- the docs pages: one bitmap, in the header ------------------------------
+   Components, Blocks, Charts and Themes open the same way: the view's name as
+   the only big title on the page, one line on what is in it, a faint rule.
+   Each section below is a bold word, not another bitmap: thirty posters in a
+   row was a wall of shouting. */
+.dochead{grid-column:1/-1}
+.dochead .ptitle{margin:0}
+.dochead .lede{margin:var(--r) 0 var(--r);max-width:72ch;color:var(--muted)}
+#view-kit > section > pre.ptitle,#view-blocks > section > pre.ptitle,
+#view-charts > section > pre.ptitle,#view-themes > section > pre.ptitle{display:none}
+#view-kit > section > h2.vh,#view-blocks > section > h2.vh,
+#view-charts > section > h2.vh,#view-themes > section > h2.vh{
+  position:static;width:auto;height:auto;margin:0;padding:0;overflow:visible;clip:auto;clip-path:none;white-space:normal;
+  font:inherit;font-weight:700;color:var(--ink);text-transform:uppercase;line-height:var(--r);
+}
+/* Blocks are page-sized: one per row, so a card shows at the width it is for */
+#view-blocks > section[aria-labelledby]{grid-column:1/-1!important}
 
 /* Only Home has the header. Every other view starts with its own
    content one row under the bar: no hero margin, no section margin. */
