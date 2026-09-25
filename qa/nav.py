@@ -66,8 +66,8 @@ async def phone(b,w,h,bad):
         secs=await pg.evaluate("(v=>AUI_NAV.model(v).groups.flatMap(g=>g.items).map(s=>s.getAttribute('aria-labelledby')))('"+v+"')")
         if QUICK and len(secs)>3: secs=[secs[0],secs[len(secs)//2],secs[-1]]
         for s in secs:
-            # open from the crumb, pick the view in the row, pick the section at once
-            x,y=await center(pg,'#crumb');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(260)
+            # open from [=], pick the view in the row, pick the section at once
+            x,y=await center(pg,'#menuBtn');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(260)
             await pg.evaluate("(v=>{const t=document.getElementById('mv-'+v),r=t.parentNode;r.scrollLeft=t.offsetLeft-20})('"+v+"')")
             x,y=await center(pg,'#mv-'+v);await pg.touchscreen.tap(x,y)
             slug=s.split('-',1)[1]

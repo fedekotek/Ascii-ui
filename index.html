@@ -40,7 +40,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
       <button class="brand" id="brand" type="button" title="Home">ascii<span class="slash">/</span>ui</button>
-      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu"><span aria-hidden="true">/ </span><span id="crumbName">Home</span></button>
+      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu" hidden><span id="crumbName">Home</span></button>
       <div class="tablist views" role="tablist" aria-label="Views" id="views">
         <a class="tab" role="tab" id="v-home" href="#home" aria-controls="view-home" aria-selected="true">Home</a>
         <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="false">Components</a>
@@ -49,9 +49,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         <a class="tab" role="tab" id="v-themes" href="#themes" aria-controls="view-themes" aria-selected="false" tabindex="-1">Themes</a>
       </div>
       <div class="barctl">
-        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span aria-hidden="true">[</span><span class="lbl">Sound</span><span aria-hidden="true">]</span></label>
-        <button id="themeToggle" class="bbtn" type="button">[<span class="label">Light</span>]</button>
-        <button id="cmdBtn" class="bbtn" type="button" aria-label="Open commands"><span class="br" aria-hidden="true">[</span>&gt;_<span class="br" aria-hidden="true">]</span></button>
+        <button id="cmdBtn" class="bbtn sfield" type="button" aria-label="Search" aria-keyshortcuts="Control+K /" title="Search (/)"><span class="sf-l" aria-hidden="true"><b>[</b> Search...</span><span class="sf-k" aria-hidden="true"><span id="sfKey">Ctrl K</span> <b>]</b></span><span class="sf-g" aria-hidden="true">[/]</span></button>
+        <span class="sep" aria-hidden="true">|</span>
+        <button id="glitchBar" class="bbtn gbtn" type="button" aria-pressed="true" aria-label="Glitch" title="Glitch"><span class="gl" aria-hidden="true">/\/</span></button>
+        <label class="check bbtn gbtn" id="soundBar" title="Sound"><input type="checkbox" role="switch" id="soundToggle" checked aria-label="Sound"><span class="lbl" aria-hidden="true">&lt;)))</span></label>
+        <button id="themeToggle" class="bbtn gbtn" type="button" aria-label="Switch to dark theme" title="Theme"><span class="label" aria-hidden="true">-O-</span></button>
       </div>
     </div>
   </div>
@@ -849,8 +851,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="menu-foot">
       <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-      <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
-      <button class="bbtn" id="mTheme" type="button">[<span class="label">Light</span>]</button>
     </div>
   </div>
 </dialog>

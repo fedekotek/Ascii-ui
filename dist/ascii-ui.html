@@ -917,23 +917,26 @@ main > header[hidden] ~ [role="tabpanel"] > :first-child{margin-top:0}
 #foot > .foot{margin-top:calc(var(--r)*3)}
 /* ---- the top bar ----------------------------------------------------------
    It sits outside main so it spans the window, and it is stuck to the top from
-   the first pixel, not from wherever the hero ends. Inside, a container the
-   width of the content column keeps the name aligned with the page. The rule
-   underneath runs the full width, the way a header border does.
-   Three shapes, by width:
-     under 768    [=] ascii/ui / Blocks          >_
-     768 to 1023  ascii/ui  seven views     [=] >_
-     1024 and up  ascii/ui  seven views    [Sound] [Light] [>_]
-   Sound and theme live in the [=] menu below 1024. Everything is counted in
-   characters: at 768 the row is 75 of 76, at 1024 it is 94 of 96. */
+   the first pixel. Inside, a container the width of the content column keeps
+   the name aligned with the page. The rule underneath runs the full width,
+   faint, the way a header border does; the view you are in is the only heavy
+   mark in it. Three zones:
+     left    the name, which is Home
+     middle  the views (Home's tab is not drawn, the name is the way there)
+     right   the settings, pinned to the column's right edge:
+             Search, then three glyphs: Glitch, Sound, Theme
+   By width:
+     under 768    [=] ascii/ui                     [/]  <)))  -O-
+     768 to 1023  [=] ascii/ui  views              [/]  /\/  <)))  -O-
+     1024 and up  ascii/ui  views       [ Search...  Ctrl K ]  |  /\/  <)))  -O-  */
 .topbar{
   position:sticky;top:0;z-index:40;background:var(--bg);
   padding-top:env(safe-area-inset-top,0px);
 }
 .topbar-in{margin:0 auto;padding:0 2ch;position:relative}
 .topbar::after{
-  content:var(--h-light);position:absolute;left:0;right:0;bottom:0;height:var(--r);
-  overflow:hidden;white-space:nowrap;font-weight:700;color:var(--violet);pointer-events:none;
+  content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:500;color:var(--muted);opacity:.5;pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
@@ -949,74 +952,77 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .viewsbar{display:flex;align-items:flex-start;padding-bottom:var(--r)}
 .viewsbar > *{flex:none}
 
-/* one idiom for everything in the bar: ink text, brackets where it is a
-   control, a thumb tall. Magenta on hover, blue only for focus */
+/* one idiom for everything in the bar: ink text, a thumb tall. Magenta on
+   hover, blue only for focus */
 .bbtn{
   font:inherit;font-weight:700;line-height:var(--r);background:none;border:0;border-radius:0;
-  color:var(--ink);padding:calc(var(--r)/2) 0;margin:0;cursor:pointer;outline:0;
+  color:var(--ink);padding:12px 0;margin:0;cursor:pointer;outline:0;
   white-space:nowrap;text-decoration:none;-webkit-tap-highlight-color:transparent;
 }
 .bbtn:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.bbtn:hover{color:var(--hot)}}
 
-/* the name is the way back to the top, at every width */
+/* the name is Home, at every width */
 .brand{
   font:inherit;font-weight:700;line-height:var(--r);background:none;border:0;border-radius:0;
-  color:var(--ink);padding:calc(var(--r)/2) 0;margin:0 1ch 0 0;
+  color:var(--ink);padding:12px 0;margin:0 2.5ch 0 0;
   cursor:pointer;outline:0;white-space:nowrap;
 }
 .brand .slash{color:var(--hot)}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:focus-visible .slash{color:inherit}
 @media (hover:hover){.brand:hover .slash{color:var(--pink)}}
-
-/* the phone's crumb says which view you are in and opens the menu */
-.crumb{display:none;min-width:0;overflow:hidden;text-overflow:ellipsis}
-.crumb [aria-hidden]{color:var(--muted);font-weight:500}
-.crumb:focus-visible [aria-hidden]{color:inherit}
-
-/* Home has a tab so the router and the keyboard treat it like any view, but
-   the name is the way there, so the tab is not drawn */
+.crumb{display:none}
 #v-home{display:none!important}
 
-/* the views, in the same sentence case as everything else in the bar. The
-   list may scroll sideways as a last resort, but it is sized not to */
-#views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
-#views::-webkit-scrollbar{display:none}
+/* the views: muted, the one you are in ink and bold with a heavy run of
+   characters under it on the rule row. No fill, no magenta: weight is density */
+#views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;display:flex;gap:0 1ch;overflow:visible}
 #views::after{display:none}
-#views .tab{display:block;flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;text-decoration:none;line-height:var(--r)}
+#views .tab{
+  display:block;flex:none;white-space:nowrap;position:relative;
+  padding:12px .5ch;margin:0;line-height:var(--r);
+  text-transform:none;text-decoration:none;color:var(--muted);font-weight:500;
+  background:none;box-shadow:none;
+}
+#views .tab[aria-selected="true"]{color:var(--ink);font-weight:700;background:none;box-shadow:none}
+#views .tab[aria-selected="true"]::after{
+  content:var(--h-heavy);position:absolute;left:.5ch;right:.5ch;top:100%;
+  height:var(--r);overflow:hidden;white-space:nowrap;color:var(--ink);background:var(--bg);z-index:1;
+  font-weight:700;pointer-events:none;
+}
+@media (hover:hover){#views .tab:hover{color:var(--hot)}}
+#views .tab:focus-visible{background:var(--accent);color:var(--bg)}
 
-/* the controls group: [Sound] [Light] [>_]. Sound is still a switch, it just
-   does not shout: ink when on, muted and struck through when off. The theme
-   button names where it takes you */
-.barctl{display:flex;align-items:flex-start;gap:0 2ch;margin-left:4ch}
-#soundBar{gap:0;padding:calc(var(--r)/2) 0;margin:0;white-space:nowrap;font-weight:700;line-height:var(--r)}
-#soundToggle:not(:checked) ~ .lbl{color:var(--muted);text-decoration:line-through}
+/* the settings, on the right edge. Search looks like a field from 1024px; the
+   rest are glyphs 5 characters wide with a thumb of bleed each side */
+.barctl{margin-left:auto;display:flex;align-items:flex-start;gap:0 1ch}
+.barctl .sep{color:var(--muted);padding:12px 1ch;line-height:var(--r)}
+.gbtn{display:block;width:5ch;padding:12px .5ch;margin:0 -.5ch;box-sizing:content-box;text-align:center;gap:0}
+#soundBar{font-weight:700;line-height:var(--r)}
+#soundBar input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
+#soundToggle:not(:checked) ~ .lbl,#glitchBar[aria-pressed="false"]{color:var(--muted)}
 #soundBar:has(#soundToggle:focus-visible){background:var(--accent);color:var(--bg)}
 #soundBar:has(#soundToggle:focus-visible) .lbl{color:inherit}
-@media (hover:hover){#soundBar:hover{color:var(--hot)}}
-#themeToggle{min-width:7ch;text-align:left}
+#soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
+@media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
 
-@media (max-width:1023px){#soundBar,#themeToggle{display:none}}
-/* on a phone, a thumb wide as well as tall: the glyphs alone are 29 and 39px.
-   From 768 the row is counted to the character, so there they stay as drawn */
-@media (max-width:767px){#menuBtn,#cmdBtn{min-width:44px}#cmdBtn{text-align:right}#menuBtn{text-align:left}}
+.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:500}
+.sfield b{font-weight:500}
+.sf-g{display:none}
+@media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
+.sfield:focus-visible b{color:inherit}
+@media (min-width:1280px){.sfield{width:28ch}}
+
 @media (min-width:1024px){#menuBtn{display:none}}
-@media (min-width:768px) and (max-width:1023px){
-  /* no side padding: at 768 the row is counted to the character */
-  #menuBtn{order:1;margin-left:auto}
-  .barctl{order:2;margin-left:0}
-  #cmdBtn{padding-left:1ch}
-  #cmdBtn .br{display:none}
+@media (max-width:1023px){
+  .brand{margin-right:1.5ch}
+  .barctl .sep,.sf-l,.sf-k{display:none}
+  .sfield{width:5ch;padding:12px .5ch;margin:0 -.5ch;box-sizing:content-box;justify-content:center;color:var(--ink);font-weight:700}
+  .sf-g{display:inline}
+  #menuBtn{display:block;min-width:44px;text-align:left;padding:12px 1ch 12px 0}
 }
-@media (max-width:767px){
-  #views{display:none}
-  .crumb{display:block;flex:0 1 auto}
-  #menuBtn{padding-right:1ch}
-  .barctl{margin-left:auto}
-  #cmdBtn{padding-left:1ch}
-  #cmdBtn .br{display:none}
-}
+@media (max-width:767px){#views,#glitchBar{display:none}}
 
 /* ---- the sidebar ----------------------------------------------------------
    From 1024px a sidebar lists the sections of the view you are in, sticky
@@ -1317,7 +1323,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
       <button class="brand" id="brand" type="button" title="Home">ascii<span class="slash">/</span>ui</button>
-      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu"><span aria-hidden="true">/ </span><span id="crumbName">Home</span></button>
+      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu" hidden><span id="crumbName">Home</span></button>
       <div class="tablist views" role="tablist" aria-label="Views" id="views">
         <a class="tab" role="tab" id="v-home" href="#home" aria-controls="view-home" aria-selected="true">Home</a>
         <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="false">Components</a>
@@ -1326,9 +1332,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         <a class="tab" role="tab" id="v-themes" href="#themes" aria-controls="view-themes" aria-selected="false" tabindex="-1">Themes</a>
       </div>
       <div class="barctl">
-        <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span aria-hidden="true">[</span><span class="lbl">Sound</span><span aria-hidden="true">]</span></label>
-        <button id="themeToggle" class="bbtn" type="button">[<span class="label">Light</span>]</button>
-        <button id="cmdBtn" class="bbtn" type="button" aria-label="Open commands"><span class="br" aria-hidden="true">[</span>&gt;_<span class="br" aria-hidden="true">]</span></button>
+        <button id="cmdBtn" class="bbtn sfield" type="button" aria-label="Search" aria-keyshortcuts="Control+K /" title="Search (/)"><span class="sf-l" aria-hidden="true"><b>[</b> Search...</span><span class="sf-k" aria-hidden="true"><span id="sfKey">Ctrl K</span> <b>]</b></span><span class="sf-g" aria-hidden="true">[/]</span></button>
+        <span class="sep" aria-hidden="true">|</span>
+        <button id="glitchBar" class="bbtn gbtn" type="button" aria-pressed="true" aria-label="Glitch" title="Glitch"><span class="gl" aria-hidden="true">/\/</span></button>
+        <label class="check bbtn gbtn" id="soundBar" title="Sound"><input type="checkbox" role="switch" id="soundToggle" checked aria-label="Sound"><span class="lbl" aria-hidden="true">&lt;)))</span></label>
+        <button id="themeToggle" class="bbtn gbtn" type="button" aria-label="Switch to dark theme" title="Theme"><span class="label" aria-hidden="true">-O-</span></button>
       </div>
     </div>
   </div>
@@ -2126,8 +2134,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="menu-foot">
       <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-      <label class="check"><input type="checkbox" role="switch" id="mSnd"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Sound</label>
-      <button class="bbtn" id="mTheme" type="button">[<span class="label">Light</span>]</button>
     </div>
   </div>
 </dialog>
@@ -2823,12 +2829,30 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   $('soundToggle').checked=SND.on;
   /* reduced motion keeps the page silent, so the switch says so rather than
      turning on and playing nothing */
-  if(reduce)['soundToggle','mSnd'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
-  $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero()});
+  if(reduce)['soundToggle'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
+  $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero();glitchGlyph()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
     if(SND.on)sfx.ok();else if(AC)AC.suspend();
+    soundGlyph();
   });
+  /* the bar's settings are glyphs: a speaker, a zigzag, a sun or a moon. The
+     glyph says the state, the label says what a press does */
+  var glBar=$('glitchBar');
+  function glitchGlyph(){
+    var on=$('glitchToggle').checked;
+    glBar.setAttribute('aria-pressed',on?'true':'false');
+    glBar.querySelector('.gl').textContent=on?'/\\/':'___';
+    glBar.title=on?'Glitch on':'Glitch off';
+  }
+  function soundGlyph(){
+    var t=$('soundToggle'),on=t.checked;
+    $('soundBar').querySelector('.lbl').textContent=on?'<)))':'<) x';
+    if(!t.disabled)$('soundBar').title=on?'Sound on':'Sound off';
+  }
+  glBar.addEventListener('click',function(){$('glitchToggle').click()});
+  if(/Mac|iP/.test(navigator.platform||''))$('sfKey').textContent='Cmd K';
+  glitchGlyph();soundGlyph();
 
   /* ---- cursor trail and scroll aberration ---- */
   var trailAt=0;
@@ -3036,9 +3060,10 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   });
   /* the button names where it takes you, not where you are */
   function themeLabel(){
-    var to=(themeWant||currentTheme())==='dark'?'light':'dark';
-    setLabel(themeBtn,to==='light'?'Light':'Dark');
+    var now=themeWant||currentTheme(),to=now==='dark'?'light':'dark';
+    themeBtn.querySelector('.label').textContent=now==='dark'?'(C':'-O-';
     themeBtn.setAttribute('aria-label','Switch to '+to+' theme');
+    themeBtn.title=now==='dark'?'Dark theme':'Light theme';
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
@@ -5218,12 +5243,8 @@ syncPickers();
     mlinks.forEach(l=>{if(reading&&l.sec===reading.sec)l.a.setAttribute('aria-current','location')});
   }
   function syncControls(){
-    $('mSnd').checked=$('soundToggle').checked;
     $('mGrid').checked=$('gridToggle').checked;
     $('mGl').checked=$('glitchToggle').checked;
-    const to=A.currentTheme()==='dark'?'light':'dark',b=$('mTheme');
-    b.querySelector('.label').textContent=to==='light'?'Light':'Dark';
-    b.setAttribute('aria-label','Switch to '+to+' theme');
   }
   function openMenu(from){
     if(md.open)return;
@@ -5283,11 +5304,8 @@ syncPickers();
     if(A.live())A.tone('square',440,0,0.05,0.4);
     go(l.v,l.sec,{push:true,after:()=>{focusTo=l.sec;closeMenu()}});
   });
-  $('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
   $('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
   $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
-  /* the curtain has to be seen, so the menu steps out of its way */
-  $('mTheme').addEventListener('click',()=>{closeMenu();$('themeToggle').click()});
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}

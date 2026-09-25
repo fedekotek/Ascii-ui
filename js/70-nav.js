@@ -366,12 +366,8 @@
     mlinks.forEach(l=>{if(reading&&l.sec===reading.sec)l.a.setAttribute('aria-current','location')});
   }
   function syncControls(){
-    $('mSnd').checked=$('soundToggle').checked;
     $('mGrid').checked=$('gridToggle').checked;
     $('mGl').checked=$('glitchToggle').checked;
-    const to=A.currentTheme()==='dark'?'light':'dark',b=$('mTheme');
-    b.querySelector('.label').textContent=to==='light'?'Light':'Dark';
-    b.setAttribute('aria-label','Switch to '+to+' theme');
   }
   function openMenu(from){
     if(md.open)return;
@@ -431,11 +427,8 @@
     if(A.live())A.tone('square',440,0,0.05,0.4);
     go(l.v,l.sec,{push:true,after:()=>{focusTo=l.sec;closeMenu()}});
   });
-  $('mSnd').addEventListener('change',()=>{if($('soundToggle').checked!==$('mSnd').checked)$('soundToggle').click()});
   $('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
   $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
-  /* the curtain has to be seen, so the menu steps out of its way */
-  $('mTheme').addEventListener('click',()=>{closeMenu();$('themeToggle').click()});
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}

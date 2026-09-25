@@ -663,12 +663,30 @@
   $('soundToggle').checked=SND.on;
   /* reduced motion keeps the page silent, so the switch says so rather than
      turning on and playing nothing */
-  if(reduce)['soundToggle','mSnd'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
-  $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero()});
+  if(reduce)['soundToggle'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
+  $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero();glitchGlyph()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
     if(SND.on)sfx.ok();else if(AC)AC.suspend();
+    soundGlyph();
   });
+  /* the bar's settings are glyphs: a speaker, a zigzag, a sun or a moon. The
+     glyph says the state, the label says what a press does */
+  var glBar=$('glitchBar');
+  function glitchGlyph(){
+    var on=$('glitchToggle').checked;
+    glBar.setAttribute('aria-pressed',on?'true':'false');
+    glBar.querySelector('.gl').textContent=on?'/\\/':'___';
+    glBar.title=on?'Glitch on':'Glitch off';
+  }
+  function soundGlyph(){
+    var t=$('soundToggle'),on=t.checked;
+    $('soundBar').querySelector('.lbl').textContent=on?'<)))':'<) x';
+    if(!t.disabled)$('soundBar').title=on?'Sound on':'Sound off';
+  }
+  glBar.addEventListener('click',function(){$('glitchToggle').click()});
+  if(/Mac|iP/.test(navigator.platform||''))$('sfKey').textContent='Cmd K';
+  glitchGlyph();soundGlyph();
 
   /* ---- cursor trail and scroll aberration ---- */
   var trailAt=0;
@@ -876,9 +894,10 @@
   });
   /* the button names where it takes you, not where you are */
   function themeLabel(){
-    var to=(themeWant||currentTheme())==='dark'?'light':'dark';
-    setLabel(themeBtn,to==='light'?'Light':'Dark');
+    var now=themeWant||currentTheme(),to=now==='dark'?'light':'dark';
+    themeBtn.querySelector('.label').textContent=now==='dark'?'(C':'-O-';
     themeBtn.setAttribute('aria-label','Switch to '+to+' theme');
+    themeBtn.title=now==='dark'?'Dark theme':'Light theme';
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
