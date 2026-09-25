@@ -130,13 +130,13 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
 .band{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);text-transform:uppercase;letter-spacing:0}
 #view-home > section{margin-top:var(--r)}
 #view-home > section::before{margin-bottom:var(--r)!important}
-#view-home .stats{grid-template-columns:repeat(auto-fit,minmax(20ch,1fr))}
-#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(44ch,1fr));gap:var(--r) 4ch}
+#view-home .stats{grid-template-columns:repeat(auto-fit,minmax(min(20ch,100%),1fr))}
+#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(44ch,100%),1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
 #view-home > section[aria-labelledby="s-ideas"] > .demo{margin:0}
 /* the way in: four tiles, each one a frame of = that thickens to # under the
    pointer and to a blue @ with the keyboard. The whole tile is the link */
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(26ch,1fr));gap:var(--r) 2ch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(26ch,100%),1fr));gap:var(--r) 2ch}
 .tile{display:block;color:var(--ink);text-decoration:none;outline:0}
 .tile .mid{height:100%}
 .tile-in{display:flex;flex-direction:column;flex:1;min-width:0;padding:0 1ch;min-height:calc(var(--r)*4)}
