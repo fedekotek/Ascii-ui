@@ -24,7 +24,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .doc-tabs .tab:focus-visible{background:var(--accent);color:var(--bg)}
 .doc-panel{padding-top:var(--r)}
 .doc-panel > .demo:first-child,.doc-panel > :first-child{margin-top:0}
-.code{white-space:pre;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 var(--r) 2ch;border-left:0;position:relative}
+.code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 var(--r) 2ch;border-left:0;position:relative}
 .code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
 .copyrow{margin-top:var(--r)}
 [hidden]{display:none !important}

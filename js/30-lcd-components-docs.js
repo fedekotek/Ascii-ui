@@ -393,7 +393,7 @@ function docify(sec){
     '<button class="tab" role="tab" type="button" id="'+id+'t1" aria-controls="'+id+'p1" aria-selected="true">Preview</button>'+
     '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button></div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
-    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0"></pre><div class="row copyrow"></div></div>';
+    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>';
   sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2];demo.forEach(n=>p1.appendChild(n));
   const tabs=[...wrap.querySelectorAll('[role="tab"]')];let built=false;
   function pick(t,focus){
@@ -455,7 +455,8 @@ function buildView(panel,label,skip,pin,group){
   secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{if(A.jump)A.jump(s);else s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
   /* after the intro and anything else that is not a section of its own (the
      Blocks filters), right before the first card */
-  panel.insertBefore(toc,panel.querySelector(':scope > section[aria-labelledby]'));
+  /* before the first group label, so a label always sits on its own group */
+  panel.insertBefore(toc,panel.querySelector(':scope > .grouph')||panel.querySelector(':scope > section[aria-labelledby]'));
   return secs;
 }
 spanSections($('view-charts'));

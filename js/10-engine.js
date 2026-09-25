@@ -236,7 +236,7 @@
   }
   function makeBars(cols){
     /* tbar is ink in dark and magenta on paper, see css/01 */
-    var rows=[],y,k,cs=['pink','warn','cy','deep','tbar'].sort(function(){return Math.random()-0.5});
+    var rows=[],y,k,cs=['pink','warn','ok','deep','tbar'].sort(function(){return Math.random()-0.5});
     var seg=[];for(k=0;k<5;k++)seg.push([Math.floor(Math.random()*6),8+Math.floor(Math.random()*6)]);
     for(y=0;y<14;y++){
       var r='';
@@ -312,8 +312,11 @@
       /* the box around the word, one cell of air on every side: the torus and
          the colour bars stay out of it, so the letters read as letters */
       if(b.length)wbox.push([x0-1,y0-1,x0+b[0].length,y0+b.length])}
-    put(l1,Math.round(HR*0.034));
-    put(l2,Math.min(HR-l2.length,Math.round(HR*0.724)));
+    /* the two lines read as one headline: the second follows the first. Only
+       a narrow screen, where the ring sits between them, keeps them apart */
+    var y1=Math.round(HR*0.034);
+    put(l1,y1);
+    put(l2,HC<70?Math.min(HR-l2.length,Math.round(HR*0.724)):Math.min(HR-l2.length,y1+l1.length+Math.ceil(l1.length*0.4)));
     mask=m;
   }
   function inWord(x,y){
@@ -413,7 +416,7 @@
 
   /* ---- hero: a torus on a bad signal. streaks, colour bars, RGB split, tearing ---- */
   var streaks=[],blocks=[],zb=null,lu=null;
-  var BAR=['pink','warn','cy','deep','ink','hot','violet'];
+  var BAR=['pink','warn','ok','deep','ink','hot','violet'];   /* no cyan: blue is focus */
   /* the ring shades through violet and magenta, never blue: blue is focus */
   var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
   var TOR_L=['ink','violet','violet','hot','hot','pink','pink'];
