@@ -9,8 +9,8 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] **A real device pass** on iOS Safari and Firefox. Fix list in KNOWN-ISSUES.md #20.
 
 ## Next (layout)
-- [ ] The Themes, Play and Apps views still lay out for one column. They read fine wide, but the knobs and the app frames could use the space.
-- [ ] Masonry is done in js. If `grid-template-rows: masonry` ever ships broadly, delete `js/60-gallery.js`.
+- [ ] The Themes view still lays out for one column. It reads fine wide, but the pickers and the labs could use the space.
+- [ ] Rename `css/11-views-onepager.css` and `css/15-themes-play-menu-apps.css` now that One pager, Play and Apps are gone, and drop the dead code they left (see KNOWN-ISSUES.md #13).
 
 ## Next (kit)
 - [ ] Per-component files: `components/button/{button.html,button.css,button.js,README.md}` and a script that assembles `index.html`. The Code tab can then read the files instead of scraping the DOM.
@@ -20,7 +20,9 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] Code tab: show the token dependencies per component; a "copy as React" toggle is out of scope, a "copy as web component" one might not be.
 
 ## Next (playground)
-- [ ] More apps in the Apps view: a weather app (stress charts + LCD), a banking home (stress tables + slabs), a maps screen (ASCII map tiles).
+- [x] Play, Apps and One pager removed (v10.9). The playground is Home's hero and Try it strip, and Themes > Labs.
+- [ ] Stress blocks instead of an Apps view: a weather screen (charts + LCD), a banking home (tables + slabs), a maps screen (ASCII map tiles).
+- [ ] Hero knobs somewhere again (speed, split, words, colour map): `HP` still has them, nothing on the page edits them.
 - [ ] WebGL CRT pass over the hero: barrel distortion, bloom, phosphor persistence. The only item from the original list not built.
 - [ ] Guestbook wall: visitors `sign NAME`, posters join a shared grid, invaders high score becomes a leaderboard. Needs shared storage.
 - [ ] Sound design pass: motifs per component in one scale; a mute per category.

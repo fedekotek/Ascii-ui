@@ -1,10 +1,10 @@
 # Working on ascii/ui
 
 ## What this is
-A component kit: shadcn-style components wearing a brutalist ASCII skin with a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense a character is, every state change glitches, and underneath it is plain HTML. It is for designers and developers who want to copy a component and own the code, plus a playground (Themes, Play, Apps, One pager) that shows the kit under stress. Published as one HTML file.
+A component kit: shadcn-style components wearing a brutalist ASCII skin with a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense a character is, every state change glitches, and underneath it is plain HTML. It is for designers and developers who want to copy a component and own the code, plus a Home page (the ring, a Try it strip, where to start, questions) and Labs in Themes that show the kit under stress. Five views: Home, Components, Blocks, Charts, Themes. Published as one HTML file.
 
 ## Stack
-No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, one page (`index.html`), 16 stylesheets in `css/` and 7 scripts in `js/`, both loaded in the order their filenames are numbered. `build.py` (Python 3, standard library only) inlines them into `dist/ascii-ui.html`, which is what ships. Google Fonts (Geist Mono) is the only external request. QA is Playwright for Python in `qa/`.
+No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, one page (`index.html`), 18 stylesheets in `css/` and 7 scripts in `js/` (00, 10, 20, 30, 40, 70, 80), both loaded in the order their filenames are numbered. `build.py` (Python 3, standard library only) inlines them into `dist/ascii-ui.html`, which is what ships. Google Fonts (Geist Mono) is the only external request. QA is Playwright for Python in `qa/`.
 
 ## Run and test
 ```
@@ -36,7 +36,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 ## Before you change anything
 1. `python3 qa/qa.py 390 844 dark m x` must print `m []` (no errors, no overflow) before and after your change.
 2. Load order is the numbering in `css/` and `js/`. New files go at the end of the sequence unless they are tokens.
-3. Each `js/` file is one IIFE. They talk through `window.AUI` (engine), `window.AUI2` (fx), `window.AUI3` (invaders, poster, command palette), `window.AUI_JS` (component source registry for the Code tab), `window.AUI_TONES` and `window.AUI_MAP` (ramp translation). See `docs/API.md`.
+3. Each `js/` file is one IIFE. They talk through `window.AUI` (engine), `window.AUI2` (fx), `window.AUI3` (invaders, poster, `run()` for typed commands), `window.AUI_NAV` (router, sidebar model, search index), `window.AUI_SEARCH` (Search open and close), `window.AUI_JS` (component source registry for the Code tab), `window.AUI_TONES` and `window.AUI_MAP` (ramp translation). See `docs/API.md`.
 4. Any text you put on the canvas or into `.bar`/`.chart`/`.ptitle` must go through `A.TR()` so the ramp editor can re-skin it. Text nodes in normal HTML are fine.
 5. New interactive elements need a 44px hit area (use the `padding:12px 0;margin:-12px 0` pattern), a `:focus-visible` style, and keyboard operation.
 6. New sounds go through `A.tone`/`A.noise` (they are humanized and fatigue-limited there). Never create an AudioContext yourself.
@@ -44,17 +44,21 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 8. Run `python3 build.py` and check `dist/ascii-ui.html` also loads clean. That is what ships.
 
 ## How to add a component (short version, long one in docs/COMPONENTS.md)
-Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. From 1024px that section gets a gallery column 46 characters wide, so if it holds a table, a chart or a picture give it `data-span="full"`. The docs builder sorts sections alphabetically, adds Preview/Code tabs and puts it in the index. If it needs JS, register it in `window.AUI_JS.NAME` so the Code tab can print it.
+Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. Add its id to a group in `KIT_GROUPS` (js/30: Form, Overlay, Display, Feedback, Navigation). In the docs views the poster is hidden and the `h2` shows as a bold uppercase word. From 1024px that section gets a gallery column at least 40 characters wide, so if it holds a table, a chart or a picture give it `data-span="full"`. The docs builder sorts sections by group, then alphabetically, adds Preview/Code tabs and puts it in the index and the sidebar. If it needs JS, register it in `window.AUI_JS.NAME` so the Code tab can print it.
 
 ## Things that look like bugs and are not
-- The boot screen only runs once per session (`sessionStorage['aui-boot']`). Type `boot` in the palette to see it again.
-- The `Ring` button in Play's Source block is hidden until a photo or camera is loaded.
+- The boot screen only runs once per session (`sessionStorage['aui-boot']`). Type `boot` in Search (`/` or Ctrl K), or pick Boot under Tricks, to see it again.
+- The `Back to the ring` link in the Home hero (and `Camera`) is hidden until a photo is loaded.
+- The Home tab (`#v-home`) is in the tablist but not drawn. The brand name is the way Home.
+- Old `#play`, `#apps` and `#onepager` links land on `#home`. Those views are gone.
+- The invaders game shows on Home only. Every other view ends with the one footer line.
+- Glitch leaves the bar under 768px. It is in the `[=]` menu and in Search.
 - Titles drop their color bars, then go to single scale, on narrow screens or with large accessibility font sizes. That is `fitTitles()`, on purpose.
 - Sounds get quieter when repeated fast. That is the fatigue curve in `human()`.
 - Frames and titles "rot" after 14 seconds idle. Any touch repairs them.
 
 ## Things that are actually fragile
-See `docs/KNOWN-ISSUES.md`. The top three: the file is stitched from five IIFEs with a shared global, every animation shares one rAF clock (a throwing callback costs that frame), and the Code tab's CSS extraction is regex-based.
+See `docs/KNOWN-ISSUES.md`. The top three: the file is stitched from seven IIFEs with shared globals, every animation shares one rAF clock (a throwing callback costs that frame), and the Code tab's CSS extraction is regex-based.
 
 ## Definition of done
 - The QA scripts above pass, before and after the change.

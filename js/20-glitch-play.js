@@ -448,7 +448,7 @@ async function run(line){
   else if(c==='boot'){cmdDlg.close();B.boot(true)}
   else if(c==='poster'){cmdDlg.close();openPoster()}
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
-  else if(c==='invaders'){cmdDlg.close();A.goTo('kit',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
+  else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
   /* the photo lands on Play, where the Source buttons and the stage are */
   else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}

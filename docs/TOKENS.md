@@ -33,7 +33,7 @@ Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same 
 Geist Mono 500 (body) and 700 (frames, slabs, posters). 14px/21px at every width (1.5, the ratio it always had). Ligatures off, `text-size-adjust:100%`. Charts 12px/14px. Titles sized by `fit()`, roughly 7px at 390px wide. The whole system assumes a monospace font; swapping the family requires nothing else, but check `fitTitles()` and the hero measure.
 
 ## Spacing
-Horizontal in `ch`, vertical in `var(--r)`. Sections are 5 rows apart with a faint divider (`css/02`). `.demo` is one row below its caption. Cards pad `var(--r) 4ch` (2ch for walls, 2ch for air).
+Horizontal in `ch`, vertical in `var(--r)`. Sections are separated by a faint divider row (`css/02`); in the galleries from 1024px that is one row of air, the rule, one row of air (`css/16`). Docs views open with a `.dochead`, and Components groups start two rows down (`.grouph`). `.demo` is one row below its caption. Cards pad `var(--r) 4ch` (2ch for walls, 2ch for air).
 
 ## Glitch amount
-`G.amt` 0..1 from the Slider component (`#speed`). Feeds: RGB split width, burst frequency, streak speed, spark count, tear probability, fx ambient sparks, drone detune. `G.on` from the Glitch switch; off adds `.calm` to `:root` which hides HUD/track and disables entrances.
+`G.amt` 0..1 from the Slider component (`#speed`). Feeds: RGB split width, burst frequency, streak speed, spark count, tear probability, fx ambient sparks, drone detune. `G.on` from the Glitch switch (`#glitchToggle`), which the bar's `/\/` button, the menu and Search all flip; off adds `.calm` to `:root` which hides HUD/track and disables entrances.

@@ -7,8 +7,9 @@ All scripts are IIFEs. The public surface is three objects on `window`, plus two
 | Member | What it is |
 |---|---|
 | `$(id)` | `document.getElementById` |
+| `ROW` | the row height in px, read from `--r` (21). Use it instead of a hard-coded number |
 | `G` | glitch state: `{on, amt (0..1), burst (0..1, decays), next, scroll (0..1, scroll velocity)}` |
-| `HP` | hero params: `{t1, t2 (the two words), speed, rad, split, tear, streaks, blocks, map}` |
+| `HP` | hero params: `{t1, t2 (the two words, COPY IT and OWN IT), speed, rad, split, tear, streaks, blocks, map}`. Nothing on the page edits them since Play went; they are still read on every frame |
 | `rnd(n)`, `rep(c,n)` | random int, repeat string |
 | `RAMP` | `" .:=+*#%@"` |
 | `reduce` | prefers-reduced-motion |
@@ -54,8 +55,9 @@ All scripts are IIFEs. The public surface is three objects on `window`, plus two
 | `refresh()` | re-read palette, redraw hero |
 | `src` | set by 20: `(w,h) => Float32Array luminance` when a photo/camera is loaded, else null |
 | `onLayout` | set by 20: called with the content width after `layout()` |
+| `onView` | set by 40 (`placeHero`): called with the new tab on every view switch, before the landing is measured. Shows the header and the game on Home only |
 
-Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.codeExtra(section, panel)`, `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
+Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.codeExtra(section, panel)`, `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows; nothing asks for `'snap'` since Play's Snapshot went), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
 
 Events: `document` gets `aui:view` (detail: the view's tab) after a view has swapped in.
 
@@ -66,10 +68,10 @@ Events: `document` gets `aui:view` (detail: the view's tab) after a view has swa
 `blip, noise, arp, tick` (wrappers over `A.tone`), `rearm(el)` (re-run an entrance), `show(viewName)`, `boot`, `tear(n)`, `mosh(cb)`, `frameDraw(el)` (frames draw themselves), `esc(str)`, `clamp(v,a,b)`, `inView(el)`.
 
 ## window.AUI3 (from js/20)
-`INV {size(W), start(), draw()}`, `makePoster()` (returns a PNG data URL), `openCmd()` (opens Search; js/80 replaces it with its own open), `run(line)` (execute a typed command, answers on Search's status line).
+`INV {size(W), start(), draw()}`, `makePoster()` (returns a PNG data URL), `openCmd()` (opens Search; js/80 replaces it with its own open), `run(line)` (execute a typed command, answers on Search's status line). The old command prompt is gone; `run()` is the verb layer under Search.
 
 ## window.AUI_SEARCH (from js/80)
-`open()`, `close()`. Search is the palette in `#cmdDlg`: a combobox over a listbox of views, sections, settings and tricks.
+`open()`, `close()`. Search is the palette in `#cmdDlg` (js/80, css/18): a combobox input over a listbox. The list is rebuilt from `AUI_NAV.index()` each time it opens.
 
 ## window.AUI_JS (from js/30)
 Registry of component source for the Code tab: `{calendar, dropdown, otp, pagination, spinners}`. Each is a function whose `toString()` is printed. To add one, wrap the component's wiring in `window.AUI_JS.name=function(){...};window.AUI_JS.name();` and map the section id in `JSMAP` (js/40).
@@ -77,15 +79,15 @@ Registry of component source for the Code tab: `{calendar, dropdown, otp, pagina
 ## window.AUI_TONES(), window.AUI_MAP
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
 
-## Search (`/`, Ctrl K or Cmd K, the search button in the bar)
-Nothing typed: Views, On this page (Home: Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Tricks (Tear, Jolt, Boot, Poster, Invaders, Load a photo, Rebuild). Typing searches every section of every view by name, poster title and caption. A typed command gets a Run row on top. The commands:
-`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto components|blocks|charts|themes|play|apps|onepager` (also `kit`, `page`, and `view/section`), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to Components first), `photo` (opens the picker and lands on Play's Source), `ring` (alias `torus`), `tilt`, `sudo`.
+## Search (`/`, Ctrl K or Cmd K, `#cmdBtn` in the bar)
+Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (the sections of the view you are in; Home offers Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Tricks (Tear, Jolt, Boot, Poster, Invaders, Load a photo, Rebuild). Typing searches every section of every view by name, poster title and caption. A typed command gets a Run row on top. The commands:
+`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto home|components|blocks|charts|themes` (alias `cd`; also `kit` and `view/section`; `play`, `apps`, `onepager` and `page` land on Home), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to the game and starts it), `photo` (opens the picker and lands on the Home hero), `ring` (alias `torus`, back to the ring), `tilt`, `sudo`.
 
 ## Keyboard
 `/` and Ctrl K (Cmd K) Search, then arrows, Home, End, PageUp, PageDown, Enter and Escape inside it, `g` glitch jolt, arrows + space in invaders, arrows/Home/End in tablists, arrows/Escape in the dropdown, Backspace/arrows/paste in OTP.
 
 ## Data attributes
-`data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-go` (unused legacy nav hook).
+`data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-v` (the view a Home tile goes to), `data-group` (set by the docs builder on each component: its group).
 
 ## CSS classes worth knowing
-`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.phone .app` (Apps), `.u .in` (entrance), `.calm` on `:root` when glitch is off.
+`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.dochead` (a docs view's one title and lede), `.grouph` (a component group label), `.band` (a Home section label), `.tile` (Home link tiles), `.try` (Home live parts), `.inl` (inline link), `.linkbtn` (a button that reads as a link), `.u .in` (entrance), `.calm` on `:root` when glitch is off.

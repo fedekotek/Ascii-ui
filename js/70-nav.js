@@ -204,7 +204,9 @@
   function route(h,push,instant){
     if(!h||h==='#'){if(push===undefined){go('home',null,{top0:true,instant:instant});return true}return false}
     const r=parse(h);if(!r)return false;
-    go(r.v,r.sec,{push:push?true:undefined,instant:instant});
+    /* an old address (Play, Apps, One pager) lands on Home and says so */
+    const old=!/^#\/?(home|components|kit|blocks|charts|themes)(\/|$)/i.test(h);
+    go(r.v,r.sec,{push:old?false:(push?true:undefined),instant:instant});
     return true;
   }
   function onNav(){
@@ -413,6 +415,8 @@
   });
   mv.addEventListener('click',e=>{
     const t=e.target.closest('[role="tab"]');if(!t)return;
+    /* Home has no sections to pick, so its tab goes there */
+    if(t.dataset.v==='home'){tick();go('home',null,{push:true,top0:true,after:closeMenu});return}
     if(t.dataset.v!==shown){fill(t.dataset.v);md.querySelector('.menu-body').scrollTop=0;tick()}
   });
   /* the row only refills the list, so the arrows can pick as they go */

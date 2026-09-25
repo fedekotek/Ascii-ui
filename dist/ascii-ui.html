@@ -316,11 +316,6 @@ dialog .row{justify-content:flex-end;column-gap:1ch}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--r) 2ch}
 .stat .ptitle{cursor:default}
 .stat p{color:var(--muted)}
-.ticker{
-  background:var(--hot);color:var(--bg);font-weight:700;white-space:pre;overflow:hidden;
-  padding:var(--r) 0;margin-top:calc(var(--r)*3);
-  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep);
-}
 .lab-h{margin-top:calc(var(--r)*3);text-transform:uppercase}
 .lab-h::before{content:"## ";color:var(--hot);font-weight:700}
 pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y;cursor:crosshair}
@@ -702,18 +697,10 @@ figcaption b{color:var(--ink)}
 .rampcells span:focus-within::before,.rampcells span:focus-within::after{color:var(--accent)}
 .rampcells input{font:inherit;font-weight:700;width:2ch;text-align:center;background:none;border:0;border-radius:0;color:var(--hot);padding:12px 0;margin:-12px 0;outline:0;caret-color:var(--hot)}
 #rampSpec{font-weight:700;white-space:pre;overflow:hidden}
-#playStage{position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg);padding-bottom:calc(var(--r)/2)}
-.knobs{display:grid;gap:var(--r) 3ch;grid-template-columns:1fr}
-@media (min-width:720px){.knobs{grid-template-columns:1fr 1fr}#playStage{position:static}}
 .code .h4{display:block;margin:0;font:inherit;font-weight:700;color:var(--ink);text-transform:uppercase}
 .code .h4::before{content:"## ";color:var(--hot)}
 .code .dep{color:var(--warn)}
 
-/* apps */
-.phone{position:relative;max-width:40ch;margin:0 auto}
-.phone .app{padding:0 3ch calc(var(--r)*1)}
-.app-bar{display:flex;justify-content:space-between;align-items:center;font-weight:700;text-transform:uppercase;padding:calc(var(--r)/2) 0}
-.app-bar .ibtn{padding:12px 0}
 .post{padding:var(--r) 0 0}
 .post + .post::before{content:var(--h-faint);display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.6;margin-bottom:calc(var(--r)/2)}
 .post .who{display:flex;gap:1ch;align-items:baseline}
@@ -726,39 +713,12 @@ figcaption b{color:var(--ink)}
 .post .acts button[aria-pressed="true"].rt{color:var(--ok)}
 .post .acts button:focus-visible{background:var(--accent);color:var(--bg)}
 .post .media{margin-top:calc(var(--r)/2)}
-.compose{display:flex;flex-wrap:wrap;gap:var(--r) 1ch;align-items:flex-start;margin-top:var(--r)}
-.compose .field{min-width:18ch}
-.compose .btn{margin-left:auto}
-.compose .field{flex:1}
-.tabbar{display:flex;justify-content:space-around;padding-top:var(--r);font-weight:700}
-.tabbar button{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 1ch;cursor:pointer;outline:0}
-.tabbar button[aria-current="page"]{color:var(--ink);background:var(--ink);color:var(--bg)}
-.tabbar button:focus-visible{background:var(--accent);color:var(--bg)}
-.track{position:static}
-.tracklist{list-style:none;padding:0;margin:var(--r) 0 0}
-.tracklist button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 0;cursor:pointer;outline:0;text-align:left}
-.tracklist button[aria-current="true"]{color:var(--ink);font-weight:700}
-.tracklist button[aria-current="true"]::before{content:"> ";color:var(--hot)}
-.tracklist button:focus-visible{background:var(--accent);color:var(--bg)}
-.transport{display:flex;justify-content:center;gap:3ch;margin-top:var(--r)}
-.transport .ibtn{font-size:inherit;padding:12px 1ch}
-.vu{font-weight:700;white-space:pre;overflow:hidden;color:var(--ok);line-height:14px;font-size:12px}
-.cover{margin-top:var(--r)}
-.thread{list-style:none;padding:0;margin:0}
-.thread li{display:flex;margin-top:calc(var(--r)/2)}
-.thread li.me{justify-content:flex-end}
-.bubble{max-width:80%;padding:0 1ch}
-.thread li.me .bubble{background:var(--hot);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
-.thread li:not(.me) .bubble{background:color-mix(in srgb,var(--ink) 12%,transparent)}
-.thread .meta{display:block;color:var(--muted);font-size:12px;line-height:14px}
 .typing{color:var(--muted)}
 
 /* Thumb-wide targets in the Chirp demo. The post actions sit 2ch apart, so a
    character of padding each side fills the gap without two targets touching;
    the bell and the shortest tab label get the same 5ch floor. */
 .post .acts button{padding:12px 1ch;margin:-12px -1ch}
-.app-bar .ibtn{padding:12px 1ch;margin:-12px 0}
-.tabbar button{min-width:5ch}
 /* ---- layout grid ----------------------------------------------------------
    Two things live here. First, how wide the page is allowed to get: --maxcols
    is the cap in characters, it steps up at four breakpoints and js/10 reads it
@@ -2659,11 +2619,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       var lid=Math.min(cap,Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW)));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
-    /* on a phone the Play stage is sticky over the knobs and capped at nine
-       rows (css/17-nav.css), so the hero is drawn eight rows tall in there */
-    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>ROW*8){
-      Hpx=ROW*8;HR=Math.max(10,Math.floor(Hpx/LH));
-    }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
     /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a
@@ -4020,7 +3975,7 @@ async function run(line){
   else if(c==='boot'){cmdDlg.close();B.boot(true)}
   else if(c==='poster'){cmdDlg.close();openPoster()}
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
-  else if(c==='invaders'){cmdDlg.close();A.goTo('kit',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
+  else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
   /* the photo lands on Play, where the Source buttons and the stage are */
   else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
@@ -5202,7 +5157,9 @@ syncPickers();
   function route(h,push,instant){
     if(!h||h==='#'){if(push===undefined){go('home',null,{top0:true,instant:instant});return true}return false}
     const r=parse(h);if(!r)return false;
-    go(r.v,r.sec,{push:push?true:undefined,instant:instant});
+    /* an old address (Play, Apps, One pager) lands on Home and says so */
+    const old=!/^#\/?(home|components|kit|blocks|charts|themes)(\/|$)/i.test(h);
+    go(r.v,r.sec,{push:old?false:(push?true:undefined),instant:instant});
     return true;
   }
   function onNav(){
@@ -5411,6 +5368,8 @@ syncPickers();
   });
   mv.addEventListener('click',e=>{
     const t=e.target.closest('[role="tab"]');if(!t)return;
+    /* Home has no sections to pick, so its tab goes there */
+    if(t.dataset.v==='home'){tick();go('home',null,{push:true,top0:true,after:closeMenu});return}
     if(t.dataset.v!==shown){fill(t.dataset.v);md.querySelector('.menu-body').scrollTop=0;tick()}
   });
   /* the row only refills the list, so the arrows can pick as they go */
@@ -5636,9 +5595,9 @@ syncPickers();
       refreshVals();
       /* the new value confirms itself in lime, once */
       const m=rowEl(i)&&rowEl(i).querySelector('.s-meta');
-      if(m){
+      if(m&&!A.reduce){
         m.classList.add('s-flash');
-        if(!A.reduce){if(m._f)m._f.stop();m._f=A.times(700,1,function(){},function(){m.classList.remove('s-flash');m._f=null})}
+        {if(m._f)m._f.stop();m._f=A.times(700,1,function(){},function(){m.classList.remove('s-flash');m._f=null})}
       }
     }
     else if(it.kind==='trick')C.run(it.verb);

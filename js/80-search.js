@@ -177,9 +177,9 @@
       refreshVals();
       /* the new value confirms itself in lime, once */
       const m=rowEl(i)&&rowEl(i).querySelector('.s-meta');
-      if(m){
+      if(m&&!A.reduce){
         m.classList.add('s-flash');
-        if(!A.reduce){if(m._f)m._f.stop();m._f=A.times(700,1,function(){},function(){m.classList.remove('s-flash');m._f=null})}
+        {if(m._f)m._f.stop();m._f=A.times(700,1,function(){},function(){m.classList.remove('s-flash');m._f=null})}
       }
     }
     else if(it.kind==='trick')C.run(it.verb);

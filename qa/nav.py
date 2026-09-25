@@ -94,6 +94,16 @@ async def links(b,base,label,bad):
             r=await pg.evaluate(LANDED+"('section[aria-labelledby=\""+sec+"\"]')")
             if r['hidden'] or not (abs(r['off'])<=2 or r['bottom']) or errs: fails.append(f'{w} {addr} {r} {errs[:1]}')
             await ctx.close()
+    # the removed views: an old link lands on Home, and the address says so
+    # (#onepager/faq finds the questions, which live on Home now)
+    for addr,want,top in [('#play','#home',True),('#apps/','#home',True),('#onepager/faq','#home/faq',False)]:
+        ctx=await b.new_context(viewport={'width':1440,'height':900})
+        pg=await ctx.new_page();errs=[]
+        pg.on('pageerror',lambda e:errs.append(str(e)))
+        await pg.goto(base+addr);await pg.wait_for_timeout(2600)
+        r=await pg.evaluate("[location.hash,!document.getElementById('view-home').hidden,window.scrollY]")
+        if r[0]!=want or not r[1] or (top and r[2]>2) or errs: fails.append(f'old {addr} {r} {errs[:1]}')
+        await ctx.close()
     print('links',label,'ok' if not fails else fails)
     if fails: bad.append('links '+label)
 
