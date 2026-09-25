@@ -427,16 +427,17 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-/* skip: sections that stay out of the index and go last (Rules). pin: sections
-   that open the view, in that order, ahead of the alphabet: Button is the first
-   thing anyone looks for, and a 404 page is a strange first block. */
+/* skip: sections that stay out of the index and open the view, the way a docs
+   site starts with Getting started (Rules; Get the kit joins it from js/40).
+   pin: sections that open the index, in that order, ahead of the alphabet: a
+   404 page is a strange first block. */
 function buildView(panel,label,skip,pin){
   spanSections(panel);pin=pin||[];
   const id=s=>s.getAttribute('aria-labelledby'),all=[...panel.querySelectorAll(':scope > section[aria-labelledby]')];
   const secs=all.filter(s=>!skip.includes(id(s))),tail=all.filter(s=>skip.includes(id(s)));
   const name=s=>s.querySelector('h2').textContent.trim(),rank=s=>{const i=pin.indexOf(id(s));return i<0?pin.length:i};
   secs.sort((a,b)=>rank(a)-rank(b)||name(a).localeCompare(name(b)));
-  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
+  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
   /* under 1024px the [=] menu is the index now, so this starts closed; from
@@ -450,7 +451,7 @@ function buildView(panel,label,skip,pin){
   return secs;
 }
 spanSections($('view-charts'));
-buildView($('view-kit'),'Components',['s-rules'],['s-button']);
+buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;

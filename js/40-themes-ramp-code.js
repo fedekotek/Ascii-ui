@@ -71,16 +71,13 @@ rampIns.forEach(inp=>inp.addEventListener('input',()=>{
 }));
 $('rampSpec').innerHTML=A.colorize(A.barRow(12,false,12)+'  '+CANON.split('').reverse().join(' '))+'\n'+A.colorize(A.barRow(8,false,12));
 
-/* ================= play: the hero with the hood open ================= */
-const hero=$('hero'),HP=A.HP,stage=$('playStage'),home=$('heroLine'),header=document.querySelector('main > header');
-/* The header is the front door of Components and of nothing else: every other
-   view starts with its own content right under the bar, and ends with one line
-   instead of the game. Play borrows the canvas for its stage. */
+/* ================= home: the hero and the game ================= */
+const header=document.querySelector('main > header');
+/* The header is Home's and nobody else's: every other view starts with its own
+   content right under the bar, and ends with one line instead of the game. */
 function placeHero(){
-  const sel=v=>$('v-'+v).getAttribute('aria-selected')==='true',on=sel('play'),kit=sel('kit');
-  if(on&&hero.parentNode!==stage)stage.appendChild(hero);
-  else if(!on&&hero.parentNode===stage)header.insertBefore(hero,home);
-  header.hidden=!kit;$('footGame').hidden=!kit;$('footLine').hidden=kit;
+  const home=$('v-home').getAttribute('aria-selected')==='true';
+  header.hidden=!home;$('footGame').hidden=!home;$('footLine').hidden=home;
   A.layout();
 }
 A.onView=placeHero;
@@ -94,28 +91,12 @@ function goTo(view,el,block,then){
   el.scrollIntoView({block:block||'start'});if(then)then();
 }
 A.goTo=goTo;
-const firstKit=()=>$('s-button').parentNode;
-/* the page moves to Button and so does the keyboard, or the next Tab would
-   pull it back up to the hero */
-$('heroSee').addEventListener('click',()=>{const s=firstKit();goTo('kit',s,null,()=>{s.tabIndex=-1;s.focus({preventScroll:true})});A.kick()});
-$('heroPlay').addEventListener('click',()=>$('v-play').click());
-const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
-['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));
-const KN={kSpeed:['speed',100],kSize:['rad',100],kSplit:['split',100],kTear:['tear',100],kStreaks:['streaks',1],kBlocks:['blocks',1]};
-Object.keys(KN).forEach(id=>A.bindSlider($(id),(fr,v)=>{
-  const k=KN[id];HP[k[0]]=v/k[1];if(k[0]==='streaks'||k[0]==='blocks')A.reseed();
-}));
-document.addEventListener('change',e=>{if(e.target.name==='kMap'){HP.map=+e.target.value;A.drawHero();ping(440)}});
-$('kBurst').addEventListener('click',()=>{A.G.burst=1;A.jolt()});
-$('kSnap').addEventListener('click',()=>{
-  try{const pal=A.pal(),c=document.createElement('canvas');c.width=hero.width;c.height=hero.height;const x=c.getContext('2d');x.fillStyle=pal.bg;x.fillRect(0,0,c.width,c.height);x.drawImage(hero,0,0);
-    A.picDialog(c.toDataURL('image/png'),'snap');if(live())sfx.ok()}
-  catch(err){A.say('Snapshot is blocked for this picture.',true)}
-});
-$('kReset').addEventListener('click',()=>{
-  const D={kSpeed:100,kSize:100,kSplit:100,kTear:100,kStreaks:38,kBlocks:9};
-  Object.keys(D).forEach(id=>{$(id).value=D[id];$(id).dispatchEvent(new Event('change',{bubbles:true}))});
-  $('pl1').value=HP.t1='ASCII';$('pl2').value=HP.t2='/UI';HP.map=0;document.querySelector('input[name="kMap"][value="0"]').checked=true;A.layout();A.jolt();
+$('heroSee').addEventListener('click',()=>{const N=window.AUI_NAV;if(N)N.go('kit',null,{push:true,top0:true});else $('v-kit').click();A.kick()});
+$('heroKit').addEventListener('click',()=>{const h=$('s-install');if(h)goTo('kit',h.parentNode);if(A.live())sfx.ok()});
+/* the tiles are links, so they work without js; with it they go through the router */
+document.querySelector('#view-home .tiles').addEventListener('click',e=>{
+  const a=e.target.closest('a.tile');if(!a||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  e.preventDefault();const N=window.AUI_NAV;if(N)N.go(a.dataset.v,null,{push:true,top0:true});else $('v-'+a.dataset.v).click();
 });
 
 /* ================= code tab, complete: html + css + js, and the base install ================= */
@@ -158,7 +139,7 @@ A.codeExtra=function(sec,p1){
   sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><b>Get the kit.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Six color roles, four support shades and the ramp. The defaults are fine, Themes is where you change them.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
     '<li class="past"><b>Frame engine</b><span>The css that turns a string into a border, and the script that builds the strings.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="frame"><span class="mid"><span class="label">Copy frame engine</span></span></button></div></li>'+
-    '<li class="past"><b>Components</b><span>Open any Code tab above. It has the html, the css and the js.</span></li></ol>';
+    '<li class="past"><b>Components</b><span>Open any Code tab below. It has the html, the css and the js.</span></li></ol>';
   kit.insertBefore(sec,rules.parentNode);
   sec.addEventListener('click',e=>{
     const b=e.target.closest('[data-cp]');if(!b)return;

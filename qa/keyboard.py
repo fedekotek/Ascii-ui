@@ -10,7 +10,7 @@ AE="()=>{const a=document.activeElement;return a?(a.tagName+'#'+a.id+':'+(a.type
 bad=lambda s:('INPUT' in s and (':range' in s or ':text' in s or ':search' in s or ':email' in s or ':password' in s)) or 'TEXTAREA' in s
 with sync_playwright() as p:
     b=p.chromium.launch();fails=[];n=0
-    for view in ['components','play','themes']:
+    for view in ['components','themes']:
         pg=b.new_page(viewport={'width':390,'height':844},has_touch=True,is_mobile=True)
         pg.goto(url+'#'+view);pg.wait_for_timeout(2500)
         cdp=pg.context.new_cdp_session(pg)

@@ -30,12 +30,9 @@ async def run(w,h):
         out.append(('clock tasks',n,''))
         if n<8: bad+=1
 
-        # the ticker is a clock task: it must move, freeze on pause, move again on resume
+        # the HUD timecode is a clock task: it must move, freeze on pause, move again on resume
         async def ticker():
-            return await pg.evaluate("document.getElementById('ticker').textContent.slice(0,12)")
-        await pg.evaluate("document.getElementById('v-page').click()")
-        await pg.wait_for_timeout(900)
-        await pg.evaluate("document.getElementById('ticker').scrollIntoView({block:'center'})")
+            return await pg.evaluate("document.getElementById('hud').textContent.slice(0,24)")
         await pg.wait_for_timeout(600)
         a=await ticker(); await pg.wait_for_timeout(700); c=await ticker()
         out.append(('ticker runs',a!=c,a+' -> '+c))

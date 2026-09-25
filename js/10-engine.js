@@ -386,7 +386,10 @@
       var floor=Math.min(ROW*10,Math.round(vh*0.3/ROW)*ROW);
       /* and never more than 45% of the window, so the page under it shows
          whatever the copy costs */
-      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW));
+      /* and a hard cap in rows: sixteen on a screen, twelve on a phone. The ring
+         is the proof, not the page (Home, 2026) */
+      var cap=ROW*(window.innerWidth<720?12:16);
+      var lid=Math.min(cap,Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW)));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     /* on a phone the Play stage is sticky over the knobs and capped at nine
@@ -1001,6 +1004,11 @@
       x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1;
       $(x.getAttribute('aria-controls')).hidden=!on;
     });
+    /* Home's tab is not drawn (the name is the way there), so on Home the
+       keyboard enters the row at the first tab that is */
+    if(getComputedStyle(tab).display==='none'){
+      var f=viewTabs.filter(function(x){return getComputedStyle(x).display!=='none'})[0];if(f)f.tabIndex=0;
+    }
   }
   function showView(tab,then,instant){
     if(!viewQueued&&tab.getAttribute('aria-selected')==='true'){if(then)then();return}
@@ -1112,14 +1120,7 @@
     });
   });
 
-  /* ---- one pager: ticker, labs, details, calls to action ---- */
-  var tk=$('ticker'),TK='ASCII/UI /// NO DEPENDENCIES /// 8 CHARACTERS /// 1 TYPE SIZE /// BAD SIGNAL, GOOD HTML /// ',tki=0;
-  function drawTicker(){var o='',i;for(i=0;i<140;i++)o+=TK.charAt((tki+i)%TK.length);tk.textContent=o}
-  drawTicker();
-  if(!reduce)every(110,function(){
-    tki=(tki+1)%TK.length;drawTicker();
-  },{el:tk});
-
+  /* ---- labs (Themes), details ---- */
   var rampLab=$('rampLab'),RLX=0.5,RLY=0.5,RLE=0.6;
   function drawRamp(){
     var cols=Math.max(16,Math.min(72,Math.floor(rampLab.clientWidth/CH)||30)),rows=9,o='',x,y;
@@ -1189,13 +1190,6 @@
       if(d.open){sfx.on();var a=d.querySelector('p');if(a)decode(a)}else sfx.off();
     });
   });
-  /* the kit is the page itself: Get the kit lands on the install steps at the
-     end of Components, See components on the first card. AUI.goTo is js/40. */
-  function land(id){var h=$(id);if(h&&window.AUI&&AUI.goTo)AUI.goTo('kit',h.parentNode);else $('v-kit').click()}
-  function getKit(){land('s-install');sfx.ok()}
-  $('opGet1').addEventListener('click',getKit);
-  $('opGet2').addEventListener('click',getKit);
-  $('opSee').addEventListener('click',function(){land('s-button')});
 
   /* ---- everything arrives broken: glitch-in on enter, text decodes left to right ---- */
   var NOISE='@%#*+=:./\\|-_<>';

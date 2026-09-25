@@ -402,7 +402,6 @@ function picDialog(src,kind){
 }
 A.picDialog=picDialog;
 function openPoster(){picDialog(makePoster(),'poster')}
-$('posterBtn').addEventListener('click',openPoster);
 $('posterClose').addEventListener('click',()=>$('posterDlg').close());
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
@@ -415,13 +414,13 @@ const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badg
 async function run(line){
   line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto components|blocks|charts|themes|play|apps|onepager\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto home|components|blocks|charts|themes\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
   else if(c==='goto'||c==='cd'){
     /* the names the address bar uses, plus the old kit and page */
-    const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit',onepager:'page'},v=n.split('/')[0];
+    const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
     if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
     else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
     else out('no such view: '+esc(n))}
@@ -448,7 +447,7 @@ async function run(line){
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
   else if(c==='invaders'){cmdDlg.close();A.goTo('kit',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
   /* the photo lands on Play, where the Source buttons and the stage are */
-  else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('play',$('s-source').parentNode)}
+  else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());
   else if(c==='clear')cmdLog.innerHTML='type <b>help</b>';

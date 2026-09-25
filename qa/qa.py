@@ -8,7 +8,7 @@ async def run(w,h,scheme,tag,shots=True):
         pg.on('console',lambda m:msgs.append('CON '+m.text) if m.type=='error' else None)
         await pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))+''); await pg.wait_for_timeout(2600)
         await pg.mouse.click(w//2,200)
-        for name in ['kit','blocks','charts','themes','play','apps','page']:
+        for name in ['home','kit','blocks','charts','themes']:
             await pg.evaluate(f"(()=>{{const t=document.getElementById('v-{name}');if(t.getAttribute('aria-selected')!=='true')t.click()}})()")
             await pg.wait_for_timeout(1500)
             ov=await pg.evaluate("document.documentElement.scrollWidth-document.documentElement.clientWidth")

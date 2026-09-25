@@ -18,11 +18,6 @@ async def main():
         await pg.evaluate("window.scrollTo(0,0)"); await pg.wait_for_timeout(1200)
         await pg.screenshot(path='t_hero_letters.png')
         await pg.evaluate("document.querySelector('input[name=preset][value=gameboy]').click()"); await pg.wait_for_timeout(1600)
-        # play
-        await pg.evaluate("document.getElementById('v-play').click()"); await pg.wait_for_timeout(1700)
-        await pg.fill('#pl1','FEDE'); await pg.fill('#pl2','KOTEK'); await pg.wait_for_timeout(500)
-        await pg.evaluate("document.querySelector('input[name=kMap][value=\"2\"]').click()"); await pg.wait_for_timeout(500)
-        await pg.screenshot(path='t_play.png')
         # code tab on kit
         await pg.evaluate("document.getElementById('v-kit').click()"); await pg.wait_for_timeout(1700)
         await pg.evaluate("(()=>{const s=document.querySelector('section[aria-labelledby=s-calendar]');s.scrollIntoView();s.querySelectorAll('.doc-tabs .tab')[1].click()})()"); await pg.wait_for_timeout(1200)

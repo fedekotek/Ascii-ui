@@ -86,7 +86,7 @@ async def phone(b,w,h,bad):
 async def links(b,base,label,bad):
     fails=[]
     for w,h in [(390,844),(1440,900)]:
-        for addr,sec in [('#blocks/login','s-login'),('#onepager/faq','o-faq'),('#play/knobs','s-knobs'),('#components/tooltip','s-tooltip'),('#charts/heat','s-heat')]:
+        for addr,sec in [('#blocks/login','s-login'),('#themes/labs','s-labs'),('#themes/tokens','s-tokens'),('#components/tooltip','s-tooltip'),('#charts/heat','s-heat')]:
             ctx=await b.new_context(viewport={'width':w,'height':h},color_scheme='dark')
             pg=await ctx.new_page();errs=[]
             pg.on('pageerror',lambda e:errs.append(str(e)))
@@ -105,7 +105,7 @@ async def desktop(b,bad):
     await pg.mouse.click(700,300)
     fails=[]
     # history
-    for v in ['blocks','charts','page']:
+    for v in ['blocks','charts','themes']:
         await pg.click('#v-'+v);await pg.wait_for_timeout(700)
     seq=[]
     for step in ['back','back','forward']:
@@ -118,7 +118,7 @@ async def desktop(b,bad):
     import random
     wrong=0
     for i in range(6):
-        picks=random.sample(['kit','blocks','charts','themes','play','apps','page'],6)
+        picks=random.sample(['kit','blocks','charts','themes'],4)
         # real clicks, so the ones that land on a transition's overlay count too
         for v in picks:
             x,y=await center(pg,'#v-'+v);await pg.mouse.click(x,y);await pg.wait_for_timeout(60)

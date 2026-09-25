@@ -58,6 +58,10 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .crumb [aria-hidden]{color:var(--muted);font-weight:500}
 .crumb:focus-visible [aria-hidden]{color:inherit}
 
+/* Home has a tab so the router and the keyboard treat it like any view, but
+   the name is the way there, so the tab is not drawn */
+#v-home{display:none!important}
+
 /* the views, in the same sentence case as everything else in the bar. The
    list may scroll sideways as a last resort, but it is sized not to */
 #views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
@@ -294,18 +298,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   .otp input{width:5ch}
 }
 @media (max-width:383px){.otp{gap:0}}
-
-/* The Play stage is sticky, and on a phone it took 38% of the screen while you
-   were turning the knobs under it. It is capped in whole rows, and layout()
-   draws the hero eight rows tall in there so none of it is cut off. */
-@media (max-width:719px){
-  #playStage{position:static;max-height:calc(var(--r)*9);overflow:hidden;padding-bottom:var(--r)}
-  /* the stage's own section is exactly its height, so sticking the stage
-     inside it did nothing: the section sticks instead */
-  #view-play > section:has(> #playStage){position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg)}
-  /* a jump lands a Play section under the stage, not behind it */
-  #view-play > section[aria-labelledby]{scroll-margin-top:calc(var(--r)*9)}
-}
 
 /* The palette printed its help as one long line and cut it mid word. */
 #cmdLog{word-break:break-word;overflow-wrap:anywhere}

@@ -65,7 +65,7 @@ async def run():
             bl=await pg.evaluate(BAR)
             if bl: msgs.append('bar overlap: '+'; '.join(bl))
             # and the views are always reachable: the tabs, or the [=] that holds them
-            nv=await pg.evaluate("[document.getElementById('menuBtn'),document.getElementById('v-page')].some(e=>e.offsetParent!==null)")
+            nv=await pg.evaluate("[document.getElementById('menuBtn'),document.getElementById('v-themes')].some(e=>e.offsetParent!==null)")
             if not nv: msgs.append('no way to change views: neither the tabs nor [=] is visible')
             # where the views are in the bar, all seven show: a tab scrolled out
             # of sight is a view nobody finds

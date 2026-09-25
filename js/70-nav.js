@@ -20,21 +20,20 @@
    page, and it follows the Blocks filter. */
 (function(){
   const A=window.AUI,$=A.$,nav=$('sidenav'),bar=document.querySelector('.topbar');
-  const VIEWS=['kit','blocks','charts','themes','play','apps','page'];
-  const LABEL={kit:'Components',blocks:'Blocks',charts:'Charts',themes:'Themes',
-               play:'Play',apps:'Apps',page:'One pager'};
-  const SLUG={kit:'components',blocks:'blocks',charts:'charts',themes:'themes',
-              play:'play',apps:'apps',page:'onepager'};
-  /* the address names, plus the old palette names */
-  const FROM={components:'kit',kit:'kit',blocks:'blocks',charts:'charts',themes:'themes',
-              play:'play',apps:'apps',onepager:'page',page:'page'};
+  const VIEWS=['home','kit','blocks','charts','themes'];
+  const LABEL={home:'Home',kit:'Components',blocks:'Blocks',charts:'Charts',themes:'Themes'};
+  const SLUG={home:'home',kit:'components',blocks:'blocks',charts:'charts',themes:'themes'};
+  /* the address names, plus the old palette names. Play, Apps and One pager
+     are gone; old links to them land on Home */
+  const FROM={home:'home',components:'kit',kit:'kit',blocks:'blocks',charts:'charts',themes:'themes',
+              play:'home',apps:'home',onepager:'home',page:'home'};
   const tabs=VIEWS.map(v=>$('v-'+v));
   const mod=e=>e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey;
   const tick=()=>{if(A.live())A.sfx.tab()};
 
   function current(){
     for(const v of VIEWS)if($('v-'+v).getAttribute('aria-selected')==='true')return v;
-    return 'kit';
+    return 'home';
   }
   function name(sec){
     const h=sec.querySelector('h2,h3');
@@ -61,13 +60,15 @@
      a small group of their own, Start before and About after, so the heading
      comes first and its number matches the list under it. */
   function model(v){
+    /* Home is a landing, not a list: no sidebar */
+    if(v==='home')return {title:LABEL[v],count:0,groups:[]};
     const all=sections($('view-'+v)),counted=all.filter(s=>s._chip);
     let title=LABEL[v];
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
     if(!counted.length)return {title:title,count:all.length,groups:all.length?[{items:all}]:[]};
     const i0=all.indexOf(counted[0]);
     return {title:title,count:counted.length,groups:[
-      {label:'Start',items:all.filter((s,i)=>!s._chip&&i<i0)},
+      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)},
       {items:counted},
       {label:'About',items:all.filter((s,i)=>!s._chip&&i>i0)}
     ].filter(g=>g.items.length)};
@@ -196,7 +197,7 @@
   }
   /* returns false for an address that is not ours (#main, a demo's #) */
   function route(h,push,instant){
-    if(!h||h==='#'){if(push===undefined){go('kit',null,{top0:true,instant:instant});return true}return false}
+    if(!h||h==='#'){if(push===undefined){go('home',null,{top0:true,instant:instant});return true}return false}
     const r=parse(h);if(!r)return false;
     go(r.v,r.sec,{push:push?true:undefined,instant:instant});
     return true;
@@ -221,11 +222,13 @@
       go(v,null,{push:true,smooth:here});
     });
     t.addEventListener('keydown',e=>{
+      /* the arrows walk the tabs that are drawn: Home's is not */
+      const vt=tabs.filter(x=>x.offsetParent!==null),k=vt.indexOf(t);
       let n=null;
-      if(e.key==='ArrowRight')n=tabs[(i+1)%tabs.length];
-      else if(e.key==='ArrowLeft')n=tabs[(i-1+tabs.length)%tabs.length];
-      else if(e.key==='Home')n=tabs[0];
-      else if(e.key==='End')n=tabs[tabs.length-1];
+      if(e.key==='ArrowRight')n=vt[(k+1)%vt.length];
+      else if(e.key==='ArrowLeft')n=vt[(k-1+vt.length)%vt.length];
+      else if(e.key==='Home')n=vt[0];
+      else if(e.key==='End')n=vt[vt.length-1];
       else if(e.key===' '){e.preventDefault();t.click();return}
       if(n){e.preventDefault();tabs.forEach(x=>x.tabIndex=x===n?0:-1);n.focus()}
     });
@@ -324,9 +327,11 @@
   });
 
   /* ---- the name, the crumb, the skip link ---- */
+  /* the name is Home, and on Home it is the way back to the top */
   $('brand').addEventListener('click',function(){
     settle=null;
-    window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
+    if(current()==='home')window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
+    else go('home',null,{push:true,top0:true});
     tick();
   });
   function crumb(){

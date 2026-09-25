@@ -24,7 +24,7 @@
      dialogs lay it over themselves because the top layer is out of reach */
   --scanlines:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
   --accent:var(--cy); --danger:var(--warn);
-  --r:24px;
+  --r:21px;   /* one row. 14px type on a 21px line, 1.5 like it always was. JS reads this as A.ROW */
   --ptitle:6;   /* poster titles: the biggest px a bitmap pixel may get */
   color-scheme:light;
   box-sizing:border-box;
@@ -57,7 +57,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
   margin:0;background:var(--bg);color:var(--ink);
   font-family:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:16px;line-height:var(--r);font-weight:500;
+  font-size:14px;line-height:var(--r);font-weight:500;
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }
@@ -869,35 +869,47 @@ main{max-width:calc(var(--maxcols)*1ch)}
 @media (max-width:719px){#hero{--fade:2}}
 
 /* ---- the hero fold --------------------------------------------------------
-   The header says what this is and offers two ways in, nothing else: the
-   photo, the camera and the poster are toys and live in Play, where they have
-   a stage. From 1024px the rows under the canvas sit in three columns, the
-   copy on the left, the two actions and the line about the ring in the middle,
-   the page switches on the right, so the first row of components still shows. */
-@media (min-width:1024px){
-  main > header{display:grid;grid-template-columns:repeat(3,1fr);column-gap:4ch;align-items:start}
-  main > header > h1,main > header > canvas{grid-column:1/-1}
-  /* the line about the ring sits right under the ring, the width of it */
-  main > header > #heroLine{grid-column:1/-1;grid-row:2}
-  main > header > .lede{grid-column:1;grid-row:3;margin-top:var(--r)}
-  main > header > .hint{grid-column:1;grid-row:4}
-  main > header > #heroGo{grid-column:2;grid-row:3;margin-top:var(--r)}
-  main > header > #heroSw{grid-column:3;grid-row:3;margin-top:var(--r)}
+   Home's header says one thing: the headline, a short lede, two ways in, and
+   one quiet line for feeding the ring a photo. One column with one left edge,
+   the same edge as the name in the bar. The Grid and Glitch switches live in
+   the bar's settings now; their inputs stay here, hidden, because four
+   scripts read them. */
+.hero-h{font-weight:700;color:var(--ink);margin:var(--r) 0 0}
+main > header > .lede{max-width:64ch;margin-top:0}
+main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
+.hero-src{margin-top:var(--r);align-items:baseline;column-gap:2ch;flex-wrap:wrap}
+.hero-src .status{margin:0}
+/* a text button: ink, underlined, magenta on hover, a thumb tall */
+.linkbtn{
+  font:inherit;line-height:var(--r);background:none;border:0;border-radius:0;color:var(--muted);
+  padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;text-decoration:underline;text-underline-offset:3px;
 }
-/* from 124 columns the middle one takes what the two buttons need side by
-   side (40ch), which saves the three rows a stacked pair costs */
-@media (min-width:1280px){
-  main > header{grid-template-columns:1fr auto 1fr}
-}
+@media (hover:hover){.linkbtn:hover{color:var(--hot)}}
+.linkbtn:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
 
-/* On a phone the rows stack: the canvas, one line naming the toy, the lede,
-   the two actions. The switches are in the [=] sheet already, and the tip
-   describes gestures you find by trying, so down here they are not shown. */
-@media (max-width:1023px){
-  main > header > #heroSw,main > header > .hint{display:none}
+/* ---- Home, under the hero --------------------------------------------------
+   Bands with a plain bold label, so the ASCII/UI bitmap stays the only big
+   title on the page. */
+.band{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);text-transform:uppercase;letter-spacing:0}
+#view-home > section{margin-top:calc(var(--r)*2)}
+#view-home .stats{grid-template-columns:repeat(auto-fit,minmax(20ch,1fr))}
+#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(34ch,1fr));gap:var(--r) 4ch}
+#view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
+#view-home > section[aria-labelledby="s-ideas"] > .demo{margin:0}
+/* the way in: four tiles, the whole tile is the link */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(26ch,1fr));gap:var(--r) 2ch}
+.tile{
+  display:flex;flex-direction:column;gap:0;min-height:calc(var(--r)*5);padding:calc(var(--r)/2) 2ch;
+  color:var(--ink);text-decoration:none;outline:0;position:relative;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent);
 }
+.tile b{line-height:var(--r)}
+.tile .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
+@media (hover:hover){.tile:hover{box-shadow:inset 0 0 0 2px var(--hot)}.tile:hover b{color:var(--hot)}}
+.tile:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}
+.tile:focus-visible b{color:var(--accent)}
 
-/* Only Components has the header. Every other view starts with its own
+/* Only Home has the header. Every other view starts with its own
    content one row under the bar: no hero margin, no section margin. */
 main > header[hidden]{display:none}
 main > header[hidden] ~ #sidenav,main > header[hidden] ~ [role="tabpanel"]{margin-top:0}
@@ -962,6 +974,10 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .crumb{display:none;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .crumb [aria-hidden]{color:var(--muted);font-weight:500}
 .crumb:focus-visible [aria-hidden]{color:inherit}
+
+/* Home has a tab so the router and the keyboard treat it like any view, but
+   the name is the way there, so the tab is not drawn */
+#v-home{display:none!important}
 
 /* the views, in the same sentence case as everything else in the bar. The
    list may scroll sideways as a last resort, but it is sized not to */
@@ -1200,18 +1216,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 @media (max-width:383px){.otp{gap:0}}
 
-/* The Play stage is sticky, and on a phone it took 38% of the screen while you
-   were turning the knobs under it. It is capped in whole rows, and layout()
-   draws the hero eight rows tall in there so none of it is cut off. */
-@media (max-width:719px){
-  #playStage{position:static;max-height:calc(var(--r)*9);overflow:hidden;padding-bottom:var(--r)}
-  /* the stage's own section is exactly its height, so sticking the stage
-     inside it did nothing: the section sticks instead */
-  #view-play > section:has(> #playStage){position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));z-index:5;background:var(--bg)}
-  /* a jump lands a Play section under the stage, not behind it */
-  #view-play > section[aria-labelledby]{scroll-margin-top:calc(var(--r)*9)}
-}
-
 /* The palette printed its help as one long line and cut it mid word. */
 #cmdLog{word-break:break-word;overflow-wrap:anywhere}
 
@@ -1312,16 +1316,14 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <div class="topbar-in">
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
-      <button class="brand" id="brand" type="button" title="Back to the top">ascii<span class="slash">/</span>ui</button>
-      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Components, open the menu"><span aria-hidden="true">/ </span><span id="crumbName">Components</span></button>
+      <button class="brand" id="brand" type="button" title="Home">ascii<span class="slash">/</span>ui</button>
+      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu"><span aria-hidden="true">/ </span><span id="crumbName">Home</span></button>
       <div class="tablist views" role="tablist" aria-label="Views" id="views">
-        <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="true">Components</a>
+        <a class="tab" role="tab" id="v-home" href="#home" aria-controls="view-home" aria-selected="true">Home</a>
+        <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="false">Components</a>
         <a class="tab" role="tab" id="v-blocks" href="#blocks" aria-controls="view-blocks" aria-selected="false" tabindex="-1">Blocks</a>
         <a class="tab" role="tab" id="v-charts" href="#charts" aria-controls="view-charts" aria-selected="false" tabindex="-1">Charts</a>
         <a class="tab" role="tab" id="v-themes" href="#themes" aria-controls="view-themes" aria-selected="false" tabindex="-1">Themes</a>
-        <a class="tab" role="tab" id="v-play" href="#play" aria-controls="view-play" aria-selected="false" tabindex="-1">Play</a>
-        <a class="tab" role="tab" id="v-apps" href="#apps" aria-controls="view-apps" aria-selected="false" tabindex="-1">Apps</a>
-        <a class="tab" role="tab" id="v-page" href="#onepager" aria-controls="view-page" aria-selected="false" tabindex="-1">One pager</a>
       </div>
       <div class="barctl">
         <label class="check" id="soundBar"><input type="checkbox" role="switch" id="soundToggle" checked><span aria-hidden="true">[</span><span class="lbl">Sound</span><span aria-hidden="true">]</span></label>
@@ -1337,14 +1339,20 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <header>
     <h1 class="vh">ascii/ui</h1>
     <canvas id="hero" aria-hidden="true"></canvas>
-    <p class="muted demo" id="heroLine">The ring is the hero. Tap it to tear it, or feed it a photo in Play.</p>
-    <p class="lede demo">shadcn-style components in a brutalist ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
+    <p class="hero-h" id="heroLine">Components you copy and own.</p>
+    <p class="lede demo">Thirty shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
     <div class="row demo" id="heroGo">
       <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
-      <button class="btn frame tone-light" id="heroPlay" type="button"><span class="mid"><span class="label">Open in Play</span></span></button>
+      <button class="btn frame tone-light" id="heroKit" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
     </div>
-    <p class="hint demo">Press <kbd>/</kbd> for commands. Long-press anything to break it. Scroll fast and the signal tears. The footer is a game.</p>
-    <div class="row demo" id="heroSw">
+    <div class="row hero-src" id="heroSrc">
+      <button class="linkbtn" id="photoBtn" type="button">Feed the ring a photo</button>
+      <button class="linkbtn" id="camBtn" type="button" hidden>Camera</button>
+      <button class="linkbtn" id="torusBtn" type="button" hidden>Back to the ring</button>
+      <input type="file" id="photoFile" accept="image/*" hidden>
+      <p class="muted status" id="heroStatus" role="status"></p>
+    </div>
+    <div class="row demo" id="heroSw" hidden>
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
     </div>
@@ -1353,8 +1361,64 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
   <nav id="sidenav" aria-label="Sections"></nav>
 
-  <div id="view-kit" role="tabpanel" aria-labelledby="v-kit">
-  <section aria-label="About components"><p>Thirty components. Weight is character density, frames are strings, color is signal, glitch is feedback. The full rules are at the bottom.</p></section>
+  <div id="view-home" role="tabpanel" aria-labelledby="v-home">
+  <section aria-labelledby="s-go">
+    <h2 id="s-go" class="band">Where to start</h2>
+    <div class="demo tiles">
+      <a class="tile" href="#components" data-v="kit"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 -&gt;</span></a>
+      <a class="tile" href="#blocks" data-v="blocks"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 -&gt;</span></a>
+      <a class="tile" href="#charts" data-v="charts"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 -&gt;</span></a>
+      <a class="tile" href="#themes" data-v="themes"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">5 -&gt;</span></a>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-ideas">
+    <h2 id="s-ideas" class="band">Four ideas</h2>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Weight is density</h3><div class="body"><p>Hierarchy comes from which character draws the frame. @ shouts, = talks and . whispers.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Frames are strings</h3><div class="body"><p>Every border, rule and shadow is a run of characters clipped to the box. No images and no SVG.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Glitch is feedback</h3><div class="body"><p>Tearing, RGB split and shards fire when you touch something or a state changes. One slider turns it all down.</p></div></article></div>
+    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Color is signal</h3><div class="body"><p>Magenta acts, lime confirms, yellow warns. Blue is focus and nothing else.</p></div></article></div>
+  </section>
+
+  <section aria-labelledby="s-numbers">
+    <h2 id="s-numbers" class="band">In numbers</h2>
+    <div class="stats demo">
+      <div class="stat"><pre class="poster ptitle" data-text="0" data-nobars aria-hidden="true"></pre><p><span class="vh">0 </span>dependencies</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="30" data-nobars aria-hidden="true"></pre><p><span class="vh">30 </span>components</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="8" data-nobars aria-hidden="true"></pre><p><span class="vh">8 </span>characters in the ramp</p></div>
+      <div class="stat"><pre class="poster ptitle" data-text="1" data-nobars aria-hidden="true"></pre><p><span class="vh">1 </span>type size</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="s-faq">
+    <h2 id="s-faq" class="band">Questions</h2>
+    <div class="demo">
+      <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
+      <details class="acc"><summary>Does it need a framework?</summary><p>No. It is one HTML file. The components are classes and custom properties, so they drop into anything.</p></details>
+      <details class="acc"><summary>Why monospace only?</summary><p>The grid is the design. Every width is a number of characters and every height a number of rows, which is what lets strings work as borders.</p></details>
+      <details class="acc"><summary>Can I turn the glitch off?</summary><p>Yes. The Glitch switch kills it, the slider scales it, and the page respects reduced motion.</p></details>
+    </div>
+  </section>
+  </div>
+
+  <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
+  <section aria-label="About components"><p>Thirty components. Open Code on any of them and take the html, the css and the js.</p></section>
+  <section aria-labelledby="s-rules" data-span="full">
+    <h2 id="s-rules" class="vh">Rules</h2>
+    <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
+    <p class="ramp" aria-hidden="true"><span style="color:var(--ink)">@@</span> <span style="color:var(--pink)">%%</span> <span style="color:var(--hot)">##</span> <span style="color:var(--violet)">**</span> <span style="color:var(--deep)">++</span> <span style="color:var(--cy)">==</span> <span style="color:var(--ok)">::</span> <span style="color:var(--warn)">..</span></p>
+    <ul class="rules demo muted">
+      <li>Weight is character density. @ is the loudest thing on the page and . is the quietest.</li>
+      <li>Frames, rules, fills and shadows are strings of characters. Hierarchy comes from which character.</li>
+      <li>Big type is a bitmap: every pixel of a headline is a block of characters.</li>
+      <li>Color is signal: magenta acts, cyan focuses, lime confirms, yellow warns.</li>
+      <li>Glitch is feedback. It fires when you touch something or when a state changes, and the slider turns it down to zero.</li>
+      <li>Everything arrives broken and fixes itself: elements glitch in as they enter the screen, text decodes left to right.</li>
+      <li>Sound is feedback too. Square-wave blips and crushed noise, never music.</li>
+      <li>Nothing jumps. State changes travel through the ramp, one character at a time, at a low frame rate.</li>
+      <li>Underneath it is plain HTML: buttons, inputs, a dialog.</li>
+    </ul>
+  </section>
 
   <section aria-labelledby="s-button">
     <h2 id="s-button" class="vh">Button</h2>
@@ -1677,22 +1741,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="demo pop" id="tt"><button class="btn frame tone-light" id="ttBtn" type="button" aria-describedby="ttTip"><span class="mid"><span class="label">Ship it</span></span></button><span class="tip" id="ttTip" role="tooltip">Deploys to production on a Friday</span></div>
   </section>
 
-  <section aria-labelledby="s-rules">
-    <h2 id="s-rules" class="vh">Rules</h2>
-    <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
-    <p class="ramp" aria-hidden="true"><span style="color:var(--ink)">@@</span> <span style="color:var(--pink)">%%</span> <span style="color:var(--hot)">##</span> <span style="color:var(--violet)">**</span> <span style="color:var(--deep)">++</span> <span style="color:var(--cy)">==</span> <span style="color:var(--ok)">::</span> <span style="color:var(--warn)">..</span></p>
-    <ul class="rules demo muted">
-      <li>Weight is character density. @ is the loudest thing on the page and . is the quietest.</li>
-      <li>Frames, rules, fills and shadows are strings of characters. Hierarchy comes from which character.</li>
-      <li>Big type is a bitmap: every pixel of a headline is a block of characters.</li>
-      <li>Color is signal: magenta acts, cyan focuses, lime confirms, yellow warns.</li>
-      <li>Glitch is feedback. It fires when you touch something or when a state changes, and the slider turns it down to zero.</li>
-      <li>Everything arrives broken and fixes itself: elements glitch in as they enter the screen, text decodes left to right.</li>
-      <li>Sound is feedback too. Square-wave blips and crushed noise, never music.</li>
-      <li>Nothing jumps. State changes travel through the ramp, one character at a time, at a low frame rate.</li>
-      <li>Underneath it is plain HTML: buttons, inputs, a dialog.</li>
-    </ul>
-  </section>
   </div>
 
 
@@ -1968,137 +2016,10 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button"><span class="mid"><span class="label">Copy tokens</span></span></button></div>
   </section>
 
-  </div>
 
-  <div id="view-play" role="tabpanel" aria-labelledby="v-play" hidden>
-  <section aria-label="About play"><p>The hero, with the hood open. Feed it a picture, type your own words, turn the knobs, then leave with a poster or a snapshot.</p></section>
-  <section aria-label="Stage"><div id="playStage"></div></section>
-
-  <section aria-labelledby="s-source">
-    <h2 id="s-source" class="vh">Source</h2>
-    <pre class="poster ptitle" data-text="SOURCE" aria-hidden="true"></pre>
-    <p class="muted">Feed the hero a picture. A photo, or the camera. Nothing leaves this page. Ring brings it back.</p>
-    <div class="row demo" id="heroSrc">
-      <button class="btn frame tone-light" id="photoBtn" type="button"><span class="mid"><span class="label">Load photo</span></span></button>
-      <button class="btn frame tone-light" id="camBtn" type="button"><span class="mid"><span class="label">Camera</span></span></button>
-      <button class="btn frame tone-light" id="torusBtn" type="button" hidden><span class="mid"><span class="label">Ring</span></span></button>
-      <input type="file" id="photoFile" accept="image/*" hidden>
-      <p class="muted status" id="heroStatus" role="status"></p>
-    </div>
-  </section>
-
-  <section aria-labelledby="s-words">
-    <h2 id="s-words" class="vh">Words</h2>
-    <pre class="poster ptitle" data-text="WORDS" aria-hidden="true"></pre>
-    <p class="muted">Two lines, up to 8 characters each. Five or fewer render at double size.</p>
-    <div class="demo knobs">
-      <div class="group"><label class="field-label" for="pl1">Line one</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="pl1" type="text" maxlength="8" value="ASCII" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div></div>
-      <div class="group"><label class="field-label" for="pl2">Line two</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="pl2" type="text" maxlength="8" value="/UI" autocomplete="off" autocapitalize="characters" spellcheck="false"></div></div></div>
-    </div>
-  </section>
-
-
-  <section aria-labelledby="s-knobs">
-    <h2 id="s-knobs" class="vh">Knobs</h2>
-    <pre class="poster ptitle" data-text="KNOBS" aria-hidden="true"></pre>
-    <p class="muted">Everything the glitch engine exposes.</p>
-    <div class="demo knobs"><div class="slider"><label for="kSpeed">Spin speed</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSpeed" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kSpeed">100</output></div><div class="slider"><label for="kSize">Torus size</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSize" type="range" inputmode="none" min="40" max="140" step="5" value="100"></span><output for="kSize">100</output></div><div class="slider"><label for="kSplit">RGB split</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kSplit" type="range" inputmode="none" min="0" max="400" step="10" value="100"></span><output for="kSplit">100</output></div><div class="slider"><label for="kTear">Tearing</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kTear" type="range" inputmode="none" min="0" max="300" step="10" value="100"></span><output for="kTear">100</output></div><div class="slider"><label for="kStreaks">Streaks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kStreaks" type="range" inputmode="none" min="0" max="120" step="2" value="38"></span><output for="kStreaks">38</output></div><div class="slider"><label for="kBlocks">Blocks</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="kBlocks" type="range" inputmode="none" min="0" max="40" step="1" value="9"></span><output for="kBlocks">9</output></div></div>
-    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Color map"><label><input type="radio" name="kMap" value="0" checked><span>Signal</span></label><label><input type="radio" name="kMap" value="1"><span>Aqua</span></label><label><input type="radio" name="kMap" value="2"><span>Fire</span></label><label><input type="radio" name="kMap" value="3"><span>Mono</span></label></div></div>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="kBurst" type="button"><span class="mid"><span class="label">Burst glitch</span></span></button><button class="btn btn-danger frame tone-danger" id="kReset" type="button"><span class="mid"><span class="label">Reset</span></span></button></div>
-  </section>
-
-
-  <section aria-labelledby="s-poster">
-    <h2 id="s-poster" class="vh">Poster</h2>
-    <pre class="poster ptitle" data-text="POSTER" aria-hidden="true"></pre>
-    <p class="muted">A random poster from your code. Reroll until you like one, then save it.</p>
-    <div class="row demo">
-      <span class="muted" id="sigText">CODE ----</span>
-      <button class="btn btn-primary frame tone-heavy" id="posterBtn" type="button"><span class="mid"><span class="label">Make poster</span></span></button>
-      <button class="btn frame tone-light" id="kSnap" type="button"><span class="mid"><span class="label">Snapshot</span></span></button>
-    </div>
-  </section>
-
-  </div>
-
-
-  <div id="view-apps" role="tabpanel" aria-labelledby="v-apps" hidden>
-  <section aria-label="About apps"><p>Three phone apps rebuilt in this language. A feed, a player, a chat. They all work as far as a prototype can, so tap around.</p></section>
-  <section aria-labelledby="s-appfeed">
-    <h2 id="s-appfeed" class="vh">Feed</h2>
-    <pre class="poster ptitle" data-text="FEED" aria-hidden="true"></pre>
-    <p class="muted">A small bird app. Like, repost, post. Counters glitch when they change.</p>
-    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Chirp</h3><div class="app">
-      <div class="app-bar"><span>Home</span><button class="ibtn" type="button" aria-label="Alerts" id="chirpBell">!</button></div>
-      <div class="compose"><span class="avatar sm hot" aria-hidden="true">FK</span><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chirpIn" type="text" maxlength="140" placeholder="What broke?" autocomplete="off" aria-label="New post"></div></div></div>
-      <div class="row" style="justify-content:flex-end;margin-top:calc(var(--r)/2)"><button class="btn btn-primary frame tone-heavy" id="chirpPost" type="button"><span class="mid"><span class="label">Post</span></span></button></div>
-      <div id="chirpFeed"><article class="post" data-id="0"><div class="who"><span class="avatar sm hot" aria-hidden="true">FE</span><b>fede</b><span>@fede · 2m</span></div><p>Shipped the ramp editor. Eight characters and the whole site changes clothes.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ui1" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>14</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>3</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="1"><div class="who"><span class="avatar sm" aria-hidden="true">ST</span><b>static</b><span>@static_status · 18m</span></div><p>INC-481 resolved. api-gateway is back. Please stop refreshing.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>88</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>41</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="2"><div class="who"><span class="avatar sm" aria-hidden="true">MA</span><b>mara</b><span>@mara.design · 1h</span></div><p>Hot take: every dashboard is a bar chart wearing a costume.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>231</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>57</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="3"><div class="who"><span class="avatar sm" aria-hidden="true">BE</span><b>beagle</b><span>@beagleupdates · 3h</span></div><p>Walked 2.1 km. Sniffed 44 things. Barked at one leaf.</p><div class="media"><div class="bezel" style="max-width:24ch"><canvas class="lcd" data-scene="ba" data-cols="32" data-rows="18" data-mode="rgb" role="img" aria-label="Attached picture"></canvas></div></div><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>402</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>12</span></button><button type="button" aria-label="Reply">:: 0</button></div></article><article class="post" data-id="4"><div class="who"><span class="avatar sm" aria-hidden="true">PO</span><b>poe</b><span>@poe2_math · 5h</span></div><p>Expected value of that chest is negative. You opened it anyway. Respect.</p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>67</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>9</span></button><button type="button" aria-label="Reply">:: 0</button></div></article></div>
-      <nav class="tabbar" aria-label="Chirp sections"><button type="button" aria-current="page">Home</button><button type="button">Search</button><button type="button">Alerts</button><button type="button">Me</button></nav>
-    </div></div></div>
-  </section>
-  <section aria-labelledby="s-appplayer">
-    <h2 id="s-appplayer" class="vh">Player</h2>
-    <pre class="poster ptitle" data-text="PLAYER" aria-hidden="true"></pre>
-    <p class="muted">A music player. Play generates a little tune from the ramp, so turn sound on.</p>
-    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Tape</h3><div class="app">
-      <div class="app-bar"><span>Now playing</span><span class="muted" id="tapeTime">0:00</span></div>
-      <div class="cover"><div class="bezel"><canvas class="lcd" data-scene="test" data-cols="48" data-rows="24" data-mode="rgb" role="img" aria-label="Album art, a moving test card" id="tapeArt"></canvas></div></div>
-      <pre class="vu" id="tapeVu" aria-hidden="true"></pre>
-      <p style="margin-top:var(--r)"><b id="tapeTitle">Bad Signal</b><br><span class="muted">Static, Bad Signal LP</span></p>
-      <div class="progress" id="tapeBar" role="progressbar" aria-label="Track progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
-      <div class="transport"><button class="ibtn" type="button" id="tapePrev" aria-label="Previous">&lt;&lt;</button><button class="ibtn" type="button" id="tapePlay" aria-label="Play" aria-pressed="false">&gt;</button><button class="ibtn" type="button" id="tapeNext" aria-label="Next">&gt;&gt;</button></div>
-      <ol class="tracklist" id="tapeList"><li><button type="button" data-i="0" aria-current="true"><span>Bad Signal</span><span>3:42</span></button></li><li><button type="button" data-i="1"><span>Halftone Heart</span><span>4:05</span></button></li><li><button type="button" data-i="2"><span>Tearing Up</span><span>2:58</span></button></li><li><button type="button" data-i="3"><span>Datamosh Waltz</span><span>5:11</span></button></li><li><button type="button" data-i="4"><span>Boot Sequence</span><span>1:47</span></button></li></ol>
-    </div></div></div>
-  </section>
-  <section aria-labelledby="s-appchat">
-    <h2 id="s-appchat" class="vh">Chat</h2>
-    <pre class="poster ptitle" data-text="CHAT" aria-hidden="true"></pre>
-    <p class="muted">Messaging with a bot that answers in ramp. Send anything.</p>
-    <div class="demo phone lift"><div class="card frame tone-mid"><h3 class="bar-title">Static support</h3><div class="app">
-      <div class="app-bar"><span>&lt; Static</span><span class="badge b-ok">Online</span></div>
-      <ul class="thread" id="thread" aria-live="polite">
-        <li><div class="bubble">Hi. Something broke, right? <span class="meta">Static · 09:41</span></div></li>
-        <li class="me"><div class="bubble">The dashboard is all @ signs. <span class="meta">09:42</span></div></li>
-        <li><div class="bubble">That is the design. Which part is @ that should not be? <span class="meta">Static · 09:42</span></div></li>
-      </ul>
-      <p class="typing" id="typing" aria-hidden="true"></p>
-      <div class="compose"><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="chatIn" type="text" maxlength="200" placeholder="Message" autocomplete="off" aria-label="Message"></div></div><button class="btn btn-primary frame tone-heavy" id="chatSend" type="button"><span class="mid"><span class="label">Send</span></span></button></div>
-    </div></div></div>
-  </section>
-  </div>
-
-  <div id="view-page" role="tabpanel" aria-labelledby="v-page" hidden>
-  <section aria-labelledby="o-signal">
-    <h2 id="o-signal" class="vh">Signal</h2>
-    <pre class="poster ptitle" data-text="SIGNAL" aria-hidden="true"></pre>
-    <p>A component kit that looks like a broken broadcast and behaves like plain HTML. Copy a component, own the code, change the characters.</p>
-    <div class="row demo">
-      <button class="btn btn-primary frame tone-heavy" id="opGet1" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
-      <button class="btn frame tone-light" id="opSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
-    </div>
-    <div class="stats demo">
-      <div class="stat"><pre class="poster ptitle" data-text="0" data-nobars aria-hidden="true"></pre><p><span class="vh">0 </span>dependencies</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="30" data-nobars aria-hidden="true"></pre><p><span class="vh">30 </span>components</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="8" data-nobars aria-hidden="true"></pre><p><span class="vh">8 </span>characters in the ramp</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="1" data-nobars aria-hidden="true"></pre><p><span class="vh">1 </span>type size</p></div>
-    </div>
-  </section>
-
-  <div class="ticker" id="ticker" aria-hidden="true"></div>
-
-  <section aria-labelledby="o-why">
-    <h2 id="o-why" class="vh">Why</h2>
-    <pre class="poster ptitle" data-text="WHY" aria-hidden="true"></pre>
-    <p class="muted">Four ideas hold the whole thing together.</p>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Weight is density</h3><div class="body"><p>Hierarchy comes from which character draws the frame. @ shouts, = talks and . whispers.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Frames are strings</h3><div class="body"><p>Every border, rule and shadow is a run of characters clipped to the box. No images and no SVG.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Glitch is feedback</h3><div class="body"><p>Tearing, RGB split and shards fire when you touch something or a state changes. One slider turns it all down.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Plain HTML</h3><div class="body"><p>Real buttons, inputs, dialog and details. Keyboards and screen readers get the plain version.</p></div></article></div>
-  </section>
-
-  <section aria-labelledby="o-how">
-    <h2 id="o-how" class="vh">How</h2>
-    <pre class="poster ptitle" data-text="HOW" aria-hidden="true"></pre>
+  <section aria-labelledby="s-labs">
+    <h2 id="s-labs" class="vh">Labs</h2>
+    <pre class="poster ptitle" data-text="LABS" aria-hidden="true"></pre>
     <p class="muted">Five small labs. Each one is a piece of the system you can poke.</p>
 
     <h3 class="lab-h">The ramp</h3>
@@ -2144,27 +2065,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <button class="btn btn-danger frame tone-danger" id="sBuzz" type="button"><span class="mid"><span class="label">Buzz</span></span></button>
     </div>
   </section>
-
-  <section aria-labelledby="o-faq">
-    <h2 id="o-faq" class="vh">FAQ</h2>
-    <pre class="poster ptitle" data-text="FAQ" aria-hidden="true"></pre>
-    <div class="demo">
-      <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
-      <details class="acc"><summary>Does it need a framework?</summary><p>No. It is one HTML file. The components are classes and custom properties, so they drop into anything.</p></details>
-      <details class="acc"><summary>Why monospace only?</summary><p>The grid is the design. Every width is a number of characters and every height a number of rows, which is what lets strings work as borders.</p></details>
-      <details class="acc"><summary>Can I turn the glitch off?</summary><p>Yes. The Glitch switch kills it, the slider scales it, and the page respects reduced motion.</p></details>
-    </div>
-  </section>
-
-  <section aria-labelledby="o-get">
-    <h2 id="o-get" class="vh">Get it</h2>
-    <pre class="poster ptitle" data-text="GET IT" aria-hidden="true"></pre>
-    <p>Bad signal on the outside, good HTML on the inside.</p>
-    <div class="row demo">
-      <button class="btn btn-primary frame tone-heavy" id="opGet2" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
-    </div>
-    <p class="foot">ascii/ui. An example one pager built from its own components. Set in Geist Mono.</p>
-  </section>
   </div>
 
   <footer id="foot">
@@ -2174,7 +2074,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
       <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
     </section>
-    <p class="foot" id="footLine" hidden>ascii/ui. One HTML file. The footer on Components is a game.</p>
+    <p class="foot" id="footLine" hidden>ascii/ui. One HTML file. The footer on Home is a game.</p>
   </footer>
 </main>
 
@@ -2243,6 +2143,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div></div>
 </dialog>
 
+<span class="vh" id="sigText" aria-hidden="true">CODE ----</span>
 <dialog id="posterDlg" aria-labelledby="posterTitle">
   <div class="lift"><div class="card frame tone-heavy">
     <h2 id="posterTitle" class="bar-title">Your signal</h2>
@@ -2259,6 +2160,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <script>
 (function(){
   var root=document.documentElement, main=document.getElementById('main');
+  /* one row of the grid, in px. css/01-tokens.css owns it (--r), everything here counts in it */
+  var ROW=parseFloat(getComputedStyle(root).getPropertyValue('--r'))||21;
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var RAMP=' .:=+*#%@';
   function $(id){return document.getElementById(id)}
@@ -2636,20 +2539,23 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
        share, so the hero ends four rows short of the fold and the first
        components show. It drops rows to fit rather than squashing them, and it
        never goes under ten rows however short the window is. */
-    var Hpx=Math.ceil(HR*LH/24)*24,vh=window.innerHeight;
+    var Hpx=Math.ceil(HR*LH/ROW)*ROW,vh=window.innerHeight;
     var hd=document.querySelector('main > header');
     if(hd){
       var copy=hd.getBoundingClientRect().height-hero.getBoundingClientRect().height;
-      var floor=Math.min(240,Math.round(vh*0.3/24)*24);
+      var floor=Math.min(ROW*10,Math.round(vh*0.3/ROW)*ROW);
       /* and never more than 45% of the window, so the page under it shows
          whatever the copy costs */
-      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
+      /* and a hard cap in rows: sixteen on a screen, twelve on a phone. The ring
+         is the proof, not the page (Home, 2026) */
+      var cap=ROW*(window.innerWidth<720?12:16);
+      var lid=Math.min(cap,Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW)));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     /* on a phone the Play stage is sticky over the knobs and capped at nine
        rows (css/17-nav.css), so the hero is drawn eight rows tall in there */
-    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>192){
-      Hpx=192;HR=Math.max(10,Math.floor(Hpx/LH));
+    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>ROW*8){
+      Hpx=ROW*8;HR=Math.max(10,Math.floor(Hpx/LH));
     }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
@@ -2659,7 +2565,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     var tt=fit(94,W,cap),tlh=Math.max(4,Math.round(tt.cw*1.3));
     titles.forEach(function(pre){
       pre.style.fontSize=tt.fs+'px';pre.style.lineHeight=tlh+'px';
-      pre.style.height=(Math.ceil(14*tlh/24)*24)+'px';
+      pre.style.height=(Math.ceil(14*tlh/ROW)*ROW)+'px';
     });
     fitTitles();
     /* the glow behind the hero is painted on body so it can reach the window
@@ -2872,7 +2778,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     if(lg>=6)out.push([0,lg,0,vh]);
     if(rg>=6)out.push([vw-rg*CH,rg,0,vh]);
     h=hero.getBoundingClientRect();
-    if(h.height&&h.bottom>24&&h.top<vh-24)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
+    if(h.height&&h.bottom>ROW&&h.top<vh-ROW)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
     return out;
   }
   if(!reduce)every(650,function(){
@@ -2881,7 +2787,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     var n=1+rnd(Math.ceil(3*g));
     while(n--){
       var s=spots[rnd(spots.length)],len=Math.max(1,Math.min(s[1],2+rnd(18)));
-      var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/24)))*24;
+      var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/ROW)))*ROW;
       run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
   });
@@ -3068,7 +2974,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     if(reduce){cb();return}
     sfx.wipe();
     var cs=getComputedStyle(document.body),ink=cs.color;
-    var cols=Math.ceil(window.innerWidth/CH)+1,rows=Math.ceil(window.innerHeight/24)+1,skew=Math.ceil(rows*0.5);
+    var cols=Math.ceil(window.innerWidth/CH)+1,rows=Math.ceil(window.innerHeight/ROW)+1,skew=Math.ceil(rows*0.5);
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
     wrap.setAttribute('aria-hidden','true');hold(wrap);
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
@@ -3258,6 +3164,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1;
       $(x.getAttribute('aria-controls')).hidden=!on;
     });
+    /* Home's tab is not drawn (the name is the way there), so on Home the
+       keyboard enters the row at the first tab that is */
+    if(getComputedStyle(tab).display==='none'){
+      var f=viewTabs.filter(function(x){return getComputedStyle(x).display!=='none'})[0];if(f)f.tabIndex=0;
+    }
   }
   function showView(tab,then,instant){
     if(!viewQueued&&tab.getAttribute('aria-selected')==='true'){if(then)then();return}
@@ -3275,7 +3186,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         if(!fn){
           var p=$(t.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
           var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
-          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
+          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-ROW));
         }
         document.dispatchEvent(new CustomEvent('aui:view',{detail:t}));
       }
@@ -3369,14 +3280,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     });
   });
 
-  /* ---- one pager: ticker, labs, details, calls to action ---- */
-  var tk=$('ticker'),TK='ASCII/UI /// NO DEPENDENCIES /// 8 CHARACTERS /// 1 TYPE SIZE /// BAD SIGNAL, GOOD HTML /// ',tki=0;
-  function drawTicker(){var o='',i;for(i=0;i<140;i++)o+=TK.charAt((tki+i)%TK.length);tk.textContent=o}
-  drawTicker();
-  if(!reduce)every(110,function(){
-    tki=(tki+1)%TK.length;drawTicker();
-  },{el:tk});
-
+  /* ---- labs (Themes), details ---- */
   var rampLab=$('rampLab'),RLX=0.5,RLY=0.5,RLE=0.6;
   function drawRamp(){
     var cols=Math.max(16,Math.min(72,Math.floor(rampLab.clientWidth/CH)||30)),rows=9,o='',x,y;
@@ -3446,13 +3350,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       if(d.open){sfx.on();var a=d.querySelector('p');if(a)decode(a)}else sfx.off();
     });
   });
-  /* the kit is the page itself: Get the kit lands on the install steps at the
-     end of Components, See components on the first card. AUI.goTo is js/40. */
-  function land(id){var h=$(id);if(h&&window.AUI&&AUI.goTo)AUI.goTo('kit',h.parentNode);else $('v-kit').click()}
-  function getKit(){land('s-install');sfx.ok()}
-  $('opGet1').addEventListener('click',getKit);
-  $('opGet2').addEventListener('click',getKit);
-  $('opSee').addEventListener('click',function(){land('s-button')});
 
   /* ---- everything arrives broken: glitch-in on enter, text decodes left to right ---- */
   var NOISE='@%#*+=:./\\|-_<>';
@@ -3537,7 +3434,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     };
   }
 
-  window.AUI={backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,
@@ -3606,10 +3503,10 @@ function mosh(cb){
   const P=A.pal(),keys=['hot','pink','cy','warn','deep','violet','ok'];
   const wrap=document.createElement('div');wrap.setAttribute('aria-hidden','true');A.hold(wrap);
   wrap.style.cssText='position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:auto;touch-action:none';
-  const rows=Math.ceil(window.innerHeight/24),els=[];
+  const R=A.ROW,rows=Math.ceil(window.innerHeight/R),els=[];
   for(let y=0;y<rows;y++){
     const d=document.createElement('div'),solid=Math.random()<0.24,side=Math.random()<0.5?-1:1;
-    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*24)+'px;height:24px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(55+rnd(105))+'ms steps(5)';
+    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*R)+'px;height:'+R+'px;line-height:'+R+'px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(55+rnd(105))+'ms steps(5)';
     d.textContent=Math.random()<0.6?A.TR(rep(RAMP[2+rnd(7)],260)):'';d._s=side;wrap.appendChild(d);els.push(d);
   }
   document.body.appendChild(wrap);noise(0.3,0.12);
@@ -3646,7 +3543,7 @@ function boot(force,done){
      a pixel, one if even the smallest font will not fit. Twice the poster cap, it is the only thing on screen */
   const W=bin.clientWidth,cap=2*(parseFloat(getComputedStyle(root).getPropertyValue('--ptitle'))||6);
   const tt=A.fit(96,W,cap),scale=tt.cw*94>W?1:2,lh=Math.max(4,Math.round(tt.cw*1.3)),bm=A.bitmap('ASCII/UI',scale);
-  title.style.fontSize=tt.fs+'px';title.style.lineHeight=lh+'px';title.style.height=(Math.ceil(bm.length*lh/24)*24)+'px';
+  title.style.fontSize=tt.fs+'px';title.style.lineHeight=lh+'px';title.style.height=(Math.ceil(bm.length*lh/A.ROW)*A.ROW)+'px';
   title._b=bm;title._n=bm.map(r=>r.map(()=>rnd(6)));title._scale=scale;title._bars=[];
   A.titleFrame(title,0);
   let i=0,over=false,titled=false,logged=false;
@@ -3808,7 +3705,7 @@ function harvest(el,cw){
         for(let yy=0;yy<n;yy++)for(let k=0;k<lines[yy].length;k++)push(lines[yy][k],left+k*cw,r.top+yy*14,col);
       }else{
         const n=Math.min(c.length,Math.floor(r.width/cw)+1);
-        const top=(e.matches('.frame')&&ps==='::after')?r.bottom-24:r.top;
+        const top=(e.matches('.frame')&&ps==='::after')?r.bottom-A.ROW:r.top;
         for(let k=0;k<n;k++)push(c[k],r.left+k*cw,top+5,col);
       }
     });
@@ -3950,7 +3847,6 @@ function picDialog(src,kind){
 }
 A.picDialog=picDialog;
 function openPoster(){picDialog(makePoster(),'poster')}
-$('posterBtn').addEventListener('click',openPoster);
 $('posterClose').addEventListener('click',()=>$('posterDlg').close());
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
@@ -3963,13 +3859,13 @@ const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badg
 async function run(line){
   line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto components|blocks|charts|themes|play|apps|onepager\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto home|components|blocks|charts|themes\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
   else if(c==='goto'||c==='cd'){
     /* the names the address bar uses, plus the old kit and page */
-    const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit',onepager:'page'},v=n.split('/')[0];
+    const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
     if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
     else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
     else out('no such view: '+esc(n))}
@@ -3996,7 +3892,7 @@ async function run(line){
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
   else if(c==='invaders'){cmdDlg.close();A.goTo('kit',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
   /* the photo lands on Play, where the Source buttons and the stage are */
-  else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('play',$('s-source').parentNode)}
+  else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());
   else if(c==='clear')cmdLog.innerHTML='type <b>help</b>';
@@ -4023,7 +3919,7 @@ const INV=(function(){
     W=Math.min(W,440);cv.style.width=W+'px';
     dpr=Math.min(window.devicePixelRatio||1,2.5);cw=W/COLS;lh=Math.round(cw*1.25);
     x.font='700 100px '+FONT;const r=x.measureText('M').width/100||0.6;fs=cw/r;
-    const H=Math.ceil(ROWS*lh/24)*24;cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();
+    const H=Math.ceil(ROWS*lh/A.ROW)*A.ROW;cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();
   }
   function fleet(){inv=[];for(let r=0;r<3;r++)for(let c=0;c<5;c++)inv.push({x:3+c*11,y:4+r*8,ty:r,a:1});dir=1}
   function bunkers(){bunk=[];[7,28,49].forEach(b=>{for(let yy=0;yy<4;yy++)for(let xx=0;xx<8;xx++)if(!(yy===3&&xx>2&&xx<5))bunk.push({x:b+xx,y:33+yy})})}
@@ -4751,16 +4647,17 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-/* skip: sections that stay out of the index and go last (Rules). pin: sections
-   that open the view, in that order, ahead of the alphabet: Button is the first
-   thing anyone looks for, and a 404 page is a strange first block. */
+/* skip: sections that stay out of the index and open the view, the way a docs
+   site starts with Getting started (Rules; Get the kit joins it from js/40).
+   pin: sections that open the index, in that order, ahead of the alphabet: a
+   404 page is a strange first block. */
 function buildView(panel,label,skip,pin){
   spanSections(panel);pin=pin||[];
   const id=s=>s.getAttribute('aria-labelledby'),all=[...panel.querySelectorAll(':scope > section[aria-labelledby]')];
   const secs=all.filter(s=>!skip.includes(id(s))),tail=all.filter(s=>skip.includes(id(s)));
   const name=s=>s.querySelector('h2').textContent.trim(),rank=s=>{const i=pin.indexOf(id(s));return i<0?pin.length:i};
   secs.sort((a,b)=>rank(a)-rank(b)||name(a).localeCompare(name(b)));
-  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
+  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
   /* under 1024px the [=] menu is the index now, so this starts closed; from
@@ -4774,7 +4671,7 @@ function buildView(panel,label,skip,pin){
   return secs;
 }
 spanSections($('view-charts'));
-buildView($('view-kit'),'Components',['s-rules'],['s-button']);
+buildView($('view-kit'),'Components',['s-rules']);
 const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
@@ -4873,16 +4770,13 @@ rampIns.forEach(inp=>inp.addEventListener('input',()=>{
 }));
 $('rampSpec').innerHTML=A.colorize(A.barRow(12,false,12)+'  '+CANON.split('').reverse().join(' '))+'\n'+A.colorize(A.barRow(8,false,12));
 
-/* ================= play: the hero with the hood open ================= */
-const hero=$('hero'),HP=A.HP,stage=$('playStage'),home=$('heroLine'),header=document.querySelector('main > header');
-/* The header is the front door of Components and of nothing else: every other
-   view starts with its own content right under the bar, and ends with one line
-   instead of the game. Play borrows the canvas for its stage. */
+/* ================= home: the hero and the game ================= */
+const header=document.querySelector('main > header');
+/* The header is Home's and nobody else's: every other view starts with its own
+   content right under the bar, and ends with one line instead of the game. */
 function placeHero(){
-  const sel=v=>$('v-'+v).getAttribute('aria-selected')==='true',on=sel('play'),kit=sel('kit');
-  if(on&&hero.parentNode!==stage)stage.appendChild(hero);
-  else if(!on&&hero.parentNode===stage)header.insertBefore(hero,home);
-  header.hidden=!kit;$('footGame').hidden=!kit;$('footLine').hidden=kit;
+  const home=$('v-home').getAttribute('aria-selected')==='true';
+  header.hidden=!home;$('footGame').hidden=!home;$('footLine').hidden=home;
   A.layout();
 }
 A.onView=placeHero;
@@ -4896,28 +4790,12 @@ function goTo(view,el,block,then){
   el.scrollIntoView({block:block||'start'});if(then)then();
 }
 A.goTo=goTo;
-const firstKit=()=>$('s-button').parentNode;
-/* the page moves to Button and so does the keyboard, or the next Tab would
-   pull it back up to the hero */
-$('heroSee').addEventListener('click',()=>{const s=firstKit();goTo('kit',s,null,()=>{s.tabIndex=-1;s.focus({preventScroll:true})});A.kick()});
-$('heroPlay').addEventListener('click',()=>$('v-play').click());
-const clean=s=>s.toUpperCase().replace(/[^A-Z0-9 \/\-\.!\?]/g,'').slice(0,8);
-['pl1','pl2'].forEach((id,i)=>$(id).addEventListener('input',e=>{const v=clean(e.target.value);if(v!==e.target.value)e.target.value=v;HP[i?'t2':'t1']=v;A.layout();A.kick()}));
-const KN={kSpeed:['speed',100],kSize:['rad',100],kSplit:['split',100],kTear:['tear',100],kStreaks:['streaks',1],kBlocks:['blocks',1]};
-Object.keys(KN).forEach(id=>A.bindSlider($(id),(fr,v)=>{
-  const k=KN[id];HP[k[0]]=v/k[1];if(k[0]==='streaks'||k[0]==='blocks')A.reseed();
-}));
-document.addEventListener('change',e=>{if(e.target.name==='kMap'){HP.map=+e.target.value;A.drawHero();ping(440)}});
-$('kBurst').addEventListener('click',()=>{A.G.burst=1;A.jolt()});
-$('kSnap').addEventListener('click',()=>{
-  try{const pal=A.pal(),c=document.createElement('canvas');c.width=hero.width;c.height=hero.height;const x=c.getContext('2d');x.fillStyle=pal.bg;x.fillRect(0,0,c.width,c.height);x.drawImage(hero,0,0);
-    A.picDialog(c.toDataURL('image/png'),'snap');if(live())sfx.ok()}
-  catch(err){A.say('Snapshot is blocked for this picture.',true)}
-});
-$('kReset').addEventListener('click',()=>{
-  const D={kSpeed:100,kSize:100,kSplit:100,kTear:100,kStreaks:38,kBlocks:9};
-  Object.keys(D).forEach(id=>{$(id).value=D[id];$(id).dispatchEvent(new Event('change',{bubbles:true}))});
-  $('pl1').value=HP.t1='ASCII';$('pl2').value=HP.t2='/UI';HP.map=0;document.querySelector('input[name="kMap"][value="0"]').checked=true;A.layout();A.jolt();
+$('heroSee').addEventListener('click',()=>{const N=window.AUI_NAV;if(N)N.go('kit',null,{push:true,top0:true});else $('v-kit').click();A.kick()});
+$('heroKit').addEventListener('click',()=>{const h=$('s-install');if(h)goTo('kit',h.parentNode);if(A.live())sfx.ok()});
+/* the tiles are links, so they work without js; with it they go through the router */
+document.querySelector('#view-home .tiles').addEventListener('click',e=>{
+  const a=e.target.closest('a.tile');if(!a||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  e.preventDefault();const N=window.AUI_NAV;if(N)N.go(a.dataset.v,null,{push:true,top0:true});else $('v-'+a.dataset.v).click();
 });
 
 /* ================= code tab, complete: html + css + js, and the base install ================= */
@@ -4960,7 +4838,7 @@ A.codeExtra=function(sec,p1){
   sec.innerHTML='<h2 id="s-install" class="vh">Get the kit</h2><p><b>Get the kit.</b> <span class="muted">There is no package. Paste the base once, then copy components one at a time and own the code.</span></p>'+
     '<ol class="demo timeline"><li><b>Tokens</b><span>Six color roles, four support shades and the ramp. The defaults are fine, Themes is where you change them.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="tokens"><span class="mid"><span class="label">Copy tokens</span></span></button></div></li>'+
     '<li class="past"><b>Frame engine</b><span>The css that turns a string into a border, and the script that builds the strings.</span><div class="row demo"><button class="btn frame tone-light" type="button" data-cp="frame"><span class="mid"><span class="label">Copy frame engine</span></span></button></div></li>'+
-    '<li class="past"><b>Components</b><span>Open any Code tab above. It has the html, the css and the js.</span></li></ol>';
+    '<li class="past"><b>Components</b><span>Open any Code tab below. It has the html, the css and the js.</span></li></ol>';
   kit.insertBefore(sec,rules.parentNode);
   sec.addEventListener('click',e=>{
     const b=e.target.closest('[data-cp]');if(!b)return;
@@ -4969,85 +4847,6 @@ A.codeExtra=function(sec,p1){
   });
 })();
 syncPickers();
-})();
-</script>
-<script>
-(function(){
-'use strict';
-const A=window.AUI,B=window.AUI2,$=A.$,rnd=A.rnd,rep=A.rep,RAMP=A.RAMP,reduce=A.reduce,sfx=A.sfx,every=A.every,times=A.times;
-const {esc,clamp,inView}=B;
-const live=()=>A.live();
-const ping=(f,d)=>{if(live())A.tone('square',f,0,d||0.05,0.4)};
-
-/* the [=] menu lives in js/70-nav.js with the rest of the navigation */
-
-/* ================= chirp ================= */
-function bump(span,delta){
-  const to=+span.textContent.replace(/,/g,'')+delta;let f=0;
-  times(40,5,()=>{span.textContent=RAMP[3+rnd(6)]+RAMP[3+rnd(6)]},()=>{span.textContent=to.toLocaleString('en-US')});
-}
-$('chirpFeed').addEventListener('click',e=>{
-  const b=e.target.closest('button');if(!b)return;
-  if(b.classList.contains('like')||b.classList.contains('rt')){
-    const on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on?'true':'false');bump(b.querySelector('span'),on?1:-1);
-    if(on){if(live())sfx.on();A.kick()}else ping(330);
-  }else A.say('Replies are not wired in this prototype.');
-});
-function post(){
-  const inp=$('chirpIn'),t=inp.value.trim();if(!t){A.jolt();if(live())sfx.err();inp.focus();return}
-  const art=document.createElement('article');art.className='post';
-  art.innerHTML='<div class="who"><span class="avatar sm hot" aria-hidden="true">FK</span><b>fede</b><span>@fede · now</span></div><p></p><div class="acts"><button type="button" class="like" aria-pressed="false" aria-label="Like">@ <span>0</span></button><button type="button" class="rt" aria-pressed="false" aria-label="Repost">&lt;&gt; <span>0</span></button><button type="button" aria-label="Reply">:: 0</button></div>';
-  art.querySelector('p').textContent=t;$('chirpFeed').prepend(art);inp.value='';A.decode(art);A.kick();if(live())sfx.ok();
-}
-$('chirpPost').addEventListener('click',post);
-$('chirpIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();post()}});
-$('chirpBell').addEventListener('click',()=>A.say('Alerts: 3 likes, 1 repost, 0 sleep.'));
-document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;e.currentTarget.querySelectorAll('button').forEach(x=>x===b?x.setAttribute('aria-current','page'):x.removeAttribute('aria-current'));ping(520);if(b.textContent!=='Home')A.say(b.textContent+' is not wired in this prototype.')});
-
-/* ================= tape ================= */
-(function(){
-  const T=[['Bad Signal',222],['Halftone Heart',245],['Tearing Up',178],['Datamosh Waltz',311],['Boot Sequence',107]];
-  const SCALE=[0,3,5,7,10,12,15,17],ROOT=[110,98,123,87,131];
-  let i=0,pos=0,playing=false,beat=0,vis=false;
-  const playBtn=$('tapePlay'),bar=$('tapeBar'),vu=$('tapeVu');
-  const fmt=s=>Math.floor(s/60)+':'+('0'+Math.floor(s%60)).slice(-2);
-  function load(k){i=(k+T.length)%T.length;pos=0;$('tapeTitle').textContent=T[i][0];$('tapeList').querySelectorAll('button').forEach((b,j)=>j===i?b.setAttribute('aria-current','true'):b.removeAttribute('aria-current'));draw();A.kick()}
-  function draw(){
-    const p=pos/T[i][1];bar.querySelector('.bar').innerHTML=A.colorize(A.barRow(Math.round(p*24),playing&&!reduce,24));bar.querySelector('.pct').textContent=' '+fmt(T[i][1]);
-    bar.setAttribute('aria-valuenow',Math.round(p*100));$('tapeTime').textContent=fmt(pos);
-    let v='';for(let r=0;r<2;r++){for(let c=0;c<24;c++){const lv=playing?Math.sin(beat*0.9+c*0.6+r)*0.5+0.5+Math.random()*0.3:0;v+=RAMP[clamp(Math.round(lv*7),0,8)]}v+='\n'}vu.textContent=A.TR(v);
-  }
-  function step(){
-    if(!playing)return;pos+=0.25;beat++;
-    if(live()&&beat%2===0){const n=SCALE[(beat/2+Math.floor(beat/16))%8],f=ROOT[i]*Math.pow(2,n/12)*(beat%8===0?0.5:1);A.tone(beat%4===0?'square':'triangle',f,0,0.12,0.35)}
-    if(live()&&beat%4===0)A.noise(0.05,0.25,3000,6000);
-    if(pos>=T[i][1]){load(i+1)}draw();
-  }
-  function toggle(on){playing=on;playBtn.textContent=on?'||':'>';playBtn.setAttribute('aria-label',on?'Pause':'Play');playBtn.setAttribute('aria-pressed',on?'true':'false');if(on&&live())sfx.on();draw()}
-  playBtn.addEventListener('click',()=>toggle(!playing));
-  $('tapePrev').addEventListener('click',()=>load(pos>5?i:i-1));
-  $('tapeNext').addEventListener('click',()=>load(i+1));
-  $('tapeList').addEventListener('click',e=>{const b=e.target.closest('button');if(b){load(+b.dataset.i);toggle(true)}});
-  bar.addEventListener('pointerdown',e=>{const r=bar.getBoundingClientRect();pos=T[i][1]*clamp((e.clientX-r.left)/(r.width*0.8),0,1);draw()});
-  if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(bar);else vis=true;
-  every(250,step);
-  draw();
-})();
-
-/* ================= chat ================= */
-(function(){
-  const th=$('thread'),inp=$('chatIn'),tp=$('typing');
-  const R=['Try turning the glitch down to zero and back up. It resets the signal.','That one is on us. INC-482 opened, you will hear back before your coffee.','Can you send a screenshot? Any sector will do.','Everything is @ because it is Monday. It gets to # by Wednesday.','I have escalated this to a human. The human is also a bot.','Have you tried scrolling faster? It tears, but it also clears.'];
-  const now=()=>{const d=new Date();return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)};
-  function add(txt,me){const li=document.createElement('li');if(me)li.className='me';li.innerHTML='<div class="bubble"></div>';const b=li.firstChild;b.textContent=txt+' ';const m=document.createElement('span');m.className='meta';m.textContent=(me?'':'Static · ')+now();b.appendChild(m);th.appendChild(li);if(!me)A.decode(b);li.scrollIntoView({block:'nearest'})}
-  let typ=null;
-  function send(){
-    const t=inp.value.trim();if(!t){A.jolt();if(live())sfx.err();return}add(t,true);inp.value='';ping(660);
-    let f=0;if(typ)typ.stop();typ=every(120,()=>{tp.textContent='Static is typing '+RAMP[2+(f++%6)]+RAMP[2+((f+2)%6)]+RAMP[2+((f+4)%6)];if(live()&&f%3===0)sfx.tick()});
-    setTimeout(()=>{typ.stop();tp.textContent='';add(R[rnd(R.length)],false);A.kick();if(live())sfx.blip()},900+rnd(900));
-  }
-  $('chatSend').addEventListener('click',send);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();send()}});
-})();
 })();
 </script>
 <script>
@@ -5073,21 +4872,20 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
    page, and it follows the Blocks filter. */
 (function(){
   const A=window.AUI,$=A.$,nav=$('sidenav'),bar=document.querySelector('.topbar');
-  const VIEWS=['kit','blocks','charts','themes','play','apps','page'];
-  const LABEL={kit:'Components',blocks:'Blocks',charts:'Charts',themes:'Themes',
-               play:'Play',apps:'Apps',page:'One pager'};
-  const SLUG={kit:'components',blocks:'blocks',charts:'charts',themes:'themes',
-              play:'play',apps:'apps',page:'onepager'};
-  /* the address names, plus the old palette names */
-  const FROM={components:'kit',kit:'kit',blocks:'blocks',charts:'charts',themes:'themes',
-              play:'play',apps:'apps',onepager:'page',page:'page'};
+  const VIEWS=['home','kit','blocks','charts','themes'];
+  const LABEL={home:'Home',kit:'Components',blocks:'Blocks',charts:'Charts',themes:'Themes'};
+  const SLUG={home:'home',kit:'components',blocks:'blocks',charts:'charts',themes:'themes'};
+  /* the address names, plus the old palette names. Play, Apps and One pager
+     are gone; old links to them land on Home */
+  const FROM={home:'home',components:'kit',kit:'kit',blocks:'blocks',charts:'charts',themes:'themes',
+              play:'home',apps:'home',onepager:'home',page:'home'};
   const tabs=VIEWS.map(v=>$('v-'+v));
   const mod=e=>e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey;
   const tick=()=>{if(A.live())A.sfx.tab()};
 
   function current(){
     for(const v of VIEWS)if($('v-'+v).getAttribute('aria-selected')==='true')return v;
-    return 'kit';
+    return 'home';
   }
   function name(sec){
     const h=sec.querySelector('h2,h3');
@@ -5114,13 +4912,15 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
      a small group of their own, Start before and About after, so the heading
      comes first and its number matches the list under it. */
   function model(v){
+    /* Home is a landing, not a list: no sidebar */
+    if(v==='home')return {title:LABEL[v],count:0,groups:[]};
     const all=sections($('view-'+v)),counted=all.filter(s=>s._chip);
     let title=LABEL[v];
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
     if(!counted.length)return {title:title,count:all.length,groups:all.length?[{items:all}]:[]};
     const i0=all.indexOf(counted[0]);
     return {title:title,count:counted.length,groups:[
-      {label:'Start',items:all.filter((s,i)=>!s._chip&&i<i0)},
+      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)},
       {items:counted},
       {label:'About',items:all.filter((s,i)=>!s._chip&&i>i0)}
     ].filter(g=>g.items.length)};
@@ -5179,7 +4979,7 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   /* the view's first block one row under the bar, as the engine does it */
   function yTop(v){
     const p=$('view-'+v),first=[].filter.call(p.children,c=>c.offsetParent!==null)[0]||p;
-    return Math.max(0,Math.round(first.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-24));
+    return Math.max(0,Math.round(first.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-A.ROW));
   }
   /* The page keeps moving for a moment after a jump: the font arrives,
      charts and pictures size themselves, titles refit. Until then the landing
@@ -5249,7 +5049,7 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   }
   /* returns false for an address that is not ours (#main, a demo's #) */
   function route(h,push,instant){
-    if(!h||h==='#'){if(push===undefined){go('kit',null,{top0:true,instant:instant});return true}return false}
+    if(!h||h==='#'){if(push===undefined){go('home',null,{top0:true,instant:instant});return true}return false}
     const r=parse(h);if(!r)return false;
     go(r.v,r.sec,{push:push?true:undefined,instant:instant});
     return true;
@@ -5274,11 +5074,13 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
       go(v,null,{push:true,smooth:here});
     });
     t.addEventListener('keydown',e=>{
+      /* the arrows walk the tabs that are drawn: Home's is not */
+      const vt=tabs.filter(x=>x.offsetParent!==null),k=vt.indexOf(t);
       let n=null;
-      if(e.key==='ArrowRight')n=tabs[(i+1)%tabs.length];
-      else if(e.key==='ArrowLeft')n=tabs[(i-1+tabs.length)%tabs.length];
-      else if(e.key==='Home')n=tabs[0];
-      else if(e.key==='End')n=tabs[tabs.length-1];
+      if(e.key==='ArrowRight')n=vt[(k+1)%vt.length];
+      else if(e.key==='ArrowLeft')n=vt[(k-1+vt.length)%vt.length];
+      else if(e.key==='Home')n=vt[0];
+      else if(e.key==='End')n=vt[vt.length-1];
       else if(e.key===' '){e.preventDefault();t.click();return}
       if(n){e.preventDefault();tabs.forEach(x=>x.tabIndex=x===n?0:-1);n.focus()}
     });
@@ -5377,9 +5179,11 @@ document.querySelector('#view-apps .tabbar').addEventListener('click',e=>{const 
   });
 
   /* ---- the name, the crumb, the skip link ---- */
+  /* the name is Home, and on Home it is the way back to the top */
   $('brand').addEventListener('click',function(){
     settle=null;
-    window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
+    if(current()==='home')window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
+    else go('home',null,{push:true,top0:true});
     tick();
   });
   function crumb(){
