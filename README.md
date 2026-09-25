@@ -4,7 +4,7 @@ shadcn-style components with a brutalist ASCII skin and a bad signal. One HTML f
 
 Live: https://asciiui.vercel.app (Vercel deploys `main` on every push). The single-file build is `dist/ascii-ui.html`.
 
-Five views: Home (the ring, a Try it strip, where to start, questions, invaders), Components (30, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
+Five views: Home (the ring, where to start, questions, invaders), Components (30, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
 
 ```
 index.html          the page, linking css/ and js/ (develop here)

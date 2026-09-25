@@ -132,11 +132,6 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 #view-home > section{margin-top:var(--r)}
 #view-home{margin-top:0!important}
 #view-home > section::before{margin-bottom:var(--r)!important}
-/* the proof: four live parts, each with the way to its code */
-.tries{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(34ch,100%),1fr));gap:calc(var(--r)*2) 4ch;align-items:start}
-.try{min-width:0}
-.try-h{display:flex;justify-content:space-between;gap:2ch;margin:0 0 var(--r)}
-.try .row,.try .group,.try .stack,.try .slider{margin:0}
 #view-home .stats{grid-template-columns:repeat(auto-fit,minmax(min(20ch,100%),1fr))}
 #view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(44ch,100%),1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}

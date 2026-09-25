@@ -20,7 +20,7 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] Code tab: show the token dependencies per component; a "copy as React" toggle is out of scope, a "copy as web component" one might not be.
 
 ## Next (playground)
-- [x] Play, Apps and One pager removed (v10.9). The playground is Home's hero and Try it strip, and Themes > Labs.
+- [x] Play, Apps and One pager removed (v10.9). The playground is Home's hero and Themes > Labs.
 - [ ] Stress blocks instead of an Apps view: a weather screen (charts + LCD), a banking home (tables + slabs), a maps screen (ASCII map tiles).
 - [ ] Hero knobs somewhere again (speed, split, words, colour map): `HP` still has them, nothing on the page edits them.
 - [ ] WebGL CRT pass over the hero: barrel distortion, bloom, phosphor persistence. The only item from the original list not built.

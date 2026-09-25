@@ -34,7 +34,7 @@ js/20-glitch-play.js        window.AUI2, window.AUI3. Sound wrappers, tear, fram
 js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, dropdown, otp, pagination, spinner...),
                             the v7 blocks (profile, recipe, build, work orders, settings, crit, 404),
                             the shadcn-style docs builder (groups, sort, index, Preview/Code tabs, filters).
-js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Home (hero buttons, Try it, tiles, placeHero),
+js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Home (hero buttons, tiles, placeHero),
                             Code tab CSS/JS extraction, Get the kit section.
 js/70-nav.js                navigation: the addresses (#view/section), the view links in the bar, the
                             sidebar, the [=] menu, the name, the skip link, the scroll spy and the landing.
@@ -62,7 +62,7 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
                             (Camera and Back to the ring appear once a picture is in), #heroSw (hidden,
                             holds the real Show grid and Glitch inputs the menu and Search flip)
   <nav id="sidenav">        the sections of the view you are in (from 1024px, not on Home)
-  <div id="view-home">      Try it (s-try, four live parts), Where to start (s-go, four tiles), Questions (s-faq)
+  <div id="view-home">      Where to start (s-go, four tiles), Questions (s-faq)
   <div id="view-kit">       Components: .dochead, index, five groups of parts, Get the kit, Rules
   <div id="view-blocks">    Blocks: .dochead, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5): .dochead, then the charts

@@ -93,8 +93,6 @@ function goTo(view,el,block,then){
 A.goTo=goTo;
 $('heroSee').addEventListener('click',()=>{const N=window.AUI_NAV;if(N)N.go('kit',null,{push:true,top0:true});else $('v-kit').click();A.kick()});
 $('heroKit').addEventListener('click',()=>{const h=$('s-install');if(h)goTo('kit',h.parentNode);if(A.live())sfx.ok()});
-/* the proof strip is live: its slider draws like any other */
-A.bindSlider($('tryVol'),()=>{});
 /* the tiles are links, so they work without js; with it they go through the router */
 document.querySelector('#view-home .tiles').addEventListener('click',e=>{
   const a=e.target.closest('a.tile');if(!a||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;

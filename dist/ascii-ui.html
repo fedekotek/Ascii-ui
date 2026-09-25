@@ -853,11 +853,6 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 #view-home > section{margin-top:var(--r)}
 #view-home{margin-top:0!important}
 #view-home > section::before{margin-bottom:var(--r)!important}
-/* the proof: four live parts, each with the way to its code */
-.tries{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(34ch,100%),1fr));gap:calc(var(--r)*2) 4ch;align-items:start}
-.try{min-width:0}
-.try-h{display:flex;justify-content:space-between;gap:2ch;margin:0 0 var(--r)}
-.try .row,.try .group,.try .stack,.try .slider{margin:0}
 #view-home .stats{grid-template-columns:repeat(auto-fit,minmax(min(20ch,100%),1fr))}
 #view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(44ch,100%),1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
@@ -1437,16 +1432,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
-  <section aria-labelledby="s-try">
-    <h2 id="s-try" class="band">Try it</h2>
-    <div class="demo tries">
-      <div class="try"><p class="try-h"><b>Button</b><a class="inl" href="#components/button">Code -&gt;</a></p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish</span></span></button><button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Preview</span></span></button></div></div>
-      <div class="try"><p class="try-h"><b>Input</b><a class="inl" href="#components/input">Code -&gt;</a></p><div class="group"><label class="field-label" for="tryName">Project title</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="tryName" type="text" value="Reporting redesign" autocomplete="off"></div></div></div></div>
-      <div class="try"><p class="try-h"><b>Toggles</b><a class="inl" href="#components/toggles">Code -&gt;</a></p><div class="stack"><label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label></div></div>
-      <div class="try"><p class="try-h"><b>Slider</b><a class="inl" href="#components/slider">Code -&gt;</a></p><div class="slider"><label for="tryVol">Volume</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="tryVol" type="range" inputmode="none" min="0" max="100" step="5" value="60"></span><output for="tryVol">60</output></div></div>
-    </div>
-  </section>
-
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
@@ -4891,8 +4876,6 @@ function goTo(view,el,block,then){
 A.goTo=goTo;
 $('heroSee').addEventListener('click',()=>{const N=window.AUI_NAV;if(N)N.go('kit',null,{push:true,top0:true});else $('v-kit').click();A.kick()});
 $('heroKit').addEventListener('click',()=>{const h=$('s-install');if(h)goTo('kit',h.parentNode);if(A.live())sfx.ok()});
-/* the proof strip is live: its slider draws like any other */
-A.bindSlider($('tryVol'),()=>{});
 /* the tiles are links, so they work without js; with it they go through the router */
 document.querySelector('#view-home .tiles').addEventListener('click',e=>{
   const a=e.target.closest('a.tile');if(!a||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;

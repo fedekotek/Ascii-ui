@@ -1,7 +1,7 @@
 # Working on ascii/ui
 
 ## What this is
-A component kit: shadcn-style components wearing a brutalist ASCII skin with a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense a character is, every state change glitches, and underneath it is plain HTML. It is for designers and developers who want to copy a component and own the code, plus a Home page (the ring, a Try it strip, where to start, questions) and Labs in Themes that show the kit under stress. Five views: Home, Components, Blocks, Charts, Themes. Published as one HTML file.
+A component kit: shadcn-style components wearing a brutalist ASCII skin with a bad signal. Frames, fills and shadows are strings of characters, weight comes from how dense a character is, every state change glitches, and underneath it is plain HTML. It is for designers and developers who want to copy a component and own the code, plus a Home page (the ring, where to start, questions) and Labs in Themes that show the kit under stress. Five views: Home, Components, Blocks, Charts, Themes. Published as one HTML file.
 
 ## Stack
 No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, one page (`index.html`), 18 stylesheets in `css/` and 7 scripts in `js/` (00, 10, 20, 30, 40, 70, 80), both loaded in the order their filenames are numbered. `build.py` (Python 3, standard library only) inlines them into `dist/ascii-ui.html`, which is what ships. Google Fonts (Geist Mono) is the only external request. QA is Playwright for Python in `qa/`.
