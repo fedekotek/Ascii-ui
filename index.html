@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="css/15-themes-play-menu-apps.css">
 <link rel="stylesheet" href="css/16-grid.css">
 <link rel="stylesheet" href="css/17-nav.css">
+<link rel="stylesheet" href="css/18-search.css">
 <script src="js/00-tones.js"></script>
 </head>
 <body>
@@ -348,8 +349,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-command">
     <h2 id="s-command" class="vh">Command</h2>
     <pre class="poster ptitle" data-text="COMMAND" aria-hidden="true"></pre>
-    <p class="muted">Commands is a component too. It runs this site.</p>
-    <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open commands</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
+    <p class="muted">Search runs this site. Press / and start typing.</p>
+    <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open search</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
   </section>
 
   <section aria-labelledby="s-dropdown">
@@ -857,11 +858,13 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 <dialog id="cmdDlg" aria-labelledby="cmdTitle">
   <div class="lift"><div class="card frame tone-heavy">
-    <h2 id="cmdTitle" class="bar-title">Commands</h2>
+    <h2 id="cmdTitle" class="bar-title">Search</h2>
+    <button class="sheet-x" id="cmdX" type="button" aria-label="Close search">[x]</button>
     <div class="body">
-      <div id="cmdLog" role="log" aria-live="polite">type <b>help</b></div>
-      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">$</span><input id="cmdIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Command"></div></div>
-      <div class="row"><button class="btn frame tone-light" id="cmdClose" type="button"><span class="mid"><span class="label">Close</span></span></button><button class="btn btn-primary frame tone-heavy" id="cmdRun" type="button"><span class="mid"><span class="label">Run</span></span></button></div>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">/</span><input id="cmdIn" type="text" role="combobox" aria-expanded="true" aria-controls="cmdList" aria-autocomplete="list" aria-label="Search" placeholder="Search components, blocks, settings" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" autofocus></div></div>
+      <p id="cmdOut" class="s-out" role="status" aria-live="polite"></p>
+      <div id="cmdList" class="s-list" role="listbox" aria-label="Results"></div>
+      <p class="s-foot" aria-hidden="true"><span>up/down move . enter go . esc close</span><span id="cmdCount"></span></p>
     </div>
   </div></div>
 </dialog>
@@ -885,5 +888,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <script src="js/30-lcd-components-docs.js"></script>
 <script src="js/40-themes-ramp-code.js"></script>
 <script src="js/70-nav.js"></script>
+<script src="js/80-search.js"></script>
 </body>
 </html>

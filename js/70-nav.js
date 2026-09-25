@@ -444,5 +444,15 @@
     const p=sec.closest('[role="tabpanel"]');if(!p)return;
     go(p.id.replace(/^view-/,''),sec,{push:true});
   };
-  window.AUI_NAV={build:build,route:route,go:go,model:model};
+  /* Search (js/80) reads the same sections: every view, every named section,
+     Home's landing left out. Blocks the filter hides are listed too, go()
+     brings them back by name. Keywords are the poster title and the caption. */
+  function index(){
+    return VIEWS.map(v=>({v:v,label:LABEL[v],sections:v==='home'?[]:
+      [].slice.call($('view-'+v).querySelectorAll(':scope > section[aria-labelledby]')).filter(name).map(s=>{
+        const t=s.querySelector('pre.ptitle[data-text]'),c=s.querySelector('p.muted');
+        return {sec:s,name:name(s),kw:((t?t.dataset.text:'')+' '+(c?c.textContent.trim().slice(0,80):'')).toLowerCase()};
+      })}));
+  }
+  window.AUI_NAV={build:build,route:route,go:go,model:model,index:index,current:current};
 })();

@@ -305,9 +305,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 @media (max-width:383px){.otp{gap:0}}
 
-/* The palette printed its help as one long line and cut it mid word. */
-#cmdLog{word-break:break-word;overflow-wrap:anywhere}
-
 /* Landscape on a phone has no height to spare: the bar loses its rule row and
    the hero keeps a third of the screen. */
 @media (max-height:480px) and (orientation:landscape){

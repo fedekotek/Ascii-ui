@@ -11,7 +11,7 @@
 | Button | `s-button` | Rim says how loud: @ primary, = default, / danger. | engine (scramble, rim march, burst) | css/05, js/10 "button labels", "button rims" |
 | Calendar | `s-calendar` | Month of buttons, today magenta, pick is a slab. | `AUI_JS.calendar` | css/14 `.cal`, js/30 |
 | Card and dialog | `s-card` | Title bar of @, walls of #, colon shadow. | engine | css/10, js/10 "card and dialog" |
-| Command | `s-command` | The palette as a component. | opens `AUI3.openCmd` | js/20 "command palette" |
+| Command | `s-command` | Search as a component. | opens `AUI3.openCmd` | js/80, commands in js/20 "command palette" |
 | Details | `s-details` | Native details, [+]/[-] marker, answer decodes. | engine (toggle decode) | css/11 `.acc`, js/10 |
 | Dropdown | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `AUI_JS.dropdown` | css/14 `.pop .menu`, js/30 |
 | Empty | `s-empty` | Nothing here, plus the next step. | one toast | css/04 tone-faint |
@@ -35,7 +35,7 @@
 | Toggles | `s-toggles` | Checkbox, radio, switch; glyph is only paint. | engine (develop through ramp) | css/07, js/10 "checkbox and radio" |
 | Tooltip | `s-tooltip` | Hover, focus or tap; types itself in. | tap fallback | css/14 `.tip` |
 
-Not in the kit view but built as components: Menu (`#menuDlg`, full screen, js/70), Command palette (`#cmdDlg`, js/20), Poster dialog (`#posterDlg`), Rebuild pill (`#rebuild`), HUD (`#hud`), Tracking band (`#track`), Chips (`.chip`, used by indexes and filters), Icon button (`.ibtn`).
+Not in the kit view but built as components: Menu (`#menuDlg`, full screen, js/70), Search (`#cmdDlg`, js/80), Poster dialog (`#posterDlg`), Rebuild pill (`#rebuild`), HUD (`#hud`), Tracking band (`#track`), Chips (`.chip`, used by indexes and filters), Icon button (`.ibtn`).
 
 ## Anatomy of a section
 
