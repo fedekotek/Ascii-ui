@@ -14,7 +14,7 @@
      dialogs lay it over themselves because the top layer is out of reach */
   --scanlines:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
   --accent:var(--cy); --danger:var(--warn);
-  --r:24px;
+  --r:21px;   /* one row. 14px type on a 21px line, 1.5 like it always was. JS reads this as A.ROW */
   --ptitle:6;   /* poster titles: the biggest px a bitmap pixel may get */
   color-scheme:light;
   box-sizing:border-box;

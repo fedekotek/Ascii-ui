@@ -55,7 +55,7 @@ The builder (`buildView` in js/30) finds the first `p.muted:not(.status)`, moves
 
 1. Write the section in `index.html` inside `#view-kit`, before the Rules section. Keep the title 8 characters or fewer, or add `data-nobars`.
 2. CSS goes in a new file at the end of the sequence (or the end of 14 if it is small). Only use the tokens. Frames come from `.frame.tone-*`; slabs are `background:var(--ink);color:var(--bg)` plus the chromatic aberration shadow `box-shadow:-2px 0 0 var(--cy),2px 0 0 var(--hot)` if it is an action.
-3. Hit areas: 44px. The pattern is `padding:12px 0;margin:-12px 0` so a 24px row keeps the grid but grows its touch box.
+3. Hit areas: 44px. The pattern is `padding:12px 0;margin:-12px 0` so a 21px row keeps the grid but grows its touch box.
 4. Focus: `:focus-visible{background:var(--accent);color:var(--bg)}`. Never remove outlines without replacing them.
 5. JS: wrap it as `window.AUI_JS=window.AUI_JS||{};window.AUI_JS.thing=function(){ ... };window.AUI_JS.thing();` in js/30 (or a new file), and add `'s-thing':'thing'` to `JSMAP` in js/40 so the Code tab prints it. Use `ping()` for small sounds, `A.say()` for toasts, `A.kick()` for a hero burst on meaningful changes.
 6. Output that draws characters (bars, grids, canvases) must pass through `A.TR()` or `A.colorize(A.barRow(...))`.

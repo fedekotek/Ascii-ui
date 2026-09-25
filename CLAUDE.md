@@ -31,7 +31,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 - Everything must keep working from `file://`. Features that need an origin (camera, clipboard) must fail with a message, never with an error.
 - `prefers-reduced-motion` must turn off every animation and sound. Check `A.reduce` before starting any timer.
 - Blue (`--cy`, the focus color) means focus and nothing else. Magenta acts, lime confirms, yellow warns.
-- Everything on screen snaps to the character grid: `1ch` wide, `var(--r)` (24px) tall. Do not introduce free pixel sizes for layout.
+- Everything on screen snaps to the character grid: `1ch` wide, `var(--r)` (21px, 14px type) tall. In JS use `A.ROW`, never a number. Do not introduce free pixel sizes for layout.
 
 ## Before you change anything
 1. `python3 qa/qa.py 390 844 dark m x` must print `m []` (no errors, no overflow) before and after your change.

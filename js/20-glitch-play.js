@@ -58,10 +58,10 @@ function mosh(cb){
   const P=A.pal(),keys=['hot','pink','cy','warn','deep','violet','ok'];
   const wrap=document.createElement('div');wrap.setAttribute('aria-hidden','true');A.hold(wrap);
   wrap.style.cssText='position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:auto;touch-action:none';
-  const rows=Math.ceil(window.innerHeight/24),els=[];
+  const R=A.ROW,rows=Math.ceil(window.innerHeight/R),els=[];
   for(let y=0;y<rows;y++){
     const d=document.createElement('div'),solid=Math.random()<0.24,side=Math.random()<0.5?-1:1;
-    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*24)+'px;height:24px;line-height:24px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(55+rnd(105))+'ms steps(5)';
+    d.style.cssText='position:absolute;left:0;right:0;top:'+(y*R)+'px;height:'+R+'px;line-height:'+R+'px;font-weight:700;white-space:nowrap;overflow:hidden;background:'+(solid?P[keys[rnd(7)]]:P.bg)+';color:'+P[keys[rnd(7)]]+';transform:translateX('+(side*101)+'%);transition:transform '+(55+rnd(105))+'ms steps(5)';
     d.textContent=Math.random()<0.6?A.TR(rep(RAMP[2+rnd(7)],260)):'';d._s=side;wrap.appendChild(d);els.push(d);
   }
   document.body.appendChild(wrap);noise(0.3,0.12);
@@ -98,7 +98,7 @@ function boot(force,done){
      a pixel, one if even the smallest font will not fit. Twice the poster cap, it is the only thing on screen */
   const W=bin.clientWidth,cap=2*(parseFloat(getComputedStyle(root).getPropertyValue('--ptitle'))||6);
   const tt=A.fit(96,W,cap),scale=tt.cw*94>W?1:2,lh=Math.max(4,Math.round(tt.cw*1.3)),bm=A.bitmap('ASCII/UI',scale);
-  title.style.fontSize=tt.fs+'px';title.style.lineHeight=lh+'px';title.style.height=(Math.ceil(bm.length*lh/24)*24)+'px';
+  title.style.fontSize=tt.fs+'px';title.style.lineHeight=lh+'px';title.style.height=(Math.ceil(bm.length*lh/A.ROW)*A.ROW)+'px';
   title._b=bm;title._n=bm.map(r=>r.map(()=>rnd(6)));title._scale=scale;title._bars=[];
   A.titleFrame(title,0);
   let i=0,over=false,titled=false,logged=false;
@@ -260,7 +260,7 @@ function harvest(el,cw){
         for(let yy=0;yy<n;yy++)for(let k=0;k<lines[yy].length;k++)push(lines[yy][k],left+k*cw,r.top+yy*14,col);
       }else{
         const n=Math.min(c.length,Math.floor(r.width/cw)+1);
-        const top=(e.matches('.frame')&&ps==='::after')?r.bottom-24:r.top;
+        const top=(e.matches('.frame')&&ps==='::after')?r.bottom-A.ROW:r.top;
         for(let k=0;k<n;k++)push(c[k],r.left+k*cw,top+5,col);
       }
     });
@@ -475,7 +475,7 @@ const INV=(function(){
     W=Math.min(W,440);cv.style.width=W+'px';
     dpr=Math.min(window.devicePixelRatio||1,2.5);cw=W/COLS;lh=Math.round(cw*1.25);
     x.font='700 100px '+FONT;const r=x.measureText('M').width/100||0.6;fs=cw/r;
-    const H=Math.ceil(ROWS*lh/24)*24;cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();
+    const H=Math.ceil(ROWS*lh/A.ROW)*A.ROW;cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);draw();
   }
   function fleet(){inv=[];for(let r=0;r<3;r++)for(let c=0;c<5;c++)inv.push({x:3+c*11,y:4+r*8,ty:r,a:1});dir=1}
   function bunkers(){bunk=[];[7,28,49].forEach(b=>{for(let yy=0;yy<4;yy++)for(let xx=0;xx<8;xx++)if(!(yy===3&&xx>2&&xx<5))bunk.push({x:b+xx,y:33+yy})})}

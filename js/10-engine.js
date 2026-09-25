@@ -1,5 +1,7 @@
 (function(){
   var root=document.documentElement, main=document.getElementById('main');
+  /* one row of the grid, in px. css/01-tokens.css owns it (--r), everything here counts in it */
+  var ROW=parseFloat(getComputedStyle(root).getPropertyValue('--r'))||21;
   var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var RAMP=' .:=+*#%@';
   function $(id){return document.getElementById(id)}
@@ -377,20 +379,20 @@
        share, so the hero ends four rows short of the fold and the first
        components show. It drops rows to fit rather than squashing them, and it
        never goes under ten rows however short the window is. */
-    var Hpx=Math.ceil(HR*LH/24)*24,vh=window.innerHeight;
+    var Hpx=Math.ceil(HR*LH/ROW)*ROW,vh=window.innerHeight;
     var hd=document.querySelector('main > header');
     if(hd){
       var copy=hd.getBoundingClientRect().height-hero.getBoundingClientRect().height;
-      var floor=Math.min(240,Math.round(vh*0.3/24)*24);
+      var floor=Math.min(ROW*10,Math.round(vh*0.3/ROW)*ROW);
       /* and never more than 45% of the window, so the page under it shows
          whatever the copy costs */
-      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/24)*24,Math.round((vh-192-copy)/24)*24));
+      var lid=Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     /* on a phone the Play stage is sticky over the knobs and capped at nine
        rows (css/17-nav.css), so the hero is drawn eight rows tall in there */
-    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>192){
-      Hpx=192;HR=Math.max(10,Math.floor(Hpx/LH));
+    if(hero.parentNode&&hero.parentNode.id==='playStage'&&window.innerWidth<720&&Hpx>ROW*8){
+      Hpx=ROW*8;HR=Math.max(10,Math.floor(Hpx/LH));
     }
     hero.style.height=Hpx+'px';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
@@ -400,7 +402,7 @@
     var tt=fit(94,W,cap),tlh=Math.max(4,Math.round(tt.cw*1.3));
     titles.forEach(function(pre){
       pre.style.fontSize=tt.fs+'px';pre.style.lineHeight=tlh+'px';
-      pre.style.height=(Math.ceil(14*tlh/24)*24)+'px';
+      pre.style.height=(Math.ceil(14*tlh/ROW)*ROW)+'px';
     });
     fitTitles();
     /* the glow behind the hero is painted on body so it can reach the window
@@ -613,7 +615,7 @@
     if(lg>=6)out.push([0,lg,0,vh]);
     if(rg>=6)out.push([vw-rg*CH,rg,0,vh]);
     h=hero.getBoundingClientRect();
-    if(h.height&&h.bottom>24&&h.top<vh-24)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
+    if(h.height&&h.bottom>ROW&&h.top<vh-ROW)out.push([Math.max(0,h.left),Math.floor(h.width/CH),Math.max(0,h.top),Math.min(vh,h.bottom)]);
     return out;
   }
   if(!reduce)every(650,function(){
@@ -622,7 +624,7 @@
     var n=1+rnd(Math.ceil(3*g));
     while(n--){
       var s=spots[rnd(spots.length)],len=Math.max(1,Math.min(s[1],2+rnd(18)));
-      var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/24)))*24;
+      var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/ROW)))*ROW;
       run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
   });
@@ -809,7 +811,7 @@
     if(reduce){cb();return}
     sfx.wipe();
     var cs=getComputedStyle(document.body),ink=cs.color;
-    var cols=Math.ceil(window.innerWidth/CH)+1,rows=Math.ceil(window.innerHeight/24)+1,skew=Math.ceil(rows*0.5);
+    var cols=Math.ceil(window.innerWidth/CH)+1,rows=Math.ceil(window.innerHeight/ROW)+1,skew=Math.ceil(rows*0.5);
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
     wrap.setAttribute('aria-hidden','true');hold(wrap);
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
@@ -1016,7 +1018,7 @@
         if(!fn){
           var p=$(t.getAttribute('aria-controls')),tb=document.querySelector('.topbar');
           var first=[].filter.call(p.children,function(c){return c.offsetParent!==null})[0]||p;
-          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-24));
+          window.scrollTo(0,Math.max(0,first.getBoundingClientRect().top+window.scrollY-(tb?tb.offsetHeight:0)-ROW));
         }
         document.dispatchEvent(new CustomEvent('aui:view',{detail:t}));
       }
@@ -1278,7 +1280,7 @@
     };
   }
 
-  window.AUI={backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,

@@ -27,7 +27,7 @@ See ARCHITECTURE.md. Motifs live in `sfx`. `human()` is the variation + fatigue.
 `wipe(cb)` covers the viewport with a diagonal front of `.:=+*#%@` characters plus a solid strip of test-pattern color bars, calls `cb` while covered, then retreats. Used for theme toggle, presets, and half of the view switches.
 
 ## Datamosh (`js/20` "datamosh transition")
-`mosh(cb)`: one absolutely positioned row per 24px of viewport, each a div with random ramp text and a random palette color, sliding in from a random side with a random duration, then out. The other half of view switches.
+`mosh(cb)`: one absolutely positioned row per `A.ROW` (21px) of viewport, each a div with random ramp text and a random palette color, sliding in from a random side with a random duration, then out. The other half of view switches.
 
 ## Ambient sparks (`js/10` "fx layer")
 Every 650ms, scaled by the glitch amount, a few runs of `=` in magenta or pink appear on the character grid and vanish after 80..300ms. They only land in the gutters either side of the column (when a gutter is at least 2ch) and over the hero, never over body text. Tap shards and the cursor trail are still blocks, since they answer your pointer.

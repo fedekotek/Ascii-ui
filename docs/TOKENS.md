@@ -20,7 +20,7 @@
 | `--accent` | alias of `--cy` | | |
 | `--danger` | alias of `--warn` | | |
 | `--ptitle` | How big a bitmap pixel in a poster title may get, in px. 6 by default, 7 was the old size. Lower it and every title shrinks with it. |
-| `--r` | row height | 24px (22px at 720px+) | |
+| `--r` | row height | 21px, every width. JS reads it as `A.ROW` | |
 
 Six color roles (surface, text, action, focus, success, warning) and four support shades (`--muted`, `--pink`, `--deep`, `--violet`) make the ten colors. Slab edges are `-2px violet, 2px hot` on ink slabs and `-2px violet, 2px deep` on magenta slabs.
 
@@ -30,7 +30,7 @@ Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same 
 `" .:=+*#%@"`. Index 1..8. Named in code: `RAMP`, `CANON`. Tones map to indices: heavy 8, dense 7, mid 6, light 4/3, shade 3, faint `- `. Custom ramps translate at output time (see EFFECTS.md, Ramp editor).
 
 ## Type
-Geist Mono 500 (body) and 700 (frames, slabs, posters). 16px/24px on mobile, 15px/22px at 720px+. Ligatures off, `text-size-adjust:100%`. Charts 12px/14px. Titles sized by `fit()`, roughly 7px at 390px wide. The whole system assumes a monospace font; swapping the family requires nothing else, but check `fitTitles()` and the hero measure.
+Geist Mono 500 (body) and 700 (frames, slabs, posters). 14px/21px at every width (1.5, the ratio it always had). Ligatures off, `text-size-adjust:100%`. Charts 12px/14px. Titles sized by `fit()`, roughly 7px at 390px wide. The whole system assumes a monospace font; swapping the family requires nothing else, but check `fitTitles()` and the hero measure.
 
 ## Spacing
 Horizontal in `ch`, vertical in `var(--r)`. Sections are 5 rows apart with a faint divider (`css/02`). `.demo` is one row below its caption. Cards pad `var(--r) 4ch` (2ch for walls, 2ch for air).

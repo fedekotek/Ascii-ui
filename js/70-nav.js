@@ -126,7 +126,7 @@
   /* the view's first block one row under the bar, as the engine does it */
   function yTop(v){
     const p=$('view-'+v),first=[].filter.call(p.children,c=>c.offsetParent!==null)[0]||p;
-    return Math.max(0,Math.round(first.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-24));
+    return Math.max(0,Math.round(first.getBoundingClientRect().top+window.scrollY-(bar?bar.offsetHeight:0)-A.ROW));
   }
   /* The page keeps moving for a moment after a jump: the font arrives,
      charts and pictures size themselves, titles refit. Until then the landing
