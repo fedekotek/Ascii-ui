@@ -6,7 +6,7 @@
 <title>ascii/ui</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 /* ---------- tokens: a bad signal. magenta acts, cyan focuses, lime confirms, yellow warns ---------- */
 :root{
@@ -61,6 +61,10 @@ body{
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }
+/* body type is 300; grey text is thinner to the eye, so it gets 400 to read
+   at 14px in both themes */
+.muted,.hint,.dochead .lede,.navcount,.navlabel,.grouph,.field-label,
+#sidenav .navlink,.s-meta,.s-dots,.s-head,.foot,.sfield{font-weight:400}
 ::selection{background:var(--hot);color:var(--bg)}
 /* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
 body::before{
@@ -888,6 +892,14 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 /* title, caption and tabs close up: the title row, the caption, the tabs */
 #view-kit > section > h2.vh + p,#view-blocks > section > h2.vh + p,
 #view-charts > section > h2.vh + p,#view-themes > section > h2.vh + p{margin-top:0}
+/* the hidden poster sits between the title and the caption, so the caption
+   follows the title directly by way of it */
+#view-kit > section > pre.ptitle + p,#view-blocks > section > pre.ptitle + p,
+#view-charts > section > pre.ptitle + p,#view-themes > section > pre.ptitle + p{margin-top:0}
+/* Themes is a column of tools: the same one row between sections the
+   galleries use, not five */
+#view-themes > section[aria-labelledby]{margin-top:var(--r)}
+#view-themes > section[aria-labelledby]::before{margin-bottom:var(--r)!important}
 #view-kit > section > pre.ptitle,#view-blocks > section > pre.ptitle,
 #view-charts > section > pre.ptitle,#view-themes > section > pre.ptitle{display:none}
 #view-kit > section > h2.vh,#view-blocks > section > h2.vh,
@@ -925,7 +937,7 @@ main > header[hidden] ~ [role="tabpanel"] > :first-child{margin-top:0}
 .topbar-in{margin:0 auto;padding:0 2ch;position:relative}
 .topbar::after{
   content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
-  overflow:hidden;white-space:nowrap;font-weight:300;color:var(--muted);opacity:.5;pointer-events:none;
+  overflow:hidden;white-space:nowrap;font-weight:400;color:var(--muted);opacity:.5;pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
@@ -971,7 +983,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #views .tab{
   display:block;flex:none;white-space:nowrap;position:relative;
   padding:12px .5ch;margin:0;line-height:var(--r);
-  text-transform:none;text-decoration:none;color:var(--muted);font-weight:300;
+  text-transform:none;text-decoration:none;color:var(--muted);font-weight:400;
   background:none;box-shadow:none;
 }
 #views .tab[aria-selected="true"]{color:var(--ink);font-weight:700;background:none;box-shadow:none}
@@ -993,7 +1005,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .gw{display:none}
 @media (min-width:1280px){
   .gbtn{width:auto;min-width:5ch;display:flex;gap:1ch;margin:0}
-  .gw{display:inline;font-weight:300}
+  .gw{display:inline;font-weight:400}
   .barctl{gap:0 2ch}
 }
 #soundBar{font-weight:700;line-height:var(--r)}
@@ -1004,8 +1016,8 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
 @media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
 
-.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:300}
-.sfield b{font-weight:300}
+.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:400}
+.sfield b{font-weight:400}
 .sf-g{display:none}
 @media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
 .sfield:focus-visible b{color:inherit}
@@ -1068,7 +1080,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* the list, shared by the sidebar and the menu: the view and its count first,
    then Start, the counted sections, About */
 .navh{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
-.navcount{color:var(--muted);font-weight:300}
+.navcount{color:var(--muted);font-weight:400}
 /* the heading stays put while the list scrolls under it */
 #sidenav .navh{position:sticky;top:0;z-index:1;background:var(--bg);margin:0;padding-bottom:var(--r)}
 .navgroup + .navgroup{margin-top:var(--r)}
@@ -2626,8 +2638,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   /* ---- hero: a torus on a bad signal. streaks, colour bars, RGB split, tearing ---- */
   var streaks=[],blocks=[],zb=null,lu=null;
   var BAR=['pink','warn','cy','deep','ink','hot','violet'];
-  var TOR_D=['deep','violet','violet','hot','hot','pink','ink'];
-  var TOR_L=['ink','deep','deep','violet','hot','hot','pink'];
+  /* the ring shades through violet and magenta, never blue: blue is focus */
+  var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
+  var TOR_L=['ink','violet','violet','hot','hot','pink','pink'];
   function rnd(n){return Math.floor(Math.random()*n)}
   function mkBlock(){
     var bars=Math.random()<0.4;
@@ -2674,7 +2687,10 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
        shorter hero shows a smaller torus instead of half of one. It is measured
        here, before the blocks, because the blocks keep out of it. */
     var ext=(window.AUI&&AUI.src)?AUI.src(HC,HR):null;
-    var rr=Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*0.64);
+    /* on a narrow screen the words fill the width, so the ring gets smaller and
+       sits in the gap between the two lines instead of on top of them */
+    var narrow=HC<70;
+    var rr=narrow?Math.min(HC*0.2,HR*0.26):Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*(narrow?0.5:0.64));
     /* A colour bar laid over the ring or through a letter read as a smudge on a
        phone, where everything is close. Bars now run up to the words and the
        ring and stop, a row at a time. With a photo there is no ring to avoid. */
@@ -4727,7 +4743,7 @@ function buildView(panel,label,skip,pin,group){
   /* a grouped view says where each group starts, on the page as in the sidebar */
   if(group)secs.forEach((s,i)=>{
     if(i&&secs[i-1].dataset.group===s.dataset.group)return;
-    const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');
+    const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');h.dataset.g=s.dataset.group;
     h.innerHTML=s.dataset.group+' <span class="navcount">'+secs.filter(x=>x.dataset.group===s.dataset.group).length+'</span>';
     panel.insertBefore(h,s);
   });
@@ -4754,11 +4770,18 @@ buildView($('view-kit'),'Components',['s-rules'],[],id=>{
   const i=KIT_GROUPS.findIndex(g=>g[1].includes(id));
   return i<0?[KIT_GROUPS.length,'Other']:[i,KIT_GROUPS[i][0]];
 });
-const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
+/* Blocks group by the same categories as their filter chips */
+const BLOCK_GROUPS=[['auth','Auth'],['dashboard','Dashboard'],['app','App'],['marketing','Marketing'],['personal','Personal']];
+const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats'],id=>{
+  const s=$('view-blocks').querySelector(':scope > section[aria-labelledby="'+id+'"]'),i=BLOCK_GROUPS.findIndex(g=>g[0]===(s&&s.dataset.cat));
+  return i<0?[BLOCK_GROUPS.length,'Other']:[i,BLOCK_GROUPS[i][1]];
+});
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));
   blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f;if(s._chip)s._chip.hidden=s.hidden});
+  /* a group label goes when the filter leaves nothing under it */
+  $('view-blocks').querySelectorAll(':scope > .grouph').forEach(h=>{h.hidden=!blockSecs.some(s=>!s.hidden&&s.dataset.group===h.dataset.g)});
   const sum=$('view-blocks').querySelector('.toc summary');if(sum)sum.textContent='Blocks, '+blockSecs.filter(s=>!s.hidden).length;
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });

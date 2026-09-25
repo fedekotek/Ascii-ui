@@ -414,8 +414,9 @@
   /* ---- hero: a torus on a bad signal. streaks, colour bars, RGB split, tearing ---- */
   var streaks=[],blocks=[],zb=null,lu=null;
   var BAR=['pink','warn','cy','deep','ink','hot','violet'];
-  var TOR_D=['deep','violet','violet','hot','hot','pink','ink'];
-  var TOR_L=['ink','deep','deep','violet','hot','hot','pink'];
+  /* the ring shades through violet and magenta, never blue: blue is focus */
+  var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
+  var TOR_L=['ink','violet','violet','hot','hot','pink','pink'];
   function rnd(n){return Math.floor(Math.random()*n)}
   function mkBlock(){
     var bars=Math.random()<0.4;
@@ -462,7 +463,10 @@
        shorter hero shows a smaller torus instead of half of one. It is measured
        here, before the blocks, because the blocks keep out of it. */
     var ext=(window.AUI&&AUI.src)?AUI.src(HC,HR):null;
-    var rr=Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*0.64);
+    /* on a narrow screen the words fill the width, so the ring gets smaller and
+       sits in the gap between the two lines instead of on top of them */
+    var narrow=HC<70;
+    var rr=narrow?Math.min(HC*0.2,HR*0.26):Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*(narrow?0.5:0.64));
     /* A colour bar laid over the ring or through a letter read as a smudge on a
        phone, where everything is close. Bars now run up to the words and the
        ring and stop, a row at a time. With a photo there is no ring to avoid. */

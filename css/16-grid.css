@@ -167,6 +167,14 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 /* title, caption and tabs close up: the title row, the caption, the tabs */
 #view-kit > section > h2.vh + p,#view-blocks > section > h2.vh + p,
 #view-charts > section > h2.vh + p,#view-themes > section > h2.vh + p{margin-top:0}
+/* the hidden poster sits between the title and the caption, so the caption
+   follows the title directly by way of it */
+#view-kit > section > pre.ptitle + p,#view-blocks > section > pre.ptitle + p,
+#view-charts > section > pre.ptitle + p,#view-themes > section > pre.ptitle + p{margin-top:0}
+/* Themes is a column of tools: the same one row between sections the
+   galleries use, not five */
+#view-themes > section[aria-labelledby]{margin-top:var(--r)}
+#view-themes > section[aria-labelledby]::before{margin-bottom:var(--r)!important}
 #view-kit > section > pre.ptitle,#view-blocks > section > pre.ptitle,
 #view-charts > section > pre.ptitle,#view-themes > section > pre.ptitle{display:none}
 #view-kit > section > h2.vh,#view-blocks > section > h2.vh,

@@ -8,6 +8,10 @@ body{
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }
+/* body type is 300; grey text is thinner to the eye, so it gets 400 to read
+   at 14px in both themes */
+.muted,.hint,.dochead .lede,.navcount,.navlabel,.grouph,.field-label,
+#sidenav .navlink,.s-meta,.s-dots,.s-head,.foot,.sfield{font-weight:400}
 ::selection{background:var(--hot);color:var(--bg)}
 /* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
 body::before{

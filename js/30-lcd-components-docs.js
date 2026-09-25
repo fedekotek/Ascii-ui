@@ -443,7 +443,7 @@ function buildView(panel,label,skip,pin,group){
   /* a grouped view says where each group starts, on the page as in the sidebar */
   if(group)secs.forEach((s,i)=>{
     if(i&&secs[i-1].dataset.group===s.dataset.group)return;
-    const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');
+    const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');h.dataset.g=s.dataset.group;
     h.innerHTML=s.dataset.group+' <span class="navcount">'+secs.filter(x=>x.dataset.group===s.dataset.group).length+'</span>';
     panel.insertBefore(h,s);
   });
@@ -470,11 +470,18 @@ buildView($('view-kit'),'Components',['s-rules'],[],id=>{
   const i=KIT_GROUPS.findIndex(g=>g[1].includes(id));
   return i<0?[KIT_GROUPS.length,'Other']:[i,KIT_GROUPS[i][0]];
 });
-const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats']);
+/* Blocks group by the same categories as their filter chips */
+const BLOCK_GROUPS=[['auth','Auth'],['dashboard','Dashboard'],['app','App'],['marketing','Marketing'],['personal','Personal']];
+const blockSecs=buildView($('view-blocks'),'Blocks',[],['s-login','s-stats'],id=>{
+  const s=$('view-blocks').querySelector(':scope > section[aria-labelledby="'+id+'"]'),i=BLOCK_GROUPS.findIndex(g=>g[0]===(s&&s.dataset.cat));
+  return i<0?[BLOCK_GROUPS.length,'Other']:[i,BLOCK_GROUPS[i][1]];
+});
 $('blockFilters').addEventListener('click',e=>{
   const b=e.target.closest('.chip');if(!b)return;const f=b.dataset.f;
   $('blockFilters').querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',c===b?'true':'false'));
   blockSecs.forEach(s=>{s.hidden=f!=='all'&&s.dataset.cat!==f;if(s._chip)s._chip.hidden=s.hidden});
+  /* a group label goes when the filter leaves nothing under it */
+  $('view-blocks').querySelectorAll(':scope > .grouph').forEach(h=>{h.hidden=!blockSecs.some(s=>!s.hidden&&s.dataset.group===h.dataset.g)});
   const sum=$('view-blocks').querySelector('.toc summary');if(sum)sum.textContent='Blocks, '+blockSecs.filter(s=>!s.hidden).length;
   LCDS.forEach(l=>l.size());if(A.glitch()>0)B.tear(2);ping(520);
 });
