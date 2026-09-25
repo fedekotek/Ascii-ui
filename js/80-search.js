@@ -121,7 +121,7 @@
     const q=inp.value.trim(),run=q?runRow(q):null;
     let gs=groups(q),html='',n=0,none=false;
     rows=[];
-    if(q&&!gs.length&&!run){none=true;gs=[{label:'Views',items:views}]}
+    if(q&&!gs.length&&!run){none=true;gs=[{label:'Try a view',items:views}]}
     if(run)gs.unshift({label:null,items:[run]});
     if(none)html+='<p class="s-none" id="sg-none">Nothing called "'+esc(q)+'".</p>';
     gs.forEach((g,gi)=>{
@@ -134,8 +134,9 @@
     });
     list.innerHTML=html;
     list.scrollTop=0;
-    count.textContent=(none?0:rows.length-(run?1:0))+'/'+total;
-    setActive(rows.length?0:-1);
+    count.textContent='';
+    /* a failed search selects nothing, so Enter does not go somewhere you did not ask for */
+    setActive(rows.length&&!none?0:-1);
   }
   function rowEl(i){return $('so-'+i)}
   function setActive(i,keep){

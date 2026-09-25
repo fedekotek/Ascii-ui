@@ -427,8 +427,9 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-/* skip: sections that stay out of the index and open the view, the way a docs
-   site starts with Getting started (Rules; Get the kit joins it from js/40).
+/* skip: sections that stay out of the index and close the view (Rules; Get
+   the kit joins it from js/40). The header links to them, the sidebar lists
+   them first as Getting started, and the page opens on a component.
    pin: sections that open the index, in that order, ahead of the alphabet: a
    404 page is a strange first block. */
 function buildView(panel,label,skip,pin,group){
@@ -439,8 +440,15 @@ function buildView(panel,label,skip,pin,group){
   /* grouped views sort by group first; the group rides on the section for the sidebar */
   const G=group?s=>{const g=group(id(s));s.dataset.group=g[1];return g[0]}:()=>0;
   secs.sort((a,b)=>G(a)-G(b)||rank(a)-rank(b)||name(a).localeCompare(name(b)));
-  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]));
+  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
   secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
+  /* a grouped view says where each group starts, on the page as in the sidebar */
+  if(group)secs.forEach((s,i)=>{
+    if(i&&secs[i-1].dataset.group===s.dataset.group)return;
+    const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');
+    h.innerHTML=s.dataset.group+' <span class="navcount">'+secs.filter(x=>x.dataset.group===s.dataset.group).length+'</span>';
+    panel.insertBefore(h,s);
+  });
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
   /* under 1024px the [=] menu is the index now, so this starts closed; from
      1024px the sidebar is, and css hides it */

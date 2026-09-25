@@ -71,11 +71,11 @@
     const mid=[];
     counted.forEach(s=>{const g=s.dataset.group,last=mid[mid.length-1];
       if(last&&last.label===g)last.items.push(s);else mid.push({label:g,items:[s]})});
+    /* the sections outside the index are the way in, so they are listed first
+       wherever they sit on the page */
     return {title:title,count:counted.length,groups:[
-      {label:'Getting started',items:all.filter((s,i)=>!s._chip&&i<i0)}
-    ].concat(mid,[
-      {label:'About',items:all.filter((s,i)=>!s._chip&&i>i0)}
-    ]).filter(g=>g.items.length)};
+      {label:'Getting started',items:all.filter(s=>!s._chip)}
+    ].concat(mid).filter(g=>g.items.length)};
   }
   function heading(el,m){
     el.textContent=m.title+' ';
@@ -189,6 +189,7 @@
         land(()=>{const r=el.getBoundingClientRect(),tb=document.querySelector('.topbar');
           return Math.max(0,window.scrollY+r.top-(mid?(window.innerHeight-r.height)/2:(tb?tb.offsetHeight:0)))},opt.smooth);
       }else if(opt.top0)land(()=>0,opt.smooth);
+      else if(v==='home')land(()=>0,opt.smooth);
       else land(()=>yTop(v),opt.smooth);
       if(opt.after)opt.after();
     },opt.instant);

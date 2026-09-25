@@ -52,9 +52,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <div class="barctl">
         <button id="cmdBtn" class="bbtn sfield" type="button" aria-label="Search" aria-keyshortcuts="Control+K /" title="Search (/)"><span class="sf-l" aria-hidden="true"><b>[</b> Search...</span><span class="sf-k" aria-hidden="true"><span id="sfKey">Ctrl K</span> <b>]</b></span><span class="sf-g" aria-hidden="true">[/]</span></button>
         <span class="sep" aria-hidden="true">|</span>
-        <button id="glitchBar" class="bbtn gbtn" type="button" aria-pressed="true" aria-label="Glitch" title="Glitch"><span class="gl" aria-hidden="true">/\/</span></button>
-        <label class="check bbtn gbtn" id="soundBar" title="Sound"><input type="checkbox" role="switch" id="soundToggle" checked aria-label="Sound"><span class="lbl" aria-hidden="true">&lt;)))</span></label>
-        <button id="themeToggle" class="bbtn gbtn" type="button" aria-label="Switch to dark theme" title="Theme"><span class="label" aria-hidden="true">-O-</span></button>
+        <button id="glitchBar" class="bbtn gbtn" type="button" aria-pressed="true" aria-label="Glitch" title="Glitch"><span class="gl" aria-hidden="true">/\/</span><span class="gw" aria-hidden="true">Glitch</span></button>
+        <label class="check bbtn gbtn" id="soundBar" title="Sound"><input type="checkbox" role="switch" id="soundToggle" checked aria-label="Sound"><span class="lbl" aria-hidden="true">&lt;)))</span><span class="gw" aria-hidden="true">Sound</span></label>
+        <button id="themeToggle" class="bbtn gbtn" type="button" aria-label="Switch to dark theme" title="Theme"><span class="label" aria-hidden="true">-O-</span><span class="gw" id="themeWord" aria-hidden="true">Light</span></button>
       </div>
     </div>
   </div>
@@ -65,12 +65,12 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <header>
     <h1 class="vh">ascii/ui</h1>
     <canvas id="hero" aria-hidden="true"></canvas>
-    <p class="hero-h" id="heroLine">Components you copy and own.</p>
-    <p class="lede demo">Thirty shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
+    <p class="lede demo" id="heroLine">Thirty shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
     <div class="row demo" id="heroGo">
       <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
       <button class="btn frame tone-light" id="heroKit" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
     </div>
+    <p class="muted hero-facts">0 dependencies. 30 components. 1 file.</p>
     <div class="row hero-src" id="heroSrc">
       <button class="linkbtn" id="photoBtn" type="button">Feed the ring a photo</button>
       <button class="linkbtn" id="camBtn" type="button" hidden>Camera</button>
@@ -88,31 +88,23 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
-  <section aria-labelledby="s-go">
-    <h2 id="s-go" class="band">Where to start</h2>
-    <div class="demo tiles">
-      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 -&gt;</span></span></span></a>
-      <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 -&gt;</span></span></span></a>
-      <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 -&gt;</span></span></span></a>
-      <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">5 -&gt;</span></span></span></a>
+  <section aria-labelledby="s-try">
+    <h2 id="s-try" class="band">Try it</h2>
+    <div class="demo tries">
+      <div class="try"><p class="try-h"><b>Button</b><a class="inl" href="#components/button">Code -&gt;</a></p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish</span></span></button><button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Preview</span></span></button></div></div>
+      <div class="try"><p class="try-h"><b>Input</b><a class="inl" href="#components/input">Code -&gt;</a></p><div class="group"><label class="field-label" for="tryName">Project title</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="tryName" type="text" value="Reporting redesign" autocomplete="off"></div></div></div></div>
+      <div class="try"><p class="try-h"><b>Toggles</b><a class="inl" href="#components/toggles">Code -&gt;</a></p><div class="stack"><label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label></div></div>
+      <div class="try"><p class="try-h"><b>Slider</b><a class="inl" href="#components/slider">Code -&gt;</a></p><div class="slider"><label for="tryVol">Volume</label><span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="tryVol" type="range" inputmode="none" min="0" max="100" step="5" value="60"></span><output for="tryVol">60</output></div></div>
     </div>
   </section>
 
-  <section aria-labelledby="s-ideas">
-    <h2 id="s-ideas" class="band">Four ideas</h2>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Weight is density</h3><div class="body"><p>Hierarchy comes from which character draws the frame. @ shouts, = talks and . whispers.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Frames are strings</h3><div class="body"><p>Every border, rule and shadow is a run of characters clipped to the box. No images and no SVG.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Glitch is feedback</h3><div class="body"><p>Tearing, RGB split and shards fire when you touch something or a state changes. One slider turns it all down.</p></div></article></div>
-    <div class="demo lift"><article class="card frame tone-mid"><h3 class="bar-title">Color is signal</h3><div class="body"><p>Magenta acts, lime confirms, yellow warns. Blue is focus and nothing else.</p></div></article></div>
-  </section>
-
-  <section aria-labelledby="s-numbers">
-    <h2 id="s-numbers" class="band">In numbers</h2>
-    <div class="stats demo">
-      <div class="stat"><pre class="poster ptitle" data-text="0" data-nobars aria-hidden="true"></pre><p><span class="vh">0 </span>dependencies</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="30" data-nobars aria-hidden="true"></pre><p><span class="vh">30 </span>components</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="8" data-nobars aria-hidden="true"></pre><p><span class="vh">8 </span>characters in the ramp</p></div>
-      <div class="stat"><pre class="poster ptitle" data-text="1" data-nobars aria-hidden="true"></pre><p><span class="vh">1 </span>type size</p></div>
+  <section aria-labelledby="s-go">
+    <h2 id="s-go" class="band">Where to start</h2>
+    <div class="demo tiles">
+      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 components -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 blocks -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 charts -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">6 presets -&gt;</span></span></span></a>
     </div>
   </section>
 
@@ -128,7 +120,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Open Code on any of them and take the html, the css and the js.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Open Code on any of them and take the html, the css and the js. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
   <section aria-labelledby="s-rules" data-span="full">
     <h2 id="s-rules" class="vh">Rules</h2>
     <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
@@ -246,7 +238,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     </div>
   </section>
 
-  <section aria-labelledby="s-card" data-span="full">
+  <section aria-labelledby="s-card">
     <h2 id="s-card" class="vh">Card</h2>
     <pre class="poster ptitle" data-text="CARD" aria-hidden="true"></pre>
     <p class="muted">Title on a bar of @, walls of #, and a shadow made of colons. Publishing opens the dialog.</p>
@@ -338,7 +330,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <nav class="demo" aria-label="Breadcrumb"><ol class="crumbs"><li><a href="#">Portfolio</a></li><li><a href="#">Case studies</a></li><li><a href="#">MaintainX</a></li><li aria-current="page"><span>Reporting</span></li></ol></nav>
   </section>
 
-  <section aria-labelledby="s-calendar" data-span="full">
+  <section aria-labelledby="s-calendar">
     <h2 id="s-calendar" class="vh">Calendar</h2>
     <pre class="poster ptitle" data-text="CALENDAR" aria-hidden="true"></pre>
     <p class="muted">A month of buttons. Today is magenta, your pick is a slab.</p>
@@ -471,7 +463,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-blocks" role="tabpanel" aria-labelledby="v-blocks" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-text="BLOCKS" aria-hidden="true"></pre><p class="lede">Components put together into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six are about Fede, who made this.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="BLOCKS" aria-hidden="true"></pre><p class="lede">Components put together into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six are about Fede, who made this.</p></div>
   <section aria-label="Filter blocks"><div class="filters" id="blockFilters" role="group" aria-label="Filter by category"><button class="chip" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="personal" aria-pressed="false">Personal</button><button class="chip" type="button" data-f="app" aria-pressed="false">App</button><button class="chip" type="button" data-f="dashboard" aria-pressed="false">Dashboard</button><button class="chip" type="button" data-f="auth" aria-pressed="false">Auth</button><button class="chip" type="button" data-f="marketing" aria-pressed="false">Marketing</button></div></section>
 
 
@@ -657,7 +649,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-charts" role="tabpanel" aria-labelledby="v-charts" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-text="CHARTS" aria-hidden="true"></pre><p class="lede">Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="CHARTS" aria-hidden="true"></pre><p class="lede">Charts drawn on the character grid. Density carries the value, color carries the meaning. Tap them.</p></div>
 
 
   <section aria-labelledby="s-bars" data-span="full">
@@ -704,7 +696,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-themes" role="tabpanel" aria-labelledby="v-themes" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-text="THEMES" aria-hidden="true"></pre><p class="lede">Six presets, six color roles, four support shades and one ramp. Change any of them and the whole site follows. Copy the tokens when you like what you see.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="THEMES" aria-hidden="true"></pre><p class="lede">Six presets, six color roles, four support shades and one ramp. Change any of them and the whole site follows. Copy the tokens when you like what you see.</p></div>
 
   <section aria-labelledby="s-presets">
     <h2 id="s-presets" class="vh">Presets</h2>
@@ -800,7 +792,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
       <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
     </section>
-    <p class="foot" id="footLine" hidden>ascii/ui. One HTML file. The footer on Home is a game.</p>
+    <p class="foot" id="footLine">ascii/ui. One HTML file, no dependencies. Set in Geist Mono.</p>
   </footer>
 </main>
 

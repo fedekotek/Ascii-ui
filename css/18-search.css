@@ -61,4 +61,8 @@
     max-height:100vh;max-height:100dvh;
   }
   .s-list{max-height:none}
+  /* the frame starts one row down so its top row shows, and the shadow that
+     would run off the right edge goes */
+  #cmdDlg{margin-top:calc(var(--r) + env(safe-area-inset-top,0px));max-width:calc(100% - 2ch)}
+  #cmdDlg .lift::after,#cmdDlg .lift::before{display:none}
 }

@@ -124,12 +124,19 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
 @media (hover:hover){.linkbtn:hover{color:var(--hot)}}
 .linkbtn:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
 
+main > header > .hero-facts{margin:var(--r) 0 0}
 /* ---- Home, under the hero --------------------------------------------------
    Bands with a plain bold label, so the ASCII/UI bitmap stays the only big
    title on the page. */
 .band{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);text-transform:uppercase;letter-spacing:0}
 #view-home > section{margin-top:var(--r)}
+#view-home{margin-top:0!important}
 #view-home > section::before{margin-bottom:var(--r)!important}
+/* the proof: four live parts, each with the way to its code */
+.tries{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(34ch,100%),1fr));gap:calc(var(--r)*2) 4ch;align-items:start}
+.try{min-width:0}
+.try-h{display:flex;justify-content:space-between;gap:2ch;margin:0 0 var(--r)}
+.try .row,.try .group,.try .stack,.try .slider{margin:0}
 #view-home .stats{grid-template-columns:repeat(auto-fit,minmax(min(20ch,100%),1fr))}
 #view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(44ch,100%),1fr));gap:var(--r) 4ch}
 #view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
@@ -153,7 +160,18 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
    row was a wall of shouting. */
 .dochead{grid-column:1/-1}
 .dochead .ptitle{margin:0}
-.dochead .lede{margin:var(--r) 0 var(--r);max-width:72ch;color:var(--muted)}
+.dochead .lede{margin:var(--r) 0 0;max-width:72ch;color:var(--muted)}
+.dochead + *{margin-top:var(--r)!important}
+.inl{color:var(--ink);text-underline-offset:3px;outline:0;padding:12px 0;margin:-12px 0}
+@media (hover:hover){.inl:hover{color:var(--hot)}}
+.inl:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
+/* the group a run of components belongs to, on the page as in the sidebar */
+.grouph{grid-column:1/-1;font-weight:700;color:var(--muted);text-transform:uppercase;line-height:var(--r);margin:calc(var(--r)*2) 0 0}
+/* a jump lands the section's title under the bar, not behind it */
+#main section[aria-labelledby]{scroll-margin-top:calc(var(--r)*3)}
+/* title, caption and tabs close up: the title row, the caption, the tabs */
+#view-kit > section > h2.vh + p,#view-blocks > section > h2.vh + p,
+#view-charts > section > h2.vh + p,#view-themes > section > h2.vh + p{margin-top:0}
 #view-kit > section > pre.ptitle,#view-blocks > section > pre.ptitle,
 #view-charts > section > pre.ptitle,#view-themes > section > pre.ptitle{display:none}
 #view-kit > section > h2.vh,#view-blocks > section > h2.vh,

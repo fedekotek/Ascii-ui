@@ -280,7 +280,7 @@
   var probe=$('probe'),hero=$('hero'),ctx=hero.getContext('2d');
   var HC=60,HR=58,mask=null,wbox=[],t=0,CH=9.6,CW=6,LH=7,FS=10,DPR=1,A=1.1,B=0.4,spinX=0,spinY=0,PAL=null;
   var G={on:!reduce,amt:0.5,burst:0,next:0,scroll:0};
-  var HP={t1:'ASCII',t2:'/UI',speed:1,rad:1,split:1,tear:1,streaks:38,blocks:9,map:0};
+  var HP={t1:'COPY IT',t2:'OWN IT',speed:1,rad:1,split:1,tear:1,streaks:12,blocks:3,map:0};
   var MAPS=[null,['deep','deep','cy','cy','ok','ok','ink'],['deep','warn','warn','hot','hot','pink','ink'],['muted','muted','muted','ink','ink','ink','ink']];
   function glitch(){return (G.on&&G.amt>0)?Math.min(1,G.amt+G.scroll*0.6):0}
   function currentTheme(){
@@ -896,6 +896,7 @@
   function themeLabel(){
     var now=themeWant||currentTheme(),to=now==='dark'?'light':'dark';
     themeBtn.querySelector('.label').textContent=now==='dark'?'(C':'-O-';
+    $('themeWord').textContent=now==='dark'?'Dark':'Light';
     themeBtn.setAttribute('aria-label','Switch to '+to+' theme');
     themeBtn.title=now==='dark'?'Dark theme':'Light theme';
   }
