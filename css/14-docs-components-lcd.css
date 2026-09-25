@@ -69,7 +69,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .menu [role="menuitem"].danger{color:var(--warn)}
 .menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
 .menu .sepd{margin:0}
-.menu kbd{color:inherit;font-weight:500;opacity:.7}
+.menu kbd{color:inherit;font-weight:300;opacity:.7}
 .tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
 .tip::after{content:"v";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
 .pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}

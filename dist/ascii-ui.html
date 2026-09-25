@@ -6,7 +6,7 @@
 <title>ascii/ui</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;700&display=swap" rel="stylesheet">
 <style>
 /* ---------- tokens: a bad signal. magenta acts, cyan focuses, lime confirms, yellow warns ---------- */
 :root{
@@ -57,7 +57,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
   margin:0;background:var(--bg);color:var(--ink);
   font-family:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:14px;line-height:var(--r);font-weight:500;
+  font-size:14px;line-height:var(--r);font-weight:300;
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }
@@ -420,7 +420,7 @@ main.split{animation:split .6s steps(1)}
   .tbl th:nth-child(4),.tbl td:nth-child(4){display:none}
 }
 .price{font-weight:700}
-.price small{font:inherit;font-weight:500;color:var(--muted)}
+.price small{font:inherit;font-weight:300;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}
 .feat li{position:relative;padding-left:2ch;color:var(--muted)}
 .feat li::before{content:"+";position:absolute;left:0;color:var(--ok);font-weight:700}
@@ -563,7 +563,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .menu [role="menuitem"].danger{color:var(--warn)}
 .menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
 .menu .sepd{margin:0}
-.menu kbd{color:inherit;font-weight:500;opacity:.7}
+.menu kbd{color:inherit;font-weight:300;opacity:.7}
 .tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
 .tip::after{content:"v";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
 .pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
@@ -925,7 +925,7 @@ main > header[hidden] ~ [role="tabpanel"] > :first-child{margin-top:0}
 .topbar-in{margin:0 auto;padding:0 2ch;position:relative}
 .topbar::after{
   content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
-  overflow:hidden;white-space:nowrap;font-weight:500;color:var(--muted);opacity:.5;pointer-events:none;
+  overflow:hidden;white-space:nowrap;font-weight:300;color:var(--muted);opacity:.5;pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
@@ -971,7 +971,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #views .tab{
   display:block;flex:none;white-space:nowrap;position:relative;
   padding:12px .5ch;margin:0;line-height:var(--r);
-  text-transform:none;text-decoration:none;color:var(--muted);font-weight:500;
+  text-transform:none;text-decoration:none;color:var(--muted);font-weight:300;
   background:none;box-shadow:none;
 }
 #views .tab[aria-selected="true"]{color:var(--ink);font-weight:700;background:none;box-shadow:none}
@@ -993,7 +993,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .gw{display:none}
 @media (min-width:1280px){
   .gbtn{width:auto;min-width:5ch;display:flex;gap:1ch;margin:0}
-  .gw{display:inline;font-weight:500}
+  .gw{display:inline;font-weight:300}
   .barctl{gap:0 2ch}
 }
 #soundBar{font-weight:700;line-height:var(--r)}
@@ -1004,8 +1004,8 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
 @media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
 
-.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:500}
-.sfield b{font-weight:500}
+.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:300}
+.sfield b{font-weight:300}
 .sf-g{display:none}
 @media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
 .sfield:focus-visible b{color:inherit}
@@ -1068,7 +1068,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* the list, shared by the sidebar and the menu: the view and its count first,
    then Start, the counted sections, About */
 .navh{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
-.navcount{color:var(--muted);font-weight:500}
+.navcount{color:var(--muted);font-weight:300}
 /* the heading stays put while the list scrolls under it */
 #sidenav .navh{position:sticky;top:0;z-index:1;background:var(--bg);margin:0;padding-bottom:var(--r)}
 .navgroup + .navgroup{margin-top:var(--r)}

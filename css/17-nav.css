@@ -19,7 +19,7 @@
 .topbar-in{margin:0 auto;padding:0 2ch;position:relative}
 .topbar::after{
   content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
-  overflow:hidden;white-space:nowrap;font-weight:500;color:var(--muted);opacity:.5;pointer-events:none;
+  overflow:hidden;white-space:nowrap;font-weight:300;color:var(--muted);opacity:.5;pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 
@@ -65,7 +65,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #views .tab{
   display:block;flex:none;white-space:nowrap;position:relative;
   padding:12px .5ch;margin:0;line-height:var(--r);
-  text-transform:none;text-decoration:none;color:var(--muted);font-weight:500;
+  text-transform:none;text-decoration:none;color:var(--muted);font-weight:300;
   background:none;box-shadow:none;
 }
 #views .tab[aria-selected="true"]{color:var(--ink);font-weight:700;background:none;box-shadow:none}
@@ -87,7 +87,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .gw{display:none}
 @media (min-width:1280px){
   .gbtn{width:auto;min-width:5ch;display:flex;gap:1ch;margin:0}
-  .gw{display:inline;font-weight:500}
+  .gw{display:inline;font-weight:300}
   .barctl{gap:0 2ch}
 }
 #soundBar{font-weight:700;line-height:var(--r)}
@@ -98,8 +98,8 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
 @media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
 
-.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:500}
-.sfield b{font-weight:500}
+.sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:300}
+.sfield b{font-weight:300}
 .sf-g{display:none}
 @media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
 .sfield:focus-visible b{color:inherit}
@@ -162,7 +162,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* the list, shared by the sidebar and the menu: the view and its count first,
    then Start, the counted sections, About */
 .navh{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
-.navcount{color:var(--muted);font-weight:500}
+.navcount{color:var(--muted);font-weight:300}
 /* the heading stays put while the list scrolls under it */
 #sidenav .navh{position:sticky;top:0;z-index:1;background:var(--bg);margin:0;padding-bottom:var(--r)}
 .navgroup + .navgroup{margin-top:var(--r)}

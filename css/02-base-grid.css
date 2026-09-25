@@ -4,7 +4,7 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
   margin:0;background:var(--bg);color:var(--ink);
   font-family:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
-  font-size:14px;line-height:var(--r);font-weight:500;
+  font-size:14px;line-height:var(--r);font-weight:300;
   font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   -webkit-font-smoothing:subpixel-antialiased;-webkit-text-size-adjust:100%;
 }

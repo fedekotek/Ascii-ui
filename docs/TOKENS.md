@@ -30,7 +30,7 @@ Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same 
 `" .:=+*#%@"`. Index 1..8. Named in code: `RAMP`, `CANON`. Tones map to indices: heavy 8, dense 7, mid 6, light 4/3, shade 3, faint `- `. Custom ramps translate at output time (see EFFECTS.md, Ramp editor).
 
 ## Type
-Geist Mono 500 (body) and 700 (frames, slabs, posters). 14px/21px at every width (1.5, the ratio it always had). Ligatures off, `text-size-adjust:100%`. Charts 12px/14px. Titles sized by `fit()`, roughly 7px at 390px wide. The whole system assumes a monospace font; swapping the family requires nothing else, but check `fitTitles()` and the hero measure.
+Geist Mono 300 (body) and 700 (frames, slabs, posters). 14px/21px at every width (1.5, the ratio it always had). Ligatures off, `text-size-adjust:100%`. Charts 12px/14px. Titles sized by `fit()`, roughly 7px at 390px wide. The whole system assumes a monospace font; swapping the family requires nothing else, but check `fitTitles()` and the hero measure.
 
 ## Spacing
 Horizontal in `ch`, vertical in `var(--r)`. Sections are separated by a faint divider row (`css/02`); in the galleries from 1024px that is one row of air, the rule, one row of air (`css/16`). Docs views open with a `.dochead`, and Components groups start two rows down (`.grouph`). `.demo` is one row below its caption. Cards pad `var(--r) 4ch` (2ch for walls, 2ch for air).

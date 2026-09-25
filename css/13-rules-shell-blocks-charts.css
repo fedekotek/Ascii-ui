@@ -58,7 +58,7 @@
   .tbl th:nth-child(4),.tbl td:nth-child(4){display:none}
 }
 .price{font-weight:700}
-.price small{font:inherit;font-weight:500;color:var(--muted)}
+.price small{font:inherit;font-weight:300;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}
 .feat li{position:relative;padding-left:2ch;color:var(--muted)}
 .feat li::before{content:"+";position:absolute;left:0;color:var(--ok);font-weight:700}
