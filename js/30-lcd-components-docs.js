@@ -399,11 +399,9 @@ function docify(sec){
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
     const code=t===tabs[1];p1.hidden=code;p2.hidden=!code;
-    /* code lines are long. A section in a 46ch column would show half of each
-       one, so while Code is open the section takes the whole row. Sections that
-       are full width anyway keep their attribute, they are marked permanent. */
-    if(code){if(!sec.hasAttribute('data-span'))sec.setAttribute('data-span','code')}
-    else if(sec.getAttribute('data-span')==='code')sec.removeAttribute('data-span');
+    /* The section keeps its column when Code opens. Widening it to the whole
+       row reshuffled the gallery under your cursor; long lines scroll sideways
+       inside the code box instead. */
     if(code&&!built){
       built=true;let src=pretty(cleanHTML(p1));const ex=A.codeExtra?A.codeExtra(sec,p1):null;
       p2.querySelector('pre').innerHTML='<b class="h4">html</b>'+hl(src)+(ex?ex.html.replace(/<h4>/g,'<b class="h4">').replace(/<\/h4>/g,'</b>'):'');

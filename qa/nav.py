@@ -29,7 +29,7 @@ QUICK='quick' in sys.argv
 LANDED="""(sel=>{
   const sec=document.querySelector(sel);if(!sec)return {err:'no '+sel};
   const p=sec.closest('[role="tabpanel"]');
-  const a=[...sec.children].find(c=>c.offsetParent!==null&&!c.classList.contains('vh'))||sec;
+  const a=[...sec.children].find(c=>c.offsetParent!==null&&c.offsetHeight>1)||sec;   // the section's title when it is drawn
   let stick=0;
   for(const e of p.querySelectorAll(':scope > *,:scope > * > *'))
     if(e.offsetParent!==null&&getComputedStyle(e).position==='sticky'){stick=e.offsetHeight;break}

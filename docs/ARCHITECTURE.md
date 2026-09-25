@@ -129,7 +129,7 @@ Components and Charts are galleries: each panel is one css grid of columns at le
 
 Sections keep their document order, row by row, left to right. A row is as tall as its tallest card, so short cards leave air under them. Masonry would close those gaps but it breaks the promise the alphabetical index makes, and it stops the cards in a row from starting at the same height, which is what lets their dashed rules line up. Plain rows, on purpose.
 
-A section that cannot live in a narrow column carries `data-span`. `spanSections()` in js/30 sets `full` on anything holding a table, a phone frame, a timeline, a picture or a stat row. `index.html` sets it by hand on the three charts that draw to the page width (Bars, Line, Regions); Heatmap and Donut are fixed-size drawings and sit in a column. `docify()` sets `code` on a section while its Code tab is open, because code lines are long and a 40ch column would show half of each one. Anything with a `data-span` takes the whole row.
+A section that cannot live in a narrow column carries `data-span`. `spanSections()` in js/30 sets `full` on anything holding a table, a phone frame, a timeline, a picture or a stat row. `index.html` sets it by hand on the three charts that draw to the page width (Bars, Line, Regions); Heatmap and Donut are fixed-size drawings and sit in a column. Opening a Code tab does not change the span: the section keeps its column and long lines scroll sideways inside the code box, so the gallery does not reshuffle under the cursor. Anything with a `data-span` takes the whole row.
 
 ## The ramp
 

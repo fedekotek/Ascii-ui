@@ -108,7 +108,8 @@
   /* ---- the landing ---- */
   /* the title, or whatever the section shows first */
   function anchor(sec){
-    for(const c of sec.children)if(c.offsetParent!==null&&!c.classList.contains('vh'))return c;
+    /* a visually hidden title is 1px tall; the docs views draw theirs, so it counts when it shows */
+    for(const c of sec.children)if(c.offsetParent!==null&&c.offsetHeight>1)return c;
     return sec.offsetParent!==null?sec:null;
   }
   /* Play keeps its stage stuck under the bar on a phone, so a section there
