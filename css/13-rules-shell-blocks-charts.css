@@ -122,8 +122,6 @@
 #boot .strk{position:absolute;left:0;right:0;height:2px;background:var(--hot);opacity:.5;pointer-events:none}
 @keyframes bootout{to{clip-path:inset(0 0 100% 0)}}
 @keyframes bootsafe{to{visibility:hidden}}
-#cmdLog{white-space:pre-wrap;color:var(--muted);max-height:calc(var(--r)*9);overflow:auto;margin-bottom:var(--r)}
-#cmdLog b{color:var(--ink)}
 #posterImg{display:block;width:100%;height:auto}
 .dest{-webkit-touch-callout:none}
 

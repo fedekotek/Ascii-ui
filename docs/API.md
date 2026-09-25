@@ -60,13 +60,16 @@ Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.sh
 Events: `document` gets `aui:view` (detail: the view's tab) after a view has swapped in.
 
 ## window.AUI_NAV (from js/70)
-`route(hash, push)` (go to `#view` or `#view/section`, returns false for an address that is not a view), `go(view, section, opt)`, `model(view)` (the list the sidebar and menu print: title, count, groups), `build()` (rebuild the sidebar).
+`route(hash, push)` (go to `#view` or `#view/section`, returns false for an address that is not a view), `go(view, section, opt)`, `model(view)` (the list the sidebar and menu print: title, count, groups), `build()` (rebuild the sidebar), `index()` (every view and its named sections with keywords, what Search lists), `current()` (the view you are in).
 
 ## window.AUI2 (fx, from js/20)
 `blip, noise, arp, tick` (wrappers over `A.tone`), `rearm(el)` (re-run an entrance), `show(viewName)`, `boot`, `tear(n)`, `mosh(cb)`, `frameDraw(el)` (frames draw themselves), `esc(str)`, `clamp(v,a,b)`, `inView(el)`.
 
 ## window.AUI3 (from js/20)
-`INV {size(W), start(), draw()}`, `makePoster()` (returns a PNG data URL), `openCmd()`, `run(line)` (execute a palette command).
+`INV {size(W), start(), draw()}`, `makePoster()` (returns a PNG data URL), `openCmd()` (opens Search; js/80 replaces it with its own open), `run(line)` (execute a typed command, answers on Search's status line).
+
+## window.AUI_SEARCH (from js/80)
+`open()`, `close()`. Search is the palette in `#cmdDlg`: a combobox over a listbox of views, sections, settings and tricks.
 
 ## window.AUI_JS (from js/30)
 Registry of component source for the Code tab: `{calendar, dropdown, otp, pagination, spinners}`. Each is a function whose `toString()` is printed. To add one, wrap the component's wiring in `window.AUI_JS.name=function(){...};window.AUI_JS.name();` and map the section id in `JSMAP` (js/40).
@@ -74,11 +77,12 @@ Registry of component source for the Code tab: `{calendar, dropdown, otp, pagina
 ## window.AUI_TONES(), window.AUI_MAP
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
 
-## Command palette (`/` or `>_`)
-`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto components|blocks|charts|themes|play|apps|onepager` (also `kit`, `page`, and `view/section`), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to Components first), `photo` (opens the picker and lands on Play's Source), `ring` (alias `torus`), `tilt`, `clear`, `sudo`.
+## Search (`/`, Ctrl K or Cmd K, the search button in the bar)
+Nothing typed: Views, On this page (Home: Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Tricks (Tear, Jolt, Boot, Poster, Invaders, Load a photo, Rebuild). Typing searches every section of every view by name, poster title and caption. A typed command gets a Run row on top. The commands:
+`help`, `glitch 0-100`, `theme`, `sound on|off`, `goto components|blocks|charts|themes|play|apps|onepager` (also `kit`, `page`, and `view/section`), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to Components first), `photo` (opens the picker and lands on Play's Source), `ring` (alias `torus`), `tilt`, `sudo`.
 
 ## Keyboard
-`/` palette, `g` glitch jolt, arrows + space in invaders, arrows/Home/End in tablists, arrows/Escape in the dropdown, Backspace/arrows/paste in OTP.
+`/` and Ctrl K (Cmd K) Search, then arrows, Home, End, PageUp, PageDown, Enter and Escape inside it, `g` glitch jolt, arrows + space in invaders, arrows/Home/End in tablists, arrows/Escape in the dropdown, Backspace/arrows/paste in OTP.
 
 ## Data attributes
 `data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-go` (unused legacy nav hook).

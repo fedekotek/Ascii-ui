@@ -407,14 +407,17 @@ $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>
 showSig();
 
 /* ================= command palette ================= */
-const cmdDlg=$('cmdDlg'),cmdIn=$('cmdIn'),cmdLog=$('cmdLog');
-function out(s){cmdLog.insertAdjacentHTML('beforeend','\n'+s);cmdLog.scrollTop=cmdLog.scrollHeight}
-function openCmd(){if(!cmdDlg.open){cmdDlg.showModal();setTimeout(()=>cmdIn.focus(),60)}}
+/* run() is the verb layer under Search (js/80): it takes a typed line and
+   answers on the one status line under the input */
+const cmdDlg=$('cmdDlg');
+function out(s){const o=$('cmdOut');if(o)o.innerHTML=s}
+/* js/80 replaces this with the palette's own open */
+function openCmd(){if(window.AUI3&&AUI3.openCmd!==openCmd)AUI3.openCmd();else if(!cmdDlg.open)cmdDlg.showModal()}
 const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badge',table:'.tablewrap',stat:'.stat'};
 async function run(line){
-  line=line.trim();if(!line)return;out('<b>$ '+esc(line)+'</b>');
+  line=line.trim();if(!line)return;out('');
   const a=line.split(/\s+/),c=a[0].toLowerCase();
-  if(c==='help')out('glitch 0-100 · theme · sound on|off\ngoto home|components|blocks|charts|themes\nrm -rf button|card|chart|title|all · rebuild\ntear · jolt · boot · poster · sign NAME\ninvaders · photo · ring · tilt · clear');
+  if(c==='help')out('glitch 0-100 · theme · sound on|off · goto home|components|blocks|charts|themes · rm -rf button|card|chart|title|all · rebuild · tear · jolt · boot · poster · sign NAME · invaders · photo · ring · tilt');
   else if(c==='glitch'){const v=clamp(parseInt(a[1],10)||0,0,100);const s=$('speed');s.value=v;s.dispatchEvent(new Event('input',{bubbles:true}));s.dispatchEvent(new Event('change',{bubbles:true}));out('glitch = '+v)}
   else if(c==='theme'){cmdDlg.close();$('themeToggle').click()}
   else if(c==='sound'){const on=a[1]?a[1]==='on':!A.SND.on;if(on!==A.SND.on)$('soundToggle').click();out('sound '+(on?'on':'off'))}
@@ -450,15 +453,9 @@ async function run(line){
   else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());
-  else if(c==='clear')cmdLog.innerHTML='type <b>help</b>';
   else if(c==='sudo')out('nice try.');
   else out('command not found: '+esc(c));
 }
-$('cmdBtn').addEventListener('click',openCmd);
-$('cmdClose').addEventListener('click',()=>cmdDlg.close());
-$('cmdRun').addEventListener('click',()=>{run(cmdIn.value);cmdIn.value='';cmdIn.focus()});
-cmdIn.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();run(cmdIn.value);cmdIn.value=''}});
-document.addEventListener('keydown',e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)){e.preventDefault();openCmd()}});
 
 /* ================= space invaders, in characters ================= */
 const INV=(function(){

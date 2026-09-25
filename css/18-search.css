@@ -1,0 +1,64 @@
+/* ---------- search: the palette behind [/], / and Ctrl K (js/80) ----------
+     SEARCH                                          [x]
+     / cal_
+     (one status line: what a typed command answered)
+     COMPONENTS
+     > Calendar ....................... Components  <-
+     SETTINGS
+       Theme .............................. [dark]
+     up/down move . enter go . esc close       1/71
+   A row is one row with a mouse, two on a touch screen. The active row gets a
+   blue > and <- (it is the focus), tricks and the Run row are magenta (they
+   act), a setting that just flipped shows its value in lime once. */
+#cmdDlg{
+  --dcols:64;margin:calc(var(--r)*3) auto auto;max-width:calc(100% - 2ch);
+  max-height:calc(100vh - var(--r)*4);max-height:calc(100dvh - var(--r)*4);flex-direction:column;
+}
+#cmdDlg[open]{display:flex}
+#cmdDlg > .lift,#cmdDlg .card{min-height:0;display:flex;flex-direction:column;flex:1}
+#cmdDlg .body{min-height:0;flex:1;display:flex;flex-direction:column}
+/* the frame rows sit over the list as it scrolls under them */
+#cmdDlg .card::before,#cmdDlg .card::after{background:var(--bg);z-index:1}
+
+.s-out{margin:0;min-height:var(--r);color:var(--muted);overflow-wrap:anywhere}
+.s-out b{color:var(--ink)}
+.s-list{
+  position:relative;min-height:0;flex:1 1 auto;max-height:calc(var(--r)*16);
+  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+}
+.s-head,.s-none,.s-more{margin:0;line-height:var(--r)}
+.s-head{color:var(--muted);text-transform:uppercase}
+.s-more{color:var(--muted);padding-left:2ch}
+
+.s-row{
+  display:flex;line-height:var(--r);white-space:nowrap;cursor:pointer;
+  color:var(--ink);-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
+}
+/* a thumb gets two rows, so neighbours never share a tap */
+@media (pointer:coarse){.s-row{padding:calc(var(--r)/2) 0}}
+.s-mk,.s-end{flex:none;white-space:pre}
+.s-mk{width:2ch}
+.s-end{width:3ch;text-align:right}
+.s-name{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.s-dots{flex:1 1 0;min-width:2ch;overflow:hidden;color:var(--muted);padding:0 1ch}
+.s-dots::before{content:"................................................................................................................................"}
+.s-meta{flex:none;color:var(--muted)}
+.k-set .s-meta{color:var(--ink)}
+.k-trick .s-name,.k-run .s-name{color:var(--hot)}
+.s-row[aria-selected="true"] .s-name{font-weight:700}
+.s-row[aria-selected="true"] .s-mk::before{content:">";color:var(--cy)}
+.s-row[aria-selected="true"] .s-end::before{content:"<-";color:var(--cy)}
+.s-meta.s-flash{color:var(--ok)}
+
+.s-foot{display:flex;justify-content:space-between;gap:2ch;margin:var(--r) 0 0;color:var(--muted);white-space:nowrap}
+.s-foot span:first-child{overflow:hidden;text-overflow:ellipsis}
+@media (pointer:coarse){.s-foot span:first-child{visibility:hidden}}
+
+/* a phone: the whole width, from the top, and the list takes what is left */
+@media (max-width:767px){
+  #cmdDlg{
+    width:100%;max-width:100%;margin:0 0 auto;padding-top:env(safe-area-inset-top,0px);
+    max-height:100vh;max-height:100dvh;
+  }
+  .s-list{max-height:none}
+}

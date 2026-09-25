@@ -33,6 +33,7 @@ js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Play view knobs
 js/50-menu-apps.js          Chirp (feed), Tape (player), Static support (chat).
 js/70-nav.js                navigation: the addresses (#view/section), the view links in the bar, the
                             sidebar, the [=] menu, the crumb, the skip link, the scroll spy and the landing.
+js/80-search.js             Search: the palette in #cmdDlg (views, sections, settings, tricks, typed commands).
 ```
 
 Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
@@ -70,7 +71,7 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
 <div #hud> <div #track>     VHS timecode, rolling tracking band
 <dialog #sheetDlg .sheet>   bottom sheet demo
 <dialog #menuDlg>           the [=] menu, full screen, below 1024px
-<dialog #cmdDlg>            command palette
+<dialog #cmdDlg>            Search (js/80, css/18)
 <dialog #posterDlg>         generated poster / snapshot
 <div #toast>
 ```
