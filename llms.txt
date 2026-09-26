@@ -18,7 +18,7 @@ Every section has an address: `#components/button`, `#themes/tokens`.
 
 - [ascii-ui.css](https://ascii.fedekotek.design/kit/ascii-ui.css): tokens, frame strings, one block per part. Latest.
 - [ascii-ui.js](https://ascii.fedekotek.design/kit/ascii-ui.js): the behaviors, wired by `data-aui` attributes; `window.ASCIIUI`. Latest.
-- Pinned copies live under a version path, `https://ascii.fedekotek.design/kit/1.1.0/ascii-ui.css` and `.../kit/1.1.0/ascii-ui.js` (from 1.1.0). The kit README lists the versions.
+- Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.js`. 1.0.0, 1.1.0 and 1.1.1 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
 - [starter.html](https://ascii.fedekotek.design/kit/starter.html): a page that links the two files and nothing else, with every kit component on it.
 - [kit README](https://ascii.fedekotek.design/kit/README.md): the reference for the kit: install, attributes, `window.ASCIIUI` API, events, lifecycle, theming, versions, changelog.
 - [Single file](https://ascii.fedekotek.design/ascii-ui.html): the whole site as one HTML file.
@@ -30,7 +30,7 @@ Every section has an address: `#components/button`, `#themes/tokens`.
 <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
 ```
 
-Then copy a component's HTML from its Code tab, or from `docs/COMPONENTS-REFERENCE.md`. The HTML has no ids; the kit makes the ones accessibility needs, so a component pasted twice is two working copies. Elements added later are wired too. Dark follows the system; `<html data-theme="dark">` or `"light"` forces one.
+Then copy a component's HTML from its Code tab, or from `docs/COMPONENTS-REFERENCE.md` in the repo. The HTML has no ids; the kit makes the ones accessibility needs, so a component pasted twice is two working copies. Elements added later are wired too. Dark follows the system; `<html data-theme="dark">` or `"light"` forces one.
 
 ## Attributes (summary; kit/README.md has the full table)
 
@@ -50,7 +50,7 @@ Then copy a component's HTML from its Code tab, or from `docs/COMPONENTS-REFEREN
 | `data-aui="skeleton"` | `<pre class="skel">` | a card silhouette with a wave |
 | `data-aui-open` / `data-aui-close` | button | opens the nearest `<dialog>`, closes its dialog |
 | `data-aui-toast` / `data-aui-toast-err` | button | lime toast / yellow toast |
-| `data-aui-reset`, `data-aui-fill` | button | clears a dialog's fields; runs the nearest progress bar |
+| `data-aui-reset`, `data-aui-fill` | button | puts the fields of its form or dialog back to what the HTML says; runs the nearest progress bar |
 
 The nearest `role="status"` says what happened. Components fire bubbling `aui:*` events.
 
@@ -72,17 +72,19 @@ Magenta (`--hot`) acts. Cyan (`--cy`) is focus and nothing else. Lime (`--ok`) c
 - Ship: `python3 build.py`, then the release bar, `sh qa/release.sh`, which must end with `release: ok`. Commit `site/` and `dist/`; Vercel deploys `main`.
 - Rules: no frameworks, no dependencies, no bundler; works from `file://`; reduced motion stops every animation and sound; no em dashes, no emojis, metric units.
 
-## Docs (paths in the repo, not published on the site)
+## Docs in the repo
 
-- [CLAUDE.md](CLAUDE.md): the rules, the short component checklist, the release bar. Read first.
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): load order, page skeleton, navigation, grid, the kit and the Code tab, versions, shipping, Rebrand.
-- [docs/COMPONENTS.md](docs/COMPONENTS.md): what the Code tab prints, the component table, the add-a-component checklist.
-- [docs/COMPONENTS-REFERENCE.md](docs/COMPONENTS-REFERENCE.md): every component's printed HTML, behaviors and CSS blocks. Generated.
-- [docs/API.md](docs/API.md): the site's JS surface (`window.AUI` and friends), Search commands, data attributes, and a pointer to `window.ASCIIUI`.
-- [docs/TOKENS.md](docs/TOKENS.md): colors, ramp, tones, presets.
-- [docs/EFFECTS.md](docs/EFFECTS.md): every trick, how it works, what breaks it.
-- [docs/BLOCKS.md](docs/BLOCKS.md) and [docs/CHARTS.md](docs/CHARTS.md): the blocks and charts, with recipes.
-- [docs/KNOWN-ISSUES.md](docs/KNOWN-ISSUES.md): what is fragile.
-- [docs/DECISIONS.md](docs/DECISIONS.md), [docs/ROADMAP.md](docs/ROADMAP.md), [docs/CHANGELOG.md](docs/CHANGELOG.md), [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
-- [qa/README.md](qa/README.md): every QA script and the release bar.
-- [kit/README.md](kit/README.md): the kit reference.
+These live in the repo, not on the site, so they are plain paths from the repo root, not links. Only the kit files, the starter page, llms.txt and the site itself are published.
+
+- `CLAUDE.md`: the rules, the short component checklist, the release bar. Read first.
+- `docs/ARCHITECTURE.md`: load order, page skeleton, navigation, grid, the kit and the Code tab, versions, shipping, Rebrand.
+- `docs/COMPONENTS.md`: what the Code tab prints, the component table, the add-a-component checklist.
+- `docs/COMPONENTS-REFERENCE.md`: every component's printed HTML, behaviors and CSS blocks. Generated.
+- `docs/API.md`: the site's JS surface (`window.AUI` and friends), Search commands, data attributes, and a pointer to `window.ASCIIUI`.
+- `docs/TOKENS.md`: colors, ramp, tones, presets.
+- `docs/EFFECTS.md`: every trick, how it works, what breaks it.
+- `docs/BLOCKS.md` and `docs/CHARTS.md`: the blocks and charts, with recipes.
+- `docs/KNOWN-ISSUES.md`: what is fragile.
+- `docs/DECISIONS.md`, `docs/ROADMAP.md`, `docs/CHANGELOG.md`, `docs/CONTRIBUTING.md`.
+- `qa/README.md`: every QA script and the release bar.
+- `kit/README.md`: the kit reference, also published at https://ascii.fedekotek.design/kit/README.md.

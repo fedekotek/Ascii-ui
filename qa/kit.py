@@ -266,9 +266,12 @@ async def harvest(b):
     return out,blocks,stirred,lost,errs,notes
 
 READ_CODE="""(v)=>[...document.querySelectorAll('#view-'+v+' > section[aria-labelledby]')].map(s=>{
-    const t=s.querySelectorAll('.doc-tabs .tab')[1];if(!t)return [s.getAttribute('aria-labelledby'),null,null,null];t.click();
+    const t=s.querySelectorAll('.doc-tabs .tab')[1];if(!t)return [s.getAttribute('aria-labelledby'),null,null,null,null];t.click();
     const g=p=>{const e=s.querySelector('[data-part='+p+']');return e?e.textContent:null};
-    return [s.getAttribute('aria-labelledby'),g('html'),g('js'),g('css')]})"""
+    const n=s.querySelector('[data-part=note]');
+    /* the note sits above the html, so it is read before the code */
+    const above=n&&!n.hidden&&(n.compareDocumentPosition(s.querySelector('[data-part=html]'))&4)?n.textContent:(n&&!n.hidden?'NOT ABOVE THE HTML':null);
+    return [s.getAttribute('aria-labelledby'),g('html'),g('js'),g('css'),above]})"""
 STIR="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),V=document.getElementById('view-kit');
   V.querySelectorAll('.doc-tabs').forEach(t=>t.querySelectorAll('.tab')[0].click());await w(50);
   const fire=(el,t)=>el&&el.dispatchEvent(new Event(t,{bubbles:true}));
@@ -504,7 +507,7 @@ EDGES=[
   '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
   '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
   """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
-    if(ASCIIUI.version!=='1.1.0')bad.push('version '+ASCIIUI.version);
+    if(ASCIIUI.version!=='1.1.1')bad.push('version '+ASCIIUI.version);
     if(__ev.length)bad.push('aui:change fired on load: '+__ev);
     const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
     if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');
@@ -529,7 +532,105 @@ EDGES=[
     if(h()<400||v()<200)bad.push('css ships '+h()+' by '+v());
     ASCIIUI.tones({'@':'#'});if(h()<400||v()<200||!g('--h-heavy').startsWith('"###'))bad.push('tones() gives '+h()+' by '+v());
     return bad.length?bad.join(', '):true})()"""),
+ # 1.1.1
+ ('pagination keeps the page a script asked for until the pages reach it',
+  '<div><nav id="p" data-aui="pagination" data-pages="9" data-page="3"></nav><p role="status" id="ps"></p></div>'
+  '<div><nav id="q" data-aui="pagination" data-pages="9" data-page="3"></nav><p role="status"></p></div>'
+  '<div><nav id="r" data-aui="pagination" data-pages="9" data-page="3"></nav><p role="status"></p></div>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],cur=id=>($(id).querySelector('[aria-current]')||{}).textContent;
+    $('p').setAttribute('data-page','12');$('p').setAttribute('data-pages','20');await w(0);
+    if(cur('p')!=='12'||$('ps').textContent!=='Page 12 of 20.')bad.push('page 12 then 20 pages, in one go, ends '+cur('p')+': '+$('ps').textContent);
+    $('q').setAttribute('data-page','12');await w(0);
+    if(cur('q')!=='9')bad.push('page 12 of 9 draws '+cur('q'));
+    $('q').setAttribute('data-pages','20');await w(0);
+    if(cur('q')!=='12')bad.push('page 12, a beat later 20 pages, ends '+cur('q'));
+    ASCIIUI.pagination($('r')).set(15);await w(0);$('r').setAttribute('data-pages','20');await w(0);
+    if(cur('r')!=='15')bad.push('set(15) of 9, then 20 pages, ends '+cur('r'));
+    $('q').querySelector('[aria-label="Page 20"]').click();$('q').setAttribute('data-pages','5');await w(0);$('q').setAttribute('data-pages','30');await w(0);
+    if(cur('q')!=='20')bad.push('a click on 20, then 5 pages, then 30, ends '+cur('q'));
+    return bad.length?bad.join(', '):true})()"""),
+ ('events fire for what a person does, not on load and not for a script',
+  '<script>window.__ev=[];["invalid","valid","complete","change"].forEach(n=>document.addEventListener("aui:"+n,e=>__ev.push(n+":"+e.target.id)))</script>'
+  '<form id="f" action="javascript:void 0">'+FIELD('e','required pattern="[a-z]+" value="BAD"')+FIELD('g','required value="good"')+'</form>'
+  '<div><div class="otp" id="o" data-aui="otp"><span><input maxlength="1" value="1"></span><span><input maxlength="1" value="2"></span></div><p role="status"></p></div>'
+  '<div><div class="otp" id="o2" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><p role="status"></p></div>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),fire=(el,t)=>el.dispatchEvent(new Event(t,{bubbles:true})),bad=[];
+    if(__ev.length)bad.push('fired on load: '+__ev);
+    if($('e').getAttribute('aria-invalid')!=='true')bad.push('a bad value on load is not shown invalid');
+    if(!$('o').classList.contains('good'))bad.push('a full code on load is not accepted');
+    __ev.length=0;ASCIIUI.otp($('o2')).value='34';ASCIIUI.otp($('o')).clear();ASCIIUI.otp($('o')).value='56';
+    if(__ev.length)bad.push('otp value from a script fired: '+__ev);
+    __ev.length=0;ASCIIUI.validate($('f'));$('g').value='';ASCIIUI.validate($('f'));
+    if(__ev.length)bad.push('validate(form) fired: '+__ev);
+    __ev.length=0;$('e').value='fine';fire($('e'),'input');
+    if(__ev.join()!=='valid:e')bad.push('typing a good value fired '+__ev);
+    __ev.length=0;const i=$('o2').querySelectorAll('input');i[1].value='';fire(i[1],'input');i[1].value='9';fire(i[1],'input');
+    if(__ev.join()!=='complete:o2')bad.push('typing the last digit fired '+__ev);
+    return bad.length?bad.join(', '):true})()"""),
+ ('calendar: a date outside the range is not picked, no value means nothing picked',
+  '<form id="f"><div><div class="cal" id="a" data-aui="calendar" data-name="a" data-value="2026-01-01" data-min="2026-03-05" data-max="2026-04-20"></div><p role="status" id="as"></p></div>'
+  '<div><div class="cal" id="b" data-aui="calendar" data-name="b"></div><p role="status" id="bs"></p></div></form>'
+  '<div><div class="cal" id="c" data-aui="calendar" data-value="2026-03-10" data-max="2026-04-20"></div><p role="status"></p></div>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],fd=()=>new FormData($('f'));
+    const picked=id=>$(id).querySelectorAll('[aria-pressed=true]').length;
+    if(picked('a')||fd().get('a')!==''||ASCIIUI.calendar($('a')).value!=='')bad.push('a data-value before data-min is picked: '+fd().get('a'));
+    if(!/März|March/.test($('a').querySelector('.cal-head span').textContent))bad.push('out of range, the month shown is not the first allowed one');
+    if(picked('b')||fd().get('b')!==''||$('bs').textContent!=='No date picked.')bad.push('no data-value picks today: '+fd().get('b')+' '+$('bs').textContent);
+    const t=$('b').querySelector('[data-day][tabindex="0"]');
+    if(!t||!t.classList.contains('today'))bad.push('no data-value, today is not the focusable day');
+    $('b').querySelector('[data-day="3"]').click();
+    if(!/-03$/.test(fd().get('b')))bad.push('a pick did not fill the hidden input: '+fd().get('b'));
+    $('f').reset();await w(20);
+    if(picked('b')||fd().get('b')!==''||$('bs').textContent!=='No date picked.')bad.push('a reset did not go back to nothing picked: '+fd().get('b'));
+    $('c').setAttribute('data-value','2026-06-01');await w(0);
+    if(picked('c')||ASCIIUI.calendar($('c')).value!=='')bad.push('a data-value set past data-max is picked: '+ASCIIUI.calendar($('c')).value);
+    $('c').setAttribute('data-value','2026-04-02');await w(0);
+    if(ASCIIUI.calendar($('c')).value!=='2026-04-02')bad.push('a data-value in range is not picked');
+    return bad.length?bad.join(', '):true})()"""),
+ ('1000 radio groups inserted in one go are named in linear time',
+  '<main id="host"></main>',
+  """(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),host=document.getElementById('host'),bad=[];
+    const R=(n,v,c)=>'<label class="check"><input type="radio" name="'+n+'" value="'+v+'"'+(c?' checked':'')+'><span class="glyph" aria-hidden="true"></span>'+v+'</label>';
+    const time=async html=>{const box=document.createElement('div');box.innerHTML=html;let t1=0;
+      const mo=new MutationObserver(()=>{t1=performance.now()});mo.observe(host,{childList:true});
+      const t0=performance.now();host.appendChild(box);await w(0);mo.disconnect();return [t1-t0,box]};
+    let h='';for(let i=0;i<1000;i++)h+='<fieldset>'+R('plan','a',i%2)+R('plan','b',!(i%2))+R('plan','c')+'</fieldset>';
+    const [t,box]=await time(h);
+    const names=[...box.querySelectorAll('fieldset')].map(f=>f.querySelector('input').name);
+    if(new Set(names).size!==1000)bad.push('1000 copies got '+new Set(names).size+' names');
+    if([...box.querySelectorAll('fieldset')].some((f,i)=>!f.querySelectorAll('input')[i%2?0:1].checked))bad.push('a copy lost its checked radio');
+    if(t>100)bad.push('1000 copies of one group took '+Math.round(t)+'ms');
+    h='';for(let i=0;i<1000;i++)h+='<fieldset>'+R('g'+i,'a',1)+R('g'+i,'b')+R('g'+i,'c')+'</fieldset>';
+    const [t2,box2]=await time(h);
+    if([...box2.querySelectorAll('input')].some(x=>!/^g\\d+$/.test(x.name)))bad.push('1000 different groups were renamed');
+    if(t2>100)bad.push('1000 different groups took '+Math.round(t2)+'ms');
+    return bad.length?bad.join(', '):true})()"""),
 ]
+
+# reduced motion: a spinner or skeleton taken off the page is let go, though
+# the animation loop never runs to drop it. The garbage collector says so
+REDUCED_RELEASE="""(()=>{const h=document.getElementById('host');
+  h.innerHTML='<div><b data-aui="spinner"></b><pre class="skel" data-aui="skeleton"></pre></div>';
+  window.__wr=[new WeakRef(h.querySelector('b')),new WeakRef(h.querySelector('pre'))]})()"""
+async def reduced_release(b):
+    fails=[];notes=set()
+    path=blank_page('<main id="host"></main>')
+    pg=await b.new_page(viewport={'width':1280,'height':900},reduced_motion='reduce')
+    errs=[];watch(pg,errs,notes)
+    try:
+        await pg.goto('file://'+path); await pg.wait_for_timeout(200)
+        await pg.evaluate(REDUCED_RELEASE); await pg.wait_for_timeout(100)
+        if not await pg.evaluate("ASCIIUI.reduce&&!!document.querySelector('#host b').__aui"): fails.append('reduced release: the spinner was not wired under reduced motion')
+        await pg.evaluate("document.getElementById('host').textContent=''"); await pg.wait_for_timeout(100)
+        cdp=await pg.context.new_cdp_session(pg)
+        for _ in range(3):
+            await cdp.send('HeapProfiler.collectGarbage'); await pg.wait_for_timeout(50)
+        left=await pg.evaluate("__wr.filter(r=>r.deref()).length")
+        if left: fails.append('reduced motion: %d torn down spinner or skeleton still held by the clock'%left)
+        fails+=['reduced release: '+e for e in errs]
+    finally:
+        await pg.close();os.remove(path)
+    return fails,notes
 
 async def edges(b):
     fails=[];notes=set()
@@ -689,6 +790,7 @@ async def main():
         f,n=await starter(b);fails+=f;notes|=n
         f,n=await edges(b);fails+=f;notes|=n
         f,n=await lifecycle(b);fails+=f;notes|=n
+        f,n=await reduced_release(b);fails+=f;notes|=n
         f,n=await tokens(b);fails+=f;notes|=n
         comps,blocks,stirred,lost,errs,n=await harvest(b);notes|=n
         fails+=['index.html: '+e for e in errs]
@@ -696,30 +798,31 @@ async def main():
         if lost: fails.append('Code tab: labels that do not read as their data-text: %s'%lost)
         # what the kit does not style is named, and only where it is allowed
         K=kit_classes()
-        for sid,html,js,css in comps+blocks:
+        for sid,html,js,css,note in comps+blocks:
             if html is None or sid in ('s-install','s-rules'): continue
+            if note=='NOT ABOVE THE HTML': fails.append('%s: the Code tab note is not above the html'%sid)
             extra=sorted(classes_in(html)-K)
             is_comp=any(sid==c[0] for c in comps)
             if extra and is_comp and sid not in SITE_ONLY:
                 fails.append('%s: the Code tab prints classes the kit does not style: %s'%(sid,', '.join(extra)))
-            if extra and 'site-only: '+', '.join(extra)+'.' not in (css or ''):
+            if extra and 'site-only: '+', '.join(extra)+'.' not in (note or ''):
                 fails.append('%s: the Code tab does not name its site-only classes (%s)'%(sid,', '.join(extra)))
-            if not extra and 'site-only' in (css or ''):
+            if not extra and 'site-only' in (note or '')+(css or ''):
                 fails.append('%s: the Code tab calls a kit class site-only'%sid)
-            if sid in SITE_ONLY and 'Site only, not in the kit' not in (js or ''):
+            if sid in SITE_ONLY and not (note or '').startswith('Site only, not in the kit'):
                 fails.append('%s: the Code tab does not say site only, not in the kit'%sid)
         C={c[0]:c for c in comps}
-        if 'skeleton:function' not in (C.get('s-skeleton',[None,None,''])[2] or ''): fails.append('s-skeleton: the Code tab leaves out the behavior')
+        if 'skeleton:function' not in (C.get('s-skeleton',[None,None,'',None,None])[2] or ''): fails.append('s-skeleton: the Code tab leaves out the behavior')
         for sid in ('s-calendar','s-pagination'):
-            if '.ibtn{' not in (C.get(sid,[None]*4)[3] or ''): fails.append('%s: the Code tab leaves out the .ibtn css it draws'%sid)
+            if '.ibtn{' not in (C.get(sid,[None]*5)[3] or ''): fails.append('%s: the Code tab leaves out the .ibtn css it draws'%sid)
         B={c[0]:c for c in blocks}
-        if '.tbl' not in (B.get('s-table',[None]*4)[3] or ''): fails.append('s-table: the Code tab does not print the kit Table css')
+        if '.tbl' not in (B.get('s-table',[None]*5)[3] or ''): fails.append('s-table: the Code tab does not print the kit Table css')
         rows=[]
-        for sid,html,js,css in comps:
+        for sid,html,js,css,note in comps:
             if sid in ('s-install','s-rules','s-foundations'): continue   # not components
             if html is None: rows.append((sid,'no Code tab','',''));fails.append(sid+': no Code tab');continue
             names,why=await paste(b,sid,html,notes)
-            if 'site\'s' in (js or '') or 'this site' in (js or ''): kind='partly (site only part left out)'
+            if 'site\'s' in (note or '') or 'this site' in (note or ''): kind='partly (site only part left out)'
             else: kind=''
             rows.append((sid,'yes' if not why else 'NO',', '.join(names) or '-',kind))
             fails+=[sid+': '+w for w in why]

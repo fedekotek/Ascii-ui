@@ -192,7 +192,11 @@ def check():
         if not (root/f).exists(): bad.append(f+'  missing')
         elif not filecmp.cmp(t/f,root/f,shallow=False): bad.append(f+'  differs')
     if bad:
-        print('build --check: out of date, run python3 build.py and commit site/ and dist/')
+        if any('give the kit a new version' in x for x in bad):
+            # a rebuild does not fix this one: the released kit never changes
+            print('build --check: the kit changed but its version did not. Bump ASCIIUI.version in kit/ascii-ui.js and the first line of both kit files, add a kit/CHANGELOG.md entry, then run python3 build.py and commit site/ and dist/')
+        else:
+            print('build --check: out of date, run python3 build.py and commit site/ and dist/')
         for b in bad: print('  '+b)
         sys.exit(1)
     print('build --check: ok, site/ and dist/ match the source')

@@ -2,6 +2,15 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.1.1, 2026-09-26
+
+Fixed
+- Pagination keeps the page a script asks for. `data-page="12"` and then `data-pages="20"` used to end on 9 of 20; now it lands on 12, in either order. A page past the end is drawn as the last one, and `data-page` keeps saying the page asked for.
+- Events fire only for what a person does, as the README says. Validate no longer fires `aui:invalid` or `aui:valid` on load or for `validate(form)` and `check()`; OTP no longer fires `aui:complete` for a code filled on load or set with `otp(el).value`. The messages and the accepted state still show.
+- Calendar: a `data-value` outside `data-min` and `data-max` is not picked; the calendar opens on the allowed month nearest to it. Without `data-value` nothing is picked: today is shown and focused, and the hidden input stays empty until a person picks. A form reset goes back to that. Removing `data-value` clears the pick.
+- Radios get their own names in linear time: a thousand groups pasted at once used to take seconds, now well under a tenth of a second.
+- Under reduced motion, a spinner or skeleton taken off the page is let go. The animation loop never runs then, so each one used to stay in memory for good.
+
 ## 1.1.0, 2026-09-26
 
 Fixed

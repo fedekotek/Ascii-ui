@@ -17,8 +17,9 @@ page order, opens its Code tab and reads:
   behaviors  the data-aui names and data-aui-* attributes the js part lists
   css        the kit css block names the css part prints (the base blocks,
              tokens, tones, base and frame, are in every page and never printed)
-  notes      the comment lines the js part opens with when the kit cannot run
-             the demo as it is on the site (js/40, SITEONLY)
+  notes      the note above the html when the kit cannot run the demo as it is
+             on the site, or it prints classes the kit does not style (js/40,
+             SITEONLY and codeExtra)
 Get the kit (s-install), Rules (s-rules) and Foundations (s-foundations) are not
 components and are left out.
 """
@@ -36,7 +37,7 @@ READ="""()=>[...document.querySelectorAll('#view-kit > section[aria-labelledby]'
   const t=s.querySelectorAll('.doc-tabs .tab')[1];if(t)t.click();
   const part=n=>{const e=s.querySelector('[data-part='+n+']');return e?e.textContent:''};
   return {id:id,name:s.querySelector('h2').textContent.trim(),group:s.dataset.group||'',
-    caption:cap?cap.textContent.replace(/\\s+/g,' ').trim():'',html:part('html'),css:part('css'),js:part('js')};
+    caption:cap?cap.textContent.replace(/\\s+/g,' ').trim():'',html:part('html'),css:part('css'),js:part('js'),note:part('note')};
 })"""
 
 def kit_parts():
@@ -63,14 +64,8 @@ def behaviors(js):
     attrs=re.findall(r'^// (data-aui-[a-z-]+)  (.*)$',js,re.M)
     return names,attrs
 
-def notes(js):
-    out=[]
-    for line in js.splitlines():
-        if not line.startswith('// '): break
-        t=line[3:]
-        if t.startswith('ascii-ui.js runs') or t.startswith('none.') or t.startswith('data-aui'): break
-        out.append(t)
-    return out
+def notes(note):
+    return [note.strip()] if note and note.strip() else []
 
 def md(t):
     # prose goes into markdown as text: an <img> in a note is a word, not a tag
@@ -102,7 +97,7 @@ def render(rows):
             '- Group: '+r['group'],
             '- In the kit: '+('yes, `kit/starter.html#%s`'%r['id'][2:] if r['id'][2:] in kit else 'no, site only'),
             '- Caption: '+md(r['caption'])]
-        for t in notes(r['js']): o.append('- Note: '+md(t))
+        for t in notes(r['note']): o.append('- Note: '+md(t))
         if n or a:
             o.append('- Behaviors:')
             for x in n: o.append('  - `data-aui="%s"`: %s'%(x[0],md(x[1])))

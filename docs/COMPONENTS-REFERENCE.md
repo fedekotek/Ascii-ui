@@ -539,7 +539,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Group: Display
 - In the kit: no, site only
 - Caption: An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector. Site only, not in the kit.
-- Note: Site only, not in the kit. The LCD panel is drawn by this site's engine. The mode switches are a Segment, which is in the kit.
+- Note: Site only, not in the kit. The LCD panel is drawn by this site's engine. The mode switches are a Segment, which is in the kit. Reference markup. These classes are site-only: bezel, lcd, pic. Their css is not in ascii-ui.css, so write your own. The rest is in ascii-ui.css already.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`
