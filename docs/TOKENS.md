@@ -16,7 +16,7 @@
 | `--violet` | dividers, walls, tab rules | `#6a45d9` | `#9b7bea` |
 | `--t0..--t3` | bitmap title rows top to bottom | ink, ink, hot, deep | ink, pink, hot, violet |
 | `--tbar` | the fifth colour bar behind titles | hot (ink would be a black censor bar on paper) | ink |
-| `--on-pink` | text on a pink slab | `#ffffff` (4.9:1; ink on the new pink was 3.85) | `var(--bg)` |
+| `--on-pink` | text on a pink slab | `var(--ink)` | `var(--bg)` |
 | `--scan` | scanline overlay color | `rgba(17,17,16,.06)` | `rgba(0,0,0,.28)` |
 | `--accent` | alias of `--cy` | | |
 | `--danger` | alias of `--warn` | | |
