@@ -7,14 +7,18 @@
   function $(id){return document.getElementById(id)}
   function rep(c,n){return n>0?new Array(n+1).join(c):''}
   function TR(s){var M=window.AUI_MAP;if(!M)return s;var o='',i,c;for(i=0;i<s.length;i++){c=s.charAt(i);o+=M[c]||c}return o}
+  /* rawFill is the untouched fillText, for text that is already in the active
+     ramp (the shattered pieces are harvested off the page) */
+  var rawFill=null;
   (function(){
-    var P=window.CanvasRenderingContext2D&&CanvasRenderingContext2D.prototype;if(!P)return;var ft=P.fillText;
+    var P=window.CanvasRenderingContext2D&&CanvasRenderingContext2D.prototype;if(!P)return;var ft=P.fillText;rawFill=ft;
     P.fillText=function(t,x,y,w){if(window.AUI_MAP)t=TR(String(t));return w===undefined?ft.call(this,t,x,y):ft.call(this,t,x,y,w)};
   })();
   var CANON='.:=+*#%@',rampNow=CANON;
   function setRamp(str){
-    var M={},i,same=true;for(i=0;i<8;i++){M[CANON.charAt(i)]=str.charAt(i);if(str.charAt(i)!==CANON.charAt(i))same=false}
-    window.AUI_MAP=same?null:M;rampNow=str;window.AUI_TONES();
+    /* by code point, so an emoji is one character and not two halves */
+    var C=Array.from(str),M={},i,same=true;for(i=0;i<8;i++){M[CANON.charAt(i)]=C[i];if(C[i]!==CANON.charAt(i))same=false}
+    window.AUI_MAP=same?null:M;rampNow=C.slice(0,8).join('');window.AUI_TONES();
   }
 
   /* ---- clock: one requestAnimationFrame loop drives every repeating animation ----
@@ -136,7 +140,10 @@
     val:function(v){tone('square',260+v*9,0,0.03,0.3)}
   };
   function unlock(){audio()}
-  document.addEventListener('pointerdown',unlock,true);
+  /* iOS only lets a context start inside a gesture it trusts, and a
+     pointerdown is not always one: the end of the touch and the click are */
+  ['pointerdown','pointerup','touchend','click'].forEach(function(t){document.addEventListener(t,unlock,true)});
+  var HAS_AUDIO=!!(window.AudioContext||window.webkitAudioContext);
   /* Some Android keyboards pop up for a focused range input, and a slider
      never needs one. Focus used to be dropped only on a pointerup on the
      slider itself, which missed two ways in: a drag ends in pointercancel
@@ -351,6 +358,10 @@
         if(pre._iv){pre._iv.stop();pre._iv=null}
         titleFrame(pre,pre.classList.contains('u')&&!pre.classList.contains('in')?0:99);
       }
+      /* the box is as tall as the rows the title has: at single scale that is
+         half, and a box sized for double left three empty rows under it */
+      var lh=parseFloat(pre.style.lineHeight);
+      if(lh&&pre._b)pre.style.height=(Math.ceil(pre._b.length*lh/ROW)*ROW)+'px';
     });
   }
   function layout(){
@@ -361,11 +372,27 @@
        below, and a taller one has to be able to give them back */
     HR=58;
     /* css/16-grid.css owns the cap, in characters, per breakpoint */
-    var maxc=parseInt(getComputedStyle(root).getPropertyValue('--maxcols'),10)||80;
-    var cols=Math.min(maxc,Math.floor(root.clientWidth/ch));
+    var rcs=getComputedStyle(root),maxc=parseInt(rcs.getPropertyValue('--maxcols'),10)||80;
+    /* a phone on its side has a notch on one edge and rounded corners on both:
+       the column is centred, so it keeps the wider inset clear on each side
+       (css/17 exposes them as --sal and --sar) */
+    var ins=Math.max(parseFloat(rcs.getPropertyValue('--sal'))||0,parseFloat(rcs.getPropertyValue('--sar'))||0);
+    var cols=Math.min(maxc,Math.floor((root.clientWidth-2*ins)/ch));
     main.style.width=(cols*ch)+'px';
     var bar=document.querySelector('.topbar-in');
-    if(bar)bar.style.width=(cols*ch)+'px';
+    if(bar){
+      bar.style.width=(cols*ch)+'px';
+      /* big text (200%) made the bar wider than the screen: the words beside
+         the glyphs go first, and if it still does not fit it wraps */
+      var tb=bar.parentNode,vb=bar.querySelector('.viewsbar'),bc=vb&&vb.querySelector('.barctl');
+      /* the settings sit flush right; past the bar's edge means it does not fit
+         (the glyphs' bleed is inside the settings' box, so it does not count) */
+      var over=function(){return bc.getBoundingClientRect().right>vb.getBoundingClientRect().right+1};
+      if(bc){
+        tb.classList.remove('tight','wrap');
+        if(over()){tb.classList.add('tight');if(over())tb.classList.add('wrap')}
+      }
+    }
     var inner=cols-4;
     root.style.setProperty('--dcols',Math.min(48,cols-2));
     var W=inner*ch;
@@ -582,7 +609,7 @@
   function point(e){
     var b=hero.getBoundingClientRect();
     spinX=(e.clientX-b.left)/b.width-0.5;spinY=(e.clientY-b.top)/b.height-0.5;
-    if(reduce){A+=spinY*0.4;B+=spinX*0.4;drawHero()}
+    if(reduce||!G.on){A+=spinY*0.4;B+=spinX*0.4;drawHero()}
   }
   hero.addEventListener('pointermove',point);
   hero.addEventListener('pointerdown',function(e){point(e);kick();if(glitch()>0)sfx.burst()});
@@ -590,12 +617,14 @@
   var visible=true;
   if('IntersectionObserver' in window)
     new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(hero);
+  /* the ring turns on its own, so Glitch off stops it too (it is the page's
+     pause switch); a pointer can still turn it by hand */
   if(!reduce)every(85,function(){
     var g=glitch(),now=Date.now();
     if(G.scroll>0.3)G.burst=Math.max(G.burst,G.scroll);
     if(g>0&&now>G.next){G.burst=1;G.next=now+(1400+Math.random()*4200)/(0.35+g)}
     t+=0.12;A+=0.05*HP.speed+spinY*0.35;B+=0.028*HP.speed+spinX*0.35;drawHero();
-  },{gate:function(){return visible}});
+  },{gate:function(){return visible&&G.on}});
 
   /* ---- fx layer: ambient streaks, shards where you touch, page jolts ---- */
   var fx=$('fx');
@@ -666,6 +695,8 @@
   /* reduced motion keeps the page silent, so the switch says so rather than
      turning on and playing nothing */
   if(reduce)['soundToggle'].forEach(function(id){var s=$(id);if(s){s.checked=false;s.disabled=true;s.closest('label').title='Off while reduced motion is on'}});
+  /* a browser with no Web Audio has nothing to switch on, so the switch says so */
+  else if(!HAS_AUDIO){SND.on=false;var st=$('soundToggle');st.checked=false;st.disabled=true;st.closest('label').title='No sound in this browser'}
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero();glitchGlyph()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
@@ -899,8 +930,9 @@
     var now=themeWant||currentTheme(),to=now==='dark'?'light':'dark';
     themeBtn.querySelector('.label').textContent=now==='dark'?'(C':'-O-';
     $('themeWord').textContent=now==='dark'?'Dark':'Light';
-    themeBtn.setAttribute('aria-label','Switch to '+to+' theme');
-    themeBtn.title=now==='dark'?'Dark theme':'Light theme';
+    /* the name says what you see (the word on screen), the title what a press does */
+    themeBtn.setAttribute('aria-label','Theme: '+(now==='dark'?'Dark':'Light'));
+    themeBtn.title='Switch to '+to+' theme';
   }
   new MutationObserver(function(){themeLabel();readPalette();drawHero()})
     .observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
@@ -1089,8 +1121,24 @@
 
   /* ---- toast ---- */
   var toast=$('toast'),toastText=$('toastText'),toastTimer;
+  /* Two quiet regions for screen readers: news is polite, a failure is an
+     alert and interrupts. The toast only shows it; it does not also speak, or
+     an error would be read twice. */
+  function vhNode(id,role){
+    var n=document.createElement('div');n.id=id;n.className='vh';n.setAttribute('role',role);
+    if(role==='status')n.setAttribute('aria-live','polite');
+    document.body.appendChild(n);return n;
+  }
+  var sayOk=vhNode('sayStatus','status'),sayErr=vhNode('sayAlert','alert');
+  toast.removeAttribute('role');toast.removeAttribute('aria-live');toast.setAttribute('aria-hidden','true');
+  function announce(msg,err){
+    var n=err?sayErr:sayOk;n.textContent='';clearTimeout(n._t);
+    /* emptied first and filled a beat later, so the same words twice are read twice */
+    n._t=setTimeout(function(){n.textContent=msg},40);
+  }
   /* say(msg) is good news in lime, say(msg,true) is a failure in yellow */
   function say(msg,err){
+    announce(msg,err);
     clearTimeout(toastTimer);toastText.textContent=(err?'!! ':'@@ ')+msg;
     toast.classList.toggle('err',!!err);
     toast.classList.add('on');
@@ -1179,7 +1227,9 @@
   typeIn.addEventListener('input',function(){
     clearTimeout(typeTimer);
     typeTimer=setTimeout(function(){
-      initTitle(typeOut,typeIn.value.toUpperCase().slice(0,8));develop(typeOut);
+      /* fitTitles() rebuilds a title from data-text, so the new word goes there too */
+      var w=Array.from(typeIn.value.toUpperCase()).slice(0,8).join('')||' ';
+      typeOut.setAttribute('data-text',w);initTitle(typeOut,w);fitTitles();develop(typeOut);
     },160);
   });
 
@@ -1297,7 +1347,7 @@
   }
 
   window.AUI={ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
-    scramble:scramble,setLabel:setLabel,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
+    scramble:scramble,setLabel:setLabel,announce:announce,rawFill:rawFill,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,
     decode:decode,reveal:reveal,flash:flash,fitTitles:fitTitles,live:sndLive,src:null,onLayout:null,HP:HP,TR:TR,setRamp:setRamp,rampString:function(){return rampNow},

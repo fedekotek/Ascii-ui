@@ -1,6 +1,7 @@
 /* ---------- toast ---------- */
 .toast{
-  position:fixed;left:2ch;right:2ch;bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
+  position:fixed;left:calc(2ch + env(safe-area-inset-left,0px));right:calc(2ch + env(safe-area-inset-right,0px));
+  bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
   display:flex;pointer-events:none;z-index:10;
 }
 .toast span{
@@ -12,7 +13,8 @@
 .toast.err span{background:var(--warn)}
 /* On a phone the toast sat on the bottom row, which is where the thumb just
    was: it covered Copy, Send crit and Sign in right after you tapped them. It
-   drops in under the sticky bar instead, clear of whatever you touched. */
+   drops in under the sticky bar instead, clear of whatever you touched. The
+   bar is exactly three rows (css/17), so the toast starts on the fourth. */
 @media (max-width:1023px),(pointer:coarse){
   .toast{bottom:auto;top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 }

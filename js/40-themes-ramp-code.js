@@ -53,7 +53,7 @@ cellsEl.innerHTML=LBL.map((l,i)=>'<label>'+l+'<span><input maxlength="1" value="
 const rampIns=[...cellsEl.querySelectorAll('input')];
 $('rampPresets').innerHTML=RAMPS.map((r,i)=>'<button class="chip" type="button" data-r="'+i+'" aria-pressed="'+(i===0?'true':'false')+'">'+r[0]+'</button>').join('');
 function setRamp(str,label){
-  const bad=/[\s"\\<>&]/;let chars=str.split('').slice(0,8);
+  const bad=/[\s"\\<>&]/;let chars=Array.from(str).slice(0,8);
   if(chars.length<8||chars.some(c=>bad.test(c))||new Set(chars).size<8){$('rampStatus').textContent='Needs 8 different characters. No spaces, quotes, backslashes or angle brackets.';if(live())sfx.err();return false}
   A.setRamp(chars.join(''));
   rampIns.forEach((inp,i)=>{inp.value=chars[i]});

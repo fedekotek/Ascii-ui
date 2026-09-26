@@ -128,7 +128,7 @@ window.addEventListener('scroll',()=>{
   if(v>1300&&n-lastTear>90){lastTear=n;tear(1+rnd(2))}
   touch(true);
 },{passive:true});
-every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0});
+if(!reduce)every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0});
 /* the repair only sounds when you touched something; a scroll repairs quietly */
 function touch(quiet){
   idleAt=Date.now();
@@ -180,8 +180,11 @@ function drawSand(){
   sx.setTransform(sdpr,0,0,sdpr,0,0);sx.clearRect(0,0,sw,sh);
   if(!P.length&&!pile.length)return;
   const pal=A.pal();sx.font='700 14px '+FONT;sx.textBaseline='top';
-  for(const s of pile){sx.fillStyle=s.col||pal[s.k];sx.fillText(s.c,s.col2*CW,sh-(s.row+1)*CHh)}
-  for(const p of P){sx.fillStyle=p.col||pal[p.k];sx.fillText(p.c,p.x,p.y)}
+  /* the pieces are characters harvested off the page, already in the active
+     ramp, so they skip the canvas translation or they would be translated twice */
+  const fill=A.rawFill||sx.fillText;
+  for(const s of pile){sx.fillStyle=s.col||pal[s.k];fill.call(sx,s.c,s.col2*CW,sh-(s.row+1)*CHh)}
+  for(const p of P){sx.fillStyle=p.col||pal[p.k];fill.call(sx,p.c,p.x,p.y)}
 }
 /* the fall runs on the page clock like every other animation, a frame at a
    time, and stops itself when the last piece lands */
@@ -235,7 +238,7 @@ function harvest(el,cw){
           const d=lcd.sample(),W=lcd.cols,H=lcd.rows,sx2=W>32?2:1,sy2=H>24?2:1;
           for(let yy=0;yy<H;yy+=sy2)for(let xx=0;xx<W;xx+=sx2){
             const i=(yy*W+xx)*4,l=(d[i]*0.299+d[i+1]*0.587+d[i+2]*0.114)/255;if(l<0.08)continue;
-            push(RAMP[clamp(Math.round(l*7)+1,1,8)],r.left+xx/W*r.width,r.top+yy/H*r.height,'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')');
+            push(A.TR(RAMP[clamp(Math.round(l*7)+1,1,8)]),r.left+xx/W*r.width,r.top+yy/H*r.height,'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')');
           }
           continue;
         }
@@ -244,7 +247,7 @@ function harvest(el,cw){
         for(let yy=0;yy<rows;yy++)for(let xx=0;xx<cols;xx++){
           const px=Math.floor((xx+0.5)/cols*e.width),py=Math.floor((yy+0.5)/rows*e.height),i=(py*e.width+px)*4;
           if(d[i]+d[i+1]+d[i+2]<90&&d[i+3]<200)continue;
-          push(RAMP[3+rnd(6)],r.left+xx*cw,r.top+yy*14,'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')');
+          push(A.TR(RAMP[3+rnd(6)]),r.left+xx*cw,r.top+yy*14,'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')');
         }
       }catch(err){}
       continue;
@@ -268,7 +271,7 @@ function harvest(el,cw){
   return out;
 }
 function shatter(el){
-  if(reduce||!el||el._dead)return;
+  if(reduce||!el||el._dead||!el.isConnected||el.closest('dialog,#rebuild,#boot'))return;
   const r=el.getBoundingClientRect();if(!r.width)return;
   el._dead=1;dead.push(el);
   let bits=harvest(el,CW);
@@ -289,18 +292,23 @@ A.shatter=shatter;A.rebuild=rebuild;
 $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
 const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker';
+/* A finger holds things to read them, select them or scroll: a long press on a
+   button, a card or a table shattered it and ate the text selection, Copy on
+   the Code tabs included. On touch only the pictures break: titles, charts
+   and badges. A mouse still gets the whole set. */
+const DEST_TOUCH='.chart,.ptitle,.badge';
 let lp=null,swallow=false;
 document.addEventListener('pointerdown',e=>{
-  if(reduce)return;
-  const t=e.target.closest&&e.target.closest(DEST);
-  if(!t||t.closest('dialog,#rebuild')||e.target.closest('input,select,textarea'))return;
+  if(reduce||e.button)return;
+  const t=e.target.closest&&e.target.closest(e.pointerType==='mouse'?DEST:DEST_TOUCH);
+  if(!t||t.closest('dialog,#rebuild,.copyrow,.code')||e.target.closest('input,select,textarea'))return;
   const x=e.clientX,y=e.clientY;
   lp={t,x,y,id:setTimeout(()=>{if(lp&&lp.t===t){swallow=true;shatter(t);lp=null;setTimeout(()=>{swallow=false},700)}},560)};
 });
 const cancelLp=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null};
 ['pointerup','pointercancel','pointermove','scroll'].forEach(ev=>window.addEventListener(ev,cancelLp,{passive:true,capture:true}));
 document.addEventListener('click',e=>{if(swallow){e.preventDefault();e.stopPropagation();swallow=false}},true);
-document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest(DEST)&&!e.target.closest('input,#posterDlg'))e.preventDefault()});
+document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest(DEST_TOUCH)&&!e.target.closest('input,#posterDlg,dialog'))e.preventDefault()});
 
 /* ================= photo / camera hero ================= */
 const off=document.createElement('canvas'),octx=off.getContext('2d',{willReadFrequently:true});
@@ -320,22 +328,41 @@ A.src=(w,h)=>{
   return srcLum;
 };
 function heroMsg(m){$('heroStatus').textContent=m}
-function stopCam(){if(srcVid){(srcVid.srcObject.getTracks()||[]).forEach(t=>t.stop());srcVid=null}}
-function toTorus(){stopCam();srcImg=null;srcLum=null;$('torusBtn').hidden=true;heroMsg('');A.kick();A.drawHero()}
+const stopStream=st=>{try{st&&st.getTracks().forEach(t=>t.stop())}catch(e){}};
+function stopCam(){if(srcVid){stopStream(srcVid.srcObject);srcVid.srcObject=null;srcVid=null}}
+function toTorus(){stopCam();srcImg=null;srcLum=null;$('torusBtn').hidden=true;$('camBtn').hidden=true;heroMsg('');A.kick();A.drawHero()}
+const onHome=()=>$('v-home').getAttribute('aria-selected')==='true';
 $('photoBtn').addEventListener('click',()=>$('photoFile').click());
 $('photoFile').addEventListener('change',e=>{
-  const f=e.target.files&&e.target.files[0];if(!f)return;
-  const img=new Image();img.onload=()=>{stopCam();srcImg=img;srcKey='';$('torusBtn').hidden=false;heroMsg('You are now the hero. Tap it.');A.flash($('photoBtn'));A.drawHero()};
-  img.onerror=()=>heroMsg('That file did not decode as an image.');img.src=URL.createObjectURL(f);
+  const inp=e.target,f=inp.files&&inp.files[0];
+  /* cleared, so picking the same file again still counts as a change */
+  inp.value='';if(!f)return;
+  const img=new Image(),url=URL.createObjectURL(f);
+  /* once decoded the picture keeps drawing, so the blob can go */
+  img.onload=()=>{URL.revokeObjectURL(url);stopCam();srcImg=img;srcKey='';$('torusBtn').hidden=false;$('camBtn').hidden=false;heroMsg('You are now the hero. Tap it.');A.flash($('photoBtn'));A.drawHero()};
+  img.onerror=()=>{URL.revokeObjectURL(url);heroMsg('That file did not decode as an image.')};img.src=url;
 });
 $('camBtn').addEventListener('click',async()=>{
+  const md=navigator.mediaDevices;
+  if(!md||!md.getUserMedia){heroMsg('No camera here. Open the page over https to use one.');return}
+  let st=null;
   try{
-    const st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:400}});
+    st=await md.getUserMedia({video:{facingMode:'user',width:320,height:400}});
     const v=document.createElement('video');v.muted=true;v.playsInline=true;v.srcObject=st;await v.play();
-    srcImg=null;srcVid=v;$('torusBtn').hidden=false;heroMsg('Live. Nothing leaves this page.');A.flash($('camBtn'));
-  }catch(err){heroMsg('The camera is blocked here. Load a photo instead.')}
+    /* left Home while the browser asked: nothing is watching, so it stops */
+    if(!onHome()){stopStream(st);return}
+    /* one stream at a time: a second tap replaces the first, it does not stack */
+    stopCam();srcImg=null;srcVid=v;$('torusBtn').hidden=false;heroMsg('Live. Nothing leaves this page.');A.flash($('camBtn'));
+  }catch(err){stopStream(st);heroMsg('The camera is blocked here. Feed the ring a photo instead.')}
 });
 $('torusBtn').addEventListener('click',toTorus);
+/* the camera is Home's: leaving Home turns it off, and the photo stays */
+document.addEventListener('aui:view',()=>{
+  if(onHome()||!srcVid)return;
+  stopCam();srcLum=null;
+  if(!srcImg)$('torusBtn').hidden=true;
+  heroMsg(srcImg?'Camera off. The photo stays.':'Camera off.');A.drawHero();
+});
 
 /* ================= VHS layer ================= */
 const hud=$('hud'),t0=Date.now();
@@ -351,7 +378,14 @@ if(!reduce){
 
 /* ================= tilt ================= */
 function onTilt(e){if(e.gamma==null)return;A.spin(clamp(e.gamma/40,-1,1)*0.5,clamp((e.beta-45)/40,-1,1)*0.5)}
-window.addEventListener('deviceorientation',onTilt);
+/* only Home has the ring, so the sensor is only listened to there */
+let tiltOn=false;
+function tiltSync(){
+  const want=!reduce&&$('v-home').getAttribute('aria-selected')==='true';
+  if(want===tiltOn)return;tiltOn=want;
+  if(want)window.addEventListener('deviceorientation',onTilt);else{window.removeEventListener('deviceorientation',onTilt);A.spin(0,0)}
+}
+tiltSync();document.addEventListener('aui:view',tiltSync);
 async function askTilt(){
   const D=window.DeviceOrientationEvent;
   if(D&&D.requestPermission){try{return (await D.requestPermission())==='granted'?'tilt on':'tilt denied'}catch(e){return 'tilt blocked here'}}
@@ -403,6 +437,8 @@ function picDialog(src,kind){
 A.picDialog=picDialog;
 function openPoster(){picDialog(makePoster(),'poster')}
 $('posterClose').addEventListener('click',()=>$('posterDlg').close());
+/* on a short screen Close can be a scroll away, so a tap on the page around it closes it too */
+A.backdropClose($('posterDlg'));
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
 
@@ -435,7 +471,8 @@ async function run(line){
       const sel=what==='all'?Object.values(RM).join(','):RM[what];
       if(!sel)out('rm: cannot remove '+esc(what));
       else{
-        const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
+        /* never what is on top of the page: Search itself, a dialog, the Rebuild button */
+        const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!e.closest('dialog,#rebuild')&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
         const pick=what==='all'?els:els.slice(0,1);
         if(!pick.length)out('nothing to remove on screen');
         else{cmdDlg.close();pick.forEach((e,i)=>setTimeout(()=>A.shatter(e),i*90))}
@@ -475,8 +512,12 @@ const INV=(function(){
   }
   function fleet(){inv=[];for(let r=0;r<3;r++)for(let c=0;c<5;c++)inv.push({x:3+c*11,y:4+r*8,ty:r,a:1});dir=1}
   function bunkers(){bunk=[];[7,28,49].forEach(b=>{for(let yy=0;yy<4;yy++)for(let xx=0;xx<8;xx++)if(!(yy===3&&xx>2&&xx<5))bunk.push({x:b+xx,y:33+yy})})}
-  function start(){score=0;lives=3;wave=1;bul=[];bom=[];fleet();bunkers();state='play';arp([440,660,880],50)}
-  function over(){state='over';if(score>hi){hi=score;try{localStorage.setItem('aui-hi',String(hi))}catch(e){}}A.jolt();blip(200,0.5,'sawtooth',0.16,0.25)}
+  /* the canvas is a picture to a screen reader, so the game says what matters
+     in words: that it started, each wave, and how it ended */
+  const said=$('invStatus');
+  function tell(m){if(said)said.textContent=m}
+  function start(){score=0;lives=3;wave=1;bul=[];bom=[];fleet();bunkers();state='play';arp([440,660,880],50);tell('Game on. Wave 1, 3 lives.')}
+  function over(){state='over';const best=score>hi;if(best){hi=score;try{localStorage.setItem('aui-hi',String(hi))}catch(e){}}A.jolt();blip(200,0.5,'sawtooth',0.16,0.25);tell('Game over. Score '+score+(best?', a new high score.':'. High score '+hi+'.')+' Tap or press space to play again.')}
   function hitBox(o,bx,by){return bx>=o.x&&bx<o.x+8&&by>=o.y&&by<o.y+6}
   function boom(o){
     const r=cv.getBoundingClientRect(),X=r.left+(o.x+4)*cw,Y=r.top+(o.y+3)*lh;
@@ -508,11 +549,11 @@ const INV=(function(){
       if(b.y>=ROWS-1)return false;
       const k=bunk.findIndex(c=>c.x===Math.floor(b.x)&&c.y===Math.floor(b.y));
       if(k>=0){bunk.splice(k,1);return false}
-      if(b.y>=ROWS-6&&b.y<ROWS-2&&b.x>=px&&b.x<px+8){lives--;flash=6;A.jolt();if(lives<=0)over();return false}
+      if(b.y>=ROWS-6&&b.y<ROWS-2&&b.x>=px&&b.x<px+8){lives--;flash=6;A.jolt();if(lives<=0)over();else tell('Hit. '+lives+(lives===1?' life':' lives')+' left.');return false}
       return true;
     });
     if(alive.some(i=>i.y+6>=33))over();
-    if(state==='play'&&!inv.some(i=>i.a)){wave++;fleet();bom=[];arp([523,659,784,1047],55);A.kick()}
+    if(state==='play'&&!inv.some(i=>i.a)){wave++;fleet();bom=[];arp([523,659,784,1047],55);A.kick();tell('Wave '+wave+'. Score '+score+'.')}
     draw();
   }
   function text(s,cx,cy,k,pal){x.fillStyle=pal[k];for(let i=0;i<s.length;i++)x.fillText(s[i],(cx+i)*cw,cy*lh)}
@@ -537,7 +578,8 @@ const INV=(function(){
     x.fillStyle=pal.ink;bul.forEach(b=>x.fillText('|',Math.floor(b.x)*cw,b.y*lh));
     x.fillStyle=pal.hot;bom.forEach(b=>x.fillText('!',b.x*cw,b.y*lh));
     for(let i=0;i<COLS;i++){x.fillStyle=pal.muted;x.fillText('-',i*cw,(ROWS-1.6)*lh)}
-    if(state!=='play'&&Math.floor(t/12)%2===0){
+    /* the prompt blinks, except with reduced motion, where it just stays */
+    if(state!=='play'&&(reduce||Math.floor(t/12)%2===0)){
       const m=state==='idle'?'TAP TO PLAY':'GAME OVER  TAP TO RETRY',mx=Math.floor((COLS-m.length)/2);
       x.fillStyle=pal.bg;x.fillRect(mx*cw-cw,27.6*lh,(m.length+2)*cw,lh*1.8);text(m,mx,28,state==='idle'?'ink':'hot',pal);
     }
@@ -555,7 +597,9 @@ const INV=(function(){
   document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')kl=false;else if(e.key==='ArrowRight')kr=false;else if(e.key===' ')kf=false});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(cv);else vis=true;
   fleet();bunkers();
-  every(50,step,{gate:()=>vis});
+  /* with reduced motion the loop only runs while you play: nothing on the
+     idle screen moves by itself */
+  every(50,step,{gate:()=>vis&&(!reduce||state==='play')});
   return {size,start,draw};
 })();
 window.AUI3={INV,makePoster,openCmd,run};
@@ -581,6 +625,11 @@ Grid.prototype.html=function(){
   }
   return o;
 };
+/* Each chart is as wide as its own box, in 12px characters. It used to be the
+   page's width, which from 1024px ignored the sidebar and the gallery column
+   and cut the right side off. A chart in a hidden view measures nothing, so it
+   keeps the page's width until it shows, and a ResizeObserver redraws it then. */
+function colsOf(el){const w=el&&el.clientWidth;return w?Math.max(20,Math.floor(w/CCW)):CC}
 function grow(draw){return function(){if(reduce){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
 function cellAt(el,e){const r=el.getBoundingClientRect();return {x:Math.floor((e.clientX-r.left)/CCW),y:Math.floor((e.clientY-r.top)/14)}}
 /* every chart you can tap you can also drive: it takes a Tab stop, the arrows
@@ -591,7 +640,7 @@ function keys(el,fn){el.tabIndex=0;el.addEventListener('keydown',e=>{if(fn(e.key
 /* bars */
 const DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],REQ=[1204,1482,1390,1710,1655,820,640];let selBar=3,barP=1;
 function drawBars(p){
-  if(p!=null)barP=p;const el=$('ch-bars'),H=12,lab=5,bw=Math.max(3,Math.floor((CC-lab)/7)-1),mx=1800,g=new Grid(CC,H+1);
+  if(p!=null)barP=p;const el=$('ch-bars'),CC=colsOf(el),H=12,lab=5,bw=Math.max(3,Math.floor((CC-lab)/7)-1),mx=1800,g=new Grid(CC,H+1);
   [0,600,1200,1800].forEach(v=>{const row=H-1-Math.round(v/mx*(H-1));g.text(0,row,(v>=1000?(v/1000).toFixed(1)+'k':String(v)).padStart(4,' '),'muted');for(let x=lab;x<CC;x+=2)g.set(x,row,'.','muted')});
   REQ.forEach((v,i)=>{
     const h=Math.round(v/mx*H*barP),x0=lab+i*(bw+1);
@@ -604,7 +653,7 @@ function drawBars(p){
 }
 function pickBar(i){selBar=clamp(i,0,6);drawBars();blip(300+REQ[selBar]/3,0.06,'square',0.09)}
 $('ch-bars').addEventListener('pointerdown',e=>{
-  const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((CC-5)/7)-1);pickBar(Math.floor((c.x-5)/(bw+1)));
+  const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((colsOf($('ch-bars'))-5)/7)-1);pickBar(Math.floor((c.x-5)/(bw+1)));
 });
 keys($('ch-bars'),k=>{
   const n={ArrowLeft:selBar-1,ArrowRight:selBar+1,Home:0,End:6,Enter:selBar,' ':selBar}[k];
@@ -618,7 +667,7 @@ function Line(id){
   const next=()=>{v+= (Math.random()-0.5)*60;v=clamp(v,110,330);let o=v;if(spike>0){o=400+Math.random()*80;spike--}else if(Math.random()<0.03)o=390+Math.random()*80;return Math.round(o)};
   for(let i=0;i<140;i++)d.push(next());
   function draw(pp){
-    if(pp!=null)p=pp;const H=10,lab=5,w=CC-lab,g=new Grid(CC,H+1),mx=480,s=d.slice(-w);
+    if(pp!=null)p=pp;const CC=colsOf(el),H=10,lab=5,w=CC-lab,g=new Grid(CC,H+1),mx=480,s=d.slice(-w);
     [0,240,480].forEach(t=>{const row=H-1-Math.round(t/mx*(H-1));g.text(0,row,String(t).padStart(4,' '),'muted');for(let x=lab;x<CC;x+=2)g.set(x,row,'.','muted')});
     for(let x=0;x<Math.round(w*p);x++){
       const val=s[x],row=H-1-Math.round(Math.min(1,val/mx)*(H-1)),hot=val>380;
@@ -629,11 +678,17 @@ function Line(id){
     el.innerHTML=g.html();const last=s[s.length-1];
     st.textContent='p95 '+last+' ms'+(last>380?'   SPIKE':'');
   }
-  const hit=()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5)};
+  /* the line redraws every 0.7s, so its status line is not a live region (it
+     announced fourteen times in ten seconds). A tap or a key says it once */
+  st.removeAttribute('role');st.removeAttribute('aria-live');
+  const hit=()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5);
+    d.push(next());if(d.length>300)d.shift();draw();A.announce('Spike sent. p95 '+d[d.length-1]+' ms.')};
   el.addEventListener('pointerdown',hit);
   keys(el,k=>{if(k!=='Enter'&&k!==' ')return false;hit();return true});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(el);
-  every(700,()=>{if(reduce)return;d.push(next());if(d.length>300)d.shift();const last=d[d.length-1];if(last>380)blip(1200,0.03,'square',0.05);draw()},{gate:()=>vis});
+  /* it moves on its own, so it stops with reduced motion and with Glitch off
+     (the page's pause switch, WCAG 2.2.2) */
+  if(!reduce)every(700,()=>{d.push(next());if(d.length>300)d.shift();const last=d[d.length-1];if(last>380)blip(1200,0.03,'square',0.05);draw()},{gate:()=>vis&&G.on});
   el._anim=grow(draw);this.draw=draw;
 }
 const line1=new Line('line');
@@ -641,7 +696,7 @@ const line1=new Line('line');
 /* regions */
 const REG=[['iad',92],['fra',81],['gru',64],['sin',58],['syd',33]];let regP=1;
 function drawRegions(p){
-  if(p!=null)regP=p;const cells=CC-10;let h='';
+  if(p!=null)regP=p;const cells=colsOf($('ch-regions'))-10;let h='';
   REG.forEach(r=>{const k=Math.round(r[1]/100*cells*regP);h+='<span style="color:var(--muted)">'+r[0]+'  </span>'+A.colorize(A.barRow(k,false,cells))+'<span style="color:var(--ink)"> '+String(r[1]).padStart(3,' ')+'%</span>\n\n'});
   $('ch-regions').innerHTML=h;
 }
@@ -652,7 +707,7 @@ let heat=[],selH=null,heatP=1;
 function seedHeat(){heat=[];for(let i=0;i<7*26;i++){const r=Math.random();heat.push(r<0.03?0.6+Math.random()*0.15:(r<0.12?0.78+Math.random()*0.12:0.93+Math.random()*0.07))}}
 seedHeat();
 function drawHeat(p){
-  if(p!=null)heatP=p;const weeks=Math.min(26,Math.floor((CC-5)/2)),g=new Grid(CC,7),D='MTWTFSS';
+  if(p!=null)heatP=p;const CC=colsOf($('ch-heat')),weeks=Math.min(26,Math.floor((CC-5)/2)),g=new Grid(CC,7),D='MTWTFSS';
   for(let y=0;y<7;y++){
     g.text(0,y,D[y]+'   ','muted');
     for(let w=0;w<Math.round(weeks*heatP);w++){
@@ -663,7 +718,7 @@ function drawHeat(p){
   }
   $('ch-heat').innerHTML=g.html();
 }
-const heatWeeks=()=>Math.min(26,Math.floor((CC-5)/2));
+const heatWeeks=()=>Math.min(26,Math.floor((colsOf($('ch-heat'))-5)/2));
 function pickHeat(y,w){
   const weeks=heatWeeks();if(w<0||w>=weeks||y<0||y>6)return;selH={y,w};drawHeat();
   const v=heat[y*26+w],names=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
@@ -682,7 +737,7 @@ $('ch-heat')._anim=grow(drawHeat);
 const SEG=[['direct',0.38,'hot'],['search',0.27,'deep'],['social',0.20,'warn'],['email',0.15,'violet']];let selD=-1,donP=1;
 function segAt(a){let acc=0;for(let i=0;i<SEG.length;i++){acc+=SEG[i][1];if(a<acc)return i}return SEG.length-1}
 function drawDonut(p){
-  if(p!=null)donP=p;const H=13,g=new Grid(CC,H),cx=13,cy=6,ay=14/CCW;
+  if(p!=null)donP=p;const H=13,g=new Grid(Math.min(colsOf($('ch-donut')),48),H),cx=13,cy=6,ay=14/CCW;
   for(let y=0;y<H;y++)for(let x=0;x<27;x++){
     const dx=x-cx,dy=(y-cy)*ay,r=Math.hypot(dx,dy);if(r<5.6||r>12.6)continue;
     let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;if(a>donP)continue;
@@ -713,6 +768,13 @@ keys($('ch-donut'),k=>{
 });
 $('ch-donut')._anim=grow(drawDonut);
 function drawCharts(){drawBars();line1.draw();drawRegions();drawHeat();drawDonut()}
+/* a chart redraws when its own box changes: a view shows, the sidebar
+   appears, the gallery reflows, the text size changes */
+if('ResizeObserver' in window){
+  const DRAW={'ch-bars':()=>drawBars(),'ch-line':()=>line1.draw(),'ch-regions':()=>drawRegions(),'ch-heat':()=>drawHeat(),'ch-donut':()=>drawDonut()},seen=new WeakMap();
+  const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);DRAW[el.id]()}));
+  Object.keys(DRAW).forEach(id=>ro.observe($(id)));
+}else document.addEventListener('aui:view',drawCharts);
 
 /* ================= sparklines, skeleton ================= */
 function drawSparks(){document.querySelectorAll('.spark').forEach(s=>{s.textContent=A.TR(s.getAttribute('data-spark').split(',').map(n=>RAMP[clamp(+n+1,1,8)]).join(''))})}
@@ -740,7 +802,7 @@ function setErr(id,msg){
 $('lgForm').addEventListener('submit',e=>{
   e.preventDefault();
   const em=$('lgEmail').value.trim(),pw=$('lgPass').value;let bad=false;
-  if(!em){setErr('lgEmail','Enter your email.');bad=true}else if(!/^\S+@\S+\.\S+$/.test(em)){setErr('lgEmail','That does not look like an email.');bad=true}else setErr('lgEmail','');
+  if(!em){setErr('lgEmail','Enter your email.');bad=true}else if(!/^\S+@\S+\.\S+$/.test(em)){setErr('lgEmail','That is not an email address.');bad=true}else setErr('lgEmail','');
   if(pw.length<8){setErr('lgPass',pw?'Use 8 characters or more.':'Enter your password.');bad=true}else setErr('lgPass','');
   if(bad){A.jolt();blip(120,0.25,'sawtooth',0.14,0.6);(($('lgEmail').getAttribute('aria-invalid')==='true')?$('lgEmail'):$('lgPass')).focus()}
   else{A.say('Signed in as '+em+'.');A.flash($('lgBtn'));arp([523,659,784],60)}
@@ -755,6 +817,55 @@ function pickRow(tr){
 }
 rows.forEach(tr=>{tr.addEventListener('click',()=>pickRow(tr));tr.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pickRow(tr)}})});
 document.querySelectorAll('.pricing .btn').forEach(b=>b.addEventListener('click',()=>A.say(b.closest('.card').querySelector('.bar-title').textContent+' plan selected.')));
+
+/* ================= headings, focus after a view swap, the menu on Home ================= */
+/* Home has the page's h1 in its header; the header is hidden on the other
+   views, so each docs view gets its own, named after the view, in its .dochead */
+document.querySelectorAll('main > [role="tabpanel"] > .dochead').forEach(d=>{
+  if(d.querySelector('h1'))return;
+  const p=d.parentNode,t=$(p.getAttribute('aria-labelledby')),h=document.createElement('h1');
+  h.className='vh';h.id='h1-'+p.id.replace(/^view-/,'');h.textContent=t?t.textContent.trim():'';d.insertBefore(h,d.firstChild);
+});
+/* A swap hides whatever had the focus (a Home tile, a link in a view), and
+   the browser drops it on body, so Tab started over from the top. The new
+   view's heading takes it quietly instead, the way a Search pick does. */
+document.addEventListener('aui:view',e=>{
+  const ae=document.activeElement;
+  if(ae&&ae!==document.body&&!ae.closest('[hidden]')&&ae.offsetParent!==null)return;
+  if(document.querySelector('dialog[open]'))return;
+  const p=$(e.detail.getAttribute('aria-controls'));if(!p)return;
+  const h=p.querySelector('.dochead h1')||p.querySelector('h2')||p;
+  h.tabIndex=-1;h.focus({preventScroll:true});
+});
+/* The [=] menu on Home listed nothing under "Home 0": Home has no sections,
+   but it has the ways in, so those are listed (js/70 fills the other views) */
+(function(){
+  const md=$('menuDlg'),panel=$('menuPanel');if(!md||!panel)return;
+  const box=document.createElement('div');box.id='menuHome';box.className='navgroup';
+  const items=[...document.querySelectorAll('#view-home .tiles a.tile')].map(a=>({label:a.querySelector('b').textContent,href:a.getAttribute('href'),v:a.dataset.v,sec:null}));
+  /* js/40 builds Get the kit after this runs, so its section is found on the tap */
+  items.push({label:'Get the kit',href:'#components/install',v:'kit',sec:()=>{const k=$('s-install');return k&&k.parentNode}});
+  box.innerHTML='<ul>'+items.map((it,i)=>'<li><a class="navlink" href="'+esc(it.href)+'" data-i="'+i+'">'+esc(it.label)+'</a></li>').join('')+'</ul>';
+  panel.appendChild(box);
+  /* the page changes once the menu is gone, then the focus lands where you went */
+  function after(fn){md.addEventListener('close',function f(){md.removeEventListener('close',f);setTimeout(fn,0)});$('menuX').click()}
+  box.addEventListener('click',e=>{
+    const a=e.target.closest('a.navlink');if(!a||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+    e.preventDefault();const it=items[+a.dataset.i],N=window.AUI_NAV;if(!N)return;
+    const sec=it.sec?it.sec():null;
+    if(A.live())A.tone('square',440,0,0.05,0.4);
+    after(()=>N.go(it.v,sec,{push:true,top0:!sec,after:()=>{
+      const t=sec||$('view-'+it.v).querySelector('.dochead h1');if(t){t.tabIndex=-1;t.focus({preventScroll:true})}}}));
+  });
+  /* Search and the theme are in the bar, but the menu covers the bar */
+  const ms=$('mSearch'),mt=$('mTheme'),tb=$('themeToggle');
+  if(ms)ms.addEventListener('click',()=>after(()=>{if(window.AUI_SEARCH)AUI_SEARCH.open();else $('cmdBtn').click()}));
+  if(mt){
+    const sync=()=>{mt.textContent=(tb.getAttribute('aria-label')||'Theme');mt.title=tb.title};
+    mt.addEventListener('click',()=>tb.click());
+    new MutationObserver(sync).observe(tb,{attributes:true,attributeFilter:['aria-label','title']});sync();
+  }
+})();
 
 /* ================= layout hook, glitch switch, start ================= */
 A.onLayout=function(w){
