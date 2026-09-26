@@ -1,0 +1,527 @@
+/* ascii/ui kit, ascii-ui.css
+   Components in an ASCII skin. Frames, fills and shadows are strings of
+   characters; weight comes from how dense the character is.
+
+   Use: link this file and ascii-ui.js, then paste the html of any component
+   from https://asciiui.vercel.app (open Code on it). Theme it by overriding the
+   tokens below on :root, after this file.
+
+   The file is split into blocks. Each block starts with a line like
+     /* ==== button: .btn ==== *\/
+   The site's Code tab reads those lines to print the block a component needs,
+   so keep them if you edit this file.
+
+   MIT license. Copyright (c) 2026 Fede Kotek. The full text is in README.md. */
+
+@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap");
+/* Faster: drop the @import and put this in your <head> instead.
+   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap"> */
+
+/* ==== tokens: :root ==== */
+/* Ten colors. Magenta (--hot) acts, cyan (--cy) is focus and nothing else,
+   lime (--ok) confirms, yellow (--warn) warns. --r is one row: every height is
+   a number of rows and every width a number of characters (ch). */
+:root{
+  --bg:#ecebe4; --ink:#111110; --muted:#5c5b55;
+  --hot:#c91468; --pink:#e8478f; --cy:#0a7287; --ok:#3f6b00; --warn:#8a5a00;
+  --deep:#2b2bd1; --violet:#6a45d9;
+  --t0:#111110; --t1:#111110; --t2:#c91468; --t3:#2b2bd1;   /* title rows */
+  --accent:var(--cy);    /* focus */
+  --danger:var(--warn);  /* errors and destructive actions */
+  --r:21px;              /* one row: 14px type on a 21px line */
+  --font:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+/* dark follows the system unless the page says data-theme="light" */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0a0612; --ink:#f3eef7; --muted:#a79db5;
+    --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
+    --deep:#4a3dff; --violet:#9b7bea;
+    --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+    color-scheme:dark;
+  }
+}
+/* force a theme with <html data-theme="dark"> or <html data-theme="light"> */
+:root[data-theme="dark"]{
+  --bg:#0a0612; --ink:#f3eef7; --muted:#a79db5;
+  --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
+  --deep:#4a3dff; --violet:#9b7bea;
+  --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+  color-scheme:dark;
+}
+
+/* ==== tones: .tone-heavy .tone-dense .tone-mid .tone-light .tone-shade .tone-faint .tone-danger .tone-error ==== */
+/* The border strings. --h-* runs along the top and bottom, --s-* is one side,
+   --v-* is a wall (one side per row). ascii-ui.js can rebuild them with other
+   characters: ASCIIUI.tones({"@":"#"}). */
+:root{
+  --k8:"@"; --k6:"#"; --k1:".";
+  --h-heavy:"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@";
+  --s-heavy:"@@";
+  --v-heavy:"@@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A @@\A ";
+  --h-dense:"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
+  --s-dense:"%%";
+  --v-dense:"%%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A %%\A ";
+  --h-mid:"####################################################################################################################################################################################";
+  --s-mid:"##";
+  --v-mid:"##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ##\A ";
+  --h-light:"====================================================================================================================================================================================";
+  --s-light:"::";
+  --v-light:"::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ";
+  --h-shade:"::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::";
+  --s-shade:"::";
+  --v-shade:"::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ::\A ";
+  --h-faint:"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ";
+  --s-faint:": ";
+  --v-faint:": \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A : \A ";
+  --h-danger:"////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////";
+  --s-danger:"//";
+  --v-danger:"//\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A //\A ";
+  --h-error:"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+  --s-error:"!!";
+  --v-error:"!!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A !!\A ";
+}
+.tone-heavy{--h:var(--h-heavy);--s:var(--s-heavy);--v:var(--v-heavy)}
+.tone-dense{--h:var(--h-dense);--s:var(--s-dense);--v:var(--v-dense)}
+.tone-mid{--h:var(--h-mid);--s:var(--s-mid);--v:var(--v-mid)}
+.tone-light{--h:var(--h-light);--s:var(--s-light);--v:var(--v-light)}
+.tone-shade{--h:var(--h-shade);--s:var(--s-shade);--v:var(--v-shade)}
+.tone-faint{--h:var(--h-faint);--s:var(--s-faint);--v:var(--v-faint)}
+.tone-danger{--h:var(--h-danger);--s:var(--s-danger);--v:var(--v-danger)}
+.tone-error{--h:var(--h-error);--s:var(--s-error);--v:var(--v-error)}
+
+/* ==== base: body .muted .vh .row .stack .demo .group fieldset ==== */
+*,*::before,*::after{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--font);font-size:14px;line-height:var(--r);font-weight:300;
+  font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,p,ul,ol,dl,dd,pre,figure{margin:0;font:inherit}
+::selection{background:var(--hot);color:var(--bg)}
+[hidden]{display:none !important}
+/* links are ink with a magenta underline: blue is focus, so no browser blue */
+a{color:var(--ink);text-decoration-color:var(--hot);text-underline-offset:3px}
+a:focus-visible{outline:0;background:var(--accent);color:var(--bg)}
+.muted{color:var(--muted);font-weight:400}   /* grey reads thinner, so it gets 400 */
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
+.stack{display:grid;gap:var(--r);justify-items:start}
+.demo{margin-top:var(--r)}
+.demo:first-child{margin-top:0}
+.status{min-height:var(--r)}
+.group{max-width:48ch}
+.group + .group{margin-top:var(--r)}
+fieldset{border:0;padding:0;margin:0;min-width:0}
+legend{padding:0;margin-bottom:var(--r)}
+/* motion is steps(), never eased. Reduced motion switches all of it off */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+}
+
+/* ==== frame: .frame .mid ==== */
+/* A frame is a string on top and bottom (--h) and a string on each side (--s).
+   The characters are paint: the alt text after the slash is empty, so screen
+   readers skip them. The line before is for browsers without alt text. */
+.frame{position:relative;padding:var(--r) 0}
+.frame::before,.frame::after{
+  content:var(--h);content:var(--h) / "";
+  position:absolute;left:0;right:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;pointer-events:none;
+  color:var(--frame-color,var(--ink));
+}
+.frame::before{top:0}
+.frame::after{bottom:0;content:var(--hb,var(--h));content:var(--hb,var(--h)) / ""}
+.mid{display:flex}
+.mid::before,.mid::after{
+  content:var(--s);content:var(--s) / "";
+  flex:none;white-space:pre;font-weight:700;
+  color:var(--frame-color,var(--ink));
+}
+.mid::after{content:var(--sr,var(--s));content:var(--sr,var(--s)) / ""}
+
+/* ==== button: .btn ==== */
+/* The rim says how loud: @ primary, = default, / danger. */
+.btn{
+  display:inline-block;font:inherit;color:var(--ink);background:none;border:0;border-radius:0;
+  margin:0;padding-left:0;padding-right:0;cursor:pointer;text-transform:uppercase;white-space:pre;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  outline:2px solid transparent;outline-offset:-2px;
+}
+.btn .mid{display:inline-flex}
+.btn .label{padding:0 1ch}
+.btn-primary{--frame-color:var(--hot)}
+.btn-primary .label{background:var(--hot);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.btn-danger{--frame-color:var(--danger)}
+.btn-danger .label{color:var(--danger)}
+@media (hover:hover){
+  .btn:not(:disabled):hover{--h:var(--h-mid);--s:var(--s-mid)}
+  .btn-primary:not(:disabled):hover{--h:var(--h-dense);--s:var(--s-dense)}
+  .btn-danger:not(:disabled):hover{--h:var(--h-danger);--s:var(--s-danger)}
+  .btn-danger:not(:disabled):hover .label{background:var(--danger);color:var(--bg)}
+}
+.btn:not(:disabled):active{background:var(--ink);--frame-color:var(--bg)}
+.btn:not(:disabled):active .label{background:var(--ink);color:var(--bg)}
+.btn-primary:not(:disabled):active .label{background:var(--bg);color:var(--ink)}
+.btn:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
+.btn:disabled{--h:var(--h-faint);--s:var(--s-faint);--frame-color:var(--muted);color:var(--muted);cursor:not-allowed}
+.btn-primary:disabled .label{background:var(--muted);color:var(--bg);box-shadow:none}
+
+/* ==== field: .field .field-label .error .count ==== */
+/* Input, select and textarea share one frame. Focus turns it heavy and cyan,
+   .invalid turns it into a wall of !. */
+.field-label{display:block;font-weight:400}
+.field{cursor:text}
+.field:has(select){cursor:pointer}
+.field .mid{gap:1ch}
+.field .prompt{font-weight:700;color:var(--hot)}
+.field input,.field select{
+  font:inherit;color:var(--ink);background:none;border:0;border-radius:0;outline:0;
+  padding:0;margin:0;flex:1;min-width:0;height:var(--r);caret-color:var(--hot);
+}
+.field select{appearance:none;-webkit-appearance:none;cursor:pointer}
+.field select option{background:var(--bg);color:var(--ink)}
+.field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--v:var(--v-heavy);--frame-color:var(--accent)}
+.field.invalid{--h:var(--h-error);--s:var(--s-error);--v:var(--v-error);--frame-color:var(--danger)}
+.field.invalid .prompt{color:var(--danger)}
+.error{color:var(--danger)}
+.error:empty{display:none}
+/* textarea: the same frame, walls instead of sides */
+.field.area .body{padding:0 3ch}
+.field.area .body::before,.field.area .body::after{color:var(--frame-color,var(--ink))}
+.field.area textarea{
+  display:block;width:100%;font:inherit;color:var(--ink);background:none;border:0;border-radius:0;
+  outline:0;resize:none;padding:0;margin:0;caret-color:var(--hot);
+}
+.count{color:var(--muted);text-align:right}
+.count.full{color:var(--warn);font-weight:700}
+
+/* ==== check: .check .switch-track ==== */
+/* Checkbox, radio and switch. The input is real and invisible, the glyph is paint. */
+.check{
+  position:relative;display:inline-flex;gap:1ch;cursor:pointer;
+  padding:12px 0;margin:-12px 0;-webkit-tap-highlight-color:transparent;
+}
+.check input{position:absolute;opacity:0;width:1px;height:1px;margin:0;left:0;top:12px}
+.check .glyph{white-space:pre;font-weight:700}
+.check input:checked + .glyph{color:var(--ok)}
+.check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
+.check input[type="checkbox"]:not([role]) + .glyph::before{content:"[ ]"}
+.check input[type="checkbox"]:not([role]):checked + .glyph::before{content:"[" var(--k8) "]"}
+.check input[type="radio"] + .glyph::before{content:"( )"}
+.check input[type="radio"]:checked + .glyph::before{content:"(" var(--k8) ")"}
+.switch-track{position:relative;display:inline-block;width:4ch;text-align:left}
+.switch-track::after{content:var(--k1) var(--k1) var(--k1) var(--k1);position:absolute;left:0;top:0;color:var(--muted)}
+.switch-track::before{
+  content:var(--k8) var(--k8);position:relative;z-index:1;display:inline-block;background:var(--bg);
+  transition:transform .16s steps(2);
+}
+.check input:checked + .glyph .switch-track::before{transform:translateX(2ch)}
+.check input:focus-visible + .glyph .switch-track::before{background:var(--accent)}
+.check input:focus-visible + .glyph .switch-track::after{color:var(--bg)}
+
+/* ==== bar: .bar .slider .slider-track .progress ==== */
+/* Slider and progress are one halftone bar of characters. ascii-ui.js draws
+   it (data-aui="slider", data-aui="progress"); a real range input sits on top. */
+.bar{font-weight:700;white-space:pre;display:block}
+.slider{display:flex;flex-wrap:wrap;gap:0 2ch;align-items:flex-end}
+.slider label{flex-basis:100%}
+.slider-track{position:relative;display:inline-block;min-width:24ch;min-height:var(--r)}
+.slider-track input{
+  position:absolute;inset:-12px 0;width:100%;height:calc(100% + 24px);
+  margin:0;opacity:0;cursor:pointer;
+}
+.slider-track:has(input:focus-visible){color:var(--accent)}
+.slider-track:has(input:focus-visible) .bar span{color:var(--accent) !important}
+.progress{display:flex;gap:2ch;align-items:flex-end}
+.progress .bar{min-width:24ch;min-height:var(--r)}
+.progress .pct{white-space:pre}
+
+/* ==== tabs: .tablist .tab .tabpanel ==== */
+/* The active tab is a slab. data-aui="tabs" on the tablist wires the arrows. */
+.tablist{display:flex;flex-wrap:wrap;position:relative;padding-bottom:var(--r)}
+.tablist::after{
+  content:var(--h-light);content:var(--h-light) / "";
+  position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;color:var(--violet);
+}
+.tab{
+  font:inherit;color:var(--muted);background:none;border:0;border-radius:0;margin:0;
+  padding:12px 2ch;cursor:pointer;text-transform:uppercase;
+  outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
+}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+@media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
+.tab:focus-visible{background:var(--accent);color:var(--bg)}
+.tabpanel{padding:var(--r) 0;outline:0}
+.tabpanel:focus-visible{box-shadow:inset 2ch 0 0 -1ch var(--accent)}
+.tabpanel pre{overflow-x:auto;white-space:pre;padding-left:2ch}
+.tabpanel .row{padding-left:2ch}
+
+/* ==== card: .card .lift .bar-title .body ==== */
+/* Title on a bar of @, walls of the tone's character, and a shadow of colons
+   from .lift, the wrapper. */
+.lift{position:relative;padding:0 2ch var(--r) 0;max-width:50ch}
+.lift::before{
+  content:var(--v-shade);content:var(--v-shade) / "";
+  position:absolute;right:0;top:var(--r);bottom:var(--r);width:2ch;
+  overflow:hidden;white-space:pre;font-weight:700;color:var(--deep);
+}
+.lift::after{
+  content:var(--h-shade);content:var(--h-shade) / "";
+  position:absolute;left:2ch;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;font-weight:700;color:var(--deep);
+}
+.card{background:var(--bg)}
+.card::before{content:var(--h-heavy);content:var(--h-heavy) / ""}
+.bar-title{
+  position:absolute;top:0;left:2ch;z-index:1;padding:0 1ch;margin:0;
+  background:var(--hot);color:var(--bg);text-transform:uppercase;font:inherit;
+  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep);
+  max-width:calc(100% - 4ch);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.body{position:relative;padding:var(--r) 4ch}
+.body::before,.body::after{
+  content:var(--v);content:var(--v) / "";
+  position:absolute;top:0;bottom:0;width:2ch;
+  overflow:hidden;white-space:pre;font-weight:700;color:var(--frame-color,inherit);
+}
+.body::before{left:0}
+.body::after{right:0}
+.body .row{margin-top:var(--r)}
+.card dl{display:grid;grid-template-columns:9ch 1fr}
+.card dt{color:var(--muted)}
+
+/* ==== dialog: dialog ==== */
+/* A native <dialog> holding a card. data-aui-open="id" on a button opens it,
+   data-aui-close inside closes it, and so do Escape and the page around it. */
+dialog{
+  font:inherit;color:var(--ink);background:none;border:0;padding:0;overflow:visible;
+  width:calc(var(--dcols,36)*1ch);max-width:calc(100vw - 2ch);
+}
+dialog .lift{max-width:none}
+dialog .row{justify-content:flex-end;column-gap:1ch}
+dialog::backdrop{
+  background-color:rgba(236,235,228,.86);
+  background-color:color-mix(in srgb,var(--bg) 86%,transparent);
+  background-image:radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
+  background-size:9.6px 12px;
+}
+body:has(dialog[open]){overflow:hidden}   /* the page behind stays put */
+/* the way out, in the title row: [x] */
+.sheet-x{
+  position:absolute;top:calc(var(--r)*-0.5);right:2ch;z-index:4;
+  font:inherit;font-weight:700;background:var(--bg);border:0;border-radius:0;
+  color:var(--ink);padding:12px 1ch;line-height:var(--r);cursor:pointer;outline:0;
+}
+.sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover){.sheet-x:hover{color:var(--hot)}}
+
+/* ==== sheet: .sheet ==== */
+/* A dialog that comes up from the bottom in seven steps. */
+dialog.sheet{margin:auto 0 0 0;width:100%;max-width:100%;max-height:82vh;max-height:82dvh;flex-direction:column}
+dialog.sheet[open]{display:flex}
+dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
+dialog.sheet .lift{padding:0;max-width:none}
+dialog.sheet .lift::before,dialog.sheet .lift::after{display:none}
+dialog.sheet[open] .lift{animation:aui-sheetin .28s steps(7) both}
+@keyframes aui-sheetin{from{transform:translateY(100%)}to{transform:none}}
+dialog.sheet .card{padding-bottom:calc(var(--r) + env(safe-area-inset-bottom,0px))}
+dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
+dialog.sheet .body{max-width:80ch;width:100%;margin:0 auto;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
+dialog.sheet .sheet-x{right:max(2ch,calc(50% - 40ch))}
+
+/* ==== alert: .alert ==== */
+/* A card with a hazard rim. .info is violet: cyan is focus and nothing else. */
+.alert{--frame-color:var(--warn);max-width:50ch}
+.alert .card::before{content:var(--h);content:var(--h) / ""}
+.alert .bar-title{background:var(--warn);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.alert.info{--frame-color:var(--violet)}
+.alert.info .bar-title{background:var(--violet)}
+
+/* ==== badge: .badge ==== */
+.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap}
+.b-ok{background:var(--ok)}
+.b-warn{background:var(--warn)}
+.b-hot{background:var(--hot);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.b-out{background:none;color:var(--ink);padding:0}
+.b-out::before{content:"[";color:var(--muted)}
+.b-out::after{content:"]";color:var(--muted)}
+
+/* ==== avatar: .avatar ==== */
+.avatar{
+  display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);flex:none;overflow:hidden;
+  background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);
+}
+.avatar.sm{width:5ch;height:calc(var(--r)*2)}
+.avatar.hot{background:var(--hot)}
+.avatar.ok{background:var(--ok)}
+.avatar img,.avatar canvas{width:100%;height:100%;display:block;object-fit:cover}
+
+/* ==== crumbs: .crumbs ==== */
+.crumbs{list-style:none;display:flex;flex-wrap:wrap;padding:0;margin:0}
+.crumbs li + li::before{content:"/";content:"/" / "";color:var(--hot);font-weight:700;padding:0 1ch}
+.crumbs a{color:var(--muted);text-decoration:none;outline:0;padding:12px 0;margin:-12px 0;display:inline-block}
+.crumbs a:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
+.crumbs [aria-current] span{background:var(--ink);color:var(--bg);padding:0 1ch;font-weight:700}
+
+/* ==== ibtn: .ibtn ==== */
+/* A character in brackets that is a button: [<] [3] [>] */
+.ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 1ch;margin:-12px 0;cursor:pointer;outline:0}
+.ibtn::before{content:"[";content:"[" / "";color:var(--muted)}
+.ibtn::after{content:"]";content:"]" / "";color:var(--muted)}
+.ibtn:focus-visible{background:var(--accent);color:var(--bg)}
+.ibtn:disabled{color:var(--muted);cursor:not-allowed}
+.ibtn[aria-current="page"]{background:var(--ink);color:var(--bg);background-clip:content-box}
+
+/* ==== calendar: .cal ==== */
+/* data-aui="calendar" fills it with a month of buttons. Today is magenta, the pick is a slab. */
+.cal{display:inline-block}
+.cal-head{display:flex;justify-content:space-between;align-items:center;text-transform:uppercase;font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,4ch);margin-top:var(--r)}
+.cal-grid span{color:var(--muted);text-align:center}
+.cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;cursor:pointer;outline:0;text-align:center}
+.cal-grid button.today{color:var(--hot);font-weight:700}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
+
+/* ==== pagination: [data-aui="pagination"] ==== */
+/* data-aui="pagination" on a <nav> draws [<] [1] .. [3] .. [9] [>] */
+[data-aui="pagination"]{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 0}
+[data-aui="pagination"] .muted{padding:0 1ch}
+
+/* ==== dropdown: .pop .menu ==== */
+/* data-aui="dropdown" on .pop: the button opens the [role=menu], arrows move,
+   Escape and Tab close. */
+.pop{position:relative;display:inline-block}
+.menu{position:absolute;left:0;top:calc(var(--r)*3);z-index:30;width:28ch;max-width:calc(100vw - 6ch);background:var(--bg)}
+.menu [role="menuitem"]{
+  display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;
+  color:var(--ink);padding:12px 0;margin:-6px 0;text-align:left;cursor:pointer;outline:0;
+}
+.menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+.menu [role="menuitem"].danger{color:var(--warn)}
+.menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+.menu .sepd{margin:0}
+.menu kbd{color:inherit;font-weight:300;opacity:.7}
+
+/* ==== tooltip: .tip ==== */
+/* Hover, focus or tap. It types itself in. data-aui="tooltip" on .pop adds the
+   tap and lets Escape dismiss it. */
+.tip{
+  position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;padding:0 1ch;
+  max-width:calc(100vw - 4ch);white-space:nowrap;font-weight:700;pointer-events:none;
+  background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);
+  clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);
+}
+.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
+.pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
+.pop.off .tip{clip-path:inset(0 100% 0 0)}   /* Escape */
+/* a tap leaves hover and focus behind, so on touch only the tap timer shows it, below the button */
+@media (pointer:coarse){
+  .tip{bottom:auto;top:calc(var(--r)*3 + 6px);white-space:normal}
+  .tip::after{content:"^";content:"^" / "";top:-12px}
+  .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
+  .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
+}
+
+/* ==== otp: .otp ==== */
+/* Six brackets. data-aui="otp" advances, goes back on Backspace and takes a paste. */
+.otp{display:flex;flex-wrap:wrap;gap:1ch}
+.otp span{display:inline-flex;font-weight:700}
+.otp span::before{content:"[";content:"[" / "";color:var(--muted)}
+.otp span::after{content:"]";content:"]" / "";color:var(--muted)}
+.otp input{
+  font:inherit;font-weight:700;width:2ch;text-align:center;background:none;border:0;border-radius:0;
+  color:var(--ink);padding:12px 0;margin:-12px 0;outline:0;caret-color:var(--hot);
+}
+.otp input::placeholder{color:var(--muted)}
+.otp span:focus-within::before,.otp span:focus-within::after{color:var(--accent)}
+.otp.good span::before,.otp.good span::after,.otp.good input{color:var(--ok)}
+
+/* ==== kbd: kbd .kbds ==== */
+kbd{font:inherit;font-weight:700;color:var(--ink)}
+kbd::before{content:"["}
+kbd::after{content:"]"}
+.kbds{display:grid;gap:var(--r);grid-template-columns:repeat(auto-fill,minmax(16ch,1fr))}
+
+/* ==== divider: .sepd .sepl ==== */
+/* Four weights of nothing, and a rule with a word in it. */
+.sepd{height:var(--r);overflow:hidden;white-space:nowrap;font-weight:700;margin:var(--r) 0 0}
+.sepd::before{content:var(--h-light);content:var(--h-light) / ""}
+.sepd.heavy::before{content:var(--h-heavy);content:var(--h-heavy) / "";color:var(--hot)}
+.sepd.faint::before{content:var(--h-faint);content:var(--h-faint) / "";color:var(--muted)}
+.sepd.shade::before{content:var(--h-shade);content:var(--h-shade) / "";color:var(--violet)}
+.sepl{display:flex;gap:1ch;color:var(--muted);margin-top:var(--r);white-space:nowrap;overflow:hidden}
+.sepl::before,.sepl::after{content:var(--h-faint);content:var(--h-faint) / "";flex:1;overflow:hidden;min-width:0}
+
+/* ==== spinner: .spins [data-aui="spinner"] ==== */
+/* data-aui="spinner" data-kind="classic|ramp|bounce|dots|fill" on any <b> or <span>. */
+[data-aui="spinner"]{display:inline-block;min-width:8ch;margin-right:1ch;color:var(--hot);white-space:pre;font-weight:700}
+.spins{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(14ch,1fr))}
+
+/* ==== segment: .tgroup ==== */
+/* Radios dressed as slabs. */
+.tgroup{display:inline-flex;flex-wrap:wrap}
+.tgroup label{position:relative;cursor:pointer}
+.tgroup input{position:absolute;opacity:0;width:1px;height:1px}
+.tgroup span{display:block;padding:12px 2ch;color:var(--muted);text-transform:uppercase}
+.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
+
+/* ==== timeline: .timeline ==== */
+/* Nodes are @, the wire is colons. .past nodes are #. */
+.timeline{list-style:none;padding:0;margin:0;max-width:60ch}
+.timeline li{position:relative;padding:0 0 var(--r) 4ch}
+.timeline li::before{content:var(--k8) var(--k8);content:var(--k8) var(--k8) / "";position:absolute;left:0;top:0;font-weight:700;color:var(--hot)}
+.timeline li::after{
+  content:var(--v-shade);content:var(--v-shade) / "";
+  position:absolute;left:0;top:var(--r);bottom:0;width:2ch;overflow:hidden;white-space:pre;color:var(--violet);font-weight:700;
+}
+.timeline li:last-child::after{display:none}
+.timeline li.past::before{content:var(--k6) var(--k6);content:var(--k6) var(--k6) / "";color:var(--ink)}
+.timeline b{display:block;text-transform:uppercase;font-weight:700}
+.timeline span{color:var(--muted)}
+.timeline time{color:var(--violet);font-weight:700}
+
+/* ==== toast: .toast [data-aui-toast] ==== */
+/* One line typed in from the left. Lime for good news, yellow (.err) for the
+   other kind. ascii-ui.js adds the element; ASCIIUI.toast("Saved.") shows it. */
+.toast{
+  position:fixed;left:2ch;right:2ch;bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
+  display:flex;pointer-events:none;z-index:70;
+}
+.toast span{
+  background:var(--ok);color:var(--bg);padding:0 1ch;max-width:100%;font-weight:700;
+  clip-path:inset(0 100% 0 0);transition:clip-path .24s steps(12);
+}
+.toast.on span{clip-path:inset(0 0 0 0)}
+.toast.err span{background:var(--warn)}
+/* on a phone the bottom row is where the thumb just was, so it drops in from the top */
+@media (max-width:1023px),(pointer:coarse){
+  .toast{bottom:auto;top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
+}
+
+/* ==== details: .acc ==== */
+/* A native <details>. The marker is [+] closed and [-] open. */
+.acc{position:relative;padding-bottom:var(--r)}
+.acc::after{
+  content:var(--h-faint);content:var(--h-faint) / "";
+  position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  overflow:hidden;white-space:nowrap;color:var(--muted);pointer-events:none;
+}
+.acc summary{list-style:none;cursor:pointer;display:flex;gap:1ch;padding:12px 0;margin:-12px 0;outline:0;-webkit-tap-highlight-color:transparent}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::before{content:"[+]";content:"[+]" / "";flex:none;font-weight:700;color:var(--hot)}
+.acc[open] summary::before{content:"[-]";content:"[-]" / "";color:var(--ok)}
+.acc summary:focus-visible::before{background:var(--accent);color:var(--bg)}
+.acc p{padding-left:4ch;margin-top:var(--r);color:var(--muted)}
+.acc + .acc{margin-top:var(--r)}
+
+/* ==== skeleton: .skel ==== */
+/* data-aui="skeleton" draws a card silhouette with a wave through the ramp. */
+.skel{color:var(--muted);font-weight:700;white-space:pre;overflow:hidden;min-height:calc(var(--r)*6)}
+.skel .f{opacity:.5}

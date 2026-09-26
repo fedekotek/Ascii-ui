@@ -359,24 +359,41 @@ $('lostHome').addEventListener('click',()=>{const t=$('v-kit');window.scrollTo(0
 if(!reduce)every(260,()=>{const p=$('lostTitle');if(p&&inView(p)&&!p._iv&&A.glitch()>0&&p._b)A.titleFrame(p,6+rnd(6))});
 
 /* ================= shadcn-style docs: index, preview and code tabs, filters ================= */
-function cleanHTML(node){
+function cleanHTML(node,sec){
   const c=node.cloneNode(true);
   c.querySelectorAll('[data-rv]').forEach(e=>e.removeAttribute('data-rv'));
   c.querySelectorAll('[style]').forEach(e=>e.removeAttribute('style'));
   c.querySelectorAll('.in,.done').forEach(e=>e.classList.remove('in','done'));
-  c.querySelectorAll('pre.ptitle,pre.chart,canvas,.bar,.skel,.statbars,#cal,#pager,#ing,.spins b').forEach(e=>{e.textContent=''});
+  /* the engine's own marks on buttons: the label it scrambles from */
+  c.querySelectorAll('[data-text]:not(pre)').forEach(e=>e.removeAttribute('data-text'));
+  c.querySelectorAll('pre.ptitle,pre.chart,canvas,.bar,.skel,.statbars,#cal,#pager,#ing,.spins b,.pct').forEach(e=>{e.textContent=''});
+  /* the kit's data attributes and the dialogs that live outside the section (js/40) */
+  if(sec&&A.kitify)A.kitify(sec,c);
   c.querySelectorAll('[class]').forEach(e=>{const v=e.getAttribute('class').trim().replace(/\s+/g,' ');if(v)e.setAttribute('class',v);else e.removeAttribute('class')});
   return c.innerHTML;
 }
+/* One element per line where that is safe, text on the line of its tag. A
+   button is white-space:pre, so a label on its own indented line drew as three
+   rows; anything that holds only inline content stays on one line, and only
+   block containers without text of their own break into lines. */
+const BLOCKTAG=/^(DIV|SECTION|ARTICLE|NAV|OL|UL|DL|FIELDSET|DETAILS|DIALOG|FIGURE|FORM|TABLE|THEAD|TBODY|TR|HEADER|FOOTER|ASIDE|MENU)$/;
 function pretty(html){
-  const toks=html.replace(/>\s+</g,'><').split(/(<[^>]+>)/).filter(s=>s.trim());let d=0,o='';
-  const VOID=/^<(input|br|hr|img|meta|link)/i;
-  toks.forEach(tk=>{
-    if(/^<\//.test(tk)){d=Math.max(0,d-1);o+=rep('  ',d)+tk+'\n'}
-    else if(/^</.test(tk)){o+=rep('  ',d)+tk+'\n';if(!VOID.test(tk)&&!/\/>$/.test(tk))d++}
-    else o+=rep('  ',d)+tk.trim()+'\n';
-  });
-  return o;
+  const tpl=document.createElement('template');tpl.innerHTML=html;
+  const open=el=>{const s=el.cloneNode(false).outerHTML,end='</'+el.localName+'>';return s.endsWith(end)?s.slice(0,-end.length):s};
+  const hasText=el=>[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
+  const hasBlock=el=>[...el.querySelectorAll('*')].some(x=>BLOCKTAG.test(x.tagName));
+  let o='';
+  function out(n,d){
+    const pad=rep('  ',d);
+    if(n.nodeType===3){const t=n.textContent.trim();if(t)o+=pad+esc(t)+'\n';return}
+    if(n.nodeType!==1)return;
+    const breakIt=BLOCKTAG.test(n.tagName)&&n.children.length&&!hasText(n)&&(hasBlock(n)||n.outerHTML.length>100);
+    if(!breakIt){o+=pad+n.outerHTML+'\n';return}
+    o+=pad+open(n)+'\n';[...n.childNodes].forEach(k=>out(k,d+1));o+=pad+'</'+n.localName+'>\n';
+  }
+  [...tpl.content.childNodes].forEach(n=>out(n,0));
+  /* boolean attributes as they are written by hand: disabled, not disabled="" */
+  return o.replace(/ ([a-z][a-z-]*)=""/g,' $1');
 }
 function hl(code){
   let h=esc(code);
@@ -395,22 +412,30 @@ function docify(sec){
     '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>';
   sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2];demo.forEach(n=>p1.appendChild(n));
-  const tabs=[...wrap.querySelectorAll('[role="tab"]')];let built=false;
+  /* only the doc's own two tabs: the Tabs demo, now inside p1, has its own */
+  const tabs=[...wrap.firstChild.querySelectorAll('[role="tab"]')];let built=false;
+  /* The Code tab prints what works next to the two kit files: the html with
+     the kit's data attributes, then the css blocks it uses and the behavior
+     that runs it, both from the kit (js/40). Each part is its own span, so
+     Copy can select it when the clipboard is blocked. */
+  function build(){
+    const html=pretty(cleanHTML(p1,sec)),ex=A.codeExtra?A.codeExtra(sec,html):{css:'',js:''},pre=p2.querySelector('pre');
+    pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
+      (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
+      '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
+    const row=p2.querySelector('.copyrow'),mk=(label,txt,part)=>{
+      const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>';
+      b.addEventListener('click',()=>{if(A.copy)A.copy(txt,'the '+part,pre.querySelector('[data-part="'+part+'"]'))});row.appendChild(b);
+    };
+    mk('Copy html',html,'html');if(ex.css)mk('Copy css',ex.css,'css');
+  }
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
     const code=t===tabs[1];p1.hidden=code;p2.hidden=!code;
     /* The section keeps its column when Code opens. Widening it to the whole
        row reshuffled the gallery under your cursor; long lines scroll sideways
        inside the code box instead. */
-    if(code&&!built){
-      built=true;let src=pretty(cleanHTML(p1));const ex=A.codeExtra?A.codeExtra(sec,p1):null;
-      p2.querySelector('pre').innerHTML='<b class="h4">html</b>'+hl(src)+(ex?ex.html.replace(/<h4>/g,'<b class="h4">').replace(/<\/h4>/g,'</b>'):'');
-      if(ex)src='<!-- html -->\n'+src+'\n'+ex.text;
-      const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">Copy</span></span>';
-      b.addEventListener('click',()=>{const done=ok=>ok?A.say('Copied '+src.split('\n').length+' lines.'):A.say('Copy is blocked here. Select it and copy by hand.',true);
-        if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(src).then(()=>done(true),()=>done(false));else done(false)});
-      p2.querySelector('.copyrow').appendChild(b);
-    }
+    if(code&&!built){built=true;build()}
     if(code&&A.glitch()>0&&!reduce)B.tear(1);
     if(live())sfx.tab();if(focus)t.focus();
   }
@@ -439,7 +464,8 @@ function buildView(panel,label,skip,pin,group){
   const G=group?s=>{const g=group(id(s));s.dataset.group=g[1];return g[0]}:()=>0;
   secs.sort((a,b)=>G(a)-G(b)||rank(a)-rank(b)||name(a).localeCompare(name(b)));
   secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
-  secs.forEach(s=>{if(s.getAttribute('aria-labelledby')!=='s-tabs')docify(s)});
+  /* Tabs too: its demo is a tablist of its own, and docify only wires the doc's */
+  secs.forEach(docify);
   /* a grouped view says where each group starts, on the page as in the sidebar */
   if(group)secs.forEach((s,i)=>{
     if(i&&secs[i-1].dataset.group===s.dataset.group)return;
