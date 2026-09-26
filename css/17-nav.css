@@ -92,6 +92,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar{font-weight:700;line-height:var(--r)}
 #soundBar input{position:absolute;opacity:0;width:1px;height:1px;margin:0;pointer-events:none}
 #soundToggle:not(:checked) ~ .lbl,#glitchBar[aria-pressed="false"]{color:var(--muted)}
+#glitchBar[aria-pressed="false"]:focus-visible{color:var(--bg)}   /* the muted rule above outranks .bbtn:focus-visible and left muted on the focus slab */
 #soundBar:has(#soundToggle:focus-visible){background:var(--accent);color:var(--bg)}
 #soundBar:has(#soundToggle:focus-visible) .lbl{color:inherit}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}

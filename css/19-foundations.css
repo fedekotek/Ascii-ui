@@ -1,0 +1,23 @@
+/* ---------- foundations: the tokens, the grid, the ramp, the tones, the states ----------
+   Reference tables in the Components view (s-foundations). Static HTML: the
+   swatches carry the Signal and Paper values inline, so they show the values
+   whatever the current theme is. */
+.fnd{display:grid;gap:var(--r) 0;max-width:100ch}
+.fnd h3{font-weight:700;margin-top:var(--r)}
+.fnd h3:first-child{margin-top:0}
+.fnd h3::before{content:"## ";content:"## " / "";color:var(--muted)}
+.fnd > p.muted{max-width:72ch}
+/* its own table, not .tbl: .tbl rows are pickable and lose their 4th column under 480px */
+.ftbl{border-collapse:collapse;min-width:100%}
+.ftbl th,.ftbl td{text-align:left;vertical-align:top;padding:0 1ch}
+.ftbl thead th{background:var(--ink);color:var(--bg);text-transform:uppercase;font-weight:700;white-space:nowrap}
+.ftbl tbody th{font-weight:700;white-space:nowrap}
+.ftbl tbody td{white-space:nowrap}
+.ftbl tbody tr:nth-child(even){background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.ftbl .fsw,.ftbl .fch{font-weight:700;white-space:pre}
+/* the role and "for" columns wrap: they are sentences, the rest are values */
+.ftbl td:last-child:not(.fch),.ftok td:nth-child(2){white-space:normal;min-width:20ch}
+.ftok td:last-child{white-space:nowrap;min-width:0}
+.ftbl.fst tbody td{white-space:normal;min-width:6ch}
+.fw3{font-weight:300}.fw4{font-weight:400}.fw7{font-weight:700}
+.fnd .kv dd{max-width:60ch}

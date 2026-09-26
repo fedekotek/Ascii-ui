@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui</title>
 <meta name="aui-version" content="11.0">
-<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, sixteen blocks, five charts. Copy the code and own it. The kit is two files, no dependencies.">
+<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, twenty-eight of them in the kit, sixteen blocks, five charts. Copy the code and own it. The kit is two files, no dependencies.">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ecebe4" media="(prefers-color-scheme: light)">
@@ -47,6 +47,7 @@
 <link rel="stylesheet" href="css/16-grid.css">
 <link rel="stylesheet" href="css/17-nav.css">
 <link rel="stylesheet" href="css/18-search.css">
+<link rel="stylesheet" href="css/19-foundations.css">
 <script src="js/00-tones.js"></script>
 </head>
 <body>
@@ -92,7 +93,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
       <button class="btn frame tone-light" id="heroKit" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
     </div>
-    <p class="muted hero-facts">0 dependencies. 30 components. 2 kit files.</p>
+    <p class="muted hero-facts">0 dependencies. 30 components, 28 in the kit. 2 kit files.</p>
     <div class="row demo" id="heroSw" hidden>
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
@@ -106,7 +107,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
-      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 components -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts, 28 of them in the kit. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 components -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 blocks -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 charts -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">6 presets -&gt;</span></span></span></a>
@@ -132,7 +133,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Twenty-eight are in the kit, Command and Picture are site only. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
   <section aria-labelledby="s-rules" data-span="full">
     <h2 id="s-rules" class="vh">Rules</h2>
     <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
@@ -141,7 +142,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li>Weight is character density. @ is the loudest thing on the page and . is the quietest.</li>
       <li>Frames, rules, fills and shadows are strings of characters. Hierarchy comes from which character.</li>
       <li>Big type is a bitmap: every pixel of a headline is a block of characters.</li>
-      <li>Color is signal: magenta acts, cyan focuses, lime confirms, yellow warns.</li>
+      <li>Color is signal: magenta acts and marks the worst state, cyan focuses, lime confirms, yellow warns.</li>
       <li>Glitch is feedback. It fires when you touch something or when a state changes, and the slider turns it down to zero.</li>
       <li>Everything arrives broken and fixes itself: elements glitch in as they enter the screen, text decodes left to right.</li>
       <li>Sound is feedback too. Square-wave blips and crushed noise, never music.</li>
@@ -150,10 +151,95 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     </ul>
   </section>
 
+  <section aria-labelledby="s-foundations" data-span="full">
+    <h2 id="s-foundations" class="vh">Foundations</h2>
+    <pre class="poster ptitle" data-text="BASICS" aria-hidden="true"></pre>
+    <p class="muted">What every component is made of: ten colors, one grid, nine characters, eight tones and six states. Presets in Themes swap the colors. The rest stays put.</p>
+    <div class="fnd demo">
+      <h3>Color</h3>
+      <p class="muted">Custom properties on :root. Dark is Signal, light is Paper. The swatches show the values, not the current theme.</p>
+      <div class="tablewrap"><table class="ftbl ftok"><caption class="vh">Color tokens: name, role, dark value, light value.</caption>
+        <thead><tr><th scope="col">Token</th><th scope="col">Role</th><th scope="col">Dark</th><th scope="col">Light</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">--bg</th><td>Surface. The page.</td><td><span class="fsw" style="color:#0a0612" aria-hidden="true">@@</span> #0a0612</td><td><span class="fsw" style="color:#ecebe4" aria-hidden="true">@@</span> #ecebe4</td></tr>
+          <tr><th scope="row">--ink</th><td>Text, frames, the solid slab.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
+          <tr><th scope="row">--muted</th><td>Captions, secondary text, disabled.</td><td><span class="fsw" style="color:#a79db5" aria-hidden="true">@@</span> #a79db5</td><td><span class="fsw" style="color:#5c5b55" aria-hidden="true">@@</span> #5c5b55</td></tr>
+          <tr><th scope="row">--hot</th><td>Acts. Primary buttons, title bars, the worst state.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
+          <tr><th scope="row">--pink</th><td>Second emphasis, halftone tails.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#d02a78" aria-hidden="true">@@</span> #d02a78</td></tr>
+          <tr><th scope="row">--cy</th><td>Focus. Nothing else.</td><td><span class="fsw" style="color:#35e6f0" aria-hidden="true">@@</span> #35e6f0</td><td><span class="fsw" style="color:#0a7287" aria-hidden="true">@@</span> #0a7287</td></tr>
+          <tr><th scope="row">--ok</th><td>Confirms. Checked, on, done.</td><td><span class="fsw" style="color:#c8f02c" aria-hidden="true">@@</span> #c8f02c</td><td><span class="fsw" style="color:#3f6b00" aria-hidden="true">@@</span> #3f6b00</td></tr>
+          <tr><th scope="row">--warn</th><td>Warns. Errors, degraded.</td><td><span class="fsw" style="color:#ffd23f" aria-hidden="true">@@</span> #ffd23f</td><td><span class="fsw" style="color:#8a5a00" aria-hidden="true">@@</span> #8a5a00</td></tr>
+          <tr><th scope="row">--deep</th><td>Structure. Shadows, slab edges.</td><td><span class="fsw" style="color:#4a3dff" aria-hidden="true">@@</span> #4a3dff</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
+          <tr><th scope="row">--violet</th><td>Dividers, walls, tab rules, info.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#6a45d9" aria-hidden="true">@@</span> #6a45d9</td></tr>
+          <tr><th scope="row">--t0</th><td>Title, top band.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
+          <tr><th scope="row">--t1</th><td>Title, second band.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
+          <tr><th scope="row">--t2</th><td>Title, third band.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
+          <tr><th scope="row">--t3</th><td>Title, bottom band.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
+        </tbody></table></div>
+
+      <h3>Grid</h3>
+      <p class="muted">One cell is 1ch wide and one row tall. Every width is a number of cells and every height a number of rows.</p>
+      <dl class="kv">
+        <dt>Cell</dt><dd>1ch by 21px, the row. CSS reads it as var(--r), JS as A.ROW.</dd>
+        <dt>Type</dt><dd>Geist Mono, 14px on 21px, at every width. Charts are 12px on 14px.</dd>
+        <dt>Weights</dt><dd><span class="fw3">300 body text.</span> <span class="fw4">400 gray text, the bar, the sidebar.</span> <span class="fw7">700 frames, slabs, titles.</span></dd>
+        <dt>Targets</dt><dd>44px to tap: one row plus 12px above and below.</dd>
+      </dl>
+
+      <h3>Ramp</h3>
+      <p class="muted">Weight is density. The ramp runs from nothing to @, and the index is how loud a character is. The ramp editor in Themes swaps the characters, not the order.</p>
+      <div class="tablewrap"><table class="ftbl"><caption class="vh">The ramp, space to at sign, index 0 to 8, with what each step is for.</caption>
+        <thead><tr><th scope="col"><span class="vh">Character</span></th><th scope="col">Index</th><th scope="col">For</th></tr></thead>
+        <tbody>
+          <tr><td class="fch" aria-hidden="true">&nbsp;</td><th scope="row">0 <span class="vh">space</span></th><td>Nothing. Air.</td></tr>
+          <tr><td class="fch" aria-hidden="true">.</td><th scope="row">1 <span class="vh">dot</span></th><td>The quietest mark. Tracks, dots, empty cells.</td></tr>
+          <tr><td class="fch" aria-hidden="true">:</td><th scope="row">2 <span class="vh">colon</span></th><td>Shadows, wires, the sides of a light rim.</td></tr>
+          <tr><td class="fch" aria-hidden="true">=</td><th scope="row">3 <span class="vh">equals</span></th><td>The light rim. Buttons and fields at rest.</td></tr>
+          <tr><td class="fch" aria-hidden="true">+</td><th scope="row">4 <span class="vh">plus</span></th><td>Fills on the way up.</td></tr>
+          <tr><td class="fch" aria-hidden="true">*</td><th scope="row">5 <span class="vh">star</span></th><td>Fills, chart marks.</td></tr>
+          <tr><td class="fch" aria-hidden="true">#</td><th scope="row">6 <span class="vh">hash</span></th><td>Walls. Cards.</td></tr>
+          <tr><td class="fch" aria-hidden="true">%</td><th scope="row">7 <span class="vh">percent</span></th><td>Dense. A primary button under the pointer.</td></tr>
+          <tr><td class="fch" aria-hidden="true">@</td><th scope="row">8 <span class="vh">at</span></th><td>The loudest. Primary, focus, nodes.</td></tr>
+        </tbody></table></div>
+
+      <h3>Tones</h3>
+      <p class="muted">A frame is one character repeated. The tone class names which one.</p>
+      <div class="tablewrap"><table class="ftbl"><caption class="vh">Frame tones: class name, character, what it is for.</caption>
+        <thead><tr><th scope="col">tone-</th><th scope="col"><span class="vh">Character</span></th><th scope="col">For</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">heavy</th><td class="fch" aria-hidden="true">@@@@@@@@</td><td><span class="vh">at. </span>Primary buttons, focus.</td></tr>
+          <tr><th scope="row">dense</th><td class="fch" aria-hidden="true">%%%%%%%%</td><td><span class="vh">percent. </span>A primary button under the pointer.</td></tr>
+          <tr><th scope="row">mid</th><td class="fch" aria-hidden="true">########</td><td><span class="vh">hash. </span>Cards, and any button under the pointer.</td></tr>
+          <tr><th scope="row">light</th><td class="fch" aria-hidden="true">========</td><td><span class="vh">equals. </span>Buttons and fields at rest.</td></tr>
+          <tr><th scope="row">shade</th><td class="fch" aria-hidden="true">::::::::</td><td><span class="vh">colon. </span>Shadows under cards.</td></tr>
+          <tr><th scope="row">faint</th><td class="fch" aria-hidden="true">- - - - </td><td><span class="vh">-. </span>Empty states, disabled.</td></tr>
+          <tr><th scope="row">danger</th><td class="fch" aria-hidden="true">////////</td><td><span class="vh">/. </span>Destructive actions.</td></tr>
+          <tr><th scope="row">error</th><td class="fch" aria-hidden="true">!!!!!!!!</td><td><span class="vh">!. </span>A field that is wrong.</td></tr>
+        </tbody></table></div>
+
+      <h3>States</h3>
+      <p class="muted">What each form component draws in each state. A dash means it has no such state. Blue is only ever focus.</p>
+      <div class="tablewrap"><table class="ftbl fst"><caption class="vh">States per form component: default, hover, focus, active, disabled, error.</caption>
+        <thead><tr><th scope="col">Component</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Active</th><th scope="col">Disabled</th><th scope="col">Error</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Button</th><td>rim by tone</td><td>denser rim</td><td>@ rim, blue</td><td>ink slab</td><td>faint, gray</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td></tr>
+          <tr><th scope="row">Input</th><td>= rim</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>@ rim, blue</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>faint, gray</td><td>! rim, yellow</td></tr>
+          <tr><th scope="row">Select</th><td>= rim</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>@ rim, blue</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>faint, gray</td><td>! rim, yellow</td></tr>
+          <tr><th scope="row">Textarea</th><td>= rim</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>@ rim, blue</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>faint, gray</td><td>! rim, yellow</td></tr>
+          <tr><th scope="row">Toggles</th><td>[ ], on is lime @</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>blue slab</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>gray</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td></tr>
+          <tr><th scope="row">Toggle group</th><td>on is an ink slab</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>blue slab</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>gray, struck</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td></tr>
+          <tr><th scope="row">Slider</th><td>halftone bar</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>blue label</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td></tr>
+          <tr><th scope="row">Input OTP</th><td>[_]</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>blue cell</td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td class="muted"><span aria-hidden="true">-</span><span class="vh">none</span></td><td>yellow [ ]</td></tr>
+        </tbody></table></div>
+    </div>
+  </section>
+
+
+
   <section aria-labelledby="s-button">
     <h2 id="s-button" class="vh">Button</h2>
     <pre class="poster ptitle" data-text="BUTTON" aria-hidden="true"></pre>
-    <p class="muted">The rim says how loud it is: @ for primary, = for the rest, / for danger. The last one is disabled: a faint rim and a grey label.</p>
+    <p class="muted">The rim says how loud it is: @ for primary, = for the rest, / for danger. The last one is disabled: a faint rim and a gray label.</p>
     <div class="row demo">
       <button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish site</span></span></button>
       <button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Preview</span></span></button>
@@ -185,7 +271,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <p class="muted">Checkbox, radio and switch. Native inputs, the glyph is only the paint.</p>
     <div class="demo stack">
       <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Show on home page</label>
-      <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label>
+      <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include archived projects</label>
       <label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label>
     </div>
     <fieldset class="demo">
@@ -259,8 +345,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         <h3 id="cardTitle" class="bar-title">Reporting redesign</h3>
         <div class="body">
           <dl>
-            <dt>Company</dt><dd>MaintainX</dd>
-            <dt>Role</dt><dd>Sr. Product Designer</dd>
+            <dt>Team</dt><dd>Analytics</dd>
+            <dt>Owner</dt><dd>Ana Ruiz</dd>
             <dt>Status</dt><dd id="cardStatus">draft</dd>
           </dl>
           <div class="row"><button class="btn btn-primary frame tone-heavy" id="publishBtn" type="button"><span class="mid"><span class="label">Publish</span></span></button></div>
@@ -277,7 +363,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <div class="progress" id="bar" role="progressbar" aria-label="Export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
     </div>
     <div class="row demo">
-      <button class="btn frame tone-light" id="exportBtn" type="button"><span class="mid"><span class="label">Export case study</span></span></button>
+      <button class="btn frame tone-light" id="exportBtn" type="button"><span class="mid"><span class="label">Export report</span></span></button>
       <span class="muted" id="exportStatus" role="status"></span>
     </div>
   </section>
@@ -287,7 +373,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <pre class="poster ptitle" data-text="DETAILS" aria-hidden="true"></pre>
     <p class="muted">A native details element. The marker flips between [+] and [-] and the answer decodes as it opens.</p>
     <div class="demo">
-      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty components in two files, one css and one js. No build step. Link them once, then copy any component.</p></details>
+      <details class="acc"><summary>What ships in the kit?</summary><p>Twenty-eight components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p></details>
       <details class="acc"><summary>Can I change the characters?</summary><p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p></details>
     </div>
   </section>
@@ -332,7 +418,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-avatar" class="vh">Avatar</h2>
     <pre class="poster ptitle" data-text="AVATAR" aria-hidden="true"></pre>
     <p class="muted">Initials on a slab, or a picture pushed through the LCD.</p>
-    <div class="row demo"><span class="avatar" role="img" aria-label="Fede Kotek"><canvas class="lcd " data-scene="portrait" data-cols="16" data-rows="14" data-mode="rgb" role="img" aria-label=""></canvas></span><span class="avatar" role="img" aria-label="Fede Kotek">FK</span><span class="avatar hot sm" role="img" aria-label="MaintainX">MX</span><span class="avatar ok sm" role="img" aria-label="Autodesk">AD</span></div>
+    <div class="row demo"><span class="avatar" role="img" aria-label="Ana Ruiz"><canvas class="lcd " data-scene="portrait" data-cols="16" data-rows="14" data-mode="rgb" role="img" aria-label=""></canvas></span><span class="avatar" role="img" aria-label="Ana Ruiz">AR</span><span class="avatar hot sm" role="img" aria-label="Operations team">OP</span><span class="avatar ok sm" role="img" aria-label="Design team">DS</span></div>
   </section>
 
   <section aria-labelledby="s-breadcrumb">
@@ -353,7 +439,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-command">
     <h2 id="s-command" class="vh">Command</h2>
     <pre class="poster ptitle" data-text="COMMAND" aria-hidden="true"></pre>
-    <p class="muted">The command menu. On this site it is Search: press / and type.</p>
+    <p class="muted">The command menu. On this site it is Search: press / and type. Site only, not in the kit.</p>
     <div class="row demo"><button class="btn frame tone-light" id="cmdOpen2" type="button"><span class="mid"><span class="label">Open search</span></span></button><span class="muted">or press <kbd>/</kbd></span></div>
   </section>
 
@@ -390,7 +476,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-kbd">
     <h2 id="s-kbd" class="vh">Kbd</h2>
     <pre class="poster ptitle" data-text="KBD" aria-hidden="true"></pre>
-    <p class="muted">Keys in brackets. These ones are real.</p>
+    <p class="muted">Shortcuts, as keys in brackets. These ones work on this page.</p>
     <div class="demo kbds"><span><kbd>/</kbd> search</span><span><kbd>g</kbd> glitch</span><span><kbd>&lt;</kbd> <kbd>&gt;</kbd> move</span><span><kbd>space</kbd> fire</span></div>
   </section>
 
@@ -405,7 +491,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-picture">
     <h2 id="s-picture" class="vh">Picture</h2>
     <pre class="poster ptitle" data-text="PICTURE" aria-hidden="true"></pre>
-    <p class="muted">An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector.</p>
+    <p class="muted">An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector. Site only, not in the kit.</p>
     <figure class="pic demo"><div class="bezel"><canvas class="lcd " data-scene="ba" data-cols="64" data-rows="48" data-mode="rgb" role="img" aria-label="Buenos Aires at dusk with the Obelisco, rendered as an LCD panel"></canvas></div><figcaption id="picCap"><b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.</figcaption></figure>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Panel mode"><label><input type="radio" name="picMode" value="rgb" checked><span>RGB</span></label><label><input type="radio" name="picMode" value="mono"><span>Mono</span></label><label><input type="radio" name="picMode" value="ascii"><span>ASCII</span></label></div></div>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="Picture"><label><input type="radio" name="picScene" value="ba" checked><span>Dusk</span></label><label><input type="radio" name="picScene" value="desk"><span>Desk</span></label><label><input type="radio" name="picScene" value="mate"><span>Mate</span></label><label><input type="radio" name="picScene" value="test"><span>Test</span></label></div></div>
@@ -415,7 +501,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-separator">
     <h2 id="s-separator" class="vh">Separator</h2>
     <pre class="poster ptitle" data-text="DIVIDER" aria-hidden="true"></pre>
-    <p class="muted">Four weights of nothing.</p>
+    <p class="muted">Splits content without a box. Four weights of nothing, and a rule with a word in it.</p>
     <div class="demo"><div class="sepd heavy" role="separator"></div><div class="sepd" role="separator"></div><div class="sepd shade" role="separator"></div><div class="sepd faint" role="separator"></div><div class="sepl" role="separator">or</div></div>
   </section>
 
@@ -467,7 +553,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-tooltip">
     <h2 id="s-tooltip" class="vh">Tooltip</h2>
     <pre class="poster ptitle" data-text="TOOLTIP" aria-hidden="true"></pre>
-    <p class="muted">Hover, focus or tap. It types itself in.</p>
+    <p class="muted">A short hint for a control, on hover, focus or tap. It types itself in.</p>
     <div class="demo pop" id="tt"><button class="btn frame tone-light" id="ttBtn" type="button" aria-describedby="ttTip"><span class="mid"><span class="label">Ship it</span></span></button><span class="tip" id="ttTip" role="tooltip">Deploys to production on a Friday</span></div>
   </section>
 
@@ -475,7 +561,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
 
   <div id="view-blocks" role="tabpanel" aria-labelledby="v-blocks" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="BLOCKS" aria-hidden="true"></pre><p class="lede">Components put together into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. Six are a portfolio, as examples. It belongs to Fede, who made this.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="BLOCKS" aria-hidden="true"></pre><p class="lede">Components put together into the pieces every product ends up needing. The content is from Static, a made-up uptime monitor that screams when things break. The six under Personal are an example portfolio. It is Fede's, who made this. Swap in your own work.</p></div>
   <section aria-label="Filter blocks"><div class="filters" id="blockFilters" role="group" aria-label="Filter by category"><button class="chip" type="button" data-f="all" aria-pressed="true">All</button><button class="chip" type="button" data-f="auth" aria-pressed="false">Auth</button><button class="chip" type="button" data-f="dashboard" aria-pressed="false">Dashboard</button><button class="chip" type="button" data-f="app" aria-pressed="false">App</button><button class="chip" type="button" data-f="marketing" aria-pressed="false">Marketing</button><button class="chip" type="button" data-f="personal" aria-pressed="false">Personal</button></div></section>
 
 
@@ -602,7 +688,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <p class="muted">A character sheet on the halftone bar. Reroll it.</p>
     <div class="demo lift"><div class="card frame tone-heavy" id="build"><h3 class="bar-title">Abyss farmer, level 92</h3><div class="body">
       <pre class="statbars" id="buildBars" aria-hidden="true"></pre><p class="vh" id="buildText"></p>
-      <div class="tags"><span class="badge b-hot">Fire 75</span><span class="badge b-ok">Cold 75</span><span class="badge b-warn">Light 76</span><span class="badge b-out">Chaos 31</span></div>
+      <div class="tags"><span class="badge b-hot">Fire 75</span><span class="badge b-ok">Cold 75</span><span class="badge b-warn">Lightning 76</span><span class="badge b-out">Chaos 31</span></div>
       <div class="row"><button class="btn frame tone-light" id="buildRoll" type="button"><span class="mid"><span class="label">Reroll</span></span></button></div>
     </div></div></div>
   </section>

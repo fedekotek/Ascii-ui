@@ -3,12 +3,17 @@
    four different colours in every one, and text clears 4.5:1 on the surface.
    Focus is a pale blue in each, as it is in the kit. Amber's action slab is
    cream and Blueprint's is pink, so neither reads as the ink slab. */
-:root[data-preset="amber"]{--bg:#0d0700;--ink:#ffb000;--muted:#b98200;--hot:#ffe7a8;--pink:#ffc040;--cy:#8fd8ff;--ok:#c8e85a;--warn:#ff6a00;--deep:#7a4a00;--violet:#c88a00;--t0:#ffd060;--t1:#ffb000;--t2:#d98f00;--t3:#8a5a00;--scan:rgba(0,0,0,.32);color-scheme:dark}
-:root[data-preset="gameboy"]{--bg:#0f380f;--ink:#9bbc0f;--muted:#7da51a;--hot:#c4e04a;--pink:#9bbc0f;--cy:#b8e8ff;--ok:#7ff0b0;--warn:#ffa94d;--deep:#306230;--violet:#7fb85a;--t0:#e0f8a0;--t1:#c4e04a;--t2:#9bbc0f;--t3:#4f8a2f;--scan:rgba(0,0,0,.25);color-scheme:dark}
+:root[data-preset="amber"]{--bg:#0d0700;--ink:#ffb000;--muted:#b98200;--hot:#ffe7a8;--pink:#ffc040;--cy:#8fd8ff;--ok:#c8e85a;--warn:#ff6a00;--deep:#a06400;--violet:#c88a00;--t0:#ffd060;--t1:#ffb000;--t2:#d98f00;--t3:#8a5a00;--scan:rgba(0,0,0,.32);color-scheme:dark}
+:root[data-preset="gameboy"]{--bg:#0f380f;--ink:#9bbc0f;--muted:#7da51a;--hot:#c4e04a;--pink:#9bbc0f;--cy:#b8e8ff;--ok:#7ff0b0;--warn:#ffa94d;--deep:#6a9a35;--violet:#7fb85a;--t0:#e0f8a0;--t1:#c4e04a;--t2:#9bbc0f;--t3:#4f8a2f;--scan:rgba(0,0,0,.25);color-scheme:dark}
 :root[data-preset="blueprint"]{--bg:#0b2a6b;--ink:#eaf2ff;--muted:#a9c0ee;--hot:#ff9ec4;--pink:#cfe0ff;--cy:#7fe0ff;--ok:#b8ffda;--warn:#ffd86b;--deep:#5f8ae0;--violet:#8fb0ff;--t0:#ffffff;--t1:#cfe0ff;--t2:#8fb0ff;--t3:#5f8ae0;--scan:rgba(0,10,40,.3);color-scheme:dark}
 /* Hot dog: black on the stand's red was 3.35:1, so the red is darker, action
-   is white and black is only the shadow. */
-:root[data-preset="hotdog"]{--bg:#a80000;--ink:#ffee00;--muted:#ffd0a0;--hot:#ffffff;--pink:#ffee00;--cy:#00e5ff;--ok:#b6ff5c;--warn:#ffb84d;--deep:#000000;--violet:#ffb3d1;--t0:#ffee00;--t1:#ffffff;--t2:#000000;--t3:#000000;--scan:rgba(0,0,0,.18);color-scheme:dark}
+   is white and black is only the shadow. The title's bottom bands were black
+   too (2.66:1), now peach and pink (5.55 and 4.74). */
+:root[data-preset="hotdog"]{--bg:#a80000;--ink:#ffee00;--muted:#ffd0a0;--hot:#ffffff;--pink:#ffee00;--cy:#00e5ff;--ok:#b6ff5c;--warn:#ffb84d;--deep:#000000;--violet:#ffb3d1;--t0:#ffee00;--t1:#ffffff;--t2:#ffd0a0;--t3:#ffb3d1;--scan:rgba(0,0,0,.18);color-scheme:dark}
+/* Hot dog keeps black as the shadow, but black marks on the red are 2.66:1, so
+   inside a chart the deepest step is the pink (--violet). The chart spans read
+   var(--deep) inline, so redefining it on .chart is enough. */
+:root[data-preset="hotdog"] .chart{--deep:var(--violet)}
 .swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(23ch,1fr));max-width:76ch}   /* 23ch: a 6ch chip, a gap and "errors, degraded" on one line */
 .sw{display:flex;gap:1ch;align-items:center}
 .sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}

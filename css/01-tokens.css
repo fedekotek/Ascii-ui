@@ -4,8 +4,9 @@
   /* light: cyan is focus and magenta is action, so both clear 4.5:1 on paper.
      They were 3.9 and 4.2. Dark already passes. Warning is a dark amber, not
      red, so Degraded still reads milder than Down (magenta), as it does in
-     dark. 4.96:1 on paper. */
-  --hot:#c91468; --pink:#e8478f; --cy:#0a7287; --ok:#3f6b00; --warn:#8a5a00;
+     dark. 4.96:1 on paper. Pink was #e8478f, 3.07:1 on paper; #d02a78 is 4.1,
+     enough for marks and halftone, and it is never body text. */
+  --hot:#c91468; --pink:#d02a78; --cy:#0a7287; --ok:#3f6b00; --warn:#8a5a00;
   --deep:#2b2bd1; --violet:#6a45d9;
   --t0:#111110; --t1:#111110; --t2:#c91468; --t3:#2b2bd1;
   --tbar:var(--hot);   /* the ink colour bar behind titles: black on paper reads as a censor bar */
@@ -14,7 +15,7 @@
      dialogs lay it over themselves because the top layer is out of reach */
   --scanlines:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
   --accent:var(--cy); --danger:var(--warn);
-  --on-pink:var(--ink);   /* text on a pink slab: ink on paper, the surface in dark */
+  --on-pink:#ffffff;   /* text on a pink slab: white on paper (4.9:1; ink on the darker pink was 3.85), the surface in dark */
   --lcd-bg:#05030a;       /* the LCD pictures' glass. Dark in every theme, a screen is off-black */
   --r:21px;   /* one row. 14px type on a 21px line, 1.5 like it always was. JS reads this as A.ROW */
   --ptitle:6;   /* poster titles: the biggest px a bitmap pixel may get */
