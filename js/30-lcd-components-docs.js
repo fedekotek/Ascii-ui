@@ -370,8 +370,20 @@ $('lostHome').addEventListener('click',()=>{const t=$('v-kit');window.scrollTo(0
 if(!reduce)every(260,()=>{const p=$('lostTitle');if(p&&inView(p)&&!p._iv&&A.glitch()>0&&p._b)A.titleFrame(p,6+rnd(6))});
 
 /* ================= shadcn-style docs: index, preview and code tabs, filters ================= */
+/* a button the engine has touched keeps its real label in data-text and got
+   an aria-label to match while the label scrambles: the label goes back to
+   the words and the extra aria-label goes (js/40 runs this on its dialogs) */
+function cleanLabels(c){
+  c.querySelectorAll('.btn[data-text]').forEach(b=>{
+    const t=b.getAttribute('data-text'),l=b.querySelector('.label');
+    if(l&&l.textContent!==t)l.textContent=t;   /* caught mid-scramble; a clean label keeps its markup */
+    if(b.getAttribute('aria-label')===t)b.removeAttribute('aria-label');
+  });
+  return c;
+}
+A.cleanLabels=cleanLabels;
 function cleanHTML(node,sec){
-  const c=node.cloneNode(true);
+  const c=cleanLabels(node.cloneNode(true));
   c.querySelectorAll('[data-rv]').forEach(e=>e.removeAttribute('data-rv'));
   c.querySelectorAll('[style]').forEach(e=>e.removeAttribute('style'));
   c.querySelectorAll('.in,.done').forEach(e=>e.classList.remove('in','done'));
@@ -422,23 +434,30 @@ function docify(sec){
     '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button></div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>';
+  /* the demo as the html has it, before any glitch, scramble or click: the
+     Code tab is built from this copy, never from the live preview, so a
+     label caught mid-scramble or a slider you moved does not get printed */
+  const snap=document.createElement('div');demo.forEach(n=>snap.appendChild(n.cloneNode(true)));
   sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2];demo.forEach(n=>p1.appendChild(n));
   /* only the doc's own two tabs: the Tabs demo, now inside p1, has its own */
-  const tabs=[...wrap.firstChild.querySelectorAll('[role="tab"]')];let built=false;
+  const tabs=[...wrap.firstChild.querySelectorAll('[role="tab"]')];let last=null;
   /* The Code tab prints what works next to the two kit files: the html with
      the kit's data attributes, then the css blocks it uses and the behavior
      that runs it, both from the kit (js/40). Each part is its own span, so
      Copy can select it when the clipboard is blocked. */
   function build(){
-    const html=pretty(cleanHTML(p1,sec)),ex=A.codeExtra?A.codeExtra(sec,html):{css:'',js:''},pre=p2.querySelector('pre');
+    const html=pretty(cleanHTML(snap,sec)),ex=A.codeExtra?A.codeExtra(sec,html):{css:'',js:''},pre=p2.querySelector('pre');
+    /* built every time Code opens, from the snapshot; the same text is not redrawn */
+    const key=html+'\u0000'+ex.css+'\u0000'+ex.js;if(key===last)return;last=key;
+    p2.querySelector('.copyrow').textContent='';
     pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
       (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
       '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
     const row=p2.querySelector('.copyrow'),mk=(label,txt,part)=>{
       const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>';
-      b.addEventListener('click',()=>{if(A.copy)A.copy(txt,'the '+part,pre.querySelector('[data-part="'+part+'"]'))});row.appendChild(b);
+      b.addEventListener('click',()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});row.appendChild(b);
     };
-    mk('Copy html',html,'html');if(ex.css)mk('Copy css',ex.css,'css');
+    mk('Copy HTML',html,'html');if(ex.css)mk('Copy CSS',ex.css,'css');
   }
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
@@ -446,7 +465,7 @@ function docify(sec){
     /* The section keeps its column when Code opens. Widening it to the whole
        row reshuffled the gallery under your cursor; long lines scroll sideways
        inside the code box instead. */
-    if(code&&!built){built=true;build()}
+    if(code)build();
     if(code&&A.glitch()>0&&!reduce)B.tear(1);
     if(live())sfx.tab();if(focus)t.focus();
   }
