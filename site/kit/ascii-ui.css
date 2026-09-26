@@ -376,6 +376,9 @@ dialog.sheet .sheet-x{right:max(2ch,calc(50% - 40ch))}
 .ibtn:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn:disabled{color:var(--muted);cursor:not-allowed}
 .ibtn[aria-current="page"]{background:var(--ink);color:var(--bg);background-clip:content-box}
+/* focus beats the current page: the slab turns blue, brackets and all */
+.ibtn[aria-current="page"]:focus-visible{background:var(--accent);color:var(--bg)}
+.ibtn:focus-visible::before,.ibtn:focus-visible::after{color:inherit}
 
 /* ==== calendar: .cal ==== */
 /* data-aui="calendar" fills it with a month of buttons. Today is magenta, the pick is a slab. */
@@ -470,7 +473,7 @@ kbd::after{content:"]"}
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:12px 2ch;color:var(--muted);text-transform:uppercase}
 .tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
-.tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
+.tgroup input:focus-visible + span,.tgroup input:checked:focus-visible + span{background:var(--accent);color:var(--bg)}
 
 /* ==== timeline: .timeline ==== */
 /* Nodes are @, the wire is colons. .past nodes are #. */

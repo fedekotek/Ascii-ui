@@ -10,9 +10,12 @@ Checks:
 2. kit/starter.html from file://: no errors, and every behavior works
    (tabs, dialog, sheet, dropdown by keyboard, tooltip Escape, toast, slider,
    progress, OTP, calendar, pagination, validation, counter, spinner, skeleton)
-3. index.html: the Code tab html of every component, pasted into a blank page
-   with only the two kit files: no errors, it has size, button labels sit on one
-   row, and the behaviors it names come alive
+3. index.html: the Code tab html of every component, pasted TWICE into a blank
+   page with only the two kit files: no ids and no demo class in the html, no
+   errors, no duplicate ids, every label has its control, it has size, button
+   labels sit on one row, the behaviors it names come alive in both copies, and
+   the second copy works without touching the first (tabs, dialogs, progress,
+   status lines, counters, errors, menus, tooltips)
 The Google Fonts request fails in some sandboxes (proxy certificates); that one
 is reported as a note, not a failure.
 """
@@ -61,6 +64,7 @@ def watch(pg,errs,notes):
         else: errs.append('request failed: '+r.url)
     pg.on('requestfailed',rf)
 
+DUPES="(()=>{const s=new Set(),d=[];document.querySelectorAll('[id]').forEach(e=>{if(s.has(e.id))d.push(e.id);s.add(e.id)});return d})()"
 # every button label is one row: a .btn is three rows tall (frame, label, frame)
 ONE_ROW="""()=>[...document.querySelectorAll('.btn')].filter(b=>b.offsetParent&&!b.closest('dialog:not([open]),[role=menu][hidden]')).map(b=>[b.textContent.trim(),Math.round(b.getBoundingClientRect().height/parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r')))]).filter(x=>x[1]!==3)"""
 
@@ -78,88 +82,107 @@ async def starter(b):
     # frames are drawn: the tone strings resolve
     h=await ev("getComputedStyle(document.querySelector('.btn'),'::before').content")
     ok('frames draw',h and '@' in h,h[:30] if h else h)
+    # the page itself: a top bar with the theme, groups with anchors, the README one link away
+    ok('top bar holds the theme',await ev("!!document.querySelector('header.top [role=radiogroup][aria-label=Theme]')"))
+    ok('five groups with anchors',await ev("['form','overlay','display','feedback','navigation'].every(g=>document.querySelector('.toc a[href=\"#'+g+'\"]')&&document.getElementById(g))"))
+    ok('README linked',await ev("!!document.querySelector('main a[href=\"README.md\"]')"))
+    ok('links back to the site',await ev("!!document.querySelector('a[href=\"https://asciiui.vercel.app/#components\"]')"))
+    ok('README is next to it',os.path.exists(os.path.join(KIT,'README.md')))
     # tabs
-    await pg.focus('#t-one'); await pg.keyboard.press('ArrowRight')
-    ok('tabs: arrow moves',await ev("document.getElementById('t-two').getAttribute('aria-selected')==='true'&&!document.getElementById('p-two').hidden&&document.getElementById('p-one').hidden"))
-    await pg.click('#t-three')
-    ok('tabs: click picks',await ev("!document.getElementById('p-three').hidden"))
+    tab=lambda n:'#tabs [role=tab]:nth-child(%d)'%n
+    panel="document.querySelectorAll('#tabs [role=tabpanel]')"
+    await pg.focus(tab(1)); await pg.keyboard.press('ArrowRight')
+    ok('tabs: arrow moves',await ev("document.querySelector('%s').getAttribute('aria-selected')==='true'&&!%s[1].hidden&&%s[0].hidden"%(tab(2),panel,panel)))
+    await pg.click(tab(3))
+    ok('tabs: click picks',await ev("!%s[2].hidden"%panel))
+    ok('tabs: aria-controls made',await ev("[...document.querySelectorAll('#tabs [role=tab]')].every((t,i)=>t.getAttribute('aria-controls')===%s[i].id)"%panel))
     # dialog
-    await pg.click('#publishBtn')
-    ok('dialog opens',await ev("document.getElementById('publishDialog').open"))
+    await pg.click('#card [data-aui-open]')
+    ok('dialog opens',await ev("document.querySelector('#card dialog').open"))
+    ok('dialog: named by its title',await ev("(()=>{const d=document.querySelector('#card dialog');return document.getElementById(d.getAttribute('aria-labelledby')).textContent.includes('Publish')})()"))
     await pg.keyboard.press('Escape')
-    ok('dialog: Escape closes',not await ev("document.getElementById('publishDialog').open"))
-    await pg.click('#publishBtn'); await pg.click('#dlgConfirm'); await pg.wait_for_timeout(120)
-    ok('dialog: confirm closes and toasts',await ev("!document.getElementById('publishDialog').open&&document.querySelector('.toast.on span').textContent.includes('Published')"))
-    ok('dialog: focus goes back',await ev("document.activeElement&&document.activeElement.id==='publishBtn'"))
+    ok('dialog: Escape closes',not await ev("document.querySelector('#card dialog').open"))
+    await pg.click('#card [data-aui-open]'); await pg.click('#card dialog .btn-primary'); await pg.wait_for_timeout(120)
+    ok('dialog: confirm closes and toasts',await ev("!document.querySelector('#card dialog').open&&document.querySelector('.toast.on span').textContent.includes('Published')"))
+    ok('dialog: focus goes back',await ev("document.activeElement===document.querySelector('#card [data-aui-open]')"))
     # sheet, closes from the page above it
-    await pg.click('#sheetBtn')
-    ok('sheet opens',await ev("document.getElementById('sheetDlg').open"))
+    await pg.click('#sheet [data-aui-open]')
+    ok('sheet opens',await ev("document.querySelector('#sheet dialog').open"))
     await pg.mouse.click(195,20); await pg.wait_for_timeout(100)
-    ok('sheet: page above closes it',not await ev("document.getElementById('sheetDlg').open"))
+    ok('sheet: page above closes it',not await ev("document.querySelector('#sheet dialog').open"))
     # dropdown by keyboard
-    await pg.focus('#ddBtn'); await pg.keyboard.press('ArrowDown')
-    ok('dropdown: ArrowDown opens',await ev("!document.getElementById('ddMenu').hidden&&document.activeElement.getAttribute('role')==='menuitem'"))
+    menu="document.querySelector('#dropdown [role=menu]')"
+    await pg.focus('#dropdown [aria-haspopup]'); await pg.keyboard.press('ArrowDown')
+    ok('dropdown: ArrowDown opens',await ev("!%s.hidden&&document.activeElement.getAttribute('role')==='menuitem'"%menu))
     await pg.keyboard.press('ArrowDown')
     ok('dropdown: arrows move',await ev("document.activeElement.textContent.startsWith('Copy link')"))
     await pg.keyboard.press('Escape')
-    ok('dropdown: Escape closes, focus back',await ev("document.getElementById('ddMenu').hidden&&document.activeElement.id==='ddBtn'"))
+    ok('dropdown: Escape closes, focus back',await ev("%s.hidden&&document.activeElement.matches('#dropdown [aria-haspopup]')"%menu))
     await pg.keyboard.press('Enter')
-    ok('dropdown: Enter opens',await ev("!document.getElementById('ddMenu').hidden"))
+    ok('dropdown: Enter opens',await ev("!%s.hidden"%menu))
     await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
-    ok('dropdown: Enter picks and closes',await ev("document.getElementById('ddMenu').hidden&&document.querySelector('.toast.on span').textContent.includes('Duplicated')"))
+    ok('dropdown: Enter picks and closes',await ev("%s.hidden&&document.querySelector('.toast.on span').textContent.includes('Duplicated')"%menu))
     # tooltip: tap shows, Escape hides
-    await pg.click('#tt button')
-    ok('tooltip: tap shows',await ev("document.getElementById('tt').classList.contains('on')"))
+    tt="document.querySelector('#tooltip .pop')"
+    await pg.click('#tooltip button')
+    ok('tooltip: tap shows',await ev("%s.classList.contains('on')"%tt))
     await pg.keyboard.press('Escape')
-    ok('tooltip: Escape hides',await ev("document.getElementById('tt').classList.contains('off')"))
+    ok('tooltip: Escape hides',await ev("%s.classList.contains('off')"%tt))
     # toast
-    await pg.click('#toastErr'); await pg.wait_for_timeout(100)
+    await pg.click('#toast .btn-danger'); await pg.wait_for_timeout(100)
     ok('toast: error is yellow',await ev("document.querySelector('.toast').classList.contains('err')&&document.querySelector('.toast.on span').textContent.includes('broke')"))
     # slider
     b0=await ev("document.querySelector('.slider .bar').textContent")
     ok('slider: bar drawn',len(b0)==24,b0)
-    await pg.focus('#vol'); await pg.keyboard.press('End')
+    ok('slider: label linked',await ev("document.querySelector('#slider label').control===document.querySelector('#slider input')"))
+    await pg.focus('#slider input'); await pg.keyboard.press('End')
     ok('slider: updates',await ev("document.querySelector('.slider output').textContent==='100'&&document.querySelector('.slider .bar').textContent==='@'.repeat(24)"))
     # progress
-    await pg.click('#exportBtn'); await pg.wait_for_timeout(700)
-    mid=await ev("+document.getElementById('bar').getAttribute('aria-valuenow')")
+    pb="document.querySelector('#progress [role=progressbar]')"
+    await pg.click('#progress [data-aui-fill]'); await pg.wait_for_timeout(700)
+    mid=await ev("+%s.getAttribute('aria-valuenow')"%pb)
     ok('progress: moves',0<mid<=100,mid)
     await pg.wait_for_timeout(4200)
-    ok('progress: finishes',await ev("document.getElementById('bar').getAttribute('aria-valuenow')==='100'&&document.getElementById('exportStatus').textContent.includes('Exported')&&document.querySelector('#bar .pct').textContent.trim()==='100%'"))
+    ok('progress: finishes',await ev("%s.getAttribute('aria-valuenow')==='100'&&document.querySelector('#progress [role=status]').textContent.includes('Exported')&&%s.querySelector('.pct').textContent.trim()==='100%%'"%(pb,pb)))
     # otp
     await pg.click('#otp input'); await pg.keyboard.type('12')
     ok('otp: advances',await ev("document.activeElement===document.querySelectorAll('#otp input')[2]"))
     await pg.keyboard.press('Backspace')
     ok('otp: Backspace goes back',await ev("document.activeElement===document.querySelectorAll('#otp input')[1]"))
     await pg.keyboard.type('23456')
-    ok('otp: six digits accepted',await ev("document.getElementById('otp').classList.contains('good')&&document.getElementById('otpStatus').textContent.includes('accepted')"))
+    ok('otp: six digits accepted',await ev("document.querySelector('#otp .otp').classList.contains('good')&&document.querySelector('#otp [role=status]').textContent.includes('accepted')"))
     # calendar
-    n=await ev("document.querySelectorAll('#cal [data-day]').length")
+    n=await ev("document.querySelectorAll('#calendar [data-day]').length")
     ok('calendar: a month of days',28<=n<=31,n)
-    m0=await ev("document.querySelector('#cal .cal-head span').textContent")
-    await pg.click('#cal [data-d=\"1\"]')
-    ok('calendar: next month',await ev("document.querySelector('#cal .cal-head span').textContent")!=m0)
-    await pg.focus('#cal [data-day][tabindex=\"0\"]'); await pg.keyboard.press('ArrowRight'); await pg.keyboard.press('Enter')
-    ok('calendar: pick says so',await ev("document.getElementById('calStatus').textContent.length>8"))
+    m0=await ev("document.querySelector('#calendar .cal-head span').textContent")
+    await pg.click('#calendar [data-d=\"1\"]')
+    ok('calendar: next month',await ev("document.querySelector('#calendar .cal-head span').textContent")!=m0)
+    await pg.focus('#calendar [data-day][tabindex=\"0\"]'); await pg.keyboard.press('ArrowRight'); await pg.keyboard.press('Enter')
+    ok('calendar: pick says so',await ev("document.querySelector('#calendar [role=status]').textContent.length>8"))
     # pagination
-    await pg.click('#pager [aria-label=\"Next page\"]')
-    ok('pagination: next',await ev("document.getElementById('pagerStatus').textContent==='Page 4 of 9.'"))
+    await pg.click('#pagination [aria-label=\"Next page\"]')
+    ok('pagination: next',await ev("document.querySelector('#pagination [role=status]').textContent==='Page 4 of 9.'"))
     # validation
-    ok('validate: bad value is invalid on load',await ev("document.getElementById('slug').closest('.field').classList.contains('invalid')&&document.getElementById('slugError').textContent.length>0"))
-    await pg.fill('#slug','reporting-redesign')
-    ok('validate: good value clears',await ev("!document.getElementById('slug').closest('.field').classList.contains('invalid')&&document.getElementById('slugError').textContent===''"))
-    await pg.fill('#slug','')
-    ok('validate: empty says required',await ev("document.getElementById('slugError').textContent.startsWith('Enter')"))
+    slug="document.querySelector('#input [data-aui=validate]')"
+    err="document.querySelector('#input .error')"
+    ok('validate: bad value is invalid on load',await ev("%s.closest('.field').classList.contains('invalid')&&%s.textContent.length>0"%(slug,err)))
+    ok('validate: describedby made',await ev("document.getElementById(%s.getAttribute('aria-describedby'))===%s"%(slug,err)))
+    ok('validate: labels linked',await ev("[...document.querySelectorAll('#input label')].every(l=>l.control)"))
+    await pg.fill('#input [data-aui=validate]','reporting-redesign')
+    ok('validate: good value clears',await ev("!%s.closest('.field').classList.contains('invalid')&&%s.textContent===''"%(slug,err)))
+    await pg.fill('#input [data-aui=validate]','')
+    ok('validate: empty says required',await ev("%s.textContent.startsWith('Enter')"%err))
     # counter
-    await pg.fill('#ta','hello')
-    ok('counter',await ev("document.getElementById('taCount').textContent==='5/280'"))
+    await pg.fill('#textarea textarea','hello')
+    ok('counter',await ev("document.querySelector('#textarea .count').textContent==='5/280'"))
     # spinner and skeleton (they only move while on screen)
     await ev("document.querySelector('.spins').scrollIntoView()")
-    s1=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('|')")
+    s1=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
     await pg.wait_for_timeout(400)
-    s2=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('|')")
-    ok('spinner: moves',s1!=s2 and all(s1.split('|')),[s1,s2])
+    s2=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
+    ok('spinner: moves',s1!=s2 and all(s1.split('~~')),[s1,s2])
     ok('skeleton: drawn',await ev("document.querySelector('.skel').textContent.trim().length>20"))
+    ok('no duplicate ids',not await ev(DUPES),await ev(DUPES))
     # dark theme via data-theme
     await ev("document.documentElement.setAttribute('data-theme','dark')")
     ok('dark tokens',await ev("getComputedStyle(document.body).backgroundColor==='rgb(10, 6, 18)'"))
@@ -172,10 +195,10 @@ async def starter(b):
     pg=await b.new_page(viewport={'width':1280,'height':900},reduced_motion='reduce')
     errs=[];watch(pg,errs,notes)
     await pg.goto('file://'+os.path.join(KIT,'starter.html')); await pg.wait_for_timeout(300)
-    s1=await ev_on(pg,"[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('|')")
+    s1=await ev_on(pg,"[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
     await pg.wait_for_timeout(400)
-    s2=await ev_on(pg,"[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('|')")
-    if s1!=s2 or not all(s1.split('|')): fails.append('starter: reduced motion leaves spinners still (%s / %s)'%(s1,s2))
+    s2=await ev_on(pg,"[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
+    if s1!=s2 or not all(s1.split('~~')): fails.append('starter: reduced motion leaves spinners still (%s / %s)'%(s1,s2))
     fails+=['starter (reduced motion): '+e for e in errs]
     await pg.close()
     return fails,notes
@@ -193,7 +216,7 @@ ALIVE={
  'calendar':"el.querySelectorAll('[data-day]').length>=28",
  'pagination':"el.querySelectorAll('button').length>=5",
  'validate':"el.getAttribute('aria-invalid')!==null",
- 'counter':"document.getElementById(el.dataset.status).textContent.includes('/')",
+ 'counter':"el.closest('.group').querySelector('.count').textContent.includes('/')",
  'spinner':"el.textContent.length>0",
  'skeleton':"el.textContent.trim().length>20",
 }
@@ -212,18 +235,56 @@ async def harvest(b):
     await pg.close()
     return out,errs,notes
 
+# pasted twice: the second copy does its own thing and leaves the first alone.
+# a is the first copy's element, b the second's; own(i,sel) finds sel in copy i
+TWICE_JS="""(name)=>{
+  const R=window.__R,h=R.length/2;if(R.length%2)return 'the page does not split in two';
+  const I=[R.slice(0,h),R.slice(h)],which=el=>I[0].some(r=>r===el||r.contains(el))?0:1;
+  const own=(i,sel)=>{for(const r of I[i]){if(r.matches(sel))return r;const x=r.querySelector(sel);if(x)return x}return null};
+  const els=[...document.querySelectorAll('[data-aui="'+name+'"]')],a=els.find(e=>which(e)===0),b=els.find(e=>which(e)===1);
+  if(!a||!b)return 'not in both copies';
+  const fire=(el,t)=>el.dispatchEvent(new Event(t,{bubbles:true}));
+  const st=i=>(own(i,'[role=status]')||{}).textContent;
+  const T={
+    tabs:()=>{const tb=b.querySelectorAll('[role=tab]')[1];tb.click();
+      const P=l=>[...l.parentElement.children].filter(x=>x.getAttribute('role')==='tabpanel'),pa=P(a),pb=P(b);
+      return !pb[1].hidden&&pb[0].hidden&&!pa[0].hidden&&pa[1].hidden&&document.getElementById(tb.getAttribute('aria-controls'))===pb[1]},
+    slider:()=>{const i=b.querySelector('input');i.value=100;fire(i,'input');return b.querySelector('output').textContent==='100'&&a.querySelector('output').textContent!=='100'&&b.querySelector('label').control===i&&a.querySelector('label').control===a.querySelector('input')},
+    otp:()=>{const i=b.querySelector('input');i.value='5';fire(i,'input');return /^1 of/.test(st(1))&&!/^1 of/.test(st(0))},
+    calendar:()=>{const d=new Date().getDate()===15?16:15;b.querySelector('[data-day="'+d+'"]').click();return st(1)!==st(0)&&st(1).includes(String(d))},
+    pagination:()=>{b.querySelector('[aria-label="Next page"]').click();return st(1)==='Page 4 of 9.'&&st(0)==='Page 3 of 9.'},
+    validate:()=>{b.value='';fire(b,'input');const ea=document.getElementById(a.getAttribute('aria-describedby')),eb=document.getElementById(b.getAttribute('aria-describedby'));
+      return eb&&ea&&eb!==ea&&eb.textContent.startsWith('Enter')&&!ea.textContent.startsWith('Enter')&&own(1,'.error')===eb},
+    counter:()=>{b.value='hi';fire(b,'input');return own(1,'.count').textContent==='2/280'&&own(0,'.count').textContent==='0/280'},
+    dropdown:()=>{const mb=b.querySelector('[role=menu]'),bt=b.querySelector('[aria-haspopup]');
+      bt.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));
+      const ok=!mb.hidden&&a.querySelector('[role=menu]').hidden&&document.getElementById(bt.getAttribute('aria-controls'))===mb;
+      mb.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return ok},
+    tooltip:()=>{const t=b.querySelector('button');return document.getElementById(t.getAttribute('aria-describedby'))===b.querySelector('.tip')}
+  };
+  return T[name]?(T[name]()?true:'the second copy did not work on its own'):true;
+}"""
+
 async def paste(b,sid,html,notes):
+    # the Code tab html pasted twice, one after the other, the way a person would
     page=('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
           '<link rel="stylesheet" href="file://'+os.path.join(KIT,'ascii-ui.css')+'">'
-          '<script src="file://'+os.path.join(KIT,'ascii-ui.js')+'" defer></script></head><body>\n'+html+'\n</body></html>')
+          '<script src="file://'+os.path.join(KIT,'ascii-ui.js')+'" defer></script></head><body>\n'+html+'\n'+html+'\n</body></html>')
     fd,path=tempfile.mkstemp(suffix='.html',prefix='kit-'+sid+'-');os.write(fd,page.encode('utf-8'));os.close(fd)
     pg=await b.new_page(viewport={'width':390,'height':844})
     errs=[];watch(pg,errs,notes)
     try:
         await pg.goto('file://'+path); await pg.wait_for_timeout(350)
+        await pg.evaluate("window.__R=[...document.body.children]")
         why=list(errs)
         size=await pg.evaluate("(()=>{let w=0,h=0;[...document.body.children].forEach(e=>{const r=e.getBoundingClientRect();w=Math.max(w,r.width);h+=r.height});return [w,h]})()")
         if not(size[0]>0 and size[1]>0): why.append('renders at %dx%d'%tuple(size))
+        if re.search(r'\sid="',html): why.append('the Code tab html has ids')
+        if re.search(r'class="[^"]*\bdemo\b',html): why.append('the Code tab html has the demo class')
+        d=await pg.evaluate(DUPES)
+        if d: why.append('pasted twice, duplicate ids: %s'%d)
+        nl=await pg.evaluate("[...document.querySelectorAll('label')].filter(l=>!l.control).map(l=>l.textContent.trim())")
+        if nl: why.append('labels without a control: %s'%nl)
         bad=await pg.evaluate(ONE_ROW)
         if bad: why.append('button labels over more than one row: %s'%bad)
         names=await pg.evaluate("[...new Set([...document.querySelectorAll('[data-aui]')].map(e=>e.dataset.aui))]")
@@ -232,9 +293,16 @@ async def paste(b,sid,html,notes):
             if n not in ALIVE: why.append('unknown behavior '+n);continue
             alive=await pg.evaluate("[...document.querySelectorAll('[data-aui=\"%s\"]')].every(el=>%s)"%(n,ALIVE[n]))
             if not alive: why.append(n+' did not come alive')
+            t=await pg.evaluate(TWICE_JS,n)
+            if t is not True: why.append(n+': '+t)
         if await pg.evaluate("!!document.querySelector('[data-aui-open]')"):
-            await pg.evaluate("document.querySelector('[data-aui-open]').click()")
-            if not await pg.evaluate("!!document.querySelector('dialog[open]')"): why.append('dialog did not open')
+            # the second copy's button opens the second copy's dialog
+            r=await pg.evaluate("(()=>{const o=document.querySelectorAll('[data-aui-open]'),d=document.querySelectorAll('dialog');if(o.length!==2||d.length!==2)return 'expected two of each';o[1].click();const ok=d[1].open&&!d[0].open;d[1].close();o[0].click();const ok0=d[0].open&&!d[1].open;d[0].close();return ok&&ok0?true:'each button did not open its own dialog'})()")
+            if r is not True: why.append('dialog: '+r)
+        if await pg.evaluate("!!document.querySelector('[data-aui-fill]')"):
+            await pg.evaluate("document.querySelectorAll('[data-aui-fill]')[1].click()"); await pg.wait_for_timeout(400)
+            v=await pg.evaluate("[...document.querySelectorAll('[role=progressbar]')].map(p=>+p.getAttribute('aria-valuenow'))")
+            if not(len(v)==2 and v[0]==0 and v[1]>0): why.append('fill: the second button did not run only its own bar %s'%v)
         t=await pg.evaluate("(()=>{const b=document.querySelector('[data-aui-toast],[data-aui-toast-err]');if(!b)return null;b.closest('[role=menu]')||b.click();return true})()")
         if t:
             await pg.wait_for_timeout(80)
@@ -266,7 +334,7 @@ async def main():
     works=sum(1 for r in rows if r[1]=='yes')
     print('%-16s %-4s %-28s %s'%('component','ok','behaviors',''))
     for r in rows: print('%-16s %-4s %-28s %s'%r)
-    print('%d of %d components work pasted into a blank page with the two kit files'%(works,len(rows)))
+    print('%d of %d components work pasted twice into a blank page with the two kit files'%(works,len(rows)))
     if works<12: fails.append('fewer than 12 components pasted clean')
     for n in sorted(notes): print('note: '+n)
     if fails:

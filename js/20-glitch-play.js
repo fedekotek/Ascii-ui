@@ -843,8 +843,9 @@ document.addEventListener('aui:view',e=>{
   const md=$('menuDlg'),panel=$('menuPanel');if(!md||!panel)return;
   const box=document.createElement('div');box.id='menuHome';box.className='navgroup';
   const items=[...document.querySelectorAll('#view-home .tiles a.tile')].map(a=>({label:a.querySelector('b').textContent,href:a.getAttribute('href'),v:a.dataset.v,sec:null}));
-  /* js/40 builds Get the kit after this runs, so its section is found on the tap */
-  items.push({label:'Get the kit',href:'#components/install',v:'kit',sec:()=>{const k=$('s-install');return k&&k.parentNode}});
+  /* js/40 builds Get the kit after this runs, so its section is found on the
+     tap. It lives in Components, so the label says where it goes */
+  items.push({label:'Components, Get the kit',href:'#components/install',v:'kit',sec:()=>{const k=$('s-install');return k&&k.parentNode}});
   box.innerHTML='<ul>'+items.map((it,i)=>'<li><a class="navlink" href="'+esc(it.href)+'" data-i="'+i+'">'+esc(it.label)+'</a></li>').join('')+'</ul>';
   panel.appendChild(box);
   /* the page changes once the menu is gone, then the focus lands where you went */

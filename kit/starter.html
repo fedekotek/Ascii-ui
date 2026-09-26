@@ -7,27 +7,47 @@
 <!-- the kit: two files, nothing else -->
 <link rel="stylesheet" href="ascii-ui.css">
 <script src="ascii-ui.js" defer></script>
-<!-- this page's own layout, not part of the kit -->
+<!-- this page's own layout, not part of the kit. Keep it or throw it away -->
 <style>
+  .top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0 2ch;min-height:calc(var(--r)*3);padding:0 max(2ch,calc((100% - 80ch)/2 + 2ch))}   /* lined up with main */
+  .top .name{font-weight:700;text-decoration:none}
+  .top .name span{color:var(--hot)}
+  .top .name,.toc a{display:inline-block;padding:12px 0;margin:-12px 0}
+  .top .name:focus-visible{background:var(--accent);color:var(--bg)}
   main{max-width:80ch;margin:0 auto;padding:var(--r) 2ch calc(var(--r)*4)}
-  section{margin-top:calc(var(--r)*3)}
-  h1,h2{font-weight:700;text-transform:uppercase}
-  h1 .slash{color:var(--hot)}
+  h1,h2,h3{font-weight:700;text-transform:uppercase}
+  main > h2{color:var(--hot);margin-top:calc(var(--r)*3)}
+  main > p + p{margin-top:var(--r)}
+  .toc{margin-top:var(--r)}
+  .part{margin-top:calc(var(--r)*2)}
+  main > h2 + .part{margin-top:var(--r)}
+  .part > h3{margin-bottom:var(--r)}
+  [id]{scroll-margin-top:calc(var(--r)*4)}
 </style>
 </head>
 <body>
-<main>
-  <h1>ascii<span class="slash">/</span>ui starter</h1>
-  <p class="muted">Every component in the kit, on a page that links only ascii-ui.css and ascii-ui.js. View the source and take what you need.</p>
-  <div class="demo tgroup" role="radiogroup" aria-label="Theme">
-    <label><input type="radio" name="theme" value="" checked><span>System</span></label>
+<header class="top">
+  <a class="name" href="#top">ascii<span>/</span>ui</a>
+  <div class="tgroup" role="radiogroup" aria-label="Theme">
+    <label><input type="radio" name="theme" value="" checked><span>Auto</span></label>
     <label><input type="radio" name="theme" value="light"><span>Light</span></label>
     <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
   </div>
+</header>
+<main id="top">
+  <h1>Starter page</h1>
+  <p class="muted">A page that links ascii-ui.css and ascii-ui.js and nothing else. Below it is every component in the kit, as the Code tab prints it. View the source and take what you need.</p>
+  <p class="muted">The three steps are in <a href="README.md">README.md</a>, next to this file. Every component with its code: <a href="https://asciiui.vercel.app/#components">asciiui.vercel.app</a>.</p>
+  <nav class="row toc" aria-label="Groups">
+    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a>
+  </nav>
 
-  <section aria-labelledby="h-button">
-    <h2 id="h-button">Button</h2>
-    <div class="row demo">
+  <!-- ================= Form ================= -->
+  <h2 id="form">Form</h2>
+
+  <section class="part" id="button">
+    <h3>Button</h3>
+    <div class="row">
       <button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label">Publish site</span></span></button>
       <button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Preview</span></span></button>
       <button class="btn btn-danger frame tone-danger" type="button"><span class="mid"><span class="label">Discard draft</span></span></button>
@@ -35,126 +55,103 @@
     </div>
   </section>
 
-  <section aria-labelledby="h-input">
-    <h2 id="h-input">Input</h2>
-    <div class="demo">
-      <div class="group">
-        <label class="field-label" for="title">Project title</label>
-        <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="title" type="text" value="Reporting redesign" autocomplete="off"></div></div>
-      </div>
-      <div class="group">
-        <label class="field-label" for="slug">Link</label>
-        <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="slug" type="text" value="Reporting redesign" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="slugError" data-aui="validate" required pattern="[a-z0-9\-]+" data-error-required="Enter a link for this project." data-error-pattern="Use lowercase letters, numbers and hyphens."></div></div>
-        <p class="error" id="slugError"></p>
-      </div>
+  <section class="part" id="calendar">
+    <h3>Calendar</h3>
+    <div class="stack">
+      <div class="cal" data-aui="calendar"></div>
+      <p class="muted status" role="status"></p>
     </div>
   </section>
 
-  <section aria-labelledby="h-select">
-    <h2 id="h-select">Select</h2>
-    <div class="demo group">
-      <label class="field-label" for="region">Probe region</label>
-      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">v</span><select id="region"><option>iad-1, Washington</option><option>fra-1, Frankfurt</option><option>gru-1, Sao Paulo</option></select></div></div>
+  <section class="part" id="input">
+    <h3>Input</h3>
+    <div class="group">
+      <label class="field-label">Project title</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="text" value="Reporting redesign" autocomplete="off"></div></div>
+    </div>
+    <div class="group">
+      <label class="field-label">Link</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="text" value="Reporting redesign" autocomplete="off" autocapitalize="off" spellcheck="false" data-aui="validate" required pattern="[a-z0-9\-]+" data-error-required="Enter a link for this project." data-error-pattern="Use lowercase letters, numbers and hyphens."></div></div>
+      <p class="error"></p>
     </div>
   </section>
 
-  <section aria-labelledby="h-textarea">
-    <h2 id="h-textarea">Textarea</h2>
-    <div class="demo group">
-      <label class="field-label" for="ta">Crit notes</label>
-      <div class="field frame tone-light area"><div class="body"><textarea id="ta" rows="4" maxlength="280" placeholder="What is this screen trying to do?" data-aui="counter" data-status="taCount"></textarea></div></div>
-      <p class="count" id="taCount">0/280</p>
+  <section class="part" id="otp">
+    <h3>Input OTP</h3>
+    <div class="stack">
+      <div class="otp" role="group" aria-label="One-time code" data-aui="otp"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="one-time-code"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
+      <p class="muted status" role="status">Type any six digits.</p>
     </div>
   </section>
 
-  <section aria-labelledby="h-toggles">
-    <h2 id="h-toggles">Toggles</h2>
-    <div class="demo stack">
+  <section class="part" id="select">
+    <h3>Select</h3>
+    <div class="group">
+      <label class="field-label">Probe region</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">v</span><select><option>iad-1, Washington</option><option>fra-1, Frankfurt</option><option>gru-1, Sao Paulo</option></select></div></div>
+    </div>
+  </section>
+
+  <section class="part" id="slider">
+    <h3>Slider</h3>
+    <div class="slider" data-aui="slider">
+      <label>Volume</label>
+      <span class="slider-track"><span class="bar" aria-hidden="true"></span><input type="range" min="0" max="100" step="5" value="55"></span>
+      <output>55</output>
+    </div>
+  </section>
+
+  <section class="part" id="textarea">
+    <h3>Textarea</h3>
+    <div class="group">
+      <label class="field-label">Crit notes</label>
+      <div class="field frame tone-light area"><div class="body"><textarea rows="4" maxlength="280" placeholder="What is this screen trying to do?" data-aui="counter"></textarea></div></div>
+      <p class="count">0/280</p>
+    </div>
+  </section>
+
+  <section class="part" id="toggles">
+    <h3>Toggles</h3>
+    <div class="stack">
       <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Show on home page</label>
       <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label>
       <label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label>
-    </div>
-    <fieldset class="demo">
-      <legend>Visibility</legend>
-      <div class="stack">
-        <label class="check"><input type="radio" name="vis" checked><span class="glyph" aria-hidden="true"></span>Public</label>
-        <label class="check"><input type="radio" name="vis"><span class="glyph" aria-hidden="true"></span>Private</label>
-      </div>
-    </fieldset>
-  </section>
-
-  <section aria-labelledby="h-segment">
-    <h2 id="h-segment">Segment</h2>
-    <div class="demo"><div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div></div>
-  </section>
-
-  <section aria-labelledby="h-slider">
-    <h2 id="h-slider">Slider</h2>
-    <div class="demo slider" data-aui="slider">
-      <label for="vol">Volume</label>
-      <span class="slider-track"><span class="bar" aria-hidden="true"></span><input id="vol" type="range" min="0" max="100" step="5" value="55"></span>
-      <output for="vol">55</output>
-    </div>
-  </section>
-
-  <section aria-labelledby="h-progress">
-    <h2 id="h-progress">Progress</h2>
-    <div class="demo">
-      <div class="progress" id="bar" data-aui="progress" role="progressbar" aria-label="Export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
-    </div>
-    <div class="row demo">
-      <button class="btn frame tone-light" id="exportBtn" type="button" data-aui-fill="bar" data-status="exportStatus" data-aui-done="Exported case study."><span class="mid"><span class="label">Export case study</span></span></button>
-      <span class="muted" id="exportStatus" role="status"></span>
-    </div>
-  </section>
-
-  <section aria-labelledby="h-tabs">
-    <h2 id="h-tabs">Tabs</h2>
-    <div class="demo">
-      <div class="tablist" role="tablist" aria-label="Project" data-aui="tabs">
-        <button class="tab" role="tab" id="t-one" aria-controls="p-one" aria-selected="true" type="button">Brief</button>
-        <button class="tab" role="tab" id="t-two" aria-controls="p-two" aria-selected="false" tabindex="-1" type="button">Notes</button>
-        <button class="tab" role="tab" id="t-three" aria-controls="p-three" aria-selected="false" tabindex="-1" type="button">Files</button>
-      </div>
-      <div class="tabpanel" role="tabpanel" id="p-one" aria-labelledby="t-one" tabindex="0"><p>One dashboard for plant managers. Mobile first.</p></div>
-      <div class="tabpanel" role="tabpanel" id="p-two" aria-labelledby="t-two" tabindex="0" hidden><p>14 comments, 3 of them useful.</p></div>
-      <div class="tabpanel" role="tabpanel" id="p-three" aria-labelledby="t-three" tabindex="0" hidden><p>Nothing uploaded yet.</p></div>
-    </div>
-  </section>
-
-  <section aria-labelledby="h-card">
-    <h2 id="h-card">Card and dialog</h2>
-    <div class="demo lift">
-      <article class="card frame tone-mid" aria-labelledby="cardTitle">
-        <h3 id="cardTitle" class="bar-title">Reporting redesign</h3>
-        <div class="body">
-          <dl><dt>Company</dt><dd>MaintainX</dd><dt>Role</dt><dd>Product designer</dd></dl>
-          <div class="row"><button class="btn btn-primary frame tone-heavy" id="publishBtn" type="button" data-aui-open="publishDialog"><span class="mid"><span class="label">Publish</span></span></button></div>
+      <fieldset>
+        <legend>Visibility</legend>
+        <div class="stack">
+          <label class="check"><input type="radio" name="vis" checked><span class="glyph" aria-hidden="true"></span>Public</label>
+          <label class="check"><input type="radio" name="vis"><span class="glyph" aria-hidden="true"></span>Private</label>
         </div>
-      </article>
+      </fieldset>
     </div>
-    <dialog id="publishDialog" aria-labelledby="dlgTitle" aria-describedby="dlgBody">
-      <div class="lift">
-        <div class="card frame tone-heavy">
-          <h2 id="dlgTitle" class="bar-title">Publish project?</h2>
-          <div class="body">
-            <p id="dlgBody">Reporting redesign will be visible to anyone with the link. You can unpublish it at any time.</p>
-            <div class="row">
-              <button class="btn frame tone-light" id="dlgCancel" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
-              <button class="btn btn-primary frame tone-heavy" id="dlgConfirm" type="button" data-aui-close data-aui-toast="Published Reporting redesign."><span class="mid"><span class="label">Publish</span></span></button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </dialog>
   </section>
 
-  <section aria-labelledby="h-sheet">
-    <h2 id="h-sheet">Sheet</h2>
-    <div class="row demo"><button class="btn frame tone-light" id="sheetBtn" type="button" data-aui-open="sheetDlg"><span class="mid"><span class="label">Open filters</span></span></button></div>
-    <dialog id="sheetDlg" class="sheet" aria-labelledby="sheetTitle">
+  <section class="part" id="togglegroup">
+    <h3>Toggle group</h3>
+    <div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div>
+  </section>
+
+  <!-- ================= Overlay ================= -->
+  <h2 id="overlay">Overlay</h2>
+
+  <section class="part" id="dropdown">
+    <h3>Dropdown</h3>
+    <div class="pop" data-aui="dropdown"><button class="btn frame tone-light" type="button" aria-haspopup="menu" aria-expanded="false"><span class="mid"><span class="label">Actions <span aria-hidden="true">v</span></span></span></button>
+      <div class="menu" role="menu" aria-label="Actions" hidden><div class="lift"><div class="card frame tone-heavy"><div class="body">
+        <button role="menuitem" type="button" tabindex="-1" data-aui-toast="Duplicated.">Duplicate <kbd>d</kbd></button>
+        <button role="menuitem" type="button" tabindex="-1" data-aui-toast="Link copied. Not really.">Copy link <kbd>l</kbd></button>
+        <div class="sepd faint" role="separator"></div>
+        <button role="menuitem" type="button" tabindex="-1" class="danger" data-aui-toast-err="Deleted forever. It is gone.">Delete forever</button>
+      </div></div></div></div>
+    </div>
+  </section>
+
+  <section class="part" id="sheet">
+    <h3>Sheet</h3>
+    <div class="row"><button class="btn frame tone-light" type="button" data-aui-open><span class="mid"><span class="label">Open filters</span></span></button></div>
+    <dialog class="sheet">
       <div class="lift"><div class="card frame tone-heavy">
-        <h2 id="sheetTitle" class="bar-title">Filters</h2>
+        <h2 class="bar-title">Filters</h2>
         <button class="sheet-x" type="button" aria-label="Close the filters" data-aui-close>[x]</button>
         <div class="body">
           <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Only my work orders</label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Overdue</label></div>
@@ -164,100 +161,145 @@
     </dialog>
   </section>
 
-  <section aria-labelledby="h-dropdown">
-    <h2 id="h-dropdown">Dropdown</h2>
-    <div class="demo pop" id="dd" data-aui="dropdown"><button class="btn frame tone-light" id="ddBtn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="ddMenu"><span class="mid"><span class="label">Actions <span aria-hidden="true">v</span></span></span></button>
-      <div class="menu" id="ddMenu" role="menu" aria-label="Actions" hidden><div class="lift"><div class="card frame tone-heavy"><div class="body">
-        <button role="menuitem" type="button" tabindex="-1" data-aui-toast="Duplicated.">Duplicate <kbd>d</kbd></button>
-        <button role="menuitem" type="button" tabindex="-1" data-aui-toast="Link copied. Not really.">Copy link <kbd>l</kbd></button>
-        <div class="sepd faint" role="separator"></div>
-        <button role="menuitem" type="button" tabindex="-1" class="danger" data-aui-toast-err="Deleted forever. It is gone.">Delete forever</button>
-      </div></div></div></div>
+  <section class="part" id="tooltip">
+    <h3>Tooltip</h3>
+    <div class="pop" data-aui="tooltip" style="margin-top:calc(var(--r)*2)"><button class="btn frame tone-light" type="button"><span class="mid"><span class="label">Ship it</span></span></button><span class="tip" role="tooltip">Deploys to production on a Friday</span></div>
+  </section>
+
+  <!-- ================= Display ================= -->
+  <h2 id="display">Display</h2>
+
+  <section class="part" id="avatar">
+    <h3>Avatar</h3>
+    <div class="row"><span class="avatar" role="img" aria-label="Fede Kotek">FK</span><span class="avatar hot sm" role="img" aria-label="MaintainX">MX</span><span class="avatar ok sm" role="img" aria-label="Autodesk">AD</span></div>
+  </section>
+
+  <section class="part" id="badge">
+    <h3>Badge</h3>
+    <div class="row"><span class="badge b-ok">Operational</span><span class="badge b-warn">Degraded</span><span class="badge b-hot">Down</span><span class="badge b-out">Beta</span></div>
+  </section>
+
+  <section class="part" id="card">
+    <h3>Card and dialog</h3>
+    <div class="lift">
+      <article class="card frame tone-mid">
+        <h3 class="bar-title">Reporting redesign</h3>
+        <div class="body">
+          <dl><dt>Company</dt><dd>MaintainX</dd><dt>Role</dt><dd>Product designer</dd></dl>
+          <div class="row"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-open><span class="mid"><span class="label">Publish</span></span></button></div>
+        </div>
+      </article>
     </div>
+    <dialog>
+      <div class="lift">
+        <div class="card frame tone-heavy">
+          <h2 class="bar-title">Publish project?</h2>
+          <div class="body">
+            <p>Reporting redesign will be visible to anyone with the link. You can unpublish it at any time.</p>
+            <div class="row">
+              <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
+              <button class="btn btn-primary frame tone-heavy" type="button" data-aui-close data-aui-toast="Published Reporting redesign."><span class="mid"><span class="label">Publish</span></span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
   </section>
 
-  <section aria-labelledby="h-tooltip">
-    <h2 id="h-tooltip">Tooltip</h2>
-    <div class="demo pop" id="tt" data-aui="tooltip" style="margin-top:calc(var(--r)*3)"><button class="btn frame tone-light" type="button" aria-describedby="ttTip"><span class="mid"><span class="label">Ship it</span></span></button><span class="tip" id="ttTip" role="tooltip">Deploys to production on a Friday</span></div>
+  <section class="part" id="details">
+    <h3>Details</h3>
+    <details class="acc"><summary>What ships in the kit?</summary><p>Two files, ascii-ui.css and ascii-ui.js. No build step, no dependencies.</p></details>
+    <details class="acc"><summary>Can I change the characters?</summary><p>Yes. ASCIIUI.tones() takes a map from the default characters to yours.</p></details>
   </section>
 
-  <section aria-labelledby="h-otp">
-    <h2 id="h-otp">Input OTP</h2>
-    <div class="demo otp" id="otp" role="group" aria-label="One-time code" data-aui="otp" data-status="otpStatus"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="one-time-code"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
-    <p class="muted status" id="otpStatus" role="status">Type any six digits.</p>
+  <section class="part" id="kbd">
+    <h3>Kbd</h3>
+    <div class="kbds"><span><kbd>/</kbd> search</span><span><kbd>esc</kbd> close</span></div>
   </section>
 
-  <section aria-labelledby="h-calendar">
-    <h2 id="h-calendar">Calendar</h2>
-    <div class="demo cal" id="cal" data-aui="calendar" data-status="calStatus"></div>
-    <p class="muted status" id="calStatus" role="status"></p>
+  <section class="part" id="separator">
+    <h3>Separator</h3>
+    <div class="sepd heavy" role="separator"></div><div class="sepd" role="separator"></div><div class="sepd shade" role="separator"></div><div class="sepd faint" role="separator"></div><div class="sepl" role="separator">or</div>
   </section>
 
-  <section aria-labelledby="h-pager">
-    <h2 id="h-pager">Pagination</h2>
-    <nav class="demo" id="pager" aria-label="Pagination" data-aui="pagination" data-pages="9" data-page="3" data-status="pagerStatus"></nav>
-    <p class="muted status" id="pagerStatus" role="status"></p>
+  <section class="part" id="timeline">
+    <h3>Timeline</h3>
+    <ol class="timeline"><li><b>Shipped</b><span>Search v2 went to 100 percent of accounts.</span></li><li class="past"><b>In review</b><span>14 comments in Figma, 3 of them useful.</span></li><li class="past"><b>Kickoff</b><span>One problem statement, zero solutions.</span></li></ol>
   </section>
 
-  <section aria-labelledby="h-crumbs">
-    <h2 id="h-crumbs">Breadcrumb</h2>
-    <nav class="demo" aria-label="Breadcrumb"><ol class="crumbs"><li><a href="#">Portfolio</a></li><li><a href="#">Case studies</a></li><li aria-current="page"><span>Reporting</span></li></ol></nav>
-  </section>
+  <!-- ================= Feedback ================= -->
+  <h2 id="feedback">Feedback</h2>
 
-  <section aria-labelledby="h-toast">
-    <h2 id="h-toast">Toast</h2>
-    <div class="row demo"><button class="btn frame tone-light" id="toastOk" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" id="toastErr" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button></div>
-  </section>
-
-  <section aria-labelledby="h-alert">
-    <h2 id="h-alert">Alert</h2>
-    <div class="demo stack">
+  <section class="part" id="alert">
+    <h3>Alert</h3>
+    <div class="stack">
       <div class="alert lift" role="note"><div class="card frame tone-danger"><span class="bar-title">Signal lost</span><div class="body"><p>Probes from 3 regions are timing out. Check the load balancer in fra-1.</p></div></div></div>
       <div class="alert info lift" role="note"><div class="card frame tone-light"><span class="bar-title">Heads up</span><div class="body"><p>Maintenance window on Sunday at 03:00 UTC.</p></div></div></div>
     </div>
   </section>
 
-  <section aria-labelledby="h-empty">
-    <h2 id="h-empty">Empty</h2>
-    <div class="demo lift"><div class="card frame tone-faint"><span class="bar-title">No work orders</span><div class="body"><p class="muted">Nothing is broken. Enjoy it, it never lasts.</p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Work order created. So much for nothing."><span class="mid"><span class="label">Create work order</span></span></button></div></div></div></div>
+  <section class="part" id="empty">
+    <h3>Empty</h3>
+    <div class="lift"><div class="card frame tone-faint"><span class="bar-title">No work orders</span><div class="body"><p class="muted">Nothing is broken. Enjoy it, it never lasts.</p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Work order created. So much for nothing."><span class="mid"><span class="label">Create work order</span></span></button></div></div></div></div>
   </section>
 
-  <section aria-labelledby="h-details">
-    <h2 id="h-details">Details</h2>
-    <div class="demo">
-      <details class="acc"><summary>What ships in the kit?</summary><p>Two files. No build step, no dependencies.</p></details>
-      <details class="acc"><summary>Can I change the characters?</summary><p>Yes. ASCIIUI.tones() takes a map from the default characters to yours.</p></details>
+  <section class="part" id="progress">
+    <h3>Progress</h3>
+    <div class="stack">
+      <div class="progress" data-aui="progress" role="progressbar" aria-label="Export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+      <div class="row">
+        <button class="btn frame tone-light" type="button" data-aui-fill data-aui-done="Exported case study."><span class="mid"><span class="label">Export case study</span></span></button>
+        <span class="muted" role="status"></span>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="h-display">
-    <h2 id="h-display">Badge, avatar, kbd</h2>
-    <div class="row demo"><span class="badge b-ok">Operational</span><span class="badge b-warn">Degraded</span><span class="badge b-hot">Down</span><span class="badge b-out">Beta</span></div>
-    <div class="row demo"><span class="avatar" role="img" aria-label="Fede Kotek">FK</span><span class="avatar hot sm" role="img" aria-label="MaintainX">MX</span><span class="avatar ok sm" role="img" aria-label="Autodesk">AD</span></div>
-    <div class="demo kbds"><span><kbd>/</kbd> search</span><span><kbd>esc</kbd> close</span></div>
+  <section class="part" id="skeleton">
+    <h3>Skeleton</h3>
+    <span class="vh">Loading</span><pre class="skel" data-aui="skeleton" aria-hidden="true"></pre>
   </section>
 
-  <section aria-labelledby="h-divider">
-    <h2 id="h-divider">Divider</h2>
-    <div class="demo"><div class="sepd heavy" role="separator"></div><div class="sepd" role="separator"></div><div class="sepd shade" role="separator"></div><div class="sepd faint" role="separator"></div><div class="sepl" role="separator">or</div></div>
+  <section class="part" id="spinner">
+    <h3>Spinner</h3>
+    <div class="spins" role="img" aria-label="Loading indicators"><span><b data-aui="spinner" data-kind="classic"></b>classic</span><span><b data-aui="spinner" data-kind="ramp"></b>ramp</span><span><b data-aui="spinner" data-kind="bounce"></b>bounce</span><span><b data-aui="spinner" data-kind="dots"></b>dots</span><span><b data-aui="spinner" data-kind="fill"></b>fill</span></div>
   </section>
 
-  <section aria-labelledby="h-timeline">
-    <h2 id="h-timeline">Timeline</h2>
-    <ol class="demo timeline"><li><b>Shipped</b><span>Search v2 went to 100 percent of accounts.</span></li><li class="past"><b>In review</b><span>14 comments in Figma, 3 of them useful.</span></li><li class="past"><b>Kickoff</b><span>One problem statement, zero solutions.</span></li></ol>
+  <section class="part" id="toast">
+    <h3>Toast</h3>
+    <div class="row"><button class="btn frame tone-light" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button></div>
   </section>
 
-  <section aria-labelledby="h-spinner">
-    <h2 id="h-spinner">Spinner</h2>
-    <div class="demo spins" role="img" aria-label="Loading indicators"><span><b data-aui="spinner" data-kind="classic"></b>classic</span><span><b data-aui="spinner" data-kind="ramp"></b>ramp</span><span><b data-aui="spinner" data-kind="bounce"></b>bounce</span><span><b data-aui="spinner" data-kind="dots"></b>dots</span><span><b data-aui="spinner" data-kind="fill"></b>fill</span></div>
+  <!-- ================= Navigation ================= -->
+  <h2 id="navigation">Navigation</h2>
+
+  <section class="part" id="breadcrumb">
+    <h3>Breadcrumb</h3>
+    <nav aria-label="Breadcrumb"><ol class="crumbs"><li><a href="#">Portfolio</a></li><li><a href="#">Case studies</a></li><li aria-current="page"><span>Reporting</span></li></ol></nav>
   </section>
 
-  <section aria-labelledby="h-skeleton">
-    <h2 id="h-skeleton">Skeleton</h2>
-    <div class="demo"><span class="vh">Loading</span><pre class="skel" data-aui="skeleton" aria-hidden="true"></pre></div>
+  <section class="part" id="pagination">
+    <h3>Pagination</h3>
+    <div class="stack">
+      <nav aria-label="Pagination" data-aui="pagination" data-pages="9" data-page="3"></nav>
+      <p class="muted status" role="status"></p>
+    </div>
   </section>
 
-  <p class="muted demo" style="margin-top:calc(var(--r)*3)">From <a href="https://asciiui.vercel.app">asciiui.vercel.app</a>. MIT license.</p>
+  <section class="part" id="tabs">
+    <h3>Tabs</h3>
+    <div>
+      <div class="tablist" role="tablist" aria-label="Project" data-aui="tabs">
+        <button class="tab" role="tab" aria-selected="true" type="button">Brief</button>
+        <button class="tab" role="tab" aria-selected="false" tabindex="-1" type="button">Notes</button>
+        <button class="tab" role="tab" aria-selected="false" tabindex="-1" type="button">Files</button>
+      </div>
+      <div class="tabpanel" role="tabpanel" tabindex="0"><p>One dashboard for plant managers. Mobile first.</p></div>
+      <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>14 comments, 3 of them useful.</p></div>
+      <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>Nothing uploaded yet.</p></div>
+    </div>
+  </section>
+
+  <p class="muted" style="margin-top:calc(var(--r)*3)">From <a href="https://asciiui.vercel.app/#components">asciiui.vercel.app</a>. MIT license, the text is in <a href="README.md">README.md</a>.</p>
 </main>
 <script>
   /* this page's theme switch, not part of the kit: data-theme on <html> forces one */

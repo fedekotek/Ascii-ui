@@ -51,8 +51,10 @@
 .s-meta.s-flash{color:var(--ok)}
 
 .s-foot{display:flex;justify-content:space-between;gap:2ch;margin:var(--r) 0 0;color:var(--muted);white-space:nowrap}
-.s-foot span:first-child{overflow:hidden;text-overflow:ellipsis}
-@media (pointer:coarse){.s-foot span:first-child{visibility:hidden}}
+/* the hint wraps between its three parts, never inside one */
+.s-foot > span:first-child{white-space:normal;min-width:0}
+.s-foot > span:first-child span{white-space:nowrap}
+@media (pointer:coarse){.s-foot > span:first-child{visibility:hidden}}
 
 /* a phone, or a phone on its side with the keyboard up: the whole width less
    a character each side, centred, from one row under the top, and the list

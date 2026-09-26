@@ -10,6 +10,7 @@ No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, on
 ```
 python3 -m http.server 8000      # then http://localhost:8000 (file:// works too)
 python3 build.py                 # writes dist/ascii-ui.html and site/, run before shipping
+python3 build.py --check         # site/ and dist/ match the source (exit 1 lists stale files)
 pip install playwright && playwright install chromium
 python3 qa/qa.py 390 844 dark m x      # errors and overflow, every view, mobile dark
 python3 qa/qa.py 1440 900 light d x    # same on desktop light
@@ -20,7 +21,7 @@ python3 qa/keyboard.py                 # sliders and field frames never open the
 python3 qa/kit.py                      # the kit files and the starter page load clean
 python3 qa/reduced.py                  # reduced motion turns off every animation and sound
 ```
-There is no unit test suite, no linter and no type checker. The QA scripts are the test suite. Release bar: `qa.py` clean at 390 and 1440 in both themes, `breakpoints.py` ok, `clock.py` ok, `audit.py` clean, `keyboard.py` clean, `kit.py` ok, `reduced.py` ok, and `dist/ascii-ui.html` loads clean.
+There is no unit test suite, no linter and no type checker. The QA scripts are the test suite. Release bar: `qa.py` clean at 390 and 1440 in both themes, `breakpoints.py` ok, `clock.py` ok, `audit.py` clean, `keyboard.py` clean, `kit.py` ok, `reduced.py` ok, `dist/ascii-ui.html` loads clean, and `build.py --check` ok (what is committed in `site/` is what the source builds).
 
 Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 
@@ -43,7 +44,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching.
 5. New interactive elements need a 44px hit area (use the `padding:12px 0;margin:-12px 0` pattern), a `:focus-visible` style, and keyboard operation.
 6. New sounds go through `A.tone`/`A.noise` (they are humanized and fatigue-limited there). Never create an AudioContext yourself.
 7. Anything that repeats goes through `A.every(ms,fn,opt)` or `A.times(ms,n,fn,end)`. Never call `setInterval`; `qa/clock.py` fails if you do.
-8. Run `python3 build.py` and check `dist/ascii-ui.html` also loads clean. It goes into `site/`, which is what ships.
+8. Run `python3 build.py` and check `dist/ascii-ui.html` also loads clean. It goes into `site/`, which is what ships. `python3 build.py --check` fails if you forgot.
 
 ## How to add a component (short version, long one in docs/COMPONENTS.md)
 Add a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. Add its id to a group in `KIT_GROUPS` (js/30: Form, Overlay, Display, Feedback, Navigation). In the docs views the poster is hidden and the `h2` shows as a bold uppercase word. From 1024px that section gets a gallery column (66 characters at 1024px, 43 at 1280px, 41 at 1600px, never under 40), so if it holds a table, a chart or a picture give it `data-span="full"`. The docs builder sorts sections by group, then alphabetically, adds Preview/Code tabs and puts it in the index and the sidebar. If it needs JS, register it in `window.AUI_JS.NAME` so the Code tab can print it.

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui</title>
 <meta name="aui-version" content="11.0">
-<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, sixteen blocks, five charts. Copy the code and own it. One HTML file, no dependencies.">
+<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, sixteen blocks, five charts. Copy the code and own it. The kit is two files, no dependencies.">
 <link rel="canonical" href="https://asciiui.vercel.app/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ecebe4" media="(prefers-color-scheme: light)">
@@ -93,7 +93,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
       <button class="btn frame tone-light" id="heroKit" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
     </div>
-    <p class="muted hero-facts">0 dependencies. 30 components. 1 file.</p>
+    <p class="muted hero-facts">0 dependencies. 30 components. 2 kit files.</p>
     <div class="row demo" id="heroSw" hidden>
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
@@ -125,7 +125,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-faq" class="band">Questions</h2>
     <div class="demo">
       <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
-      <details class="acc"><summary>Does it need a framework?</summary><p>No. It is one HTML file. The components are classes and custom properties, so they drop into anything.</p></details>
+      <details class="acc"><summary>Does it need a framework?</summary><p>No. The kit is two files, ascii-ui.css and ascii-ui.js. The components are classes and custom properties, so they drop into anything.</p></details>
       <details class="acc"><summary>Why monospace only?</summary><p>The grid is the design. Every width is a number of characters and every height a number of rows, which is what lets strings work as borders.</p></details>
       <details class="acc"><summary>Can I turn the glitch off?</summary><p>Yes. The Glitch switch kills it, the slider scales it, and the page respects reduced motion.</p></details>
     </div>
@@ -288,7 +288,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <pre class="poster ptitle" data-text="DETAILS" aria-hidden="true"></pre>
     <p class="muted">A native details element. The marker flips between [+] and [-] and the answer decodes as it opens.</p>
     <div class="demo">
-      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty components, one HTML file and no build step. Link the kit once, then copy any component.</p></details>
+      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty components in two files, one css and one js. No build step. Link them once, then copy any component.</p></details>
       <details class="acc"><summary>Can I change the characters?</summary><p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p></details>
     </div>
   </section>
@@ -806,7 +806,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.0. One HTML file, no dependencies. Set in Geist Mono. MIT license. <a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">Download the file</a>, or take the <a class="inl" id="footKit" href="kit/starter.html">starter kit</a>.</p>
+    <p class="foot" id="footLine">ascii/ui v11.0. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>.</p>
   </footer>
 </main>
 
@@ -872,7 +872,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">/</span><input id="cmdIn" type="text" role="combobox" aria-expanded="true" aria-controls="cmdList" aria-autocomplete="list" aria-label="Search" placeholder="Search the kit" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" autofocus></div></div>
       <p id="cmdOut" class="s-out" role="status" aria-live="polite"></p>
       <div id="cmdList" class="s-list" role="listbox" aria-label="Results"></div>
-      <p class="s-foot" aria-hidden="true"><span>up/down move . enter go . esc close</span><span id="cmdCount"></span></p>
+      <p class="s-foot" aria-hidden="true"><span><span>up/down move</span> . <span>enter go</span> . <span>esc close</span></span><span id="cmdCount"></span></p>
     </div>
   </div></div>
 </dialog>

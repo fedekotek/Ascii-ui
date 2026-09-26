@@ -26,6 +26,9 @@
 .doc-panel{padding-top:var(--r)}
 .doc-panel > .demo:first-child,.doc-panel > :first-child{margin-top:0}
 .code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 var(--r) 2ch;border-left:0;position:relative}
+/* Get the kit: a narrow box breaks the address at the edge, character by
+   character, instead of at the indent, so no row is left with two spaces */
+.kit-links{word-break:break-all}
 .code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
 .copyrow{margin-top:var(--r)}
 
@@ -58,7 +61,8 @@
 .ibtn:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn:disabled{color:var(--muted);cursor:not-allowed}
 .ibtn[aria-current="page"]{background:var(--ink);color:var(--bg);background-clip:content-box}
-.ibtn[aria-current="page"]:focus-visible{background:var(--accent)}
+.ibtn[aria-current="page"]:focus-visible{background:var(--accent);color:var(--bg)}
+.ibtn:focus-visible::before,.ibtn:focus-visible::after{color:inherit}
 /* a bracketed digit is 3ch, 29px, too narrow for a thumb. A character of
    padding each side makes every page 5ch wide and the padding is the gap */
 #pager{gap:var(--r) 0}
@@ -125,7 +129,7 @@
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:calc(var(--r)/2) 2ch;color:var(--muted);text-transform:uppercase}
 .tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
-.tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
+.tgroup input:focus-visible + span,.tgroup input:checked:focus-visible + span{background:var(--accent);color:var(--bg)}
 .tgroup label:has(input:disabled){cursor:not-allowed}
 .tgroup input:disabled + span{color:var(--muted);text-decoration:line-through}
 .tgroup input:disabled:checked + span{background:var(--muted);color:var(--bg);box-shadow:none}

@@ -134,9 +134,12 @@
   }
   function groups(q){
     if(!q){
-      const h=here();
+      /* COMMON leaves out what the view you are in already lists, and goes
+         when nothing is left, so no row shows twice */
+      const h=here(),seen=new Set(h.items),com=common().filter(it=>!seen.has(it));
       return [{label:'Views',items:views},{label:h.label,items:h.items,more:h.more},
-              {label:'Settings',items:SETS},{label:'Components',items:common()},{label:'Tricks',items:TRICKS}];
+              {label:'Settings',items:SETS},{label:'Components',items:com},{label:'Tricks',items:TRICKS}]
+             .filter(g=>g.items.length);
     }
     const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
     const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS}]);

@@ -8,12 +8,18 @@
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
    otp, calendar, pagination, validate, counter, spinner, skeleton.
    Buttons take these instead:
-     data-aui-open="dialogId"   opens that <dialog> (a card or a .sheet)
+     data-aui-open              opens the nearest <dialog> (a card or a .sheet)
      data-aui-close             closes the dialog it sits in
      data-aui-toast="Saved."    shows a toast (data-aui-toast-err for a yellow one)
      data-aui-reset             clears the checkboxes and fields in its dialog or form
-     data-aui-fill="progressId" runs that progress bar from 0 to 100, for demos
-   data-status="id" on a component names the element that says what happened.
+     data-aui-fill              runs the nearest progress bar from 0 to 100, for demos
+   The nearest role="status" says what happened (the code, the page, the date).
+
+   No ids needed. Each component finds its parts inside the element around it,
+   so the same component pasted twice keeps two separate copies. The ids that
+   aria needs (a label's for, a tab's aria-controls) are made here, unique.
+   To point at something far away instead, give it an id and name it:
+   data-aui-open="id", data-aui-fill="id", data-status="id".
 
    Everything that moves runs on requestAnimationFrame and stops when the
    element leaves the page. prefers-reduced-motion leaves every frame still.
@@ -33,7 +39,26 @@ function all(sel,root){return Array.prototype.slice.call((root||doc).querySelect
 function rep(c,n){var s='';while(n-->0)s+=c;return s}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function byId(id){return id?doc.getElementById(String(id).replace(/^#/,'')):null}
-function say(el,text){var s=byId(el.getAttribute('data-status'));if(s)s.textContent=text}
+/* what el talks to: the id its attr names, or else the first sel in the
+   smallest box around el that has one. The page itself is not a box, so a
+   component without a part of its own does not borrow another's */
+function near(el,attr,sel){
+  var id=attr&&el.getAttribute(attr),p,m;
+  if(id&&byId(id))return byId(id);
+  for(p=el.parentElement;p&&p!==doc.body&&p!==doc.documentElement;p=p.parentElement){
+    m=all(sel,p).filter(function(x){return x!==el&&!el.contains(x)});
+    if(m.length)return m[0];
+  }
+  return null;
+}
+/* an id for aria, when the element has none: aui-tab-1, aui-tab-2 ... */
+var uidN=0;
+function uid(el,pre){
+  if(!el.id){var id;do{id='aui-'+pre+'-'+(++uidN)}while(byId(id));el.id=id}
+  return el.id;
+}
+function status(el){return near(el,'data-status','[role="status"]')}
+function say(el,text){var s=status(el);if(s)s.textContent=text}
 function emit(el,name,detail){el.dispatchEvent(new CustomEvent('aui:'+name,{bubbles:true,detail:detail}))}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
@@ -125,9 +150,16 @@ function toast(msg,err){
 function setProgress(el,p){el.setAttribute('aria-valuenow',clamp(Math.round(p),0,100))}
 
 var behaviors={
-  /* role="tablist" with role="tab" buttons whose aria-controls name the panels */
+  /* role="tablist" with role="tab" buttons, and the role="tabpanel" elements
+     next to it, in the same order. aria-controls, when set, wins */
   tabs:function(list){
     var tabs=all('[role="tab"]',list);if(!tabs.length)return;
+    var box=list.parentElement,panels=box?Array.prototype.filter.call(box.children,function(c){return c.getAttribute('role')==='tabpanel'}):[];
+    tabs.forEach(function(t,i){
+      var p=byId(t.getAttribute('aria-controls'))||panels[i];if(!p)return;
+      t.setAttribute('aria-controls',uid(p,'panel'));
+      if(!p.hasAttribute('aria-labelledby'))p.setAttribute('aria-labelledby',uid(t,'tab'));
+    });
     function apply(tab,focus){
       tabs.forEach(function(x){
         var on=x===tab,p=byId(x.getAttribute('aria-controls'));
@@ -153,6 +185,7 @@ var behaviors={
     var input=el.querySelector('input[type="range"]'),b=el.querySelector('.bar'),out=el.querySelector('output');
     if(!input||!b)return;
     var n=+el.getAttribute('data-cells')||24;
+    if(out&&!out.hasAttribute('for'))out.setAttribute('for',uid(input,'range'));
     function draw(){
       var min=+input.min||0,max=input.max===''?100:+input.max,fr=(input.value-min)/((max-min)||1);
       b.innerHTML=colorize(bar(fr*n,n));
@@ -181,6 +214,7 @@ var behaviors={
   dropdown:function(pop){
     var btn=pop.querySelector('[aria-haspopup]'),menu=pop.querySelector('[role="menu"]');
     if(!btn||!menu)return;
+    btn.setAttribute('aria-controls',uid(menu,'menu'));
     var items=function(){return all('[role="menuitem"]:not([disabled])',menu)};
     function open(on,at){
       menu.hidden=!on;menu.classList.toggle('open',on);btn.setAttribute('aria-expanded',on?'true':'false');
@@ -212,6 +246,8 @@ var behaviors={
      tap and lets Escape put it away without moving focus */
   tooltip:function(pop){
     var tip=pop.querySelector('.tip'),t=0;if(!tip)return;
+    var trig=pop.querySelector('button,a,input,[tabindex]');
+    if(trig&&!trig.hasAttribute('aria-describedby'))trig.setAttribute('aria-describedby',uid(tip,'tip'));
     pop.addEventListener('click',function(){pop.classList.remove('off');pop.classList.add('on');clearTimeout(t);t=setTimeout(function(){pop.classList.remove('on')},1800)});
     doc.addEventListener('keydown',function(e){if(e.key==='Escape'){pop.classList.add('off');pop.classList.remove('on')}});
     pop.addEventListener('pointerenter',function(){pop.classList.remove('off')});
@@ -250,7 +286,7 @@ var behaviors={
     }
   },
 
-  /* an empty element: a month of buttons. data-status names where the pick is said */
+  /* an empty element: a month of buttons. The nearest role="status" says the pick */
   calendar:function(el){
     var today=new Date(),sel=new Date(today.getFullYear(),today.getMonth(),today.getDate()),
         view=new Date(sel.getFullYear(),sel.getMonth(),1),foc=sel;
@@ -312,10 +348,11 @@ var behaviors={
   },
 
   /* an input with the native required/pattern/type rules. The message goes to
-     the element its aria-describedby names; data-error-required and
-     data-error-pattern set the words */
+     the element its aria-describedby names, or the nearest .error;
+     data-error-required and data-error-pattern set the words */
   validate:function(inp){
-    var field=inp.closest('.field'),out=byId((inp.getAttribute('aria-describedby')||'').split(' ')[0]);
+    var field=inp.closest('.field'),out=byId((inp.getAttribute('aria-describedby')||'').split(' ')[0])||near(inp,null,'.error');
+    if(out&&!inp.hasAttribute('aria-describedby'))inp.setAttribute('aria-describedby',uid(out,'error'));
     function check(){
       var v=inp.validity,msg='';
       if(v.valueMissing)msg=inp.getAttribute('data-error-required')||'This one is required.';
@@ -329,9 +366,9 @@ var behaviors={
     if(inp.value)check();
   },
 
-  /* a textarea with maxlength; data-status names the counter */
+  /* a textarea with maxlength; the nearest .count shows it */
   counter:function(ta){
-    var out=byId(ta.getAttribute('data-status'));if(!out)return;
+    var out=near(ta,'data-status','.count');if(!out)return;
     function up(){var max=ta.maxLength>0?ta.maxLength:0;out.textContent=ta.value.length+(max?'/'+max:'');out.classList.toggle('full',!!max&&ta.value.length>=max)}
     ta.addEventListener('input',up);up();
   },
@@ -393,8 +430,8 @@ function runFill(target,btn){
     label.textContent=(reduce?'* ':'|/-\\'.charAt(f%4)+' ')+text;
     if(p<100){setTimeout(step,130);return}
     btn.disabled=false;label.textContent=text;
-    var done=btn.getAttribute('data-aui-done')||'Done.';
-    if(byId(btn.getAttribute('data-status')))say(btn,done);else toast(done);
+    var done=btn.getAttribute('data-aui-done')||'Done.',s=status(btn);
+    if(s)s.textContent=done;else toast(done);
   })();
 }
 doc.addEventListener('click',function(e){
@@ -406,8 +443,8 @@ doc.addEventListener('click',function(e){
     });
   }
   if(t.hasAttribute('data-aui-close'))close(t.closest('dialog'));
-  if(t.hasAttribute('data-aui-open'))openDialog(byId(t.getAttribute('data-aui-open')),t);
-  if(t.hasAttribute('data-aui-fill'))runFill(byId(t.getAttribute('data-aui-fill')),t);
+  if(t.hasAttribute('data-aui-open'))openDialog(near(t,'data-aui-open','dialog'),t);
+  if(t.hasAttribute('data-aui-fill'))runFill(near(t,'data-aui-fill','[role="progressbar"]'),t);
   if(t.hasAttribute('data-aui-toast-err'))toast(t.getAttribute('data-aui-toast-err'),true);
   else if(t.hasAttribute('data-aui-toast'))toast(t.getAttribute('data-aui-toast'));
 });
@@ -418,9 +455,31 @@ doc.addEventListener('click',function(e){
   var i=f.querySelector('input,textarea');if(i&&!i.disabled)i.focus();
 });
 
+/* ---- the ids aria needs, made for markup that has none ---- */
+var CONTROL='input:not([type="hidden"]),select,textarea';
+function link(root){
+  /* root itself counts, for a label or a dialog added on its own */
+  var mine=function(sel){var l=all(sel,root);if(root.nodeType===1&&root.matches(sel))l.unshift(root);return l};
+  /* a label next to its control, not around it: the first control after it */
+  mine('label:not([for])').forEach(function(l){
+    if(l.querySelector(CONTROL))return;
+    for(var n=l.nextElementSibling;n;n=n.nextElementSibling){
+      var c=n.matches(CONTROL)?n:n.querySelector(CONTROL);
+      if(c){l.setAttribute('for',uid(c,'field'));return}
+    }
+  });
+  /* a dialog is named by its .bar-title and described by its first paragraph */
+  mine('dialog').forEach(function(d){
+    var t=d.querySelector('.bar-title'),p=d.querySelector('.body > p');
+    if(t&&!d.hasAttribute('aria-labelledby'))d.setAttribute('aria-labelledby',uid(t,'title'));
+    if(p&&!d.hasAttribute('aria-describedby'))d.setAttribute('aria-describedby',uid(p,'desc'));
+  });
+}
+
 /* ---- wiring ---- */
 function init(root){
   root=root||doc;
+  link(root);
   var els=all('[data-aui]',root);
   if(root.nodeType===1&&root.hasAttribute('data-aui'))els.unshift(root);
   els.forEach(function(el){

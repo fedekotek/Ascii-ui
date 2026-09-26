@@ -1,6 +1,6 @@
 # ascii/ui
 
-shadcn-style components with a brutalist ASCII skin and a bad signal. One HTML file, no dependencies, no build step required. Frames, fills and shadows are strings of characters; weight comes from how dense the character is; every state change glitches a little; underneath it is plain HTML.
+shadcn-style components with a brutalist ASCII skin and a bad signal. The kit is two files (`kit/ascii-ui.css` and `kit/ascii-ui.js`), no dependencies, no build step. The whole site also ships as one HTML file. Frames, fills and shadows are strings of characters; weight comes from how dense the character is; every state change glitches a little; underneath it is plain HTML.
 
 Live: https://asciiui.vercel.app (Vercel deploys `main` on every push). The single-file build is `dist/ascii-ui.html`.
 

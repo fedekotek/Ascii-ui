@@ -1,6 +1,6 @@
 # ascii/ui kit
 
-Two files. No package, no build step, no dependencies. `starter.html` shows every component working with nothing else linked.
+The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://asciiui.vercel.app.
 
 ## Use it in three steps
 
@@ -8,7 +8,7 @@ Two files. No package, no build step, no dependencies. `starter.html` shows ever
 
    ```html
    <link rel="stylesheet" href="https://asciiui.vercel.app/kit/ascii-ui.css">
-   <script src="https://asciiui.vercel.app/kit/ascii-ui.js" defer></script>
+   <script defer src="https://asciiui.vercel.app/kit/ascii-ui.js"></script>
    ```
 
    Or download them from the Get the kit section of the site and link your own copies.
@@ -16,6 +16,8 @@ Two files. No package, no build step, no dependencies. `starter.html` shows ever
 2. Open a component on https://asciiui.vercel.app/#components, pick its Code tab and copy the html.
 
 3. Paste it into your page. Done. The css and js printed under the html are already in the two files; they are there so you can read them.
+
+The html has no ids. Each component finds its parts inside the element around it, and ascii-ui.js makes the ids that accessibility needs (a label's `for`, a tab's `aria-controls`), so the same component pasted twice is two working copies. One thing it does not rename: radio buttons share a group by `name`, so give the second copy's radios a name of their own.
 
 The css pulls Geist Mono from Google Fonts with an `@import`. For a faster first paint, remove that line and put the `<link>` from the comment next to it in your `<head>`. Without the font it falls back to the system monospace.
 
@@ -25,7 +27,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 
 | Attribute | On | Does |
 |---|---|---|
-| `data-aui="tabs"` | the `role="tablist"` | click and arrows, Home, End pick a tab; `aria-controls` names each panel |
+| `data-aui="tabs"` | the `role="tablist"` | click and arrows, Home, End pick a tab. The panels are the `role="tabpanel"` elements next to the list, in order, or the ones `aria-controls` names |
 | `data-aui="slider"` | `.slider` | draws the halftone bar from the range input and fills the `<output>` |
 | `data-aui="progress"` | `role="progressbar"` | draws the bar from `aria-valuenow`. Change the attribute, or call `ASCIIUI.progress(el, 40)` |
 | `data-aui="dropdown"` | `.pop` | the `aria-haspopup` button opens the `role="menu"`; arrows, Home, End move, Escape and Tab close |
@@ -33,16 +35,18 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste |
 | `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month |
 | `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"` |
-| `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `pattern` and `type`, writes the message to the element `aria-describedby` names. Words from `data-error-required` and `data-error-pattern` |
-| `data-aui="counter"` | a `<textarea>` | counts against `maxlength` |
+| `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `pattern` and `type`, writes the message to the nearest `.error` (or the element `aria-describedby` names). Words from `data-error-required` and `data-error-pattern` |
+| `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
 | `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill` |
 | `data-aui="skeleton"` | a `<pre class="skel">` | a card silhouette with a wave through the ramp |
-| `data-aui-open="id"` | a button | opens that `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it |
+| `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it |
 | `data-aui-close` | a button in a dialog | closes it |
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one |
 | `data-aui-reset` | a button in a dialog or form | clears its checkboxes and fields |
-| `data-aui-fill="id"` | a button | runs that progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
-| `data-status="id"` | on the components above | names the element that says what happened (the picked date, the page, the code) |
+| `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
+| `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
+
+"Nearest" means the smallest element around the component that holds one, short of `<body>`. To point at something elsewhere on the page, give it an id and name it: `data-aui-open="id"`, `data-aui-fill="id"`, `data-status="id"`.
 
 Components fire `aui:change`, `aui:select` and `aui:complete` events that bubble, with the details in `event.detail`.
 

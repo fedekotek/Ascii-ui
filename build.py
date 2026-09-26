@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Build what ships. Standard library only.
 
-  python3 build.py
+  python3 build.py           write dist/ascii-ui.html and site/
+  python3 build.py --check   build into a temporary folder and compare it with
+                             dist/ and site/ on disk. Exits 1 and lists the files
+                             that differ, so a stale deploy cannot be committed.
 
 1. dist/ascii-ui.html  index.html with css/ and js/ inlined, the single file.
 2. site/               the folder Vercel serves (vercel.json: outputDirectory).
@@ -16,7 +19,7 @@
 Nothing else in the repo (docs, qa, CLAUDE.md, archive) is published.
 The version is the aui-version meta in index.html; the footer must say the same.
 """
-import re,pathlib,shutil,sys
+import re,pathlib,shutil,sys,tempfile,filecmp
 root=pathlib.Path(__file__).resolve().parent
 SITE_ASSETS=['og.png','icon-180.png']
 
@@ -31,11 +34,12 @@ def inline(src):
     return h
 
 def links(h,dl,kit,icon):
-    """point the footer's Download and starter kit links, and the touch icon,
+    """point the footer's Download and starter page links, and the touch icon,
     at where they live next to this copy. kit=None drops the kit clause"""
     h=re.sub(r'(id="footDl" href=")[^"]*(")',lambda m:m.group(1)+dl+m.group(2),h)
     if kit is None:
-        h=re.sub(r', or take the <a [^>]*id="footKit"[^>]*>[^<]*</a>','',h)
+        # no kit: the footer keeps only the download, as its own sentence
+        h=re.sub(r'<span id="footKitPart">.*?</span>(<a [^>]*id="footDl"[^>]*>)d',r'\1D',h,flags=re.S)
     else:
         h=re.sub(r'(id="footKit" href=")[^"]*(")',lambda m:m.group(1)+kit+m.group(2),h)
     h=h.replace('<link rel="apple-touch-icon" href="assets/icon-180.png">','<link rel="apple-touch-icon" href="'+icon+'">')
@@ -84,7 +88,8 @@ ROBOTS="""User-agent: *
 Allow: /
 """
 
-def main():
+def build(out,quiet=False):
+    """write dist/ascii-ui.html and site/ under out (the repo, or a temp folder)"""
     src=(root/'index.html').read_text()
     m=re.search(r'<meta name="aui-version" content="([^"]+)">',src)
     if not m: sys.exit('build: index.html has no aui-version meta')
@@ -95,15 +100,16 @@ def main():
     one=inline(src)
     kit=root/'kit'
     has_kit=kit.is_dir() and any(kit.iterdir())
+    say=(lambda *a:None) if quiet else print
 
     # 1. dist/: the single file, next to the repo (Download is itself)
-    (root/'dist').mkdir(exist_ok=True)
+    (out/'dist').mkdir(exist_ok=True)
     d=links(one,'ascii-ui.html','../kit/starter.html' if has_kit else None,'../assets/icon-180.png')
-    (root/'dist/ascii-ui.html').write_text(d)
-    print('dist/ascii-ui.html',len(d),'bytes')
+    (out/'dist/ascii-ui.html').write_text(d)
+    say('dist/ascii-ui.html',len(d),'bytes')
 
     # 2. site/: rebuilt from nothing, so nothing stale is published
-    site=root/'site'
+    site=out/'site'
     if site.exists(): shutil.rmtree(site)
     (site/'assets').mkdir(parents=True)
     s=links(one,'ascii-ui.html','kit/starter.html' if has_kit and (kit/'starter.html').exists() else None,'assets/icon-180.png')
@@ -114,11 +120,40 @@ def main():
     for a in SITE_ASSETS:
         p=root/'assets'/a
         if p.exists(): shutil.copy2(p,site/'assets'/a)
-        else: print('build: missing assets/'+a+' (run qa/shots.py)')
+        else: say('build: missing assets/'+a+' (run qa/shots.py)')
     if has_kit:
         shutil.copytree(kit,site/'kit',ignore=shutil.ignore_patterns('.DS_Store','__pycache__'))
     n=sum(1 for p in site.rglob('*') if p.is_file())
-    print('site/ v'+ver,n,'files','(with kit/)' if has_kit else '(no kit/ yet)')
+    say('site/ v'+ver,n,'files','(with kit/)' if has_kit else '(no kit/ yet)')
+
+def files(d):
+    return {p.relative_to(d).as_posix() for p in d.rglob('*') if p.is_file()} if d.is_dir() else set()
+
+def check():
+    """build into a temp folder; every file that is missing, extra or different
+    on disk is listed, and the exit code says whether any was"""
+    with tempfile.TemporaryDirectory(prefix='aui-build-') as t:
+        t=pathlib.Path(t);build(t,quiet=True)
+        bad=[]
+        for top in ('site',):
+            want,have=files(t/top),files(root/top)
+            bad+=[top+'/'+f+'  missing' for f in sorted(want-have)]
+            bad+=[top+'/'+f+'  not built by build.py' for f in sorted(have-want)]
+            bad+=[top+'/'+f+'  differs' for f in sorted(want&have) if not filecmp.cmp(t/top/f,root/top/f,shallow=False)]
+        f='dist/ascii-ui.html'
+        if not (root/f).exists(): bad.append(f+'  missing')
+        elif not filecmp.cmp(t/f,root/f,shallow=False): bad.append(f+'  differs')
+    if bad:
+        print('build --check: out of date, run python3 build.py and commit site/ and dist/')
+        for b in bad: print('  '+b)
+        sys.exit(1)
+    print('build --check: ok, site/ and dist/ match the source')
+
+def main():
+    args=sys.argv[1:]
+    if args==['--check']: check()
+    elif not args: build(root)
+    else: sys.exit('usage: python3 build.py [--check]')
 
 if __name__=='__main__':
     main()
