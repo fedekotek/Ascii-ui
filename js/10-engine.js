@@ -1073,8 +1073,8 @@
       var t=viewWant,fn=viewThen;viewWant=viewThen=null;
       if(t.getAttribute('aria-selected')!=='true'){
         applyView(t);
-        /* Play takes the hero out of the header, so that happens before the
-           landing is measured, not on a timer after it */
+        /* a view can move things around as it opens (onView), so that
+           happens before the landing is measured, not on a timer after it */
         if(window.AUI&&AUI.onView)AUI.onView(t);
         if(window._labs)window._labs();
         if(!fn){
@@ -1184,8 +1184,8 @@
       p=Math.min(100,p+3+Math.floor(Math.random()*7));drawBar(p);sfx.val(p);
       if(p>=100){
         run.stop();spin.stop();
-        exportBtn.disabled=false;setLabel(exportBtn,'Export case study');
-        exportStatus.textContent='Exported case study.';flash(bar);sfx.ok();
+        exportBtn.disabled=false;setLabel(exportBtn,'Export report');
+        exportStatus.textContent='Exported report.';flash(bar);sfx.ok();
       }
     });
   });

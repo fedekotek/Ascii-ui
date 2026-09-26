@@ -19,7 +19,8 @@ page order, opens its Code tab and reads:
              tokens, tones, base and frame, are in every page and never printed)
   notes      the comment lines the js part opens with when the kit cannot run
              the demo as it is on the site (js/40, SITEONLY)
-Get the kit (s-install) and Rules (s-rules) are not components and are left out.
+Get the kit (s-install), Rules (s-rules) and Foundations (s-foundations) are not
+components and are left out.
 """
 import os,re,sys
 from playwright.sync_api import sync_playwright
@@ -27,7 +28,7 @@ from playwright.sync_api import sync_playwright
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
 OUT=os.path.join(ROOT,'docs','COMPONENTS-REFERENCE.md')
 STARTER=os.path.join(ROOT,'kit','starter.html')
-SKIP=('s-install','s-rules')
+SKIP=('s-install','s-rules','s-foundations')
 
 READ="""()=>[...document.querySelectorAll('#view-kit > section[aria-labelledby]')].map(s=>{
   const id=s.getAttribute('aria-labelledby');

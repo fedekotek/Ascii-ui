@@ -6,8 +6,9 @@
      SETTINGS      Theme, Sound, Glitch, Show grid, with their live values
      TRICKS        the verbs that do something to the page
    Typing searches every section of every view as well. A word that starts
-   with what you typed ranks first, then anything that contains it, then the
-   other names people type for it (ALIAS), then one typo away. Empty, it also
+   with what you typed ranks first, then anything that contains it or has it
+   as one of its other names (ALIAS), then captions and partial other names,
+   then one typo away. Empty, it also
    offers five COMMON components before the tricks. A typed
    command line (glitch 80, sign ada, rm -rf all) gets a Run row on top that
    hands it to run() in js/20, which answers on the status line.
@@ -27,10 +28,10 @@
   const say=s=>{stat.textContent=s};
   const flip=id=>()=>{$(id).click()};
   const SETS=[
-    /* the theme button names where it takes you, so the value is the other one.
-       It changes on the tap, before the curtain lands */
+    /* the value is the theme you see, as the button's name says it
+       ("Theme: Dark"). It changes on the tap, before the curtain lands */
     {name:'Theme',kw:'dark light mode colour color',
-     val:()=>/light/i.test($('themeToggle').getAttribute('aria-label')||'')?'dark':'light',
+     val:()=>/dark/i.test($('themeToggle').getAttribute('aria-label')||'')?'dark':'light',
      flip:flip('themeToggle')},
     {name:'Sound',kw:'audio mute noise',val:()=>$('soundToggle').checked?'on':'off',
      flip:()=>{const s=$('soundToggle');if(s.disabled){say('Sound stays off while reduced motion is on.');return false}s.click()}},
@@ -54,7 +55,9 @@
     's-separator':'divider rule hr','s-pagination':'pager pages','s-breadcrumb':'crumbs path','s-otp':'otp pin code',
     's-textarea':'multiline','s-tooltip':'hint popover','s-toast':'notification snackbar sonner','s-progress':'loading bar',
     's-skeleton':'loading placeholder','s-spinner':'loading loader','s-kbd':'keyboard key shortcut',
-    's-install':'install copy code kit download starter css js cdn license mit version'};
+    's-install':'install copy code kit download starter css js cdn license mit version single one file offline html',
+    's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors',
+    's-foundations':'tokens color colors grid ramp tone tones states foundations'};
   const COMMON=['s-button','s-input','s-card','s-select','s-toast'];
 
   let views=[],secGroups=[],bySec=new Map(),byId=new Map(),total=0;
@@ -64,7 +67,7 @@
     views=ix.map(x=>({kind:'view',v:x.v,name:x.label,meta:'view',kw:x.v}));
     secGroups=ix.filter(x=>x.sections.length).map(x=>({label:x.label,items:x.sections.map(s=>{
       const id=s.sec.getAttribute('aria-labelledby');
-      const it={kind:'sec',v:x.v,sec:s.sec,name:s.name,meta:x.label,kw:s.kw+(ALIAS[id]?' '+ALIAS[id]:'')};
+      const it={kind:'sec',v:x.v,sec:s.sec,name:s.name,meta:x.label,kw:s.kw+(ALIAS[id]?' '+ALIAS[id]:''),al:ALIAS[id]?words(ALIAS[id]):[]};
       byId.set(id,it);
       bySec.set(s.sec,it);return it;
     })}));
@@ -85,7 +88,9 @@
   const common=()=>COMMON.map(id=>byId.get(id)).filter(Boolean);
 
   /* ---- ranking: 0 the name starts with it, 1 a word in the name does,
-     2 the name contains it, 3 a keyword starts with it, 4 contains it,
+     2 the name contains it or it is one of the other names (ALIAS) exactly,
+     so "type" finds Tokens before every caption that says type,
+     3 a keyword starts with it, 4 contains it,
      5 a word in the name is one typo away (a letter wrong, missing, extra or
      swapped), 6 a keyword is ---- */
   const words=s=>s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
@@ -107,7 +112,7 @@
       let r=9;
       if(n.startsWith(t))r=0;
       else if(nw.some(w=>w.startsWith(t)))r=1;
-      else if(n.includes(t))r=2;
+      else if(n.includes(t)||(it.al&&it.al.indexOf(t)>=0))r=2;
       else if(kw.some(w=>w.startsWith(t)))r=3;
       else if(k.includes(t))r=4;
       else if(typo(t,nw))r=5;

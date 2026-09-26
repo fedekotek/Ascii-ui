@@ -424,11 +424,12 @@ function makePoster(){
   x.fillStyle='rgba(0,0,0,.22)';for(let y=0;y<H;y+=4)x.fillRect(0,y+3,W,1);
   return c.toDataURL('image/png');
 }
-/* One dialog, two pictures. A poster can be rerolled, a snapshot is what the
-   stage showed, so it says so and has nothing to reroll. */
+/* One dialog, two pictures. A poster can be rerolled. A snapshot is what the
+   hero showed, so it says so and has nothing to reroll; nothing asks for one
+   now, the kind stays for A.picDialog callers. */
 const PIC={
   poster:['Your signal','Generated from your signal code. Long-press or right-click the image to save it.','Generated glitch poster with your signal code'],
-  snap:['Snapshot','Your stage, as a PNG. Long-press or right-click to save it.','Snapshot of the Play stage']};
+  snap:['Snapshot','The hero, as a PNG. Long-press or right-click to save it.','Snapshot of the hero']};
 function picDialog(src,kind){
   const k=PIC[kind]||PIC.poster,d=$('posterDlg');
   $('posterTitle').textContent=k[0];$('posterCap').textContent=k[1];$('posterImg').alt=k[2];
@@ -486,7 +487,7 @@ async function run(line){
   else if(c==='poster'){cmdDlg.close();openPoster()}
   else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
   else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
-  /* the photo lands on Play, where the Source buttons and the stage are */
+  /* the photo lands on the Home hero, where the ring takes it */
   else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());

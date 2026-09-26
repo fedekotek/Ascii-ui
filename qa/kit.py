@@ -387,7 +387,7 @@ async def main():
         fails+=['index.html: '+e for e in errs]
         rows=[]
         for sid,html,js in comps:
-            if sid in ('s-install','s-rules'): continue   # not components
+            if sid in ('s-install','s-rules','s-foundations'): continue   # not components
             if html is None: rows.append((sid,'no Code tab','',''));fails.append(sid+': no Code tab');continue
             names,why=await paste(b,sid,html,notes)
             if 'site\'s' in (js or '') or 'this site' in (js or ''): kind='partly (site only part left out)'

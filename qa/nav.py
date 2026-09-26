@@ -9,6 +9,8 @@ Checks, one line each, exits non-zero if any fails:
             row under the bar (under Play's stage), and the address follows
   links     #view/section addresses load the right view and section, from
             file:// and from http
+  deep      every section's address, loaded fresh at 1440 and 390, keeps
+            its hash for two seconds (the scroll spy leaves it alone)
   history   Back and Forward walk the views you picked
   rapid     six quick view picks end on the last one
   keys      arrows move along the views without changing the page, Enter picks
@@ -137,6 +139,32 @@ async def links(b,base,label,bad):
     print('links',label,'ok' if not fails else fails)
     if fails: bad.append('links '+label)
 
+async def deep(b,base,bad):
+    """every section's address, loaded fresh, keeps its hash for 2s: the
+    scroll spy must not hand it to a neighbour while the page settles"""
+    fails=[];n=0
+    for w,h in [(1440,900),(390,844)]:
+        ctx=await b.new_context(viewport={'width':w,'height':h})
+        pg=await ctx.new_page();await pg.goto(base);await pg.wait_for_timeout(1500)
+        addrs=await pg.evaluate("""AUI_NAV.index().flatMap(v=>v.sections.map(s=>
+          '#'+({kit:'components'}[v.v]||v.v)+'/'+s.sec.getAttribute('aria-labelledby').replace(/^[so]-/,'')))""")
+        await ctx.close()
+        if QUICK: addrs=addrs[::6]
+        async def one(addr):
+            c=await b.new_context(viewport={'width':w,'height':h});p=await c.new_page();errs=[]
+            p.on('pageerror',lambda e:errs.append(str(e)))
+            await p.goto(base+addr);await p.wait_for_timeout(600)
+            seen=set()
+            for _ in range(8):
+                seen.add(await p.evaluate('location.hash'));await p.wait_for_timeout(250)
+            await c.close()
+            if seen!={addr} or errs: fails.append(f'{w} {addr} -> {sorted(seen)} {errs[:1]}')
+        for i in range(0,len(addrs),8):
+            await asyncio.gather(*[one(a) for a in addrs[i:i+8]])
+        n+=len(addrs)
+    print(f'deep {n} addresses','ok' if not fails else fails[:8])
+    if fails: bad.append('deep')
+
 async def desktop(b,bad):
     ctx=await b.new_context(viewport={'width':1440,'height':900},color_scheme='light')
     pg=await ctx.new_page();errs=[]
@@ -205,6 +233,7 @@ async def run():
             await phone(b,w,h,bad)
         await links(b,FILE,'file',bad)
         await links(b,f'http://127.0.0.1:{PORT}/index.html','http',bad)
+        await deep(b,FILE,bad)
         await desktop(b,bad)
         await b.close()
     srv.shutdown()

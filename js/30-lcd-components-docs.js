@@ -120,7 +120,7 @@ LCD.prototype.tap=function(i){
 };
 LCD.prototype.size=function(){
   const w=this.cv.clientWidth||this.cv.parentNode.clientWidth;if(!w)return;
-  this.dpr=Math.min(window.devicePixelRatio||1,2);this.cw=w/this.cols;this.chh=this.cw;
+  this.w=w;this.dpr=Math.min(window.devicePixelRatio||1,2);this.cw=w/this.cols;this.chh=this.cw;
   const h=this.chh*this.rows;this.cv.style.height=h+'px';this.cv.width=Math.round(w*this.dpr);this.cv.height=Math.round(h*this.dpr);this.draw();
 };
 LCD.prototype.sample=function(){
@@ -168,7 +168,9 @@ LCD.prototype.draw=function(){
 LCD.prototype.setImage=function(file,cb){const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);this.img=img;this.draw();cb&&cb(true)};img.onerror=()=>{URL.revokeObjectURL(url);cb&&cb(false)};img.src=url};
 document.querySelectorAll('canvas.lcd').forEach(c=>new LCD(c));
 const lcdOf=el=>LCDS.find(l=>l.cv===el);A.lcdOf=lcdOf;
-if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(!l.cw)l.size();else l.draw()}})});
+/* a picture resized while it was hidden (a Code tab open, another view)
+   kept its old width: the loop sizes it again once it shows at a new one */
+if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(l.cv.clientWidth!==l.w)l.size();else l.draw()}})});
 window.addEventListener('resize',()=>LCDS.forEach(l=>l.size()));
 const bigPic=lcdOf(document.querySelector('figure.pic canvas[data-scene="ba"]'));
 const CAP={ba:'<b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.',desk:'<b>The desk.</b> One monitor, one plant, one chart that never stops.',mate:'<b>Mate.</b> Steam included.',test:'<b>Test card.</b> If this looks wrong, everything is fine.'};
@@ -242,6 +244,11 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.dropdown=function(){
     else if(e.key==='Home'){e.preventDefault();items[0].focus()}
     else if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}
     else if(e.key==='Escape'){open(false);btn.focus()}
+    /* the keys the menu shows next to an item pick it */
+    else if(e.key.length===1&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+      const it=items.find(x=>{const k=x.querySelector('kbd');return k&&k.textContent.trim().toLowerCase()===e.key.toLowerCase()});
+      if(it){e.preventDefault();e.stopPropagation();it.click()}
+    }
   });
   items.forEach(it=>it.addEventListener('click',()=>{open(false);btn.focus();const t=it.firstChild.textContent.trim();if(it.classList.contains('danger')){toast(t+'. It is gone.',true);A.jolt()}else A.say(t+'.')}));
   document.addEventListener('pointerdown',e=>{if(!menu.hidden&&!e.target.closest('#dd'))open(false)});
@@ -461,8 +468,9 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-/* skip: sections that stay out of the index and close the view (Rules; Get
-   the kit joins it from js/40). The header links to them, the sidebar lists
+/* skip: sections that stay out of the index and close the view (Rules,
+   Foundations; Get the kit joins them from js/40). They get no Preview and
+   Code tabs. The header links to them, the sidebar lists
    them first as Getting started, and the page opens on a component.
    pin: sections that open the index, in that order, ahead of the alphabet: a
    404 page is a strange first block. */
@@ -497,14 +505,15 @@ function buildView(panel,label,skip,pin,group){
   return secs;
 }
 spanSections($('view-charts'));
-/* the thirty, by what they do, the way a docs site groups them */
+/* the thirty on the page, by what they do, the way a docs site groups them.
+   28 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[
   ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
   ['Overlay',['s-command','s-dropdown','s-sheet','s-tooltip']],
   ['Display',['s-avatar','s-badge','s-card','s-details','s-kbd','s-picture','s-separator','s-timeline']],
   ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
   ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
-buildView($('view-kit'),'Components',['s-rules'],[],id=>{
+buildView($('view-kit'),'Components',['s-rules','s-foundations'],[],id=>{
   const i=KIT_GROUPS.findIndex(g=>g[1].includes(id));
   return i<0?[KIT_GROUPS.length,'Other']:[i,KIT_GROUPS[i][0]];
 });
@@ -533,6 +542,16 @@ function markWide(){
     if(w.scrollWidth>w.clientWidth+2)w.setAttribute('data-wide','');
     else w.removeAttribute('data-wide');
   });
+}
+/* Preview shown again after Code: the pictures in it size themselves to the
+   width they have now. Watched rather than timed, so it works with reduced
+   motion too, where no loop runs */
+if('MutationObserver' in window){
+  const shown=new MutationObserver(ms=>ms.forEach(m=>{
+    if(m.target.hidden)return;
+    LCDS.forEach(l=>{if(m.target.contains(l.cv)&&l.cv.clientWidth&&l.cv.clientWidth!==l.w)l.size()});
+  }));
+  document.querySelectorAll('.doc-panel').forEach(p=>shown.observe(p,{attributes:true,attributeFilter:['hidden']}));
 }
 markWide();window.AUI_WIDE=markWide;
 window.addEventListener('resize',markWide);

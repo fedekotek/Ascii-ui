@@ -9,8 +9,8 @@
    Forward all go through route(). It is all hashes, so it works from file://.
 
    The landing. A jump puts the section's title (its first visible child) in
-   the first row under the bar, and under Play's sticky stage when there is
-   one. It is measured from the title, not from css margins, and it is redone
+   the first row under the bar, and under anything the view keeps stuck
+   there, when it has one. It is measured from the title, not from css margins, and it is redone
    while the page settles (fonts, charts sizing themselves) until you touch
    anything.
 
@@ -117,9 +117,9 @@
     for(const c of sec.children)if(c.offsetParent!==null&&c.offsetHeight>1)return c;
     return sec.offsetParent!==null?sec:null;
   }
-  /* Play keeps its stage stuck under the bar on a phone, so a section there
-     lands under the stage. Found by looking, not by name: anything sticky in
-     the view's first two levels */
+  /* A view that keeps something stuck under the bar (Play's stage did, on a
+     phone) lands its sections under it. Found by looking, not by name:
+     anything sticky in the view's first two levels */
   function sticky(p){
     const els=[].slice.call(p.querySelectorAll(':scope > *,:scope > * > *'));
     for(const e of els)if(e.offsetParent!==null&&getComputedStyle(e).position==='sticky')return e;
@@ -155,7 +155,7 @@
     if(y!=null&&Math.abs(y-window.scrollY)>2)window.scrollTo(0,y);
   }
   ['wheel','touchstart','keydown','pointerdown'].forEach(t=>
-    window.addEventListener(t,()=>{settle=null},{passive:true,capture:true}));
+    window.addEventListener(t,()=>{settle=null;pinned=0},{passive:true,capture:true}));
   if('ResizeObserver' in window)new ResizeObserver(()=>resettle()).observe($('main'));
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(resettle);
   window.addEventListener('load',resettle);
@@ -196,7 +196,9 @@
       if(sec){
         const l=links.find(x=>x.sec===sec);
         land(()=>yOf(sec,v),opt.smooth);
-        if(l){mark(l);if(opt.smooth)pinned=Date.now()+1200}
+        /* every landing is pinned while it settles, so the spy cannot hand
+           the address to a neighbour before the page stops moving */
+        if(l){mark(l);pinned=Date.now()+(opt.smooth?1200:2600)}
       }else if(opt.el){
         /* something that is not a section (the footer game): land on it and
            keep it there while the view settles, like a section */
@@ -338,14 +340,19 @@
       else if(t>top-2)row.push(l);
     }
     /* the last sections of a short view can never reach the line: at the
-       bottom of the page the last one whose title is on screen is the one */
+       bottom of the page the one you landed on stays marked while its title
+       is on screen, otherwise the last title on screen, in page order (the
+       sidebar lists Getting started first, the page puts it last) */
     if(window.scrollY>=document.documentElement.scrollHeight-window.innerHeight-2){
-      for(let i=links.length-1;i>=0;i--){
-        const a=anchor(links[i].sec);if(!a)continue;
+      let keep=false,last=null,lt=-Infinity;
+      for(const l of links){
+        const a=anchor(l.sec);if(!a)continue;
         const t=a.getBoundingClientRect().top;
-        if(t>L&&t<window.innerHeight-48){row=[links[i]];break}
-        if(t<=L)break;
+        if(t<L-8||t>=window.innerHeight-48)continue;
+        if(l===reading)keep=true;
+        if(t>L&&t>lt){lt=t;last=l}
       }
+      if(keep)row=[reading];else if(last)row=[last];
     }
     mark(row.length?(row.indexOf(reading)>=0?reading:row[0]):null);
   }
@@ -441,6 +448,12 @@
     $('menuBtn').setAttribute('aria-expanded','false');
     if(focusTo){focusTo.tabIndex=-1;focusTo.focus({preventScroll:true});focusTo=null}
     else if(opener&&opener.offsetParent!==null)opener.focus();
+    /* the [=] button is gone when the screen widened past 1024px: the view
+       you are in takes the focus, or the name when that is Home */
+    else if(md.contains(document.activeElement)||document.activeElement===document.body){
+      const t=$('v-'+current()),to=t&&t.offsetParent!==null?t:$('brand');
+      if(to)to.focus({preventScroll:true});
+    }
   });
   mv.addEventListener('click',e=>{
     const t=e.target.closest('[role="tab"]');if(!t)return;
@@ -456,7 +469,13 @@
     else if(e.key==='ArrowLeft')n=mtabs[(i-1+mtabs.length)%mtabs.length];
     else if(e.key==='Home')n=mtabs[0];
     else if(e.key==='End')n=mtabs[mtabs.length-1];
-    if(n){e.preventDefault();n.focus();n.click()}
+    /* Home's tab goes somewhere when picked, so the arrows only reach it;
+       Enter or Space takes you there */
+    if(n){
+      e.preventDefault();
+      mtabs.forEach(x=>x.tabIndex=x===n?0:-1);n.focus();
+      if(n.dataset.v!=='home')n.click();
+    }
   });
   ms.addEventListener('click',e=>{
     const a=e.target.closest('a.navlink');if(!a||mod(e))return;
@@ -470,6 +489,21 @@
   if(wide.addEventListener)wide.addEventListener('change',onWide);else if(wide.addListener)wide.addListener(onWide);
   $('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
   $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
+
+  /* ---- tab strips inside a section ----
+     The Preview and Code tabs (and any other strip in a section) take Home
+     and End to their first and last tab. A strip that handles them itself
+     says so by preventing the default, and is left alone. */
+  $('main').addEventListener('keydown',e=>{
+    if(e.defaultPrevented||(e.key!=='Home'&&e.key!=='End')||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+    const t=e.target.closest&&e.target.closest('[role="tab"]'),tl=t&&t.closest('[role="tablist"]');
+    if(!tl||!tl.closest('section'))return;
+    const all=[].slice.call(tl.querySelectorAll('[role="tab"]')).filter(x=>x.closest('[role="tablist"]')===tl&&!x.disabled&&x.offsetParent!==null);
+    const n=e.key==='Home'?all[0]:all[all.length-1];if(!n)return;
+    e.preventDefault();
+    if(n!==t)n.click();
+    n.focus();
+  });
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}
