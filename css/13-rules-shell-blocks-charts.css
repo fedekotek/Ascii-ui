@@ -129,6 +129,9 @@
 #boot .strk{position:absolute;left:0;right:0;height:2px;background:var(--hot);opacity:.5;pointer-events:none}
 @keyframes bootout{to{clip-path:inset(0 0 100% 0)}}
 @keyframes bootsafe{to{visibility:hidden}}
+/* reduced motion never boots (boot() in js/20 drops it), and the rule above that
+   stops every animation would stop bootsafe too, so without scripts it would stay */
+@media (prefers-reduced-motion:reduce){#boot{display:none !important}}
 #posterImg{display:block;width:100%;height:auto}
 
 kbd{font:inherit;font-weight:700;color:var(--ink)}

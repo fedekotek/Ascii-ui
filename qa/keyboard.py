@@ -52,3 +52,4 @@ with sync_playwright() as p:
             if fid not in t: fails.append(f'{view} tap-frame {fid} did not focus ({t})')
         pg.close()
     print('checks',n,'fails',fails);b.close()
+sys.exit(1 if fails else 0)
