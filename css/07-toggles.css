@@ -1,25 +1,27 @@
 /* ---------- checkbox, radio, switch ---------- */
 .check{
   position:relative;display:inline-flex;gap:1ch;cursor:pointer;
-  padding:10px 0;margin:-10px 0;-webkit-tap-highlight-color:transparent;
+  padding:12px 0;margin:-12px 0;-webkit-tap-highlight-color:transparent;
 }
-.check input{position:absolute;opacity:0;width:1px;height:1px;margin:0;left:0;top:10px}
+.check input{position:absolute;opacity:0;width:1px;height:1px;margin:0;left:0;top:12px}
 .check .glyph{white-space:pre;font-weight:700}
 .check input:checked + .glyph{color:var(--ok)}
 .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
-.check input[type="checkbox"]:not([role]) + .glyph::before{content:"[ ]"}
-.check input[type="checkbox"]:not([role]):checked + .glyph::before{content:"[" var(--k8,"@") "]"}
-.check input[type="radio"] + .glyph::before{content:"( )"}
-.check input[type="radio"]:checked + .glyph::before{content:"(" var(--k8,"@") ")"}
-.check .glyph[data-f]::before{content:attr(data-f) !important}
+.check input[type="checkbox"]:not([role]) + .glyph::before{content:"[ ]";content:"[ ]" / ""}
+.check input[type="checkbox"]:not([role]):checked + .glyph::before{content:"[" var(--k8,"@") "]";content:"[" var(--k8,"@") "]" / ""}
+.check input[type="radio"] + .glyph::before{content:"( )";content:"( )" / ""}
+.check input[type="radio"]:checked + .glyph::before{content:"(" var(--k8,"@") ")";content:"(" var(--k8,"@") ")" / ""}
+.check .glyph[data-f]::before{content:attr(data-f) !important;content:attr(data-f) / "" !important}
 .switch-track{position:relative;display:inline-block;width:4ch;text-align:left}
-.switch-track::after{content:var(--k1,".") var(--k1,".") var(--k1,".") var(--k1,".");position:absolute;left:0;top:0;color:var(--muted)}
+.switch-track::after{content:var(--k1,".") var(--k1,".") var(--k1,".") var(--k1,".");content:var(--k1,".") var(--k1,".") var(--k1,".") var(--k1,".") / "";position:absolute;left:0;top:0;color:var(--muted)}
 .switch-track::before{
-  content:var(--k8,"@") var(--k8,"@");position:relative;z-index:1;display:inline-block;background:var(--bg);
+  content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";position:relative;z-index:1;display:inline-block;background:var(--bg);
   transition:transform .16s steps(2);
 }
 .check input:checked + .glyph .switch-track::before{transform:translateX(2ch)}
 .check input:focus-visible + .glyph .switch-track::before{background:var(--accent)}
 .check input:focus-visible + .glyph .switch-track::after{color:var(--bg)}
+.check:has(input:disabled){color:var(--muted);cursor:not-allowed}
+.check input:disabled + .glyph{color:var(--muted)}
 fieldset{border:0;padding:0;margin:0;min-width:0}
 legend{padding:0;margin-bottom:var(--r)}

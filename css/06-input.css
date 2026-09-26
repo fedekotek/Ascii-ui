@@ -10,6 +10,12 @@
 .field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
 .field.invalid{--h:var(--h-error);--s:var(--s-error);--frame-color:var(--danger)}
 .field.invalid .prompt{color:var(--danger)}
+/* an invalid field still shows where focus is: the error frame keeps its
+   characters and takes the focus colour */
+.field.invalid:focus-within{--frame-color:var(--accent)}
+/* disabled reads the way a disabled button does: a faint rim, grey text */
+.field:has(:disabled){--h:var(--h-faint);--s:var(--s-faint);--v:var(--v-faint);--frame-color:var(--muted);cursor:not-allowed}
+.field:has(:disabled) :disabled{color:var(--muted);cursor:not-allowed}
 .error{color:var(--danger)}
 .error:empty{display:none}
 .group{max-width:48ch}

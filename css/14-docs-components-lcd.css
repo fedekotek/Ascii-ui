@@ -1,15 +1,16 @@
 /* =================== v7: docs structure, more components, more blocks, LCD pictures =================== */
-section{scroll-margin-top:calc(var(--r)*4)}
 #inv{max-width:440px}
 .toc summary{text-transform:uppercase}
-.toc .chips{display:flex;flex-wrap:wrap;gap:0 2ch;margin-top:var(--r);padding-left:4ch}
-.chip{font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 0;margin:0;cursor:pointer;outline:0;white-space:nowrap}
-.chip::before{content:"[";color:var(--violet)}.chip::after{content:"]";color:var(--violet)}
-.chip:focus-visible{background:var(--accent);color:var(--bg)}
+.toc .chips{display:flex;flex-wrap:wrap;gap:var(--r) 2ch;margin-top:var(--r);padding-left:4ch}
+/* one row tall on the grid, a thumb tall to touch: the house padding and negative margin,
+   and a row of gap between wrapped rows so two targets never stack */
+.chip{font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;white-space:nowrap;background-clip:content-box}
+.chip::before{content:"[";content:"[" / "";color:var(--violet)}.chip::after{content:"]";content:"]" / "";color:var(--violet)}
 .chip[aria-pressed="true"]{color:var(--bg);background:var(--ink);background-clip:content-box;box-shadow:none}
+.chip:focus-visible,.chip[aria-pressed="true"]:focus-visible{background:var(--accent);background-clip:content-box;color:var(--bg)}
 /* a pressed chip is ink on paper already, hovering it must not turn the text into the paper */
 @media (hover:hover){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
-.filters{display:flex;flex-wrap:wrap;gap:0 2ch}
+.filters{display:flex;flex-wrap:wrap;gap:var(--r) 2ch}
 .doc{margin-top:var(--r)}
 .doc-tabs{padding-bottom:var(--r)}
 .doc-tabs .tab{padding:calc(var(--r)/2) 2ch}
@@ -18,7 +19,7 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .doc-tabs .tab{position:relative}
 .doc-tabs .tab[aria-selected="true"]{background:none;color:var(--ink);box-shadow:none;font-weight:700}
 .doc-tabs .tab[aria-selected="true"]::after{
-  content:var(--h-heavy);position:absolute;left:0;right:0;top:100%;height:var(--r);
+  content:var(--h-heavy);content:var(--h-heavy) / "";position:absolute;left:0;right:0;top:100%;height:var(--r);
   overflow:hidden;white-space:nowrap;color:var(--violet);background:var(--bg);z-index:1;
 }
 .doc-tabs .tab:focus-visible{background:var(--accent);color:var(--bg)}
@@ -27,7 +28,6 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 var(--r) 2ch;border-left:0;position:relative}
 .code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
 .copyrow{margin-top:var(--r)}
-[hidden]{display:none !important}
 
 /* avatar */
 .avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);overflow:hidden;flex:none}
@@ -36,8 +36,8 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .avatar canvas{width:100%;height:100%;display:block}
 /* breadcrumb */
 .crumbs{list-style:none;display:flex;flex-wrap:wrap;padding:0;margin:0}
-.crumbs li + li::before{content:"/";color:var(--hot);font-weight:700;padding:0 1ch}
-.crumbs a{color:var(--muted);text-decoration:none;outline:0;padding:12px 0;margin:-12px 0;display:inline-block}
+.crumbs li + li::before{content:"/";content:"/" / "";color:var(--hot);font-weight:700;padding:0 1ch}
+.crumbs a{color:var(--muted);text-decoration:none;outline:0;padding:12px 0;margin:-12px 0;display:inline-block;background-clip:content-box}
 .crumbs a:focus-visible{background:var(--accent);color:var(--bg)}
 @media (hover:hover){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
 .crumbs [aria-current] span{background:var(--ink);color:var(--bg);padding:0 1ch;font-weight:700}
@@ -46,15 +46,19 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .cal-head{display:flex;justify-content:space-between;align-items:center;text-transform:uppercase;font-weight:700}
 .cal-grid{display:grid;grid-template-columns:repeat(7,4ch);margin-top:var(--r)}
 .cal-grid span{color:var(--muted);text-align:center}
-.cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:10px 0;cursor:pointer;outline:0;text-align:center}
+/* a day is two whole rows, 42px; the pseudo element adds a pixel above and
+   below so the thumb still gets 44 */
+.cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;text-align:center;position:relative}
+.cal-grid button::after{content:"";position:absolute;inset:-1px 0}
 .cal-grid button.today{color:var(--hot);font-weight:700}
 .cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
-.ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0}
-.ibtn::before{content:"[";color:var(--muted)}.ibtn::after{content:"]";color:var(--muted)}
+.ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;background-clip:content-box}
+.ibtn::before{content:"[";content:"[" / "";color:var(--muted)}.ibtn::after{content:"]";content:"]" / "";color:var(--muted)}
 .ibtn:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn:disabled{color:var(--muted);cursor:not-allowed}
 .ibtn[aria-current="page"]{background:var(--ink);color:var(--bg);background-clip:content-box}
+.ibtn[aria-current="page"]:focus-visible{background:var(--accent)}
 /* a bracketed digit is 3ch, 29px, too narrow for a thumb. A character of
    padding each side makes every page 5ch wide and the padding is the gap */
 #pager{gap:var(--r) 0}
@@ -64,21 +68,21 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .pop{position:relative;display:inline-block}
 .menu{position:absolute;left:0;top:calc(var(--r)*3);z-index:30;width:28ch;max-width:calc(100vw - 6ch);background:var(--bg)}
 .menu.open .lift{animation:glitchin .3s steps(1) both}
-.menu [role="menuitem"]{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:6px 0;text-align:left;cursor:pointer;outline:0}
+.menu [role="menuitem"]{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:calc(var(--r)/2) 0;text-align:left;cursor:pointer;outline:0}   /* two whole rows, a thumb tall */
 .menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
 .menu [role="menuitem"].danger{color:var(--warn)}
 .menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
 .menu .sepd{margin:0}
 .menu kbd{color:inherit;font-weight:300;opacity:.7}
 .tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
-.tip::after{content:"v";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
+.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
 .pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
 /* On touch a tap leaves both hover and focus behind, so the tip stayed up for
    good, and it opened over the Preview and Code tabs. There it opens below the
    button and only the tap timer shows it. */
 @media (pointer:coarse){
   .tip{bottom:auto;top:calc(var(--r)*3 + 6px)}
-  .tip::after{content:"^";top:-12px}
+  .tip::after{content:"^";content:"^" / "";top:-12px}
   .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
   .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
   #view-kit > section:has(.pop.on){z-index:6}
@@ -86,26 +90,32 @@ section{scroll-margin-top:calc(var(--r)*4)}
 /* otp */
 .otp{display:flex;gap:1ch}
 .otp span{display:inline-flex;font-weight:700}
-.otp span::before{content:"[";color:var(--muted)}.otp span::after{content:"]";color:var(--muted)}
+.otp span::before{content:"[";content:"[" / "";color:var(--muted)}.otp span::after{content:"]";content:"]" / "";color:var(--muted)}
 .otp input{font:inherit;font-weight:700;width:2ch;text-align:center;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;outline:0;caret-color:var(--hot)}
 .otp span:focus-within::before,.otp span:focus-within::after{color:var(--accent)}
-.otp input::placeholder{color:var(--muted)}
 .otp.good span::before,.otp.good span::after,.otp.good input{color:var(--ok)}
+/* a wrong code looks like an invalid field: brackets and digits in the warning colour */
+.otp.invalid span::before,.otp.invalid span::after,.otp.invalid input,
+.otp:has([aria-invalid="true"]) span::before,.otp:has([aria-invalid="true"]) span::after,.otp:has([aria-invalid="true"]) input{color:var(--danger)}
+/* the digit itself inverts, brackets alone were too quiet to find */
+.otp input:focus{background:var(--accent);background-clip:content-box;color:var(--bg);caret-color:var(--bg)}
+.otp input:focus::placeholder{color:var(--bg)}
 /* kbd list, separators, spinners */
 .kbds{display:grid;gap:var(--r);grid-template-columns:repeat(auto-fill,minmax(16ch,1fr))}
 .sepd{height:var(--r);overflow:hidden;white-space:nowrap;font-weight:700;margin:var(--r) 0 0}
-.sepd::before{content:var(--h-light)}
-.sepd.heavy::before{content:var(--h-heavy);color:var(--hot)}
-.sepd.faint::before{content:var(--h-faint);color:var(--muted)}
-.sepd.shade::before{content:var(--h-shade);color:var(--violet)}
+.sepd::before{content:var(--h-light);content:var(--h-light) / ""}
+.sepd.heavy::before{content:var(--h-heavy);content:var(--h-heavy) / "";color:var(--hot)}
+.sepd.faint::before{content:var(--h-faint);content:var(--h-faint) / "";color:var(--muted)}
+.sepd.shade::before{content:var(--h-shade);content:var(--h-shade) / "";color:var(--violet)}
 .sepl{display:flex;gap:1ch;color:var(--muted);margin-top:var(--r);white-space:nowrap;overflow:hidden}
-.sepl::before,.sepl::after{content:var(--h-faint);flex:1;overflow:hidden;min-width:0}
+.sepl::before,.sepl::after{content:var(--h-faint);content:var(--h-faint) / "";flex:1;overflow:hidden;min-width:0}
 .spins{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(14ch,1fr))}
 .spins b{display:inline-block;min-width:8ch;margin-right:1ch;color:var(--hot);white-space:pre}
 /* textarea */
 .field.area .body{padding:0 3ch}
 .field.area textarea{display:block;width:100%;font:inherit;color:var(--ink);background:none;border:0;border-radius:0;outline:0;resize:none;padding:0;margin:0;caret-color:var(--hot)}
 .field:focus-within{--v:var(--v-heavy)}
+.field.invalid{--v:var(--v-error)}   /* the textarea's walls say ! like its rims */
 .field.area .body::before,.field.area .body::after{color:var(--frame-color,var(--ink))}
 .count{color:var(--muted);text-align:right}
 .count.full{color:var(--warn);font-weight:700}
@@ -116,13 +126,16 @@ section{scroll-margin-top:calc(var(--r)*4)}
 .tgroup span{display:block;padding:calc(var(--r)/2) 2ch;color:var(--muted);text-transform:uppercase}
 .tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .tgroup input:focus-visible + span{background:var(--accent);color:var(--bg)}
+.tgroup label:has(input:disabled){cursor:not-allowed}
+.tgroup input:disabled + span{color:var(--muted);text-decoration:line-through}
+.tgroup input:disabled:checked + span{background:var(--muted);color:var(--bg);box-shadow:none}
 /* timeline, feed */
 .timeline{list-style:none;padding:0;margin:0;max-width:60ch}
 .timeline li{position:relative;padding:0 0 var(--r) 4ch}
-.timeline li::before{content:var(--k8,"@") var(--k8,"@");position:absolute;left:0;top:0;font-weight:700;color:var(--hot)}
-.timeline li::after{content:var(--v-shade);position:absolute;left:0;top:var(--r);bottom:0;width:2ch;overflow:hidden;white-space:pre;color:var(--violet);font-weight:700}
+.timeline li::before{content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";position:absolute;left:0;top:0;font-weight:700;color:var(--hot)}
+.timeline li::after{content:var(--v-shade);content:var(--v-shade) / "";position:absolute;left:0;top:var(--r);bottom:0;width:2ch;overflow:hidden;white-space:pre;color:var(--violet);font-weight:700}
 .timeline li:last-child::after{display:none}
-.timeline li.past::before{content:var(--k6,"#") var(--k6,"#");color:var(--ink)}
+.timeline li.past::before{content:var(--k6,"#") var(--k6,"#");content:var(--k6,"#") var(--k6,"#") / "";color:var(--ink)}
 .timeline b{display:block;text-transform:uppercase}
 .timeline span{color:var(--muted)}
 .timeline time{color:var(--violet);font-weight:700}
@@ -136,16 +149,14 @@ dialog.sheet .card{padding-bottom:calc(var(--r) + env(safe-area-inset-bottom,0px
 dialog.sheet .body{max-width:80ch;margin:0 auto}
 /* LCD pictures */
 figure.pic{margin:0;max-width:480px}
-figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y;background:#05030a}
-figure.pic .bezel{padding:6px;background:#05030a;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y;background:var(--lcd-bg,#05030a)}
+figure.pic .bezel{padding:6px;background:var(--lcd-bg,#05030a);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 figcaption{color:var(--muted);margin-top:calc(var(--r)/2)}
 figcaption b{color:var(--ink)}
 .thumb{margin:0 0 var(--r)}
 /* blocks */
 .profile{display:grid;gap:var(--r) 3ch;grid-template-columns:1fr}
 @media (min-width:720px){.profile{grid-template-columns:28ch 1fr;align-items:start}}
-.grid2{display:grid;gap:var(--r);grid-template-columns:1fr}
-@media (min-width:860px){.grid2{grid-template-columns:repeat(2,37ch);gap:var(--r) 2ch}.grid2 .lift{max-width:37ch}}
 .tags{display:flex;flex-wrap:wrap;gap:0 1ch;margin-top:var(--r)}
 .wo{list-style:none;padding:0;margin:0;max-width:60ch}
 .wo li{padding-bottom:var(--r)}
@@ -155,7 +166,7 @@ figcaption b{color:var(--ink)}
 .side button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 1ch;cursor:pointer;outline:0;text-align:left}
 .side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .side button:focus-visible{background:var(--accent);color:var(--bg)}
-.side button::before{content:"  "}.side button[aria-current="page"]::before{content:"> "}
+.side button::before{content:"  ";content:"  " / ""}.side button[aria-current="page"]::before{content:"> ";content:"> " / ""}
 .side button span{margin-left:auto;padding-left:2ch}
 .kv{display:grid;grid-template-columns:10ch 1fr;gap:0 1ch}
 .kv dt{color:var(--muted)}

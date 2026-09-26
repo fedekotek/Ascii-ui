@@ -2,7 +2,7 @@
 .ramp{font-weight:700;white-space:pre}
 .rules{list-style:none;padding:0;max-width:60ch}
 .rules li{position:relative;padding-left:3ch}
-.rules li::before{content:var(--k8,"@") var(--k8,"@");position:absolute;left:0;font-weight:700;color:var(--hot)}
+.rules li::before{content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";position:absolute;left:0;font-weight:700;color:var(--hot)}
 .rules li + li{margin-top:var(--r)}
 
 @media (prefers-reduced-motion:reduce){
@@ -10,14 +10,16 @@
 }
 
 [hidden]{display:none !important}
-/* new components */
-.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap}
+/* badges, alerts, selects, skeletons */
+/* every slab badge has the slab edges: violet and magenta on ink, lime and amber,
+   violet and deep on magenta */
+.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 .b-ok{background:var(--ok)}.b-warn{background:var(--warn)}
 .b-hot{background:var(--hot);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
-.b-out{background:none;color:var(--ink);padding:0}
-.b-out::before{content:"[";color:var(--muted)}.b-out::after{content:"]";color:var(--muted)}
+.b-out{background:none;color:var(--ink);padding:0;box-shadow:none}
+.b-out::before{content:"[";content:"[" / "";color:var(--muted)}.b-out::after{content:"]";content:"]" / "";color:var(--muted)}
 .alert{--frame-color:var(--warn);max-width:50ch}
-.alert .card::before{content:var(--h)}
+.alert .card::before{content:var(--h);content:var(--h) / ""}
 .alert .bar-title{background:var(--warn);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
 /* info is violet: cyan is focus and nothing else */
 .alert.info{--frame-color:var(--violet)}
@@ -42,10 +44,11 @@
 .tablewrap{overflow-x:auto;max-width:100%}
 .tbl{border-collapse:collapse;white-space:nowrap;min-width:100%}
 .tbl th{text-align:left;background:var(--ink);color:var(--bg);text-transform:uppercase;padding:0 1ch;font-weight:700}
-.tbl td{padding:12px 1ch}
+.tbl td{padding:calc(var(--r)/2) 1ch}   /* a row is two whole rows, 42px, not 45 */
 .tbl tbody tr{cursor:pointer;outline:0}
 .tbl tbody tr:nth-child(even){background:color-mix(in srgb,var(--ink) 7%,transparent)}
-.tbl tbody tr[aria-selected="true"]{background:var(--hot);color:var(--bg)}
+/* the picked row is an ink slab, like a pressed Segment: magenta is for acting */
+.tbl tbody tr[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink);box-shadow:none}
 .tbl tbody tr:focus-visible{box-shadow:inset 1ch 0 0 var(--accent)}
 /* At 390px four columns needed 42 characters in a 36 character box and the
@@ -61,8 +64,12 @@
 .price small{font:inherit;font-weight:300;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}
 .feat li{position:relative;padding-left:2ch;color:var(--muted)}
-.feat li::before{content:"+";position:absolute;left:0;color:var(--ok);font-weight:700}
+.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--ok);font-weight:700}
 .popular{position:absolute;top:0;right:2ch;z-index:1}
+/* lime confirms and yellow warns, so a tag that is only a label is violet or pink */
+.badge.popular{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
+#build .b-ok{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
+#build .b-warn{background:var(--pink);color:var(--on-pink);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
 
 /* charts */
 .chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}
@@ -123,10 +130,6 @@
 @keyframes bootout{to{clip-path:inset(0 0 100% 0)}}
 @keyframes bootsafe{to{visibility:hidden}}
 #posterImg{display:block;width:100%;height:auto}
-.dest{-webkit-touch-callout:none}
 
-.grid3{display:grid;gap:var(--r);grid-template-columns:1fr}
-@media (min-width:860px){.grid3{grid-template-columns:repeat(3,24ch);gap:var(--r) 2ch}.grid3 .lift{max-width:24ch}}
-.hint{color:var(--muted)}
 kbd{font:inherit;font-weight:700;color:var(--ink)}
-kbd::before{content:"["}kbd::after{content:"]"}
+kbd::before{content:"[";content:"[" / ""}kbd::after{content:"]";content:"]" / ""}

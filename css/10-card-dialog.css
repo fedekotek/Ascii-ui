@@ -1,16 +1,16 @@
 /* ---------- card, dialog and the offset shadow ---------- */
 .lift{position:relative;padding:0 2ch var(--r) 0;max-width:50ch}
 .lift::before{
-  content:var(--v-shade);position:absolute;right:0;top:var(--r);bottom:var(--r);width:2ch;
+  content:var(--v-shade);content:var(--v-shade) / "";position:absolute;right:0;top:var(--r);bottom:var(--r);width:2ch;
   overflow:hidden;white-space:pre;font-weight:700;
 }
 .lift::after{
-  content:var(--h-shade);position:absolute;left:2ch;right:0;bottom:0;height:var(--r);
+  content:var(--h-shade);content:var(--h-shade) / "";position:absolute;left:2ch;right:0;bottom:0;height:var(--r);
   overflow:hidden;white-space:nowrap;font-weight:700;
 }
 .card{background:var(--bg)}
 .lift::before,.lift::after{color:var(--deep)}
-.card::before{content:var(--h-heavy)}
+.card::before{content:var(--h-heavy);content:var(--h-heavy) / ""}
 .bar-title{
   position:absolute;top:0;left:2ch;z-index:1;padding:0 1ch;
   background:var(--hot);color:var(--bg);text-transform:uppercase;
@@ -19,7 +19,7 @@
 }
 .body{position:relative;padding:var(--r) 4ch}
 .body::before,.body::after{
-  content:var(--v);position:absolute;top:0;bottom:0;width:2ch;
+  content:var(--v);content:var(--v) / "";position:absolute;top:0;bottom:0;width:2ch;
   overflow:hidden;white-space:pre;font-weight:700;
 }
 .body::before{left:0}
@@ -34,8 +34,7 @@ dialog{
 }
 dialog .lift{max-width:none}
 dialog::backdrop{
-  background-color:rgba(236,235,228,.86);
-  background-color:color-mix(in srgb,var(--bg) 86%,transparent);
+  background-color:color-mix(in srgb,var(--bg,Canvas) 86%,transparent);
   /* scanlines over the dots. The fallback is for browsers where ::backdrop does not inherit tokens */
   background-image:var(--scanlines,repeating-linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)),
     radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);

@@ -77,7 +77,7 @@ function show(name){const t=$('v-'+name);if(t){t.click();return true}return fals
    reduced motion; this fills it, or builds it again for the palette's `boot`.
    Keep BOOTSKEL in step with the markup in index.html. About 0.6s, then out. */
 const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
-  ['pink','warn','cy','deep','ink','hot','violet'].map(k=>'<b style="background:var(--'+k+');color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
+  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="background:var(--'+k+');color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
   '</div><div class="log">ASCII/UI BIOS v0.9  (c) nobody\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
 let booting=false;
 function boot(force,done){
@@ -464,7 +464,7 @@ const INV=(function(){
     [['...##...','..####..','.######.','##.##.##','..#..#..','.#.##.#.'],['...##...','..####..','.######.','##.##.##','.#....#.','..#..#..']],
     [['..#..#..','.######.','##.##.##','########','#.#..#.#','..#..#..'],['..#..#..','.######.','##.##.##','########','.#....#.','#......#']],
     [['..####..','########','##.##.##','########','.##..##.','##....##'],['..####..','########','##.##.##','########','..#..#..','.#.##.#.']]];
-  const SHIP=['...##...','..####..','########','########'],KC=['pink','warn','cy'];
+  const SHIP=['...##...','..####..','########','########'],KC=['pink','warn','violet'];
   let cw=5,lh=7,fs=8,dpr=1,state='idle',inv=[],bul=[],bom=[],bunk=[],px=28,dir=1,t=0,score=0,hi=0,lives=3,wave=1,down=false,kl=false,kr=false,kf=false,cool=0,vis=false,flash=0;
   try{hi=parseInt(localStorage.getItem('aui-hi'),10)||0}catch(e){}
   function size(W){
@@ -596,7 +596,7 @@ function drawBars(p){
   REQ.forEach((v,i)=>{
     const h=Math.round(v/mx*H*barP),x0=lab+i*(bw+1);
     for(let yy=0;yy<h;yy++){const top=h-1-yy,ch=top===0?'*':(top===1?'#':(top===2?'%':'@'));
-      for(let xx=0;xx<bw;xx++)g.set(x0+xx,H-1-yy,ch,i===selBar?'cy':(top<2?'pink':'hot'))}
+      for(let xx=0;xx<bw;xx++)g.set(x0+xx,H-1-yy,ch,i===selBar?'violet':(top<2?'pink':'hot'))}
     g.text(x0+Math.max(0,Math.floor((bw-3)/2)),H,DAYS[i].slice(0,bw),i===selBar?'ink':'muted');
   });
   el.innerHTML=g.html();
@@ -679,7 +679,7 @@ keys($('ch-heat'),k=>{
 $('ch-heat')._anim=grow(drawHeat);
 
 /* donut */
-const SEG=[['direct',0.38,'hot'],['search',0.27,'cy'],['social',0.20,'warn'],['email',0.15,'violet']];let selD=-1,donP=1;
+const SEG=[['direct',0.38,'hot'],['search',0.27,'deep'],['social',0.20,'warn'],['email',0.15,'violet']];let selD=-1,donP=1;
 function segAt(a){let acc=0;for(let i=0;i<SEG.length;i++){acc+=SEG[i][1];if(a<acc)return i}return SEG.length-1}
 function drawDonut(p){
   if(p!=null)donP=p;const H=13,g=new Grid(CC,H),cx=13,cy=6,ay=14/CCW;

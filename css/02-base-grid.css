@@ -10,9 +10,10 @@ body{
 }
 /* body type is 300; grey text is thinner to the eye, so it gets 400 to read
    at 14px in both themes */
-.muted,.hint,.dochead .lede,.navcount,.navlabel,.field-label,
+.muted,.dochead .lede,.navcount,.navlabel,.field-label,
 #sidenav .navlink,.s-meta,.s-dots,.s-head,.foot,.sfield{font-weight:400}
 ::selection{background:var(--hot);color:var(--bg)}
+::placeholder{color:var(--muted);opacity:1}
 /* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
 body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:250;
@@ -57,8 +58,8 @@ body{
 main{max-width:80ch;margin:0 auto;padding:var(--r) 2ch calc(var(--r)*5)}
 main.show-grid{
   background-image:
-    linear-gradient(to right,color-mix(in srgb,var(--accent) 30%,transparent) 1px,transparent 1px),
-    linear-gradient(to bottom,color-mix(in srgb,var(--accent) 30%,transparent) 1px,transparent 1px);
+    linear-gradient(to right,color-mix(in srgb,var(--violet) 30%,transparent) 1px,transparent 1px),
+    linear-gradient(to bottom,color-mix(in srgb,var(--violet) 30%,transparent) 1px,transparent 1px);
   background-size:1ch var(--r);
 }
 h1,h2,h3,p,ul,dl,dd,pre{margin:0;font:inherit}
@@ -66,7 +67,9 @@ h1,h2,h3,p,ul,dl,dd,pre{margin:0;font:inherit}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 section{margin-top:calc(var(--r)*3)}
 [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*5)}
-[role="tabpanel"] > section[aria-labelledby]:not([hidden]) ~ section[aria-labelledby]:not([hidden])::before{content:var(--h-faint);display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2)}
+/* a group label belongs to the section under it: one row, not five */
+[role="tabpanel"] > .grouph + section[aria-labelledby]{margin-top:var(--r)}
+[role="tabpanel"] > section[aria-labelledby]:not([hidden]) ~ section[aria-labelledby]:not([hidden])::before{content:var(--h-faint);content:var(--h-faint) / "";display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:calc(var(--r)*2)}
 .demo{margin-top:var(--r)}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
 .stack{display:grid;gap:var(--r);justify-items:start}

@@ -7,6 +7,7 @@
   position:absolute;inset:-10px 0;width:100%;height:calc(100% + 20px);
   margin:0;opacity:0;cursor:pointer;
 }
-.slider-track:has(input:focus-visible){color:var(--accent)}
+/* the bar's characters carry their own colours, so focus shows on the label */
+.slider:has(input:focus-visible) > label::first-line{background:var(--accent);color:var(--bg)}
 .progress{display:flex;gap:2ch;align-items:flex-end}
 .progress .pct{white-space:pre}

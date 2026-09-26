@@ -1,7 +1,7 @@
 /* ---------- tabs ---------- */
 .tablist{display:flex;position:relative;padding-bottom:var(--r)}
 .tablist::after{
-  content:var(--h-light);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  content:var(--h-light);content:var(--h-light) / "";position:absolute;left:0;right:0;bottom:0;height:var(--r);
   overflow:hidden;white-space:nowrap;font-weight:700;
 }
 .tab{

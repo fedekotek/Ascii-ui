@@ -1,9 +1,14 @@
 /* =================== v8: themes, ramp editor, play, install =================== */
-:root[data-preset="amber"]{--bg:#0d0700;--ink:#ffb000;--muted:#b98200;--hot:#ffd060;--pink:#ffc040;--cy:#fff1c0;--ok:#ffe08a;--warn:#ff6a00;--deep:#7a4a00;--violet:#c88a00;--t0:#ffd060;--t1:#ffb000;--t2:#d98f00;--t3:#8a5a00;--scan:rgba(0,0,0,.32);color-scheme:dark}
-:root[data-preset="gameboy"]{--bg:#0f380f;--ink:#9bbc0f;--muted:#7da51a;--hot:#c4e04a;--pink:#9bbc0f;--cy:#e0f8a0;--ok:#c4e04a;--warn:#e0f8a0;--deep:#306230;--violet:#4f8a2f;--t0:#e0f8a0;--t1:#c4e04a;--t2:#9bbc0f;--t3:#4f8a2f;--scan:rgba(0,0,0,.25);color-scheme:dark}
-:root[data-preset="blueprint"]{--bg:#0b2a6b;--ink:#eaf2ff;--muted:#a9c0ee;--hot:#ffffff;--pink:#cfe0ff;--cy:#7fe0ff;--ok:#b8ffda;--warn:#ffd86b;--deep:#5f8ae0;--violet:#8fb0ff;--t0:#ffffff;--t1:#cfe0ff;--t2:#8fb0ff;--t3:#5f8ae0;--scan:rgba(0,10,40,.3);color-scheme:dark}
-:root[data-preset="hotdog"]{--bg:#c40000;--ink:#ffee00;--muted:#ffd0a0;--hot:#000000;--pink:#ffee00;--cy:#ffffff;--ok:#ffffff;--warn:#000000;--deep:#7a0000;--violet:#ff9a9a;--t0:#ffee00;--t1:#ffffff;--t2:#000000;--t3:#7a0000;--scan:rgba(0,0,0,.18);color-scheme:dark}
-:root[data-preset="hotdog"] .btn-primary .label,:root[data-preset="hotdog"] .bar-title{color:#ffee00}
+/* Presets keep the four roles apart: action, focus, success and warning are
+   four different colours in every one, and text clears 4.5:1 on the surface.
+   Focus is a pale blue in each, as it is in the kit. Amber's action slab is
+   cream and Blueprint's is pink, so neither reads as the ink slab. */
+:root[data-preset="amber"]{--bg:#0d0700;--ink:#ffb000;--muted:#b98200;--hot:#ffe7a8;--pink:#ffc040;--cy:#8fd8ff;--ok:#c8e85a;--warn:#ff6a00;--deep:#7a4a00;--violet:#c88a00;--t0:#ffd060;--t1:#ffb000;--t2:#d98f00;--t3:#8a5a00;--scan:rgba(0,0,0,.32);color-scheme:dark}
+:root[data-preset="gameboy"]{--bg:#0f380f;--ink:#9bbc0f;--muted:#7da51a;--hot:#c4e04a;--pink:#9bbc0f;--cy:#b8e8ff;--ok:#7ff0b0;--warn:#ffa94d;--deep:#306230;--violet:#7fb85a;--t0:#e0f8a0;--t1:#c4e04a;--t2:#9bbc0f;--t3:#4f8a2f;--scan:rgba(0,0,0,.25);color-scheme:dark}
+:root[data-preset="blueprint"]{--bg:#0b2a6b;--ink:#eaf2ff;--muted:#a9c0ee;--hot:#ff9ec4;--pink:#cfe0ff;--cy:#7fe0ff;--ok:#b8ffda;--warn:#ffd86b;--deep:#5f8ae0;--violet:#8fb0ff;--t0:#ffffff;--t1:#cfe0ff;--t2:#8fb0ff;--t3:#5f8ae0;--scan:rgba(0,10,40,.3);color-scheme:dark}
+/* Hot dog: black on the stand's red was 3.35:1, so the red is darker, action
+   is white and black is only the shadow. */
+:root[data-preset="hotdog"]{--bg:#a80000;--ink:#ffee00;--muted:#ffd0a0;--hot:#ffffff;--pink:#ffee00;--cy:#00e5ff;--ok:#b6ff5c;--warn:#ffb84d;--deep:#000000;--violet:#ffb3d1;--t0:#ffee00;--t1:#ffffff;--t2:#000000;--t3:#000000;--scan:rgba(0,0,0,.18);color-scheme:dark}
 .swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(23ch,1fr));max-width:76ch}   /* 23ch: a 6ch chip, a gap and "errors, degraded" on one line */
 .sw{display:flex;gap:1ch;align-items:center}
 .sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
@@ -12,32 +17,14 @@
 .sw input[type="color"]::-moz-color-swatch{border:0;border-radius:0}
 .sw input[type="color"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .sw span{display:block}.sw small{font:inherit;color:var(--muted);display:block}
-.rampcells{display:flex;gap:1ch;flex-wrap:wrap}
+.rampcells{display:flex;gap:0 1ch;flex-wrap:wrap}
 .rampcells label{display:grid;justify-items:center;color:var(--muted)}
 .rampcells span{display:inline-flex;font-weight:700}
-.rampcells span::before{content:"[";color:var(--muted)}.rampcells span::after{content:"]";color:var(--muted)}
+.rampcells span::before{content:"[";content:"[" / "";color:var(--muted)}.rampcells span::after{content:"]";content:"]" / "";color:var(--muted)}
 .rampcells span:focus-within::before,.rampcells span:focus-within::after{color:var(--accent)}
 .rampcells input{font:inherit;font-weight:700;width:2ch;text-align:center;background:none;border:0;border-radius:0;color:var(--hot);padding:12px 0;margin:-12px 0;outline:0;caret-color:var(--hot)}
 #rampSpec{font-weight:700;white-space:pre;overflow:hidden}
 .code .h4{display:block;margin:0;font:inherit;font-weight:700;color:var(--ink);text-transform:uppercase}
-.code .h4::before{content:"## ";color:var(--hot)}
+.code .h4::before{content:"## ";content:"## " / "";color:var(--hot)}
 .code .dep{color:var(--warn)}
 
-.post{padding:var(--r) 0 0}
-.post + .post::before{content:var(--h-faint);display:block;height:var(--r);overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.6;margin-bottom:calc(var(--r)/2)}
-.post .who{display:flex;gap:1ch;align-items:baseline}
-.post .who b{text-transform:none}
-.post .who span{color:var(--muted)}
-.post p{margin-top:calc(var(--r)/2)}
-.post .acts{display:flex;gap:2ch;margin-top:calc(var(--r)/2);flex-wrap:wrap}
-.post .acts button{font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0}
-.post .acts button[aria-pressed="true"]{color:var(--hot);font-weight:700}
-.post .acts button[aria-pressed="true"].rt{color:var(--ok)}
-.post .acts button:focus-visible{background:var(--accent);color:var(--bg)}
-.post .media{margin-top:calc(var(--r)/2)}
-.typing{color:var(--muted)}
-
-/* Thumb-wide targets in the Chirp demo. The post actions sit 2ch apart, so a
-   character of padding each side fills the gap without two targets touching;
-   the bell and the shortest tab label get the same 5ch floor. */
-.post .acts button{padding:12px 1ch;margin:-12px -1ch}
