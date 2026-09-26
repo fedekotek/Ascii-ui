@@ -29,6 +29,8 @@
 /* Get the kit: a narrow box breaks the address at the edge, character by
    character, instead of at the indent, so no row is left with two spaces */
 .kit-links{word-break:break-all}
+/* the copy and download messages under their buttons: blocked is yellow, it warns */
+.kit-out.err{color:var(--warn)}
 .code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
 .copyrow{margin-top:var(--r)}
 

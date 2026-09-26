@@ -18,8 +18,12 @@
    No ids needed. Each component finds its parts inside the element around it,
    so the same component pasted twice keeps two separate copies. The ids that
    aria needs (a label's for, a tab's aria-controls) are made here, unique.
+   A part belongs to a component when no other component stands between them;
+   a component without its own part finds nothing and borrows nothing.
    To point at something far away instead, give it an id and name it:
-   data-aui-open="id", data-aui-fill="id", data-status="id".
+   data-aui-open="id", data-aui-fill="id", data-status="id". A dialog can
+   also be named with data-aui-dialog="name" and opened by data-aui-open="name".
+   Radios pasted twice get a name per copy, so each copy stays its own group.
 
    Everything that moves runs on requestAnimationFrame and stops when the
    element leaves the page. prefers-reduced-motion leaves every frame still.
@@ -39,15 +43,29 @@ function all(sel,root){return Array.prototype.slice.call((root||doc).querySelect
 function rep(c,n){var s='';while(n-->0)s+=c;return s}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
 function byId(id){return id?doc.getElementById(String(id).replace(/^#/,'')):null}
-/* what el talks to: the id its attr names, or else the first sel in the
-   smallest box around el that has one. The page itself is not a box, so a
-   component without a part of its own does not borrow another's */
-function near(el,attr,sel){
-  var id=attr&&el.getAttribute(attr),p,m;
+/* What el talks to: the id its attr names, or else its own part, sel, in the
+   smallest box around el that holds one. A part is el's own when no other
+   component stands between them in the page: a status line, a count, an
+   error or a dialog comes after its component (both: a progress bar may also
+   come before its button). So a component without a part of its own finds
+   nothing, it never borrows the next one's. */
+var HOST='[data-aui],[data-aui-open],[data-aui-fill]';
+function after(a,b){return !!(a.compareDocumentPosition(b)&4)}   /* b comes after a */
+function near(el,attr,sel,both){
+  var id=attr&&el.getAttribute(attr),p,hs,fol,pre;
   if(id&&byId(id))return byId(id);
-  for(p=el.parentElement;p&&p!==doc.body&&p!==doc.documentElement;p=p.parentElement){
-    m=all(sel,p).filter(function(x){return x!==el&&!el.contains(x)});
-    if(m.length)return m[0];
+  for(p=el.parentElement;p&&p!==doc.documentElement;p=p.parentElement){
+    hs=all(HOST,p).filter(function(h){return h!==el&&!h.contains(el)&&!el.contains(h)});
+    fol=[];pre=[];
+    all(sel,p).forEach(function(x){
+      if(x===el||el.contains(x)||x.contains(el))return;
+      var next=after(el,x);if(!next&&!both)return;
+      var lo=next?el:x,hi=next?x:el;
+      if(hs.some(function(h){return h!==x&&!x.contains(h)&&after(lo,h)&&after(h,hi)}))return;
+      (next?fol:pre).push(x);
+    });
+    if(fol.length)return fol[0];
+    if(pre.length)return pre[pre.length-1];
   }
   return null;
 }
@@ -58,6 +76,15 @@ function uid(el,pre){
   return el.id;
 }
 function status(el){return near(el,'data-status','[role="status"]')}
+/* the dialog a data-aui-open button opens: the one its value names, by id or
+   by data-aui-dialog, else its own. Nothing found is said once, not thrown */
+function dialogOf(t){
+  var v=t.getAttribute('data-aui-open'),d=null;
+  if(v)d=byId(v)||all('dialog[data-aui-dialog]').filter(function(x){return x.getAttribute('data-aui-dialog')===v})[0]||null;
+  if(!d)d=near(t,null,'dialog');
+  if(!d&&!t.__auiWarned){t.__auiWarned=true;console.warn('ascii-ui: data-aui-open'+(v?'="'+v+'"':'')+' found no dialog. Put the button and its <dialog> in one element, or name it: data-aui-open="name" with id="name" or data-aui-dialog="name" on the dialog.')}
+  return d;
+}
 function say(el,text){var s=status(el);if(s)s.textContent=text}
 function emit(el,name,detail){el.dispatchEvent(new CustomEvent('aui:'+name,{bubbles:true,detail:detail}))}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -443,8 +470,8 @@ doc.addEventListener('click',function(e){
     });
   }
   if(t.hasAttribute('data-aui-close'))close(t.closest('dialog'));
-  if(t.hasAttribute('data-aui-open'))openDialog(near(t,'data-aui-open','dialog'),t);
-  if(t.hasAttribute('data-aui-fill'))runFill(near(t,'data-aui-fill','[role="progressbar"]'),t);
+  if(t.hasAttribute('data-aui-open'))openDialog(dialogOf(t),t);
+  if(t.hasAttribute('data-aui-fill'))runFill(near(t,'data-aui-fill','[role="progressbar"]',true),t);
   if(t.hasAttribute('data-aui-toast-err'))toast(t.getAttribute('data-aui-toast-err'),true);
   else if(t.hasAttribute('data-aui-toast'))toast(t.getAttribute('data-aui-toast'));
 });
@@ -456,7 +483,7 @@ doc.addEventListener('click',function(e){
 });
 
 /* ---- the ids aria needs, made for markup that has none ---- */
-var CONTROL='input:not([type="hidden"]),select,textarea';
+var CONTROL='input:not([type="hidden"]),select,textarea',nameN=0;
 function link(root){
   /* root itself counts, for a label or a dialog added on its own */
   var mine=function(sel){var l=all(sel,root);if(root.nodeType===1&&root.matches(sel))l.unshift(root);return l};
@@ -467,6 +494,23 @@ function link(root){
       var c=n.matches(CONTROL)?n:n.querySelector(CONTROL);
       if(c){l.setAttribute('for',uid(c,'field'));return}
     }
+  });
+  /* radios pasted twice share a name, and the browser makes them one group,
+     so the second copy's checked radio unchecks the first's. Each radiogroup
+     or fieldset after the first gets a name of its own, and a group left with
+     nothing checked gets back the one its html checks */
+  var seen={};
+  mine('input[type="radio"][name]').forEach(function(r){
+    var n=r.name;if(seen[n])return;seen[n]=1;
+    var box=function(x){return x.closest('[role="radiogroup"],fieldset')||x.form||doc.body};
+    var rs=all('input[type="radio"]').filter(function(x){return x.name===n}),boxes=[];
+    rs.forEach(function(x){if(boxes.indexOf(box(x))<0)boxes.push(box(x))});
+    if(boxes.length<2)return;
+    boxes.forEach(function(b,k){
+      var own=rs.filter(function(x){return box(x)===b}),nn;
+      if(k){do{nn=n+'-'+(++nameN)}while(all('input').some(function(x){return x.name===nn}));own.forEach(function(x){x.name=nn})}
+      if(!own.some(function(x){return x.checked}))own.forEach(function(x){if(x.defaultChecked)x.checked=true});
+    });
   });
   /* a dialog is named by its .bar-title and described by its first paragraph */
   mine('dialog').forEach(function(d){

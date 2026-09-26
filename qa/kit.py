@@ -265,6 +265,67 @@ TWICE_JS="""(name)=>{
   return T[name]?(T[name]()?true:'the second copy did not work on its own'):true;
 }"""
 
+# radios pasted twice: each copy keeps its checked radio, has its own names,
+# and a pick in the second copy leaves the first alone
+RADIOS_JS="""(()=>{
+  const R=window.__R,h=R.length/2,I=[R.slice(0,h),R.slice(h)];
+  const rs=i=>I[i].flatMap(r=>[...r.querySelectorAll('input[type=radio]')]);
+  const a=rs(0),b=rs(1);if(!a.length)return true;
+  if(a.length!==b.length)return 'the copies differ';
+  const na=new Set(a.map(x=>x.name));if(b.some(x=>na.has(x.name)))return 'the second copy shares a name with the first';
+  for(const x of [...a,...b])if(x.checked!==x.defaultChecked)return 'a copy lost its checked radio ('+x.name+')';
+  const pick=b.find(x=>!x.checked);if(!pick)return true;pick.click();
+  return a.every(x=>x.checked===x.defaultChecked)?true:'a pick in the second copy changed the first';
+})()"""
+
+# layouts people will write that the Code tab does not print: parts that are
+# missing, parts in a shared box, a button and its dialog loose in <body>
+EDGES=[
+ ('pagination does not borrow the OTP status',
+  '<main><div class="otp" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><p role="status">Type.</p><nav data-aui="pagination" data-pages="9" data-page="3"></nav></main>',
+  "(()=>{const s=document.querySelector('[role=status]');if(s.textContent!=='Type.')return 'pagination wrote '+s.textContent;const i=document.querySelector('.otp input');i.value='4';i.dispatchEvent(new Event('input',{bubbles:true}));return s.textContent==='1 of 2.'?true:'otp lost its own status: '+s.textContent})()"),
+ ('a field without an error does not point at the next one',
+  '<div><div class="group"><label class="field-label">Title</label><div class="field frame tone-light"><div class="mid"><input id="a" data-aui="validate" required value="x"></div></div></div><div class="group"><label class="field-label">Link</label><div class="field frame tone-light"><div class="mid"><input id="b" data-aui="validate" required pattern="[a-z]+" value="X"></div></div><p class="error"></p></div></div>',
+  "(()=>{const a=document.getElementById('a'),b=document.getElementById('b'),e=document.querySelector('.error');if(a.hasAttribute('aria-describedby'))return 'Title points at '+a.getAttribute('aria-describedby');if(document.getElementById(b.getAttribute('aria-describedby'))!==e)return 'Link lost its error';const before=e.textContent;a.value='';a.dispatchEvent(new Event('input',{bubbles:true}));return e.textContent===before&&before.length>0?true:'Title wrote into Link error: '+e.textContent})()"),
+ ('a counter without a count does not borrow one',
+  '<div><textarea id="a" maxlength="10" data-aui="counter"></textarea><textarea id="b" maxlength="20" data-aui="counter"></textarea><p class="count">x</p></div>',
+  "(()=>{const c=document.querySelector('.count');const a=document.getElementById('a');a.value='abc';a.dispatchEvent(new Event('input',{bubbles:true}));return c.textContent==='0/20'?true:'count says '+c.textContent})()"),
+ ('a fill button without a bar does not run the neighbour',
+  '<div><div class="progress" role="progressbar" data-aui="progress" aria-valuenow="0"><span class="bar"></span></div><button id="own" data-aui-fill>Own</button><button id="lost" data-aui-fill>Lost</button></div>',
+  "(async()=>{document.getElementById('lost').click();await new Promise(r=>setTimeout(r,300));const v=document.querySelector('[role=progressbar]').getAttribute('aria-valuenow');if(v!=='0')return 'the lost button ran the bar';document.getElementById('own').click();await new Promise(r=>setTimeout(r,300));return +document.querySelector('[role=progressbar]').getAttribute('aria-valuenow')>0?true:'the own button did not run its bar'})()"),
+ ('a button and a dialog loose in body',
+  '<button id="o" data-aui-open>Open</button><dialog><div class="body"><p>Hi</p><button data-aui-close>Close</button></div></dialog>',
+  "(()=>{document.getElementById('o').click();return document.querySelector('dialog').open?true:'did not open'})()"),
+ ('a dialog named with data-aui-dialog',
+  '<div><button id="o" data-aui-open="pub">Open</button></div><p>between</p><div><dialog data-aui-dialog="pub"><p>Hi</p></dialog></div><div><button data-aui-open>Other</button><dialog id="other"></dialog></div>',
+  "(()=>{document.getElementById('o').click();const d=document.querySelector('[data-aui-dialog=pub]');return d.open&&!document.getElementById('other').open?true:'the named dialog did not open'})()"),
+ ('no dialog at all: one warning, no error',
+  '<button id="o" data-aui-open="nope">Open</button>',
+  "(()=>{document.getElementById('o').click();document.getElementById('o').click();return true})()"),
+]
+
+async def edges(b):
+    fails=[];notes=set()
+    for name,html,js in EDGES:
+        page=('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+              '<link rel="stylesheet" href="file://'+os.path.join(KIT,'ascii-ui.css')+'">'
+              '<script src="file://'+os.path.join(KIT,'ascii-ui.js')+'" defer></script></head><body>'+html+'</body></html>')
+        fd,path=tempfile.mkstemp(suffix='.html',prefix='kit-edge-');os.write(fd,page.encode('utf-8'));os.close(fd)
+        pg=await b.new_page(viewport={'width':390,'height':844})
+        errs=[];warns=[];watch(pg,errs,notes)
+        pg.on('console',lambda m:warns.append(m.text) if m.type=='warning' else None)
+        try:
+            await pg.goto('file://'+path); await pg.wait_for_timeout(250)
+            r=await pg.evaluate(js)
+            if r is not True: fails.append('edge: %s: %s'%(name,r))
+            if name.startswith('no dialog'):
+                w=[x for x in warns if 'data-aui-open' in x]
+                if len(w)!=1: fails.append('edge: %s: expected one warning, got %d'%(name,len(w)))
+            fails+=['edge: %s: %s'%(name,e) for e in errs]
+        finally:
+            await pg.close();os.remove(path)
+    return fails,notes
+
 async def paste(b,sid,html,notes):
     # the Code tab html pasted twice, one after the other, the way a person would
     page=('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -287,6 +348,8 @@ async def paste(b,sid,html,notes):
         if nl: why.append('labels without a control: %s'%nl)
         bad=await pg.evaluate(ONE_ROW)
         if bad: why.append('button labels over more than one row: %s'%bad)
+        r=await pg.evaluate(RADIOS_JS)
+        if r is not True: why.append('radios: '+r)
         names=await pg.evaluate("[...new Set([...document.querySelectorAll('[data-aui]')].map(e=>e.dataset.aui))]")
         attrs=await pg.evaluate("['open','close','toast','toast-err','reset','fill'].filter(a=>document.querySelector('[data-aui-'+a+']')).map(a=>'aui-'+a)")
         for n in names:
@@ -319,6 +382,7 @@ async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch()
         f,n=await starter(b);fails+=f;notes|=n
+        f,n=await edges(b);fails+=f;notes|=n
         comps,errs,n=await harvest(b);notes|=n
         fails+=['index.html: '+e for e in errs]
         rows=[]

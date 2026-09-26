@@ -17,7 +17,7 @@ The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build ste
 
 3. Paste it into your page. Done. The css and js printed under the html are already in the two files; they are there so you can read them.
 
-The html has no ids. Each component finds its parts inside the element around it, and ascii-ui.js makes the ids that accessibility needs (a label's `for`, a tab's `aria-controls`), so the same component pasted twice is two working copies. One thing it does not rename: radio buttons share a group by `name`, so give the second copy's radios a name of their own.
+The html has no ids. Each component finds its parts inside the element around it, and ascii-ui.js makes the ids that accessibility needs (a label's `for`, a tab's `aria-controls`), so the same component pasted twice is two working copies. Radio buttons share a group by `name`, so ascii-ui.js gives each copy's radiogroup or fieldset a name of its own (the second becomes `vis-1`, and so on) and keeps each copy's checked radio. If your own form spreads one radio group over two fieldsets, give them one `role="radiogroup"` around both.
 
 The css pulls Geist Mono from Google Fonts with an `@import`. For a faster first paint, remove that line and put the `<link>` from the comment next to it in your `<head>`. Without the font it falls back to the system monospace.
 
@@ -46,7 +46,9 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
 | `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
 
-"Nearest" means the smallest element around the component that holds one, short of `<body>`. To point at something elsewhere on the page, give it an id and name it: `data-aui-open="id"`, `data-aui-fill="id"`, `data-status="id"`.
+"Nearest" means the smallest element around the component that holds one, and only if no other component stands between them: a status line, a count or an error comes after its component, a progress bar before or after its button. A component without a part of its own finds nothing, it does not borrow the next one's.
+
+To point at something elsewhere on the page, give it an id and name it: `data-aui-open="id"`, `data-aui-fill="id"`, `data-status="id"`. A dialog can also be named without an id: `<dialog data-aui-dialog="publish">` and `<button data-aui-open="publish">`. A button and a dialog directly in `<body>` work too, the dialog after the button. When `data-aui-open` finds no dialog, the console says so once, in one line.
 
 Components fire `aui:change`, `aui:select` and `aui:complete` events that bubble, with the details in `event.detail`.
 
