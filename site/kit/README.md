@@ -1,6 +1,6 @@
 # ascii/ui kit
 
-Version 1.1.0. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
+Version 1.1.1. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
 
 The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://ascii.fedekotek.design.
 
@@ -18,11 +18,11 @@ Latest, which follows every new version:
 Pinned, which never changes under you:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.1.0/ascii-ui.css">
-<script defer src="https://ascii.fedekotek.design/kit/1.1.0/ascii-ui.js"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.css">
+<script defer src="https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.js"></script>
 ```
 
-Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version in their first line, and `ASCIIUI.version` says it in the console.
+Every version stays at its own address: 1.0.0, 1.1.0 and 1.1.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version in their first line, and `ASCIIUI.version` says it in the console.
 
 The CSS pulls Geist Mono from Google Fonts with an `@import`. For a faster first paint, remove that line and put the `<link>` from the comment next to it in your `<head>`. Without the font it falls back to the system monospace.
 
@@ -48,8 +48,8 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="dropdown"` | `.pop` | the `aria-haspopup` button opens the `role="menu"`; arrows, Home, End move, Escape and Tab close |
 | `data-aui="tooltip"` | `.pop` | hover and focus are CSS; this adds tap to show and Escape to put it away |
 | `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form |
-| `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. `data-value="2026-09-26"` picks a day, `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
-| `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. `data-href="?page={n}"` draws links instead of buttons |
+| `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
+| `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. A page past the end is drawn as the last one and kept, so `data-page="12"` and then `data-pages="20"` lands on 12, in either order. `data-href="?page={n}"` draws links instead of buttons |
 | `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range as you type, when you leave the field and when the form is sent. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
 | `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
 | `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill` |
@@ -57,7 +57,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it |
 | `data-aui-close` | a button in a dialog | closes it |
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
-| `data-aui-reset` | a button in a form or a dialog | puts every field back to what the HTML says (a checkbox checked in the HTML comes back checked), then redraws the bars, outputs, counts and code boxes. Hidden inputs are left alone. Outside a form or a dialog it does nothing and says so in the console |
+| `data-aui-reset` | a button in a form or a dialog | puts every field back to what the HTML says (a checkbox checked in the HTML comes back checked), then redraws the bars, outputs, counts and code boxes. Hidden inputs are left alone, and the calendar and the code boxes set their own again (a calendar without `data-value` goes back to nothing picked). Outside a form or a dialog it does nothing and says so in the console |
 | `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
 | `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
 
@@ -82,7 +82,7 @@ When a form is sent with a bad field, the browser's own bubble is replaced by th
 
 ## Events
 
-Every event bubbles, starts with `aui:` and carries its details in `event.detail`. They fire for what a person does, not on load and not for the calls below, so setting a value from your script does not loop back into your listener.
+Every event bubbles, starts with `aui:` and carries its details in `event.detail`. They fire for what a person does, not on load and not for the calls below, so setting a value from your script does not loop back into your listener. A field that is bad on load shows its message and fires nothing; a code filled on load or by `otp(el).value` is accepted and fires nothing.
 
 | Component | Event | `detail` |
 |---|---|---|
@@ -108,11 +108,11 @@ document.addEventListener('aui:change', e => {
 
 | Call | Does |
 |---|---|
-| `version` | `"1.1.0"` |
+| `version` | `"1.1.1"` |
 | `init(root)` | wires everything under `root` (the page when left out). Safe to call again: a component is wired once |
 | `destroy(root)` | tears down the components under `root`, and `root` itself: their listeners, observers and animations go |
 | `get(el)` | the calls of the component on `el`, whatever it is, or `null` |
-| `validate(form)` | checks every field in it, writes the messages and returns `true` or `false`. It does not move the focus |
+| `validate(form)` | checks every field in it, writes the messages and returns `true` or `false`. It does not move the focus and fires no events |
 | `toast(msg, err)` | shows a toast; `err` makes it yellow |
 | `progress(el, pct)` | sets a progress bar |
 | `tabs(el)` | `select(i)`, `index`, `tab` |
