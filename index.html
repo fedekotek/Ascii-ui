@@ -4,9 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui</title>
+<meta name="aui-version" content="11.0">
+<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, sixteen blocks, five charts. Copy the code and own it. One HTML file, no dependencies.">
+<link rel="canonical" href="https://asciiui.vercel.app/">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ecebe4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0612" media="(prefers-color-scheme: dark)">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0612'/%3E%3Cpath d='M20 5 12 27' stroke='%23ff3d9a' stroke-width='4' stroke-linecap='square'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ascii/ui">
+<meta property="og:title" content="ascii/ui">
+<meta property="og:description" content="shadcn-style components in a brutalist ASCII skin with a bad signal. Copy the code and own it.">
+<meta property="og:url" content="https://asciiui.vercel.app/">
+<meta property="og:image" content="https://asciiui.vercel.app/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The ascii/ui hero: a ring of characters spelling COPY IT, OWN IT, on a dark screen.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ascii/ui">
+<meta name="twitter:description" content="shadcn-style components in a brutalist ASCII skin with a bad signal. Copy the code and own it.">
+<meta name="twitter:image" content="https://asciiui.vercel.app/assets/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet"><style>#boot{display:none}</style></noscript>
 <link rel="stylesheet" href="css/01-tokens.css">
 <link rel="stylesheet" href="css/02-base-grid.css">
 <link rel="stylesheet" href="css/03-posters.css">
@@ -782,7 +804,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
       <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
     </section>
-    <p class="foot" id="footLine">ascii/ui. One HTML file, no dependencies. Set in Geist Mono.</p>
+    <p class="foot" id="footLine">ascii/ui v11.0. One HTML file, no dependencies. Set in Geist Mono. MIT license. <a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">Download the file</a>, or take the <a class="inl" id="footKit" href="kit/starter.html">starter kit</a>.</p>
   </footer>
 </main>
 

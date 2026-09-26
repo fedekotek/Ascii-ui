@@ -1,12 +1,34 @@
-import asyncio,sys
+"""Errors and overflow on every view.
+
+python3 qa/qa.py W H dark|light TAG [x] [--dist|--site]
+Loads the page, clicks through the five views, reports page errors, console
+errors, horizontal overflow and elements wider than the viewport. Without x it
+also screenshots every screen of every view as qa_TAG_VIEW_NN.png.
+--dist tests dist/ascii-ui.html, --site tests site/index.html (both from
+python3 build.py); the default is index.html.
+Font failures (fonts.googleapis.com, fonts.gstatic.com) are not counted: the
+font is the one outside request and an offline or proxied run cannot reach it.
+Prints TAG [] when clean, exits non-zero otherwise.
+"""
+import asyncio,os,sys
 from playwright.async_api import async_playwright
+ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
+FONT=('fonts.googleapis.com','fonts.gstatic.com')
+flags=[a for a in sys.argv[1:] if a.startswith('--')]
+args=[a for a in sys.argv[1:] if not a.startswith('--')]
+PAGE='dist/ascii-ui.html' if '--dist' in flags else ('site/index.html' if '--site' in flags else 'index.html')
+
+def font(m):
+    url=(m.location or {}).get('url','') if hasattr(m,'location') else ''
+    return any(f in url for f in FONT) or any(f in m.text for f in FONT)
+
 async def run(w,h,scheme,tag,shots=True):
     async with async_playwright() as p:
         b=await p.chromium.launch(); msgs=[]
         pg=await b.new_page(viewport={'width':w,'height':h},color_scheme=scheme)
         pg.on('pageerror',lambda e:msgs.append('ERR '+str(e)))
-        pg.on('console',lambda m:msgs.append('CON '+m.text) if m.type=='error' else None)
-        await pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))+''); await pg.wait_for_timeout(2600)
+        pg.on('console',lambda m:msgs.append('CON '+m.text) if m.type=='error' and not font(m) else None)
+        await pg.goto('file://'+os.path.join(ROOT,PAGE)); await pg.wait_for_timeout(2600)
         await pg.mouse.click(w//2,200)
         for name in ['home','kit','blocks','charts','themes']:
             await pg.evaluate(f"(()=>{{const t=document.getElementById('v-{name}');if(t.getAttribute('aria-selected')!=='true')t.click()}})()")
@@ -24,4 +46,7 @@ async def run(w,h,scheme,tag,shots=True):
                     await pg.evaluate(f"window.scrollTo(0,{y})"); await pg.wait_for_timeout(900)
                     await pg.screenshot(path=f'qa_{tag}_{name}_{i:02d}.png'); y+=h-140; i+=1
         print(tag, msgs); await b.close()
-asyncio.run(run(int(sys.argv[1]),int(sys.argv[2]),sys.argv[3],sys.argv[4],len(sys.argv)<6))
+        return msgs
+
+if len(args)<4: sys.exit(__doc__)
+sys.exit(1 if asyncio.run(run(int(args[0]),int(args[1]),args[2],args[3],len(args)<5)) else 0)

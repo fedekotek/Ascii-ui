@@ -20,7 +20,7 @@ from playwright.async_api import async_playwright
 
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
 FILE='file://'+os.path.join(ROOT,'index.html')
-PORT=8202
+PORT=0   # 0 asks the system for a free one; serve() says which
 QUICK='quick' in sys.argv
 
 # where the title of a section is against where a jump should put it: 0 is
@@ -40,11 +40,13 @@ LANDED="""(sel=>{
 })"""
 
 def serve():
+    global PORT
     class Quiet(http.server.SimpleHTTPRequestHandler):
         def log_message(self,*a):pass
     h=functools.partial(Quiet,directory=ROOT)
     socketserver.TCPServer.allow_reuse_address=True
     s=socketserver.TCPServer(('127.0.0.1',PORT),h)
+    PORT=s.server_address[1]
     threading.Thread(target=s.serve_forever,daemon=True).start()
     return s
 
@@ -79,6 +81,11 @@ async def phone(b,w,h,bad):
             n+=1
             ok=r.get('view')=='view-'+v and not r['hidden'] and not r['open'] and (abs(r['off'])<=2 or r['bottom']) and r['hash'].endswith('/'+slug)
             if not ok: fails.append(f"{v}/{slug} {r}")
+    # the menu steps out when the screen grows past 1024px
+    x,y=await center(pg,'#menuBtn');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(400)
+    await pg.set_viewport_size({'width':1100,'height':h});await pg.wait_for_timeout(700)
+    if await pg.evaluate("document.getElementById('menuDlg').open"): fails.append('menu stays open at 1100px')
+    await pg.set_viewport_size({'width':w,'height':h})
     print(f'menu {w}x{h}: {n} sections', 'ok' if not fails and not errs else fails[:6]+errs[:2])
     if fails or errs: bad.append('menu '+str(w))
     await ctx.close()
@@ -103,7 +110,30 @@ async def links(b,base,label,bad):
         await pg.goto(base+addr);await pg.wait_for_timeout(2600)
         r=await pg.evaluate("[location.hash,!document.getElementById('view-home').hidden,window.scrollY]")
         if r[0]!=want or not r[1] or (top and r[2]>2) or errs: fails.append(f'old {addr} {r} {errs[:1]}')
+        if addr=='#play':
+            t=await pg.evaluate("document.getElementById('toastText').textContent")
+            if 'Play is gone' not in t: fails.append(f'old {addr} says nothing ({t!r})')
         await ctx.close()
+    # addresses that are not ours: no crash, Home, and the address is cleaned.
+    # A section that is not there keeps its view and loses the section
+    for addr,want,view in [('#constructor/button','','home'),('#__proto__/x','','home'),('#bogus/x','','home'),
+                           ('#components/nope','#components','kit'),('#components/constructor','#components','kit')]:
+        ctx=await b.new_context(viewport={'width':1440,'height':900})
+        pg=await ctx.new_page();errs=[]
+        pg.on('pageerror',lambda e:errs.append(str(e)))
+        await pg.goto(base+addr);await pg.wait_for_timeout(2200)
+        r=await pg.evaluate("[location.hash,!document.getElementById('view-"+view+"').hidden]")
+        if r[0]!=want or not r[1] or errs: fails.append(f'bad {addr} {r} {errs[:1]}')
+        await ctx.close()
+    # the tab's name follows the address
+    ctx=await b.new_context(viewport={'width':1440,'height':900})
+    pg=await ctx.new_page()
+    await pg.goto(base+'#components/tooltip');await pg.wait_for_timeout(2400)
+    t1=await pg.evaluate("document.title")
+    await pg.evaluate("document.getElementById('brand').click()");await pg.wait_for_timeout(1200)
+    t2=await pg.evaluate("document.title")
+    if not (t1.endswith(', Components, ascii/ui') and 'ooltip' in t1.lower() and t2=='ascii/ui'): fails.append(f'title {t1!r} {t2!r}')
+    await ctx.close()
     print('links',label,'ok' if not fails else fails)
     if fails: bad.append('links '+label)
 

@@ -45,9 +45,11 @@
     return [].slice.call(p.querySelectorAll(':scope > section[aria-labelledby]'))
              .filter(s=>!s.hidden&&name(s));
   }
+  const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
   function findSec(v,slug){
-    if(!/^[a-z0-9-]+$/.test(slug))return null;
-    return $('view-'+v).querySelector(':scope > section[aria-labelledby="s-'+slug+'"],:scope > section[aria-labelledby="o-'+slug+'"]');
+    const p=$('view-'+v);
+    if(!p||!/^[a-z0-9-]+$/.test(slug||''))return null;
+    return p.querySelector(':scope > section[aria-labelledby="s-'+slug+'"],:scope > section[aria-labelledby="o-'+slug+'"]');
   }
 
   /* ---- the list ---- */
@@ -163,6 +165,14 @@
     catch(e){if(push)location.hash=h}
     routed=location.hash;
   }
+  /* the tab's name follows the address: Section, View, ascii/ui */
+  function title(v,sec){
+    const t=[];
+    if(sec&&name(sec))t.push(name(sec));
+    if(v&&v!=='home')t.push(LABEL[v]);
+    t.push('ascii/ui');
+    document.title=t.join(', ');
+  }
   /* go to a view, and to a section in it or to its top. opt.push: true adds
      an entry, false replaces it, missing leaves the address alone. opt.after
      runs once it has landed (the menu closes then) */
@@ -173,6 +183,7 @@
     busy=true;
     A.showView(tab,function(){
       busy=false;
+      title(v,sec);
       /* a filtered-out block comes back when you ask for it by name */
       let stale=!links.length||links[0].v!==v;
       if(sec&&sec.hidden&&v==='blocks'){const all=document.querySelector('#blockFilters [data-f="all"]');if(all){all.click();stale=true}}
@@ -197,22 +208,42 @@
   }
   function parse(h){
     h=(h||'').replace(/^#\/?/,'');
-    const parts=h.toLowerCase().split('/'),v=FROM[parts[0]];
+    const parts=h.toLowerCase().split('/'),v=own(FROM,parts[0])?FROM[parts[0]]:null;
     if(!v)return null;
-    return {v:v,sec:parts[1]?findSec(v,parts[1]):null};
+    const sec=parts[1]?findSec(v,parts[1]):null;
+    return {v:v,sec:sec,lost:!!parts[1]&&!sec};
   }
+  /* an address that is neither ours nor something on the page (#bogus/x)
+     lands on Home and leaves the address bare */
+  function stray(h){
+    let el=null;
+    try{el=document.getElementById(decodeURIComponent(h.slice(1)))}catch(e){}
+    if(el)return false;
+    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+    routed=location.hash;
+    go('home',null,{top0:true,instant:true});
+    return true;
+  }
+  const GONE={play:'Play is gone. Its toys live in Themes, Labs.',
+              onepager:'One pager is gone. Its toys live in Themes, Labs.',
+              page:'One pager is gone. Its toys live in Themes, Labs.',
+              apps:'Apps is gone. This is Home.'};
+  const said=msg=>{if(A.toast)A.toast(msg);else if(A.say)A.say(msg)};
   /* returns false for an address that is not ours (#main, a demo's #) */
   function route(h,push,instant){
     if(!h||h==='#'){if(push===undefined){go('home',null,{top0:true,instant:instant});return true}return false}
     const r=parse(h);if(!r)return false;
-    /* an old address (Play, Apps, One pager) lands on Home and says so */
+    /* an old address (Play, Apps, One pager) lands on Home and says so. A
+       section that is not there lands on its view, and the address loses it */
     const old=!/^#\/?(home|components|kit|blocks|charts|themes)(\/|$)/i.test(h);
-    go(r.v,r.sec,{push:old?false:(push?true:undefined),instant:instant});
+    if(old&&!r.sec)said(GONE[h.replace(/^#\/?/,'').split('/')[0].toLowerCase()]||GONE.play);
+    go(r.v,r.sec,{push:old||r.lost?false:(push?true:undefined),instant:instant});
     return true;
   }
   function onNav(){
     if(location.hash===routed)return;
-    routed=location.hash;route(location.hash);
+    routed=location.hash;
+    if(!route(location.hash)&&location.hash)stray(location.hash);
   }
   window.addEventListener('popstate',onNav);
   window.addEventListener('hashchange',onNav);
@@ -284,6 +315,7 @@
     }
     /* the address follows what you read, without adding to Back */
     if(!busy&&!(l===null&&!location.hash))setHash(hashFor(current(),l&&l.sec),false);
+    if(!busy)title(current(),l&&l.sec);
   }
 
   /* You are reading the last section whose title has reached the line a jump
@@ -437,13 +469,17 @@
     if(A.live())A.tone('square',440,0,0.05,0.4);
     go(l.v,l.sec,{push:true,after:()=>{focusTo=l.sec;closeMenu()}});
   });
+  /* the menu is for narrow screens: widen past 1024px and it steps out */
+  const wide=matchMedia('(min-width:1024px)'),onWide=e=>{if(e.matches&&md.open)closeMenu()};
+  if(wide.addEventListener)wide.addEventListener('change',onWide);else if(wide.addListener)wide.addListener(onWide);
   $('mGrid').addEventListener('change',()=>{if($('gridToggle').checked!==$('mGrid').checked)$('gridToggle').click()});
   $('mGl').addEventListener('change',()=>{if($('glitchToggle').checked!==$('mGl').checked)$('glitchToggle').click()});
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}
   build();crumb();
-  if(location.hash)route(location.hash,undefined,true);
+  if(location.hash){if(!route(location.hash,undefined,true))stray(location.hash)}
+  else title('home',null);
 
   /* A.jump: the chip index and anything else that sends you to a section */
   A.jump=function(sec){

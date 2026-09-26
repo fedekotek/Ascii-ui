@@ -9,11 +9,15 @@ document.querySelectorAll('main *').forEach(e=>{if(e.closest('[hidden]')||e.clos
 out.small=[...new Set(out.small)];return out})()"""
 async def main():
     async with async_playwright() as p:
-        b=await p.chromium.launch()
+        b=await p.chromium.launch();n=0
         pg=await b.new_page(viewport={'width':390,'height':844},color_scheme='dark')
         await pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__file__),'..','index.html'))+''); await pg.wait_for_timeout(2600); await pg.mouse.click(200,300)
         for v in ['home','kit','blocks','charts','themes']:
             await pg.evaluate(f"(()=>{{const t=document.getElementById('v-{v}');if(t.getAttribute('aria-selected')!=='true')t.click()}})()"); await pg.wait_for_timeout(1400)
             r=await pg.evaluate(JS); print(v,'small:',len(r['small']),r['small'][:12],'tiny:',r['tiny'][:5])
+            n+=len(r['small'])+len(r['tiny'])
         await b.close()
-asyncio.run(main())
+        print('audit:','ok' if not n else f'{n} problems')
+        return n
+# exits non-zero when any target is small or any text is tiny
+__import__('sys').exit(1 if asyncio.run(main()) else 0)
