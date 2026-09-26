@@ -86,7 +86,7 @@ async def starter(b):
     ok('top bar holds the theme',await ev("!!document.querySelector('header.top [role=radiogroup][aria-label=Theme]')"))
     ok('five groups with anchors',await ev("['form','overlay','display','feedback','navigation'].every(g=>document.querySelector('.toc a[href=\"#'+g+'\"]')&&document.getElementById(g))"))
     ok('README linked',await ev("!!document.querySelector('main a[href=\"README.md\"]')"))
-    ok('links back to the site',await ev("!!document.querySelector('a[href=\"https://asciiui.vercel.app/#components\"]')"))
+    ok('links back to the site',await ev("!!document.querySelector('a[href=\"https://ascii.fedekotek.design/#components\"]')"))
     ok('README is next to it',os.path.exists(os.path.join(KIT,'README.md')))
     # tabs
     tab=lambda n:'#tabs [role=tab]:nth-child(%d)'%n

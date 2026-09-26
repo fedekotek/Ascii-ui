@@ -2,19 +2,19 @@
 
 shadcn-style components with a brutalist ASCII skin and a bad signal. The kit is two files (`kit/ascii-ui.css` and `kit/ascii-ui.js`), no dependencies, no build step. The whole site also ships as one HTML file. Frames, fills and shadows are strings of characters; weight comes from how dense the character is; every state change glitches a little; underneath it is plain HTML.
 
-Live: https://asciiui.vercel.app (Vercel deploys `main` on every push). The single-file build is `dist/ascii-ui.html`.
+Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The single-file build is `dist/ascii-ui.html`.
 
 ## How to use it
 
 1. Link the kit once, in your page's `<head>` and before `</body>`:
 
    ```html
-   <link rel="stylesheet" href="https://asciiui.vercel.app/kit/ascii-ui.css">
-   <script src="https://asciiui.vercel.app/kit/ascii-ui.js"></script>
+   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/ascii-ui.css">
+   <script src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
    ```
 
-2. Open https://asciiui.vercel.app, go to Components, open the Code tab on any component and copy its HTML into your page.
-3. Or start from the starter page, which already links both: https://asciiui.vercel.app/kit/starter.html
+2. Open https://ascii.fedekotek.design, go to Components, open the Code tab on any component and copy its HTML into your page.
+3. Or start from the starter page, which already links both: https://ascii.fedekotek.design/kit/starter.html
 
 There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
 

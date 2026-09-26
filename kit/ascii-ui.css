@@ -3,7 +3,7 @@
    characters; weight comes from how dense the character is.
 
    Use: link this file and ascii-ui.js, then paste the html of any component
-   from https://asciiui.vercel.app (open Code on it). Theme it by overriding the
+   from https://ascii.fedekotek.design (open Code on it). Theme it by overriding the
    tokens below on :root, after this file.
 
    The file is split into blocks. Each block starts with a line like

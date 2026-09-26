@@ -4,7 +4,7 @@
 1. Edit `index.html`, `css/*.css`, `js/*.js`. Serve with `python3 -m http.server 8000`.
 2. Before a commit: `python3 qa/qa.py 390 844 dark m x` and `python3 qa/qa.py 1440 900 light d x` must print empty lists. `python3 qa/audit.py` prints, per view, the tap targets under 40px (`small`) and the text under 12px (`tiny`); both should be empty, and a native `select` is the only thing allowed to show up as small.
 3. `python3 build.py`, open `dist/ascii-ui.html` from `file://` and click through once. It goes into `site/` with `kit/`, and that is what ships.
-4. Commit the build output with the change. Vercel serves `site/` (see `vercel.json`) and deploys `main` on every push, to https://asciiui.vercel.app.
+4. Commit the build output with the change. Vercel serves `site/` (see `vercel.json`) and deploys `main` on every push, to https://ascii.fedekotek.design.
 
 ## Style
 - Vanilla, no transpile. ES2019 is fine (optional chaining is not used today; it would be fine).

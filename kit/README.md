@@ -1,19 +1,19 @@
 # ascii/ui kit
 
-The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://asciiui.vercel.app.
+The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://ascii.fedekotek.design.
 
 ## Use it in three steps
 
 1. Link the two files in the `<head>` of your page:
 
    ```html
-   <link rel="stylesheet" href="https://asciiui.vercel.app/kit/ascii-ui.css">
-   <script defer src="https://asciiui.vercel.app/kit/ascii-ui.js"></script>
+   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/ascii-ui.css">
+   <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
    ```
 
    Or download them from the Get the kit section of the site and link your own copies.
 
-2. Open a component on https://asciiui.vercel.app/#components, pick its Code tab and copy the html.
+2. Open a component on https://ascii.fedekotek.design/#components, pick its Code tab and copy the html.
 
 3. Paste it into your page. Done. The css and js printed under the html are already in the two files; they are there so you can read them.
 

@@ -163,7 +163,7 @@ One `AudioContext`, created on first pointerdown/keydown (browsers require a ges
 
 ## Shipping
 
-You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then writes `site/`: the single file as the page, plus `kit/` (`ascii-ui.css`, `ascii-ui.js`, `starter.html`, the files people link from their own pages). `vercel.json` points Vercel at `site/`, so the deploy serves the single file and the kit and nothing else from the repo. Vercel deploys `main` on every push, to https://asciiui.vercel.app.
+You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then writes `site/`: the single file as the page, plus `kit/` (`ascii-ui.css`, `ascii-ui.js`, `starter.html`, the files people link from their own pages). `vercel.json` points Vercel at `site/`, so the deploy serves the single file and the kit and nothing else from the repo. Vercel deploys `main` on every push, to https://ascii.fedekotek.design.
 
 ## What is intentionally not here
 - No i18n. Copy is English, a couple of Rioplatense words in personal blocks.

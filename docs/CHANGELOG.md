@@ -1,6 +1,6 @@
 # Changelog
 
-Oldest first. Versions as published, now at https://asciiui.vercel.app (Vercel deploys `main` on every push). Single files for the published versions from v2 to v9.3 are in `archive/`. From v10 the history is in git.
+Oldest first. Versions as published, now at https://ascii.fedekotek.design (Vercel deploys `main` on every push). Single files for the published versions from v2 to v9.3 are in `archive/`. From v10 the history is in git.
 
 - **v1** Hybrid prototype: semantic HTML on a character grid, CSS lines through cell centers, ASCII state glyphs. Button, input, checkbox, radio, switch, slider, tabs, card, dialog, progress, toast. Light and dark.
 - **v2** Brutalist rewrite: ramp as hierarchy, frames as strings, bitmap titles, posterized hero, halftone bars, paper and ink palette.

@@ -75,4 +75,4 @@ The person you are working with is a product designer, not an engineer. Explain 
 
 After any non-trivial change, run the `reviewer` agent. After any UI change, run the `ux-critic` agent.
 
-Every change is merged to `main` and published. Vercel deploys `main` on every push, to https://asciiui.vercel.app. End every reply with that link, updated, always.
+Every change is merged to `main` and published. Vercel deploys `main` on every push, to https://ascii.fedekotek.design. End every reply with that link, updated, always.
