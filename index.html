@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui</title>
-<meta name="aui-version" content="11.0">
+<meta name="aui-version" content="11.1">
 <meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. Thirty components, twenty-eight of them in the kit, sixteen blocks, five charts. Copy the code and own it. The kit is two files, no dependencies.">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
 <meta name="color-scheme" content="light dark">
@@ -107,9 +107,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
-      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">Thirty parts, 28 of them in the kit. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 components -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">30 components, 28 of them in the kit. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">30 components -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 blocks -&gt;</span></span></span></a>
-      <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same eight characters.</span><span class="go" aria-hidden="true">5 charts -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same nine-step ramp.</span><span class="go" aria-hidden="true">5 charts -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">6 presets -&gt;</span></span></span></a>
     </div>
     <div class="row hero-src" id="heroSrc">
@@ -133,7 +133,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   </div>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">Thirty parts, grouped by what they do. Twenty-eight are in the kit, Command and Picture are site only. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">30 components, grouped by what they do. 28 are in the kit, Command and Picture are site only. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
   <section aria-labelledby="s-rules" data-span="full">
     <h2 id="s-rules" class="vh">Rules</h2>
     <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
@@ -153,31 +153,31 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
   <section aria-labelledby="s-foundations" data-span="full">
     <h2 id="s-foundations" class="vh">Foundations</h2>
-    <pre class="poster ptitle" data-text="BASICS" aria-hidden="true"></pre>
-    <p class="muted">What every component is made of: ten colors, one grid, nine characters, eight tones and six states. Presets in Themes swap the colors. The rest stays put.</p>
+    <pre class="poster ptitle" data-text="FOUNDATIONS" aria-hidden="true"></pre>
+    <p class="muted">What every component is made of: 14 color tokens, one grid, a ramp of nine steps (space to @), eight tones and six states. Presets in Themes swap the colors. The rest stays put.</p>
     <div class="fnd demo">
-      <h3>Color</h3>
+      <h3 class="lab-h">Color</h3>
       <p class="muted">Custom properties on :root. Dark is Signal, light is Paper. The swatches show the values, not the current theme.</p>
       <div class="tablewrap"><table class="ftbl ftok"><caption class="vh">Color tokens: name, role, dark value, light value.</caption>
         <thead><tr><th scope="col">Token</th><th scope="col">Role</th><th scope="col">Dark</th><th scope="col">Light</th></tr></thead>
         <tbody>
           <tr><th scope="row">--bg</th><td>Surface. The page.</td><td><span class="fsw" style="color:#0a0612" aria-hidden="true">@@</span> #0a0612</td><td><span class="fsw" style="color:#ecebe4" aria-hidden="true">@@</span> #ecebe4</td></tr>
-          <tr><th scope="row">--ink</th><td>Text, frames, the solid slab.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
-          <tr><th scope="row">--muted</th><td>Captions, secondary text, disabled.</td><td><span class="fsw" style="color:#a79db5" aria-hidden="true">@@</span> #a79db5</td><td><span class="fsw" style="color:#5c5b55" aria-hidden="true">@@</span> #5c5b55</td></tr>
-          <tr><th scope="row">--hot</th><td>Acts. Primary buttons, title bars, the worst state.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
-          <tr><th scope="row">--pink</th><td>Second emphasis, halftone tails.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#d02a78" aria-hidden="true">@@</span> #d02a78</td></tr>
+          <tr><th scope="row">--ink</th><td>Text, frames, slabs.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
+          <tr><th scope="row">--muted</th><td>Captions, disabled.</td><td><span class="fsw" style="color:#a79db5" aria-hidden="true">@@</span> #a79db5</td><td><span class="fsw" style="color:#5c5b55" aria-hidden="true">@@</span> #5c5b55</td></tr>
+          <tr><th scope="row">--hot</th><td>Acts. Primary, title bars.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
+          <tr><th scope="row">--pink</th><td>Second emphasis.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#d02a78" aria-hidden="true">@@</span> #d02a78</td></tr>
           <tr><th scope="row">--cy</th><td>Focus. Nothing else.</td><td><span class="fsw" style="color:#35e6f0" aria-hidden="true">@@</span> #35e6f0</td><td><span class="fsw" style="color:#0a7287" aria-hidden="true">@@</span> #0a7287</td></tr>
-          <tr><th scope="row">--ok</th><td>Confirms. Checked, on, done.</td><td><span class="fsw" style="color:#c8f02c" aria-hidden="true">@@</span> #c8f02c</td><td><span class="fsw" style="color:#3f6b00" aria-hidden="true">@@</span> #3f6b00</td></tr>
+          <tr><th scope="row">--ok</th><td>Confirms. On, done.</td><td><span class="fsw" style="color:#c8f02c" aria-hidden="true">@@</span> #c8f02c</td><td><span class="fsw" style="color:#3f6b00" aria-hidden="true">@@</span> #3f6b00</td></tr>
           <tr><th scope="row">--warn</th><td>Warns. Errors, degraded.</td><td><span class="fsw" style="color:#ffd23f" aria-hidden="true">@@</span> #ffd23f</td><td><span class="fsw" style="color:#8a5a00" aria-hidden="true">@@</span> #8a5a00</td></tr>
-          <tr><th scope="row">--deep</th><td>Structure. Shadows, slab edges.</td><td><span class="fsw" style="color:#4a3dff" aria-hidden="true">@@</span> #4a3dff</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
-          <tr><th scope="row">--violet</th><td>Dividers, walls, tab rules, info.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#6a45d9" aria-hidden="true">@@</span> #6a45d9</td></tr>
+          <tr><th scope="row">--deep</th><td>Shadows, slab edges.</td><td><span class="fsw" style="color:#4a3dff" aria-hidden="true">@@</span> #4a3dff</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
+          <tr><th scope="row">--violet</th><td>Dividers, rules, info.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#6a45d9" aria-hidden="true">@@</span> #6a45d9</td></tr>
           <tr><th scope="row">--t0</th><td>Title, top band.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
           <tr><th scope="row">--t1</th><td>Title, second band.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
           <tr><th scope="row">--t2</th><td>Title, third band.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
           <tr><th scope="row">--t3</th><td>Title, bottom band.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
         </tbody></table></div>
 
-      <h3>Grid</h3>
+      <h3 class="lab-h">Grid</h3>
       <p class="muted">One cell is 1ch wide and one row tall. Every width is a number of cells and every height a number of rows.</p>
       <dl class="kv">
         <dt>Cell</dt><dd>1ch by 21px, the row. CSS reads it as var(--r), JS as A.ROW.</dd>
@@ -186,8 +186,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         <dt>Targets</dt><dd>44px to tap: one row plus 12px above and below.</dd>
       </dl>
 
-      <h3>Ramp</h3>
-      <p class="muted">Weight is density. The ramp runs from nothing to @, and the index is how loud a character is. The ramp editor in Themes swaps the characters, not the order.</p>
+      <h3 class="lab-h">Ramp</h3>
+      <p class="muted">Weight is density. The ramp is nine steps, space to @, and the index is how loud a character is. The ramp editor in Themes swaps the characters, not the order.</p>
       <div class="tablewrap"><table class="ftbl"><caption class="vh">The ramp, space to at sign, index 0 to 8, with what each step is for.</caption>
         <thead><tr><th scope="col"><span class="vh">Character</span></th><th scope="col">Index</th><th scope="col">For</th></tr></thead>
         <tbody>
@@ -202,8 +202,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
           <tr><td class="fch" aria-hidden="true">@</td><th scope="row">8 <span class="vh">at</span></th><td>The loudest. Primary, focus, nodes.</td></tr>
         </tbody></table></div>
 
-      <h3>Tones</h3>
-      <p class="muted">A frame is one character repeated. The tone class names which one.</p>
+      <h3 class="lab-h">Tones</h3>
+      <p class="muted">A frame is one character repeated. The tone class names which one. Five tones use ramp characters. Faint, danger and error use -, / and !, which are not on the ramp.</p>
       <div class="tablewrap"><table class="ftbl"><caption class="vh">Frame tones: class name, character, what it is for.</caption>
         <thead><tr><th scope="col">tone-</th><th scope="col"><span class="vh">Character</span></th><th scope="col">For</th></tr></thead>
         <tbody>
@@ -217,7 +217,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
           <tr><th scope="row">error</th><td class="fch" aria-hidden="true">!!!!!!!!</td><td><span class="vh">!. </span>A field that is wrong.</td></tr>
         </tbody></table></div>
 
-      <h3>States</h3>
+      <h3 class="lab-h">States</h3>
       <p class="muted">What each form component draws in each state. A dash means it has no such state. Blue is only ever focus.</p>
       <div class="tablewrap"><table class="ftbl fst"><caption class="vh">States per form component: default, hover, focus, active, disabled, error.</caption>
         <thead><tr><th scope="col">Component</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Active</th><th scope="col">Disabled</th><th scope="col">Error</th></tr></thead>
@@ -816,7 +816,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-ramp">
     <h2 id="s-ramp" class="vh">Ramp</h2>
     <pre class="poster ptitle" data-text="RAMP" aria-hidden="true"></pre>
-    <p class="muted">Eight characters from lightest to heaviest. Every frame, fill, chart and explosion is an index into them. Swap the characters and you have a different kit.</p>
+    <p class="muted">Nine steps, space to @, lightest to heaviest. Every frame, fill, chart and explosion is an index into them. Swap the characters and you have a different kit.</p>
     <div class="demo filters" id="rampPresets" role="group" aria-label="Ramp presets"></div>
     <div class="demo rampcells" id="rampCells"></div>
     <pre class="demo" id="rampSpec" aria-hidden="true"></pre>
@@ -891,7 +891,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.0. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>.</p>
+    <p class="foot" id="footLine">ascii/ui v11.1. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>.</p>
   </footer>
 </main>
 

@@ -465,3 +465,12 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
 /* ---- Themes > Labs: the headline you type is the one poster that shows ----
    css/16 hides the section posters in docs views; this one is the demo */
 #view-themes > section > pre#typeOut{display:block}
+
+/* Command and Picture live on the site, not in the kit: the list and the
+   section title say so. The chip index can not be told apart by CSS yet. */
+.navlink[href$="/command"]::after,.navlink[href$="/picture"]::after,
+#view-kit > section[aria-labelledby="s-command"] > h2::after,
+#view-kit > section[aria-labelledby="s-picture"] > h2::after{
+  content:" site only";color:var(--violet);font-weight:400;text-transform:none;
+}
+.navlink[aria-current]:focus-visible::after,.navlink:focus-visible::after{color:var(--bg)}
