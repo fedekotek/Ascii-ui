@@ -35,23 +35,27 @@ js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, drop
                             the v7 blocks (profile, recipe, build, work orders, settings, crit, 404),
                             the shadcn-style docs builder (groups, sort, index, Preview/Code tabs, filters).
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Home (hero buttons, tiles, placeHero),
-                            Code tab CSS/JS extraction, Get the kit section.
+                            the Code tab's kit layer (KITIFY, kit CSS blocks, BEHAVE, kitSource, codeExtra),
+                            Get the kit, and KIT(): kit/ascii-ui.css and kit/ascii-ui.js embedded as text,
+                            written by `python3 qa/kit.py sync`.
 js/70-nav.js                navigation: the addresses (#view/section), the view links in the bar, the
                             sidebar, the [=] menu, the name, the skip link, the scroll spy and the landing.
 js/80-search.js             Search: the palette in #cmdDlg (views, sections, settings, tricks, typed commands).
 ```
 
-Every js file is an IIFE. They share these globals (see API.md):
+Every JS file is an IIFE. They share these globals (see API.md):
 
 - `window.AUI` (`A` inside scripts): the engine surface, from js/10, extended by the later files.
 - `window.AUI2` (`B`): fx and transitions, from js/20.
 - `window.AUI3` (`C`): invaders, poster, `run()` for typed commands, from js/20.
-- `window.AUI_JS`: component source for the Code tab, and `window.AUI_WIDE()`, which marks tables wider than their box, from js/30.
+- `window.AUI_JS`: the site's own wiring for five demos (nothing reads it since the Code tab prints the kit), and `window.AUI_WIDE()`, which marks tables wider than their box, from js/30.
 - `window.AUI_NAV`: addresses, the sidebar and menu model, the search index, from js/70.
 - `window.AUI_SEARCH`: Search `open()` and `close()`, from js/80.
 - `window.AUI_TONES()` and `window.AUI_MAP`: the frame strings and the ramp translation, from js/00.
 
-Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLayout`). Earlier scripts call these guarded (`if(window.AUI&&AUI.onLayout)`), because `layout()` runs before the later files load.
+Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.kitify`, `A.codeExtra`, `A.onLayout`).
+
+The kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`) is not loaded by the site. It is a separate pair of files with its own global, `window.ASCIIUI`, for people's own pages; the site only embeds its text (see The kit and the Code tab, below). Earlier scripts call these guarded (`if(window.AUI&&AUI.onLayout)`), because `layout()` runs before the later files load.
 
 ## Page skeleton
 
@@ -67,7 +71,7 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
   <nav id="sidenav">        the sections of the view you are in (from 1024px, not on Home)
   <div id="view-home">      Where to start (s-go, four tiles, then #heroSrc: Feed the ring a photo, with
                             Camera and Back to the ring once a picture is in), Questions (s-faq)
-  <div id="view-kit">       Components: .dochead, index, five groups of parts, Get the kit, Rules
+  <div id="view-kit">       Components: .dochead, Get the kit (s-install, from js/40), index, five groups of parts, Rules
   <div id="view-blocks">    Blocks: .dochead, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5): .dochead, then the charts
   <div id="view-themes">    .dochead, Presets, Colors, Ramp, Tokens, Labs (the old One pager toys)
@@ -89,7 +93,7 @@ Views are links in a tablist (`#views`, `<a role="tab" href="#blocks">`). The Ho
 
 The header and the game belong to Home: `placeHero()` in js/40 runs on every view switch (`A.onView`) and hides the header and `#footGame` everywhere else, so each view starts one row under the bar. `#footLine` shows on every view.
 
-**Docs views.** Components, Blocks, Charts and Themes open with a `.dochead`: one bitmap title per page (`data-nobars`) and one lede. The section posters inside those views are hidden by css (`css/16-grid.css`) and the section's `h2` shows instead, as a bold uppercase word. Components are grouped by `KIT_GROUPS` in js/30 (Form, Overlay, Display, Feedback, Navigation); `buildView()` sorts by group, then by name, and puts a `.grouph` label on the page where each group starts. Get the kit and Rules close the page, but the sidebar lists them first as Getting started. Blocks are one per row.
+**Docs views.** Components, Blocks, Charts and Themes open with a `.dochead`: one bitmap title per page (`data-nobars`) and one lede. The section posters inside those views are hidden by CSS (`css/16-grid.css`) and the section's `h2` shows instead, as a bold uppercase word. Components are grouped by `KIT_GROUPS` in js/30 (Form, Overlay, Display, Feedback, Navigation); `buildView()` sorts by group, then by name, and puts a `.grouph` label on the page where each group starts. Get the kit opens the page, right after the lede; Rules closes it. The sidebar lists both first, as Getting started. Blocks are one per row.
 
 ## The grid
 
@@ -113,11 +117,11 @@ under 768     [=] ascii/ui                                        [/]  <)))  -O-
 
 **The views** are links with `role="tab"`, so they keep the tablist's keyboard: arrows and Home/End move the focus, Enter or Space picks (manual activation, so reading the list does not switch pages under you). The swap is `A.showView(tab, then)`: one datamosh, and a pick made while it runs replaces where it goes instead of starting a second one. The curtain (theme, presets) and the datamosh share one lock in the engine (`hold`/`free`): a transition asked for while another runs waits its turn, and the overlay eats taps while it covers the page, except a tap on a view link, which becomes the new target. `AUI.onView(tab)` runs before the landing is measured (it shows or hides the Home header there), then `aui:view` fires on `document`. Reduced motion swaps instantly.
 
-**The landing.** A jump puts the section's title (its first visible child) in the first row under the bar, measured from the title rather than from css margins, and under anything sticky in the view if there is one (found by looking, not by name; no view has one today). A link to Home lands at the top. For a moment after a jump the page is still moving (the font, charts sizing themselves, titles refitting), so the landing is redone whenever `main` changes size until you touch, scroll or press anything.
+**The landing.** A jump puts the section's title (its first visible child) in the first row under the bar, measured from the title rather than from CSS margins, and under anything sticky in the view if there is one (found by looking, not by name; no view has one today). A link to Home lands at the top. For a moment after a jump the page is still moving (the font, charts sizing themselves, titles refitting), so the landing is redone whenever `main` changes size until you touch, scroll or press anything.
 
 **The list.** The sidebar and the menu print the same model: the view and its count (Themes has none: a number there read as the presets), then the sections. Home has no list. Where a view has a chip index, the count is what the index counts, and the sections it leaves out (Get the kit, Rules) come first as Getting started, wherever they sit on the page. Components then lists its parts under their groups. After a Blocks filter the heading says so, `Blocks, Personal 6`. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`, because views and the Blocks filter both work by toggling it.
 
-**Reading position** is plain maths on scroll, rAF throttled: the last section whose title has reached the line a jump lands on. Above the first section nothing is marked. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry. Clicking a sidebar entry pins the mark for 1.2s while the smooth scroll arrives.
+**Reading position** is plain math on scroll, rAF throttled: the last section whose title has reached the line a jump lands on. Above the first section nothing is marked. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry. Clicking a sidebar entry pins the mark for 1.2s while the smooth scroll arrives.
 
 **The sidebar** appears from 1024px. `main` becomes a two column grid there: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at 1600px). Its rows are pinned, because the panels all share one cell and once one row is explicit the others have to be, or the footer flows into the gap. Chrome constrains a sticky grid item to the whole grid, not its row, so a sticky `#sidenav` rode down over the footer; the nav is a plain cell stretched to its row and the list inside it (`.side-in`) is what sticks, so it stops where the row does. Its heading sticks inside the list's own scroll. With a mouse each entry is one 21px row; on a touch screen the rows are 48px.
 
@@ -127,13 +131,13 @@ A visually hidden `Skip to content` link is the first thing Tab reaches.
 
 ## Page width and the galleries
 
-`css/16-grid.css` owns how wide the page gets. `--maxcols` is a cap in characters and steps up at four breakpoints: 80 by default (the width the kit was designed at), 100 from 1024px, 124 from 1280px, 165 from 1600px (about 1600 real pixels). `layout()` reads it and snaps `main` to that many whole characters, so the cap is a design decision in css, not a number in js.
+`css/16-grid.css` owns how wide the page gets. `--maxcols` is a cap in characters and steps up at four breakpoints: 80 by default (the width the kit was designed at), 100 from 1024px, 124 from 1280px, 165 from 1600px (about 1600 real pixels). `layout()` reads it and snaps `main` to that many whole characters, so the cap is a design decision in CSS, not a number in js.
 
-Components and Charts are galleries: each panel is one css grid of columns at least `--galmin` (40ch) wide, so they hold one column on a phone and at 1024px (where the sidebar takes 30 characters), two from 1280px and three from 1600px. The steps are chosen so the columns land on whole characters: at 1600px, 165 columns minus 30 for the sidebar, 4 of padding and 8 of gutter leave three columns of 41ch. Blocks use the same grid but every block takes the whole row, since blocks are page-sized.
+Components and Charts are galleries: each panel is one CSS grid of columns at least `--galmin` (40ch) wide, so they hold one column on a phone and at 1024px (where the sidebar takes 30 characters), two from 1280px and three from 1600px. The steps are chosen so the columns land on whole characters: at 1600px, 165 columns minus 30 for the sidebar, 4 of padding and 8 of gutter leave three columns of 41ch. Blocks use the same grid but every block takes the whole row, since blocks are page-sized.
 
 Sections keep their document order, row by row, left to right. A row is as tall as its tallest card, so short cards leave air under them. Masonry would close those gaps but it breaks the promise the alphabetical index makes, and it stops the cards in a row from starting at the same height, which is what lets their dashed rules line up. Plain rows, on purpose.
 
-A section that cannot live in a narrow column carries `data-span`. `spanSections()` in js/30 sets `full` on anything holding a table, a phone frame, a timeline, a picture or a stat row. `index.html` sets it by hand on the three charts that draw to the page width (Bars, Line, Regions); Heatmap and Donut are fixed-size drawings and sit in a column. Opening a Code tab does not change the span: the section keeps its column and long lines scroll sideways inside the code box, so the gallery does not reshuffle under the cursor. Anything with a `data-span` takes the whole row.
+A section that cannot live in a narrow column carries `data-span`. `spanSections()` in js/30 sets `full` on anything holding one of `WIDE` (a table, a phone frame, a timeline, a stat bar, a picture, a KPI, a steps list, the ramp cells). Get the kit and Rules carry it too. `index.html` sets it by hand on the three charts that draw to the page width (Bars, Line, Regions); Heatmap and Donut are fixed-size drawings and sit in a column. Opening a Code tab does not change the span: the section keeps its column and long lines scroll sideways inside the code box, so the gallery does not reshuffle under the cursor. Anything with a `data-span` takes the whole row.
 
 ## The ramp
 
@@ -141,7 +145,7 @@ A section that cannot live in a narrow column carries `data-span`. `spanSections
 
 ## Color
 
-Ten variables: `--bg --ink --muted --hot --pink --cy --ok --warn --deep --violet`, plus `--t0..--t3` (title rows) and `--scan`. Presets override all of them on `:root[data-preset]`. Pickers write inline `--x` on `:root`. Canvas code reads them through `readPalette()` into `PAL` and must call `A.refresh()` after a change. Rule: `--cy` is focus and feedback only.
+Ten variables: `--bg --ink --muted --hot --pink --cy --ok --warn --deep --violet`, plus `--t0..--t3` (title rows) and `--scan`. Presets override all of them on `:root[data-preset]`. Pickers write inline `--x` on `:root`. Canvas code reads them through `readPalette()` into `PAL` and must call `A.refresh()` after a change. Rule: `--cy` (cyan) is focus and nothing else. Every place a color is written down is listed under Rebrand, below.
 
 ## Timing
 
@@ -161,9 +165,40 @@ Cadences: hero ~12 fps (85ms), LCDs 8 fps (125ms), invaders 20 fps (50ms). `qa/c
 
 One `AudioContext`, created on first pointerdown/keydown (browsers require a gesture). `tone(type,f0,f1,dur,vol,when)` and `noise(dur,vol,f0,f1)` are the primitives. `human()` randomizes pitch, duration and volume, and applies fatigue: the same sound within 2.2s gets 16 percent quieter each time, shorter after 3, skipped half the time after 5. `sfx.*` are named motifs. `A.live()` says whether sound is on and running.
 
+## The kit and the Code tab
+
+`kit/` is the product people link: `ascii-ui.css` (tokens, tones, then one block per part, each opening with a `/* ==== name: selectors ==== */` line), `ascii-ui.js` (`window.ASCIIUI`, one `behaviors.NAME` function per `data-aui` name, the button attributes, the ids accessibility needs), `starter.html` (every kit component on one page) and `README.md` (how to use it, the attribute table, the API). `kit/README.md` is the reference for the kit's API and versions; the docs here link to it rather than repeat it.
+
+The site does not run the kit. The Code tab prints it: `cleanHTML()` (js/30) cleans the preview, `A.kitify()` (js/40, `KITIFY`) adds the kit's attributes and strips ids, `A.codeExtra()` (js/40) adds the matching CSS blocks and the behavior source. It reads the kit from `KIT()` at the end of js/40, a copy of both files as strings, so it works from `file://`. After editing either kit file, `python3 qa/kit.py sync` rewrites that copy and `python3 qa/kit.py` checks it, the starter page and every component pasted twice into a blank page. Step by step in COMPONENTS.md.
+
+Command and Picture are site only (28 components are in the kit). `docs/COMPONENTS-REFERENCE.md` is every component's Code tab output, generated by `python3 qa/reference.py`.
+
+## Versions
+
+Two numbers, owned separately.
+- The site: `<meta name="aui-version" content="11.0">` in `index.html`, and the footer line (`#footLine`) must say the same `v11.0`. `build.py` refuses to build when they disagree. Add a line to `docs/CHANGELOG.md` when it changes.
+- The kit: `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog and pinned paths under `kit/`. See `kit/README.md`.
+
 ## Shipping
 
-You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then writes `site/`: the single file as the page, plus `kit/` (`ascii-ui.css`, `ascii-ui.js`, `starter.html`, the files people link from their own pages). `vercel.json` points Vercel at `site/`, so the deploy serves the single file and the kit and nothing else from the repo. Vercel deploys `main` on every push, to https://ascii.fedekotek.design.
+You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then rebuilds `site/` from nothing: `index.html` and `ascii-ui.html` (the single file, the second one served as the footer's Download), `404.html` (its colors are written in `build.py`), `robots.txt`, `assets/og.png` and `assets/icon-180.png` (made by `qa/shots.py`), and a copy of `kit/`. `vercel.json` points Vercel at `site/`, so the deploy serves those and nothing else from the repo. `site/` and `dist/` are committed: the deploy has no build step. `python3 build.py --check` builds into a temporary folder and fails if what is committed differs. Vercel deploys `main` on every push, to https://ascii.fedekotek.design.
+
+The release bar is `sh qa/release.sh` (see `qa/README.md`). It checks and never writes.
+
+## Rebrand
+
+Colors are written down in more places than the tokens file. To change the palette, change all of these, in this order:
+
+1. `css/01-tokens.css`, three blocks that must agree: `:root` (light, paper), `@media (prefers-color-scheme:dark){:root:not([data-theme="light"])}` (dark by system) and `:root[data-theme="dark"]` (dark forced by the theme toggle). The two dark blocks are copies of each other; change both. Each sets `--bg --ink --muted --hot --pink --cy --ok --warn --deep --violet`, the title rows `--t0..--t3`, `--tbar`, `--on-pink` and `--scan`. Light values were picked to clear 4.5:1 on the paper background; check contrast again after a change.
+2. The presets in `css/15-themes-menu.css` (`:root[data-preset="amber"]` and the rest) set their own full palette. Check they still read as themselves.
+3. `kit/ascii-ui.css`, the `tokens` block: the same values, light on `:root`, dark under `prefers-color-scheme` and `[data-theme="dark"]`. Then `python3 qa/kit.py sync`, or the Code tab, the downloads and `kit.py` disagree with the file.
+4. `build.py`, `PAGE404`: the 404 page has its own `--bg --ink --muted --hot --cy`, light and dark.
+5. `index.html`: the two `<meta name="theme-color">` tags (the light and dark `--bg`) and the SVG favicon in `<link rel="icon">` (background and the magenta slash, URL-encoded as `%23rrggbb`).
+6. `js/30`, the LCD scenes near the top of the file draw with a few hard-coded colors (the dark palette). Everything else in JS reads the tokens through `A.pal()`.
+7. The pictures: `python3 qa/shots.py` remakes `assets/og.png` (the share picture) and `assets/icon-180.png` (the home screen icon) from the page. Then `python3 build.py`, so `site/` gets them.
+8. `docs/TOKENS.md` quotes the values; the Theming snippet in `kit/README.md` is an example override, check it still makes sense.
+
+Keep the roles. Magenta (`--hot`) acts, cyan (`--cy`) is focus and nothing else, lime (`--ok`) confirms, yellow (`--warn`) warns. **The action color and the warning color must stay clearly distinct**, in both themes. Errors and warnings (yellow) sit next to actions (magenta) all over the kit: a field error under a Publish button, a Degraded badge next to a Down one. If `--hot` and `--warn` drift toward each other (an orange brand, a red action), nobody can tell "do this" from "this is wrong", and Degraded stops reading milder than Down. The same goes for `--cy` against everything else, since it is the only way to see where the keyboard is.
 
 ## What is intentionally not here
 - No i18n. Copy is English, a couple of Rioplatense words in personal blocks.

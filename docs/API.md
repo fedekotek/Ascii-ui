@@ -1,6 +1,8 @@
 # JS surface
 
-All scripts are IIFEs. The public surface is six objects on `window` (`AUI`, `AUI2`, `AUI3`, `AUI_NAV`, `AUI_SEARCH`, `AUI_JS`), one function (`AUI_WIDE`), plus two hooks for the ramp (`AUI_TONES`, `AUI_MAP`).
+This page is the site's JS surface. All scripts are IIFEs. The public surface is six objects on `window` (`AUI`, `AUI2`, `AUI3`, `AUI_NAV`, `AUI_SEARCH`, `AUI_JS`), one function (`AUI_WIDE`), plus two hooks for the ramp (`AUI_TONES`, `AUI_MAP`).
+
+The kit is separate: `window.ASCIIUI` exists only on a page that links `kit/ascii-ui.js`, never on the site itself (the site embeds the kit files as text, in `KIT()` at the end of js/40, only to print and download them). See the last section, and `kit/README.md` for the whole kit API.
 
 ## window.AUI (the engine, from js/10-engine.js)
 
@@ -58,7 +60,7 @@ All scripts are IIFEs. The public surface is six objects on `window` (`AUI`, `AU
 | `onLayout` | set by 20: called with the content width after `layout()` |
 | `onView` | set by 40 (`placeHero`): called with the new tab on every view switch, before the landing is measured. Shows the header and the game on Home only |
 
-Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.codeExtra(section, panel)`, `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows; nothing asks for `'snap'` since Play's Snapshot went), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
+Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.kitify(section, clone)` (js/40: runs the section's `KITIFY` entry, then strips ids and demo scaffolding, see COMPONENTS.md), `A.codeExtra(section, html)` (js/40: returns `{css, js}`, the kit CSS blocks and kit behavior text the Code tab prints under the HTML), `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows; nothing asks for `'snap'` since Play's Snapshot went), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
 
 Events: `document` gets `aui:view` (detail: the view's tab) after a view has swapped in.
 
@@ -75,10 +77,10 @@ Events: `document` gets `aui:view` (detail: the view's tab) after a view has swa
 `open()`, `close()`. Search is the palette in `#cmdDlg` (js/80, css/18): a combobox input over a listbox. The list is rebuilt from `AUI_NAV.index()` each time it opens.
 
 ## window.AUI_JS (from js/30)
-Registry of component source for the Code tab: `{calendar, dropdown, otp, pagination, spinners}`. Each is a function whose `toString()` is printed. To add one, wrap the component's wiring in `window.AUI_JS.name=function(){...};window.AUI_JS.name();` and map the section id in `JSMAP` (js/40).
+The site's own wiring for five demos: `{calendar, dropdown, otp, pagination, spinners}`, each a function that js/30 defines and calls once. Nothing reads it any more: the Code tab prints the kit's behaviors instead (`behaviors.NAME` from `kit/ascii-ui.js`, see COMPONENTS.md, What the Code tab prints). There is no `JSMAP`. New site wiring does not need to go here.
 
 ## window.AUI_WIDE() (from js/30)
-Re-checks every `.tablewrap` and sets `data-wide` on the ones whose table is wider than the box, so css can say there is more to the side (on touch there is no scrollbar). Runs on load and after every view switch; call it after you change a table.
+Re-checks every `.tablewrap` and sets `data-wide` on the ones whose table is wider than the box, so CSS can say there is more to the side (on touch there is no scrollbar). Runs on load and after every view switch; call it after you change a table.
 
 ## window.AUI_TONES(), window.AUI_MAP
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
@@ -91,7 +93,10 @@ Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (t
 `/` and Ctrl K (Cmd K) Search, then arrows, Home, End, PageUp, PageDown, Enter and Escape inside it, `g` glitch jolt, arrows + space in invaders, arrows/Home/End in tablists, arrows/Escape in the dropdown, Backspace/arrows/paste in OTP.
 
 ## Data attributes
-`data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-v` (the view a Home tile goes to), `data-group` (set by the docs builder on each component: its group).
+Site: `data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-v` (the view a Home tile goes to), `data-group` (set by the docs builder on each component: its group), `data-span` (`full`: the section takes the whole gallery row). Kit: `data-aui="NAME"` and the `data-aui-*` button attributes, listed in `kit/README.md` and per component in `docs/COMPONENTS-REFERENCE.md`. The Code tab adds them (`KITIFY`, js/40); the site's own demos do not use them.
 
 ## CSS classes worth knowing
-`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.dochead` (a docs view's one title and lede), `.grouph` (a component group label), `.band` (a Home section label), `.tile` (Home link tiles), `.inl` (inline link), `.linkbtn` (a button that reads as a link), `.u .in` (entrance), `.calm` on `:root` when glitch is off.
+`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.dochead` (a docs view's one title and lede), `.grouph` (a component group label), `.band` (a Home section label), `.tile` (Home link tiles), `.inl` (inline link), `.linkbtn` (a button that reads as a link), `.u .in` (entrance), `.calm` on `:root` when glitch is off. The kit uses the same class names for the same parts; its blocks are listed in `kit/ascii-ui.css` (`/* ==== name: selectors ==== */`).
+
+## window.ASCIIUI (the kit, from kit/ascii-ui.js)
+Only on pages that link the kit. `version` (a semver string; the kit engineer owns it, the changes are in the kit changelog next to it), `init(root)` (wire a part of the page by hand; elements added later are wired by a MutationObserver anyway), `toast(msg, err)`, `progress(el, pct)`, `bar(k, n)` and `colorize(str)` (halftone bars), `tones(map)` (swap the frame characters), `behaviors` (the functions `data-aui` names), `reduce`. Components fire bubbling `aui:*` events with details in `event.detail`. The lifecycle calls, validation API and the full event list are documented in `kit/README.md`; that file is the reference, this is a pointer.

@@ -4,7 +4,7 @@ Why things are the way they are. Reverse any of these knowingly.
 
 1. **Hybrid, not pure ASCII.** Native HTML under ASCII paint. Pure text UI kills accessibility and makes responsive layout a chore. (v1)
 2. **Density is hierarchy.** The ramp `@%#*+=:.` is the weight scale. Frames are strings, not CSS borders. (v2)
-3. **Color has one job each.** Magenta acts, cyan focuses, lime confirms, yellow warns. Blue-ish is never decorative. (v4)
+3. **Color has one job each.** Magenta acts, cyan focuses, lime confirms, yellow warns. Cyan is never decorative, and action and warning never drift toward each other. (v4)
 4. **Glitch is feedback, not decoration.** At rest the page is readable; chaos comes from touch, scroll and state changes, and the slider turns it down to zero. This is why it reads as designed and not broken. (v3, v4)
 5. **Motion is `steps()`.** No easing anywhere. Entrances glitch in, exits are cut. (v1)
 6. **Everything on the character grid.** 1ch by one row. It is what makes the fake terminal feel true. (v1)
@@ -19,3 +19,4 @@ Why things are the way they are. Reverse any of these knowingly.
 15. **Menu appears under 1024px only.** From 1024px the views sit in the bar and the sidebar lists the sections, so a second navigation would be noise. Below, the `[=]` menu carries both. (v9, moved to 1024px in v10.6 and v10.9)
 16. **Five views, no playground views.** Play, Apps and One pager showed the kit under stress but read as a portfolio, not a kit. Home carries the ring, Themes carries the labs, and the rest is docs. (v10.9)
 17. **One bitmap title per page.** Thirty posters in a row was a wall of shouting. Docs views open with one title and a lede; sections are a bold word. (v10.9)
+18. **The Code tab prints the kit, not the site.** What you copy has to work with the two kit files alone, so the Code tab prints kit attributes, kit CSS blocks and kit behaviors instead of the site's engine code, and `qa/kit.py` pastes every one twice into a blank page to prove it. The site keeps its own richer wiring for the demos. (v11)

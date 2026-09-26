@@ -6,15 +6,17 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 
 ## How to use it
 
-1. Link the kit once, in your page's `<head>` and before `</body>`:
+1. Link the two kit files in the `<head>` of your page:
 
    ```html
    <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/ascii-ui.css">
-   <script src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
+   <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
    ```
 
-2. Open https://ascii.fedekotek.design, go to Components, open the Code tab on any component and copy its HTML into your page.
-3. Or start from the starter page, which already links both: https://ascii.fedekotek.design/kit/starter.html
+2. Open https://ascii.fedekotek.design/#components, pick the Code tab on any component and copy its HTML into your page. It works as pasted, twice on one page too.
+3. Or start from the starter page, which already links both and has every kit component on it: https://ascii.fedekotek.design/kit/starter.html
+
+The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 28 of the 30 components are in the kit; Command and Picture need the site's engine.
 
 There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
 
@@ -24,17 +26,19 @@ Five views: Home (the ring, where to start, questions, invaders), Components (30
 index.html          the page, linking css/ and js/ (develop here)
 css/                18 files, load order matters (numbered)
 js/                 7 files, load order matters (numbered)
-kit/                the kit you link from your own page: ascii-ui.css, ascii-ui.js, starter.html
+kit/                the kit you link from your own page: ascii-ui.css, ascii-ui.js, starter.html, README.md
 build.py            inlines css/ and js/ into dist/ascii-ui.html and writes site/
 dist/ascii-ui.html  the single-file build
 site/               the deploy output, built by build.py: the single file plus kit/
 vercel.json         tells Vercel to serve site/
-qa/                 Playwright scripts used for every release
+qa/                 Playwright scripts, the release bar (qa/release.sh) and the reference generator
 docs/               everything you need to keep going (start with docs/ARCHITECTURE.md)
-archive/            published versions v2 to v9.3, as single files. From v10 the history is in git
-assets/             screenshots used in reviews
+archive/            old published versions (v2 to v9.3) as single files, not every point release. From v10 the history is in git
+assets/             og.png (the link preview) and icon-180.png (the home screen icon), both made by qa/shots.py and
+                    shipped in site/; the other pictures are old review screenshots, some of views that are gone
+llms.txt            a one-page map of the repo and the kit for an AI agent
 LICENSE             MIT
-CLAUDE.md           instructions for an AI agent working on this repo
+CLAUDE.md           instructions for an AI agent working on this repo (the rules, the checklist, the release bar)
 ```
 
 ## Run it
@@ -51,30 +55,28 @@ python3 -m http.server 8000     # then http://localhost:8000
 python3 build.py                # writes dist/ascii-ui.html and site/
 ```
 
-`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, and merges the adjacent `<style>` blocks. Then it writes `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file.
+`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, and merges the adjacent `<style>` blocks. Then it rebuilds `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page and as the Download, a 404 page, `robots.txt`, the two pictures in `assets/`, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file. The version is the `aui-version` meta in `index.html`; `build.py` refuses to build when the footer says another. `python3 build.py --check` fails when the committed `site/` or `dist/` is not what the source builds.
 
 ## QA
 
 ```
 pip install playwright && playwright install chromium
-python3 qa/qa.py 390 844 dark m x     # errors + overflow, every view, mobile dark
-python3 qa/qa.py 1440 900 light d x   # same on desktop light
-python3 qa/breakpoints.py             # columns, overflow and overlap, 360 to 1920
-python3 qa/clock.py                   # the single animation clock still holds
-python3 qa/audit.py                   # tap targets under 40px, text under 12px
-python3 qa/keyboard.py                # sliders and fields never open the phone keyboard by accident
-python3 qa/kit.py                     # the kit files and the starter page load clean
-python3 qa/reduced.py                 # reduced motion turns off every animation and sound
+python3 qa/qa.py 390 844 dark m x     # errors + overflow, every view, mobile dark (the quick check)
+python3 build.py                      # then the release bar, all of it, in order:
+sh qa/release.sh                      # ends with `release: ok`, or stops at the first failure
 ```
 
-Drop the trailing `x` to also get one screenshot per screen. See `qa/README.md`.
+Every script is described in `qa/README.md`. Drop the trailing `x` from `qa.py` to also get one screenshot per screen.
 
 ## Where things are
 
 | Want to | Go to |
 |---|---|
 | Change a color, the ramp, a preset | `css/01-tokens.css`, `js/00-tones.js`, `docs/TOKENS.md` |
-| Add a component | `docs/COMPONENTS.md` (recipe at the end) |
+| Rebrand (every place a color lives) | `docs/ARCHITECTURE.md`, Rebrand |
+| Add a component | `docs/COMPONENTS.md` (the checklist) |
+| See every component's code, as printed | `docs/COMPONENTS-REFERENCE.md` (generated by `qa/reference.py`) |
+| Change the kit | `kit/`, then `python3 qa/kit.py sync`; `kit/README.md` |
 | Add a block | `docs/BLOCKS.md` |
 | Understand a trick (torus, tear, LCD, shatter, ramp swap) | `docs/EFFECTS.md` |
 | See what is fragile | `docs/KNOWN-ISSUES.md` |

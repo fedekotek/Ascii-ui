@@ -4,7 +4,7 @@ All in js/20 under "a character grid with colour runs". A `Grid(w,h)` holds a ch
 
 | Chart | id | Data | Interaction | Entrance |
 |---|---|---|---|---|
-| Bars | `ch-bars` | `REQ[7]` | tap a bar, cyan highlight, status line | grows from 0 (`grow(drawBars)`) |
+| Bars | `ch-bars` | `REQ[7]` | tap a bar (or arrows, Enter), violet highlight, status line | grows from 0 (`grow(drawBars)`) |
 | Line | `ch-line` | rolling `d[]`, new point every 700ms while in view | tap = spike (yellow `!`, tear, kick) | grows |
 | Regions | `ch-regions` | `REG[5]` | none | grows |
 | Heatmap | `ch-heat` | `heat[7*26]` seeded random | tap a day, bracket highlight, status | grows |
@@ -17,6 +17,6 @@ All in js/20 under "a character grid with colour runs". A `Grid(w,h)` holds a ch
 2. A `drawThing(p)` that builds a `Grid(CC, H)` and sets `el.innerHTML=g.html()`. `p` in 0..1 is the entrance progress; assign `el._anim=grow(drawThing)`.
 3. Add `drawThing()` to `drawCharts()` so it redraws on resize and ramp change.
 4. Pointer handling via `cellAt(el, e)` which returns `{x,y}` in cells.
-5. Colors are palette keys (`'hot'`, `'cy'`...), not CSS colors.
+5. Colors are palette keys (`'hot'`, `'violet'`...), not CSS colors. Never `'cy'` for a highlight: cyan is focus.
 
 Roadmap charts (see ROADMAP.md): area, stacked bars, radar, radial gauge, sparkline table, live scatter.
