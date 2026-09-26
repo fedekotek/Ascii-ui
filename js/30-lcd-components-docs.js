@@ -444,7 +444,7 @@ function buildView(panel,label,skip,pin,group){
   if(group)secs.forEach((s,i)=>{
     if(i&&secs[i-1].dataset.group===s.dataset.group)return;
     const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');h.dataset.g=s.dataset.group;
-    h.innerHTML=s.dataset.group+' <span class="navcount">'+secs.filter(x=>x.dataset.group===s.dataset.group).length+'</span>';
+    h.textContent=s.dataset.group;
     panel.insertBefore(h,s);
   });
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');

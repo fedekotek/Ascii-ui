@@ -288,7 +288,7 @@ function rebuild(){
 A.shatter=shatter;A.rebuild=rebuild;
 $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
-const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker';
+const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel';
 let lp=null,swallow=false;
 document.addEventListener('pointerdown',e=>{
   if(reduce)return;

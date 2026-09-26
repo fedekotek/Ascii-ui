@@ -10,7 +10,7 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 
 ## Next (layout)
 - [ ] The Themes view still lays out for one column. It reads fine wide, but the pickers and the labs could use the space.
-- [ ] Rename `css/11-views-onepager.css` and `css/15-themes-play-menu-apps.css` now that One pager, Play and Apps are gone, and drop the dead code they left (see KNOWN-ISSUES.md #13).
+- [ ] Rename `css/11-views-stats.css` and `css/15-themes-menu.css` now that One pager, Play and Apps are gone, and drop the dead code they left (see KNOWN-ISSUES.md #13).
 
 ## Next (kit)
 - [ ] Per-component files: `components/button/{button.html,button.css,button.js,README.md}` and a script that assembles `index.html`. The Code tab can then read the files instead of scraping the DOM.

@@ -1,4 +1,4 @@
-/* ---------- views, one pager pieces, details ---------- */
+/* ---------- views, stats, labs, details ---------- */
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}
 .views .tab{padding:calc(var(--r)/2) 2ch}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--r) 2ch}

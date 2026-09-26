@@ -10,11 +10,11 @@ css/02-base-grid.css        body, main, grid overlay, scanlines, jolt keyframes
 css/03-posters.css          .poster, .ptitle (bitmap titles)
 css/04-frame.css            .frame, .mid  (borders made of strings)
 css/05..10                  one file per primitive
-css/11-views-onepager.css   view tabs, the lab pieces (now in Themes > Labs), details. The name is historical
+css/11-views-stats.css   view tabs, the lab pieces (now in Themes > Labs), details. The name is historical
 css/12-toast.css
 css/13-rules-shell-blocks-charts.css   site shell, badge/alert/select/skeleton, blocks, charts, invaders, overlays
 css/14-docs-components-lcd.css         Preview/Code docs structure, 18 components added in v7, LCD, blocks added in v7
-css/15-themes-play-menu-apps.css       presets, ramp editor, install. The name is historical: Play and Apps are gone
+css/15-themes-menu.css       presets, ramp editor, install. The name is historical: Play and Apps are gone
 css/16-grid.css             page width, galleries, the Home page, .dochead, .grouph, docs section headings
 css/17-nav.css              the top bar, the sidebar, the [=] menu
 css/18-search.css           Search, the palette in #cmdDlg
