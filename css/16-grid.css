@@ -3,7 +3,7 @@
    is the cap in characters, it steps up at four breakpoints and js/10 reads it
    when it snaps main to a whole number of columns. Second, the component
    galleries: Components, Blocks and Charts flow into as many columns of at
-   least 46ch as fit, so the page fills a monitor instead of a strip down the
+   least 40ch (--galmin) as fit beside the sidebar, so the page fills a monitor instead of a strip down the
    middle. A section that needs the full width says so with data-span; js/30
    sets it on anything holding a table, a picture or a phone, index.html sets it
    on the charts that draw to the page width, and the Code tab sets it while it
@@ -14,9 +14,10 @@
   --galmin:40ch;     /* narrowest a gallery column may get */
   --galgap:4ch;      /* gutter between gallery columns */
 }
-@media (min-width:1024px){:root{--maxcols:100}}   /* ~960px,  2 columns */
-@media (min-width:1280px){:root{--maxcols:124}}   /* ~1190px, 2 columns */
-@media (min-width:1600px){:root{--maxcols:165}}   /* ~1590px, 3 columns of 51ch */
+/* measured gallery columns, the sidebar takes its share of main */
+@media (min-width:1024px){:root{--maxcols:100}}   /* 1 column of 66ch */
+@media (min-width:1280px){:root{--maxcols:124}}   /* 2 columns of 43ch */
+@media (min-width:1600px){:root{--maxcols:165}}   /* 3 columns of 41ch */
 
 /* css/02 caps main at 80ch, the cap now moves with the breakpoints */
 main{max-width:calc(var(--maxcols)*1ch)}
@@ -54,7 +55,7 @@ main{max-width:calc(var(--maxcols)*1ch)}
   #view-kit > section[aria-labelledby]::before,
   #view-blocks > section[aria-labelledby]::before,
   #view-charts > section[aria-labelledby]::before{
-    content:var(--h-faint);display:block;height:var(--r);overflow:hidden;
+    content:var(--h-faint);content:var(--h-faint) / "";display:block;height:var(--r);overflow:hidden;
     white-space:nowrap;color:var(--muted);opacity:.5;margin-bottom:var(--r);
   }
 }
@@ -64,10 +65,11 @@ main{max-width:calc(var(--maxcols)*1ch)}
 #view-kit > section > p,#view-blocks > section > p,#view-charts > section > p{max-width:72ch}
 
 /* the two block grids were pinned to fixed character columns at a viewport
-   breakpoint, which is wrong inside a gallery column: the column is 46ch wide
-   whatever the window is. They now fit as many tracks as the box allows. */
-.grid2{grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));gap:var(--r) 2ch}
-.grid3{grid-template-columns:repeat(auto-fit,minmax(min(24ch,100%),1fr));gap:var(--r) 2ch}
+   breakpoint, which is wrong inside a gallery column: the column is 41 to 66ch
+   wide whatever the window is. They now fit as many tracks as the box allows.
+   27ch is the narrowest a pricing card gets before its button leaves it. */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));gap:var(--r) 2ch}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(27ch,100%),1fr));gap:var(--r) 2ch}
 .grid2 .lift,.grid3 .lift{max-width:none}
 
 /* the progress bar is a fixed run of characters, let it scroll in a narrow box */
@@ -111,7 +113,6 @@ main{max-width:calc(var(--maxcols)*1ch)}
    the same edge as the name in the bar. The Grid and Glitch switches live in
    the bar's settings now; their inputs stay here, hidden, because four
    scripts read them. */
-.hero-h{font-weight:700;color:var(--ink);margin:var(--r) 0 0}
 main > header > .lede{max-width:64ch;margin-top:0}
 main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
 .hero-src{margin-top:var(--r);align-items:baseline;column-gap:2ch;flex-wrap:wrap}
@@ -119,7 +120,7 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
 /* a text button: ink, underlined, magenta on hover, a thumb tall */
 .linkbtn{
   font:inherit;line-height:var(--r);background:none;border:0;border-radius:0;color:var(--muted);
-  padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;text-decoration:underline;text-underline-offset:3px;
+  padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;text-decoration:underline;text-underline-offset:3px;background-clip:content-box;
 }
 @media (hover:hover){.linkbtn:hover{color:var(--hot)}}
 .linkbtn:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
@@ -132,10 +133,6 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 #view-home > section{margin-top:var(--r)}
 #view-home{margin-top:0!important}
 #view-home > section::before{margin-bottom:var(--r)!important}
-#view-home .stats{grid-template-columns:repeat(auto-fit,minmax(min(20ch,100%),1fr))}
-#view-home > section[aria-labelledby="s-ideas"]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(44ch,100%),1fr));gap:var(--r) 4ch}
-#view-home > section[aria-labelledby="s-ideas"] > h2{grid-column:1/-1;margin:0}
-#view-home > section[aria-labelledby="s-ideas"] > .demo{margin:0}
 /* the way in: four tiles, each one a frame of = that thickens to # under the
    pointer and to a blue @ with the keyboard. The whole tile is the link */
 .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(26ch,100%),1fr));gap:var(--r) 2ch}
@@ -157,7 +154,7 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 .dochead .ptitle{margin:0}
 .dochead .lede{margin:var(--r) 0 0;max-width:72ch;color:var(--muted)}
 .dochead + *{margin-top:var(--r)!important}
-.inl{color:var(--ink);text-underline-offset:3px;outline:0;padding:12px 0;margin:-12px 0}
+.inl{color:var(--ink);text-underline-offset:3px;outline:0;padding:12px 0;margin:-12px 0;background-clip:content-box}
 @media (hover:hover){.inl:hover{color:var(--hot)}}
 .inl:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
 /* the group a run of components belongs to, on the page as in the sidebar */

@@ -1,11 +1,9 @@
-/* ---------- views, one pager pieces, details ---------- */
+/* ---------- lab headings, frame demo, details ---------- */
+/* #views in the bar still carries .views: css/17 undoes the sticky and the
+   margin, the z-index and the paper behind it are still read from here */
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}
-.views .tab{padding:calc(var(--r)/2) 2ch}
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--r) 2ch}
-.stat .ptitle{cursor:default}
-.stat p{color:var(--muted)}
 .lab-h{margin-top:calc(var(--r)*3);text-transform:uppercase}
-.lab-h::before{content:"## ";color:var(--hot);font-weight:700}
+.lab-h::before{content:"## ";content:"## " / "";color:var(--hot);font-weight:700}
 pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y;cursor:crosshair}
 .frame-demo{display:inline-block}
 .frame-demo .mid{display:inline-flex}
@@ -17,15 +15,15 @@ main.split{animation:split .6s steps(1)}
   80%{text-shadow:-1px 0 var(--cy),1px 0 var(--hot)}
   100%{text-shadow:none}
 }
-.acc{position:relative;padding-bottom:var(--r)}
+.acc{position:relative;padding-bottom:var(--r);display:flow-root}   /* the summary's negative margin stays inside */
 .acc::after{
-  content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  content:var(--h-faint);content:var(--h-faint) / "";position:absolute;left:0;right:0;bottom:0;height:var(--r);
   overflow:hidden;white-space:nowrap;color:var(--muted);pointer-events:none;
 }
-.acc summary{list-style:none;cursor:pointer;display:flex;gap:1ch;padding:10px 0;margin:-10px 0;outline:0;-webkit-tap-highlight-color:transparent}
+.acc summary{list-style:none;cursor:pointer;display:flex;gap:1ch;padding:12px 0;margin:-12px 0;outline:0;-webkit-tap-highlight-color:transparent}
 .acc summary::-webkit-details-marker{display:none}
-.acc summary::before{content:"[+]";flex:none;font-weight:700;color:var(--hot)}
-.acc[open] summary::before{content:"[-]";color:var(--ok)}
+.acc summary::before{content:"[+]";content:"[+]" / "";flex:none;font-weight:700;color:var(--hot)}
+.acc[open] summary::before{content:"[-]";content:"[-]" / "";color:var(--ok)}
 .acc summary:focus-visible::before{background:var(--accent);color:var(--bg)}
 .acc p{padding-left:4ch;margin-top:var(--r);color:var(--muted)}
 .acc + .acc{margin-top:var(--r)}

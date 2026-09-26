@@ -753,7 +753,7 @@
     b.style.setProperty('--h',q(top));b.style.setProperty('--hb',q(bot));
     b.style.setProperty('--s',q(l));b.style.setProperty('--sr',q(r));
   }
-  var RIMC=['hot','pink','warn','ok','cy','violet'];
+  var RIMC=['hot','pink','warn','ok','deep','violet'];
   function rimClear(b){['--h','--hb','--s','--sr','--frame-color'].forEach(function(p){b.style.removeProperty(p)})}
   function march(b){
     if(reduce||b.disabled||b._m)return;
@@ -838,7 +838,7 @@
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
     wrap.setAttribute('aria-hidden','true');hold(wrap);
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
-    var bc=['pink','warn','cy','deep','ink','hot','violet'],grad=[],bi;
+    var bc=['pink','warn','violet','deep','ink','hot','violet'],grad=[],bi;
     for(bi=0;bi<bc.length;bi++)grad.push(PAL[bc[bi]]+' '+(bi*72)+'px '+((bi+1)*72)+'px');
     solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(to bottom,'+grad.join(',')+')';
     pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:24px;white-space:pre;color:'+ink;

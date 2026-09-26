@@ -14,6 +14,8 @@
      dialogs lay it over themselves because the top layer is out of reach */
   --scanlines:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
   --accent:var(--cy); --danger:var(--warn);
+  --on-pink:var(--ink);   /* text on a pink slab: ink on paper, the surface in dark */
+  --lcd-bg:#05030a;       /* the LCD pictures' glass. Dark in every theme, a screen is off-black */
   --r:21px;   /* one row. 14px type on a 21px line, 1.5 like it always was. JS reads this as A.ROW */
   --ptitle:6;   /* poster titles: the biggest px a bitmap pixel may get */
   color-scheme:light;
@@ -27,7 +29,7 @@
     --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
     --deep:#4a3dff; --violet:#9b7bea;
     --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
-    --tbar:var(--ink);
+    --tbar:var(--ink); --on-pink:var(--bg);
     --scan:rgba(0,0,0,.28);
     color-scheme:dark;
   }
@@ -37,7 +39,7 @@
   --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
   --deep:#4a3dff; --violet:#9b7bea;
   --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
-  --tbar:var(--ink);
+  --tbar:var(--ink); --on-pink:var(--bg);
   --scan:rgba(0,0,0,.28);
   color-scheme:dark;
 }
