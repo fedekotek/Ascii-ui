@@ -9,7 +9,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 | Component | Group | Id | Kit | Behaviors | CSS blocks |
 |---|---|---|---|---|---|
 | [Button](#s-button) | Form | `s-button` | yes | none | `button` |
-| [Calendar](#s-calendar) | Form | `s-calendar` | yes | `calendar` | `calendar` |
+| [Calendar](#s-calendar) | Form | `s-calendar` | yes | `calendar` | `ibtn`, `calendar` |
 | [Input](#s-input) | Form | `s-input` | yes | `validate` | `field` |
 | [Input OTP](#s-otp) | Form | `s-otp` | yes | `otp` | `otp` |
 | [Select](#s-select) | Form | `s-select` | yes | none | `field` |
@@ -36,7 +36,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 | [Spinner](#s-spinner) | Feedback | `s-spinner` | yes | `spinner` | `spinner` |
 | [Toast](#s-toast) | Feedback | `s-toast` | yes | `data-aui-toast`, `data-aui-toast-err` | `button`, `toast` |
 | [Breadcrumb](#s-breadcrumb) | Navigation | `s-breadcrumb` | yes | none | `crumbs` |
-| [Pagination](#s-pagination) | Navigation | `s-pagination` | yes | `pagination` | `pagination` |
+| [Pagination](#s-pagination) | Navigation | `s-pagination` | yes | `pagination` | `ibtn`, `pagination` |
 | [Tabs](#s-tabs) | Navigation | `s-tabs` | yes | `tabs` | `button`, `tabs` |
 
 ## Form
@@ -47,7 +47,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-button`, address `#components/button`
 - Group: Form
 - In the kit: yes, `kit/starter.html#button`
-- Caption: The rim says how loud it is: @ for primary, = for the rest, / for danger. The last one is disabled: a faint rim and a grey label.
+- Caption: The rim says how loud it is: @ for primary, = for the rest, / for danger. The last one is disabled: a faint rim and a gray label.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`
@@ -71,6 +71,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Behaviors:
   - `data-aui="calendar"`: draws the month, arrows and Page Up and Down move, the status line says the pick
 - CSS blocks:
+  - `ibtn`: `.ibtn`
   - `calendar`: `.cal`
 
 ```html
@@ -88,7 +89,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - In the kit: yes, `kit/starter.html#input`
 - Caption: Focus turns the frame to @ in the focus color. An error turns it into a wall of !.
 - Behaviors:
-  - `data-aui="validate"`: checks required and pattern, writes the error
+  - `data-aui="validate"`: checks as you type, on leaving the field and on submit, writes the error
 - CSS blocks:
   - `field`: `.field .field-label .error .count`
 
@@ -131,7 +132,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 ```html
 <div class="stack">
   <div class="otp" role="group" aria-label="One-time code" data-aui="otp">
-    <span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="off"></span>
+    <span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="one-time-code"></span>
     <span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span>
     <span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span>
     <span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span>
@@ -249,7 +250,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 <div class="stack">
   <div class="stack">
     <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Show on home page</label>
-    <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include case study</label>
+    <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Include archived projects</label>
     <label class="check"><input type="checkbox" role="switch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Autoplay motion</label>
   </div>
   <fieldset>
@@ -271,8 +272,8 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-command`, address `#components/command`
 - Group: Overlay
 - In the kit: no, site only
-- Caption: The command menu. On this site it is Search: press / and type.
-- Note: Search is this site's own palette. The kit has no command palette yet, so this is a button and a kbd.
+- Caption: The command menu. On this site it is Search: press / and type. Site only, not in the kit.
+- Note: Site only, not in the kit. Search is this site's own palette. The kit has no command palette yet, so this is a button and a kbd.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`
@@ -334,7 +335,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
   - `data-aui-open`: opens the dialog next to it
   - `data-aui-close`: closes its dialog
   - `data-aui-toast`: shows a toast
-  - `data-aui-reset`: clears the fields in its dialog
+  - `data-aui-reset`: puts the fields of its form or dialog back
 - CSS blocks:
   - `button`: `.btn`
   - `check`: `.check .switch-track`
@@ -355,9 +356,9 @@ One entry per component, in page order (group, then name). "Kit" means the compo
         <button class="sheet-x" type="button" aria-label="Close the filters" data-aui-close>[x]</button>
         <div class="body">
           <div class="stack">
-            <label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span class="t">Only my work orders</span></label>
-            <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span class="t">Overdue</span></label>
-            <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span class="t">High priority</span></label>
+            <label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span>Only my work orders</span></label>
+            <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span>Overdue</span></label>
+            <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span>High priority</span></label>
           </div>
           <div class="row">
             <button class="btn frame tone-light" type="button" data-aui-reset><span class="mid"><span class="label">Reset</span></span></button>
@@ -376,7 +377,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-tooltip`, address `#components/tooltip`
 - Group: Overlay
 - In the kit: yes, `kit/starter.html#tooltip`
-- Caption: Hover, focus or tap. It types itself in.
+- Caption: A short hint for a control, on hover, focus or tap. It types itself in.
 - Behaviors:
   - `data-aui="tooltip"`: a tap shows it, Escape puts it away
 - CSS blocks:
@@ -407,9 +408,9 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 
 ```html
 <div class="row">
-  <span class="avatar" role="img" aria-label="Fede Kotek">FK</span>
-  <span class="avatar hot sm" role="img" aria-label="MaintainX">MX</span>
-  <span class="avatar ok sm" role="img" aria-label="Autodesk">AD</span>
+  <span class="avatar" role="img" aria-label="Ana Ruiz">AR</span>
+  <span class="avatar hot sm" role="img" aria-label="Operations team">OP</span>
+  <span class="avatar ok sm" role="img" aria-label="Design team">DS</span>
 </div>
 ```
 
@@ -457,10 +458,10 @@ One entry per component, in page order (group, then name). "Kit" means the compo
       <h3 class="bar-title">Reporting redesign</h3>
       <div class="body">
         <dl>
-          <dt>Company</dt>
-          <dd>MaintainX</dd>
-          <dt>Role</dt>
-          <dd>Sr. Product Designer</dd>
+          <dt>Team</dt>
+          <dd>Analytics</dd>
+          <dt>Owner</dt>
+          <dd>Ana Ruiz</dd>
           <dt>Status</dt>
           <dd>draft</dd>
         </dl>
@@ -502,7 +503,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 <div>
   <details class="acc">
     <summary>What ships in the kit?</summary>
-    <p>Thirty components in two files, one css and one js. No build step. Link them once, then copy any component.</p>
+    <p>Twenty-eight components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
   </details>
   <details class="acc">
     <summary>Can I change the characters?</summary>
@@ -517,7 +518,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-kbd`, address `#components/kbd`
 - Group: Display
 - In the kit: yes, `kit/starter.html#kbd`
-- Caption: Keys in brackets. These ones are real.
+- Caption: Shortcuts, as keys in brackets. These ones work on this page.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `kbd`: `kbd .kbds`
@@ -537,8 +538,8 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-picture`, address `#components/picture`
 - Group: Display
 - In the kit: no, site only
-- Caption: An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector.
-- Note: The LCD panel is drawn by this site's engine and is not in the kit. The mode switches are a Segment, which is.
+- Caption: An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector. Site only, not in the kit.
+- Note: Site only, not in the kit. The LCD panel is drawn by this site's engine. The mode switches are a Segment, which is in the kit.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`
@@ -580,7 +581,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Id: `s-separator`, address `#components/separator`
 - Group: Display
 - In the kit: yes, `kit/starter.html#separator`
-- Caption: Four weights of nothing.
+- Caption: Splits content without a box. Four weights of nothing, and a rule with a word in it.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `divider`: `.sepd .sepl`
@@ -698,7 +699,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
     </div>
   </div>
   <div class="row">
-    <button class="btn frame tone-light" type="button" data-aui-fill data-aui-done="Exported case study."><span class="mid"><span class="label">Export case study</span></span></button>
+    <button class="btn frame tone-light" type="button" data-aui-fill data-aui-done="Exported report."><span class="mid"><span class="label">Export report</span></span></button>
     <span class="muted" role="status"></span>
   </div>
 </div>
@@ -799,6 +800,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 - Behaviors:
   - `data-aui="pagination"`: draws the pages from data-pages and data-page
 - CSS blocks:
+  - `ibtn`: `.ibtn`
   - `pagination`: `[data-aui="pagination"]`
 
 ```html

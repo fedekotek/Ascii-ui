@@ -16,6 +16,22 @@ Checks:
    labels sit on one row, the behaviors it names come alive in both copies, and
    the second copy works without touching the first (tabs, dialogs, progress,
    status lines, counters, errors, menus, tooltips)
+4. edge pages: parts that are missing or far away, radios in two forms keep
+   their names, validation on blur and submit with its words and events,
+   data-aui-reset, a toast over a modal dialog, the OTP, calendar and
+   pagination options, the calls (tabs, pagination, calendar, dropdown, otp),
+   settings changed on a live element, frames 400 wide and 200 tall
+5. lifecycle: 20 mounts and unmounts leave no listeners on document and
+   window, a spinner and a skeleton put back move again, destroy and init,
+   reduced motion followed while the page is open
+6. the Code tab: nothing changes after the demos are scrambled and used,
+   labels read as their data-text, classes the kit does not style are named
+   (and only Picture and Command may print them among the components), the
+   Skeleton behavior and the .ibtn css of Calendar and Pagination are there,
+   the Table block prints the kit Table
+7. Themes > Copy tokens: the Amber export pasted after the kit wins in a
+   light and a dark system setting and with data-theme, and the ramp script
+   runs after the kit
 The Google Fonts request fails in some sandboxes (proxy certificates); that one
 is reported as a note, not a failure.
 """
@@ -227,13 +243,92 @@ async def harvest(b):
     await pg.goto('file://'+os.path.join(ROOT,'index.html'))
     await pg.wait_for_timeout(2600)
     await pg.evaluate("document.getElementById('v-kit').click()"); await pg.wait_for_timeout(1500)
-    out=await pg.evaluate("""()=>[...document.querySelectorAll('#view-kit > section[aria-labelledby]')].map(s=>{
-        const t=s.querySelectorAll('.doc-tabs .tab')[1];if(!t)return [s.getAttribute('aria-labelledby'),null,null];t.click();
-        const h=s.querySelector('[data-part=html]'),j=s.querySelector('[data-part=js]');
-        return [s.getAttribute('aria-labelledby'),h&&h.textContent,j&&j.textContent]})""")
-    embedded_ok=await pg.evaluate("(()=>{try{return typeof KIT}catch(e){return 'x'}})()")
+    out=await pg.evaluate(READ_CODE,'kit')
+    # the Code tab is built from the demo as the html has it: scramble every
+    # button label, move the demos, then open Code again. Nothing may change,
+    # and every label reads as its data-text
+    await pg.evaluate(STIR)
+    again=await pg.evaluate(READ_CODE,'kit')
+    # the buttons the stir scrambled (the Code tab's own copy buttons and a
+    # button busy with its own job are not demo labels), against every
+    # .btn label the Code tab prints
+    lost=await pg.evaluate("""()=>{const code=new Set();
+      document.querySelectorAll('#view-kit [data-part=html]').forEach(p=>{const t=document.createElement('template');t.innerHTML=p.textContent;
+        t.content.querySelectorAll('.btn .label').forEach(l=>code.add(l.textContent.replace(/\\s+/g,' ').trim()))});
+      return [...new Set([...document.querySelectorAll('#view-kit .doc-panel .btn[data-text]')].filter(b=>!b.closest('.copyrow')&&!b.disabled).map(b=>b.getAttribute('data-text')))].filter(t=>!code.has(t))}""")
+    await pg.evaluate("document.getElementById('v-blocks').click()"); await pg.wait_for_timeout(1200)
+    blocks=await pg.evaluate(READ_CODE,'blocks')
     await pg.close()
-    return out,errs,notes
+    stirred=[]
+    first={r[0]:r for r in out}
+    for r in again:
+        if first.get(r[0])!=r: stirred.append(r[0])
+    return out,blocks,stirred,lost,errs,notes
+
+READ_CODE="""(v)=>[...document.querySelectorAll('#view-'+v+' > section[aria-labelledby]')].map(s=>{
+    const t=s.querySelectorAll('.doc-tabs .tab')[1];if(!t)return [s.getAttribute('aria-labelledby'),null,null,null];t.click();
+    const g=p=>{const e=s.querySelector('[data-part='+p+']');return e?e.textContent:null};
+    return [s.getAttribute('aria-labelledby'),g('html'),g('js'),g('css')]})"""
+STIR="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),V=document.getElementById('view-kit');
+  V.querySelectorAll('.doc-tabs').forEach(t=>t.querySelectorAll('.tab')[0].click());await w(50);
+  const fire=(el,t)=>el&&el.dispatchEvent(new Event(t,{bubbles:true}));
+  const tabs=V.querySelector('[aria-labelledby=s-tabs] .doc-panel [role=tab]:nth-child(2)');if(tabs)tabs.click();
+  const r=V.querySelector('[aria-labelledby=s-slider] input[type=range]');if(r){r.value=5;fire(r,'input')}
+  const o=V.querySelector('[aria-labelledby=s-otp] input');if(o){o.value='7';fire(o,'input')}
+  V.querySelectorAll('[aria-labelledby=s-details] details').forEach(d=>d.open=!d.open);
+  const x=document.getElementById('exportBtn');if(x)x.click();
+  await w(200);
+  V.querySelectorAll('.doc-panel .btn').forEach(b=>{if(window.AUI&&AUI.scramble)AUI.scramble(b)});
+  await w(40)})()"""
+
+# the classes the kit css styles
+def kit_classes():
+    css=open(os.path.join(KIT,'ascii-ui.css'),encoding='utf-8').read()
+    css=re.sub(r'/\*.*?\*/','',css,flags=re.S); css=re.sub(r'"(?:[^"\\]|\\.)*"','""',css)
+    return set(re.findall(r'\.(-?[_a-zA-Z][\w-]*)',css))
+def classes_in(html):
+    return {c for v in re.findall(r'class="([^"]*)"',html or '') for c in v.split()}
+# components whose Code tab says it is site only, and prints the classes the kit does not have
+SITE_ONLY=('s-picture','s-command')
+
+# Themes > Copy tokens: the Amber preset pasted after the kit wins in a dark
+# system setting, a light one, and with data-theme either way. A ramp of your
+# own is its own snippet, a script that runs after the kit
+async def tokens(b):
+    fails=[];notes=set()
+    pg=await b.new_page(viewport={'width':1440,'height':900},color_scheme='dark')
+    errs=[];watch(pg,errs,notes)
+    await pg.goto('file://'+os.path.join(ROOT,'index.html')); await pg.wait_for_timeout(2400)
+    await pg.evaluate("document.getElementById('v-themes').click()"); await pg.wait_for_timeout(900)
+    await pg.evaluate("(()=>{const r=document.querySelector('input[name=preset][value=amber]');r.checked=true;r.dispatchEvent(new Event('change',{bubbles:true}))})()")
+    await pg.wait_for_timeout(1200)
+    css=await pg.evaluate("document.getElementById('tokensOut').textContent")
+    hidden=await pg.evaluate("document.getElementById('tonesOut').closest('div').hidden")
+    await pg.evaluate("document.querySelector('#rampPresets .chip[data-r=\"1\"]').click()"); await pg.wait_for_timeout(300)
+    script=await pg.evaluate("document.getElementById('tonesOut').textContent")
+    css2=await pg.evaluate("document.getElementById('tokensOut').textContent")
+    fails+=['tokens: '+e for e in errs]
+    await pg.close()
+    if '<script' in css or '<script' in css2: fails.append('tokens: the css export holds a script')
+    if 'color-scheme: dark' not in css: fails.append('tokens: no color-scheme in the export')
+    if not hidden: fails.append('tokens: the ramp script shows for the default ramp')
+    if 'DOMContentLoaded' not in script or 'ASCIIUI.tones(' not in script: fails.append('tokens: the ramp script is not its own snippet that waits for the kit: %r'%script[:80])
+    m=re.search(r'--bg:\s*(#[0-9a-f]{6})',css)
+    if not m or m.group(1)!='#0d0700': fails.append('tokens: the Amber export has --bg %s'%(m and m.group(1)))
+    for scheme,theme in (('dark',None),('light',None),('dark','light'),('light','dark')):
+        path=blank_page('<p>x</p>',head='<style>'+css+'</style>'+script)
+        pg=await b.new_page(color_scheme=scheme)
+        e2=[];watch(pg,e2,notes)
+        try:
+            await pg.goto('file://'+path); await pg.wait_for_timeout(250)
+            if theme: await pg.evaluate("document.documentElement.setAttribute('data-theme','%s')"%theme)
+            got=await pg.evaluate("[getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(),getComputedStyle(document.body).backgroundColor,getComputedStyle(document.documentElement).getPropertyValue('--h-heavy').trim().slice(0,4)]")
+            if got[0].lower()!='#0d0700' or got[1]!='rgb(13, 7, 0)': fails.append('tokens: pasted after the kit, %s system%s: --bg is %s'%(scheme,', data-theme='+theme if theme else '',got[0]))
+            if got[2]!='"###': fails.append('tokens: the ramp script did not re-skin the frames (%s)'%got[2])
+            fails+=['tokens: '+x for x in e2]
+        finally:
+            await pg.close();os.remove(path)
+    return fails,notes
 
 # pasted twice: the second copy does its own thing and leaves the first alone.
 # a is the first copy's element, b the second's; own(i,sel) finds sel in copy i
@@ -278,8 +373,15 @@ RADIOS_JS="""(()=>{
   return a.every(x=>x.checked===x.defaultChecked)?true:'a pick in the second copy changed the first';
 })()"""
 
+def RADIO(name,value,checked=0):
+    return '<label class="check"><input type="radio" name="%s" value="%s"%s><span class="glyph" aria-hidden="true"></span>%s</label>'%(name,value,' checked' if checked else '',value)
+def FIELD(id,attrs):
+    return ('<div class="group"><label class="field-label">'+id+'</label><div class="field frame tone-light"><div class="mid">'
+            '<input id="'+id+'" data-aui="validate" '+attrs+'></div></div><p class="error"></p></div>')
+
 # layouts people will write that the Code tab does not print: parts that are
-# missing, parts in a shared box, a button and its dialog loose in <body>
+# missing, parts in a shared box, a button and its dialog loose in <body>.
+# A fourth item is a word the one console warning must hold.
 EDGES=[
  ('pagination does not borrow the OTP status',
   '<main><div class="otp" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><p role="status">Type.</p><nav data-aui="pagination" data-pages="9" data-page="3"></nav></main>',
@@ -301,12 +403,138 @@ EDGES=[
   "(()=>{document.getElementById('o').click();const d=document.querySelector('[data-aui-dialog=pub]');return d.open&&!document.getElementById('other').open?true:'the named dialog did not open'})()"),
  ('no dialog at all: one warning, no error',
   '<button id="o" data-aui-open="nope">Open</button>',
-  "(()=>{document.getElementById('o').click();document.getElementById('o').click();return true})()"),
+  "(()=>{document.getElementById('o').click();document.getElementById('o').click();return true})()",'data-aui-open'),
+ # 1.1.0
+ ('radios keep their names across forms, and split within one',
+  '<form id="f1"><fieldset>'+RADIO('plan','a',1)+RADIO('plan','b')+'</fieldset></form>'
+  '<form id="f2"><fieldset>'+RADIO('plan','a')+RADIO('plan','b',1)+'</fieldset></form>'
+  '<div><fieldset id="l1">'+RADIO('vis','a',1)+RADIO('vis','b')+'</fieldset></div><div><fieldset id="l2">'+RADIO('vis','a',1)+RADIO('vis','b')+'</fieldset></div>'
+  '<form id="f3"><fieldset id="s1">'+RADIO('size','s',1)+RADIO('size','m')+'</fieldset><fieldset id="s2">'+RADIO('size','s')+RADIO('size','m',1)+'</fieldset></form>',
+  """(()=>{const $=id=>document.getElementById(id),names=s=>[...document.querySelectorAll(s+' input')].map(x=>x.name);
+    if(names('#f1').concat(names('#f2')).some(n=>n!=='plan'))return 'a radio in a form was renamed: '+names('#f1')+' '+names('#f2');
+    if(new FormData($('f1')).get('plan')!=='a'||new FormData($('f2')).get('plan')!=='b')return 'a form lost its pick';
+    if(names('#l1')[0]!=='vis'||names('#l2')[0]==='vis')return 'copies outside a form were not split: '+names('#l2');
+    if(names('#s1')[0]!=='size'||names('#s2')[0]==='size')return 'copies in one form were not split';
+    if(!document.querySelector('#s1 input').checked||!document.querySelectorAll('#s2 input')[1].checked)return 'a copy lost its checked radio';
+    return true})()"""),
+ ('validation: blur, type words, submit, validate(), events',
+  '<form id="f" action="javascript:void 0">'+FIELD('e','type="email" required data-error-type="Needs an @."')+'<button id="s">Send</button></form>'
+  '<form id="g" novalidate action="javascript:void 0">'+FIELD('n','required')+'</form>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),ev=[];
+    document.addEventListener('aui:invalid',e=>ev.push('invalid:'+e.target.id));document.addEventListener('aui:valid',e=>ev.push('valid:'+e.target.id));
+    const e=$('e'),err=()=>document.getElementById(e.getAttribute('aria-describedby')).textContent;
+    e.focus();e.blur();
+    if(err()!=='This one is required.'||e.getAttribute('aria-invalid')!=='true')return 'blur did not check: '+err();
+    if(ev.join()!=='invalid:e')return 'aui:invalid did not fire once: '+ev;
+    e.value='x';e.dispatchEvent(new Event('input',{bubbles:true}));
+    if(err()!=='Needs an @.')return 'data-error-type not used: '+err();
+    if(ASCIIUI.validate($('f'))!==false)return 'validate(form) did not say false';
+    e.value='a@b.co';e.dispatchEvent(new Event('input',{bubbles:true}));
+    if(err()!==''||ev[ev.length-1]!=='valid:e')return 'a good value did not clear or fire aui:valid';
+    if(ASCIIUI.validate($('f'))!==true)return 'validate(form) did not say true';
+    e.value='';e.dispatchEvent(new Event('input',{bubbles:true}));$('n').focus();
+    let prevented=null,sent=0;e.addEventListener('invalid',x=>{prevented=x.defaultPrevented});$('f').addEventListener('submit',x=>{sent++;x.preventDefault()});
+    $('s').click();await w(30);
+    if(prevented!==true)return 'the invalid event kept the browser bubble';
+    if(sent)return 'an empty required field was sent';
+    if(document.activeElement!==e)return 'a failed submit did not focus the field';
+    let stopped=null;$('g').addEventListener('submit',x=>{stopped=x.defaultPrevented;x.preventDefault()});$('g').requestSubmit();await w(30);
+    const n=$('n');if(stopped!==true||n.getAttribute('aria-invalid')!=='true')return 'a novalidate form was sent with an empty required field';
+    return true})()"""),
+ ('reset puts fields back and redraws, leaves hidden inputs, warns outside a form',
+  '<form id="f"><div class="slider" data-aui="slider"><label>Volume</label><div class="slider-track"><span class="bar"></span><input type="range" id="rg" value="30"></div><output></output></div>'
+  '<div><div class="otp" data-aui="otp" data-name="code"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><p role="status" id="os"></p></div>'
+  '<input id="t" value="hello"><input type="checkbox" id="c" checked><input type="hidden" id="h" name="h" value="keep">'
+  '<div><textarea id="ta" maxlength="10" data-aui="counter">ab</textarea><p class="count" id="cn"></p></div>'
+  '<select id="sel"><option>a</option><option selected>b</option></select>'
+  '<button id="r" data-aui-reset>Reset</button></form><div><input id="out" value="x"><button id="lost" data-aui-reset>Lost</button></div>',
+  """(async()=>{const $=id=>document.getElementById(id),fire=(el,t)=>el.dispatchEvent(new Event(t,{bubbles:true})),w=ms=>new Promise(r=>setTimeout(r,ms));
+    $('rg').value=80;fire($('rg'),'input');const ins=document.querySelectorAll('.otp input:not([type=hidden])');ins[0].value='1';fire(ins[0],'input');ins[1].value='2';fire(ins[1],'input');$('t').focus();
+    $('t').value='zzz';$('c').checked=false;$('ta').value='abcdef';fire($('ta'),'input');$('sel').value='a';
+    if(document.querySelector('output').textContent!=='80'||new FormData($('f')).get('code')!=='12')return 'the setup did not take';
+    $('r').click();await w(20);
+    const bad=[];
+    if($('rg').value!=='30'||document.querySelector('output').textContent!=='30')bad.push('slider '+$('rg').value+'/'+document.querySelector('output').textContent);
+    if(!document.querySelector('.slider .bar').textContent)bad.push('bar not drawn');
+    if($('t').value!=='hello')bad.push('text '+$('t').value);
+    if(!$('c').checked)bad.push('checkbox default lost');
+    if($('h').value!=='keep')bad.push('hidden cleared');
+    if(new FormData($('f')).get('code')!==''||$('os').textContent!=='0 of 2.')bad.push('otp '+new FormData($('f')).get('code')+' '+$('os').textContent);
+    if($('cn').textContent!=='2/10')bad.push('count '+$('cn').textContent);
+    if($('sel').value!=='b')bad.push('select '+$('sel').value);
+    if(document.activeElement===ins[1])bad.push('the reset moved the focus into the code');
+    $('out').value='y';$('lost').click();if($('out').value!=='y')bad.push('a reset outside any form changed a field');
+    return bad.length?bad.join(', '):true})()""",'data-aui-reset'),
+ ('a toast shown over a modal dialog goes inside it',
+  '<div><button id="o" data-aui-open>Open</button><dialog><div class="body"><p>Hi</p><button id="t" data-aui-toast="Saved.">Save</button><button id="x" data-aui-close>Close</button></div></dialog></div>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms));
+    $('o').click();$('t').click();await w(60);const t=document.querySelector('.toast');
+    if(!t||t.parentNode!==document.querySelector('dialog'))return 'the toast is not in the open dialog';
+    if(!t.classList.contains('on')||!t.textContent.includes('Saved'))return 'the toast did not show';
+    $('x').click();ASCIIUI.toast('After.');await w(60);
+    return t.parentNode===document.body?true:'with no dialog open the toast did not go back to the page'})()"""),
+ ('otp, calendar and pagination options',
+  '<form id="f"><div class="otp" data-aui="otp" data-name="code"><span><input maxlength="1" autocomplete="off"></span><span><input maxlength="1" autocomplete="off"></span><span><input maxlength="1" autocomplete="off"></span></div>'
+  '<div><div class="cal" data-aui="calendar" data-name="when" data-value="2026-03-10" data-min="2026-03-05" data-max="2026-04-20" data-week-start="0" data-locale="de"></div><p role="status" id="cs"></p></div></form>'
+  '<nav id="pg" data-aui="pagination" data-pages="12" data-page="4" data-href="?page={n}"></nav>',
+  """(()=>{const $=id=>document.getElementById(id),fire=(el,t)=>el.dispatchEvent(new Event(t,{bubbles:true})),bad=[];
+    const ins=[...document.querySelectorAll('.otp input:not([type=hidden])')];
+    if(ins[0].getAttribute('autocomplete')!=='one-time-code')bad.push('first digit autocomplete '+ins[0].getAttribute('autocomplete'));
+    if(ins[1].getAttribute('autocomplete')!=='off')bad.push('the other digits changed autocomplete');
+    ins.forEach((x,i)=>{x.value=String(i+1);fire(x,'input')});
+    const fd=()=>new FormData($('f'));
+    if(fd().get('code')!=='123')bad.push('otp hidden '+fd().get('code'));
+    if(fd().get('when')!=='2026-03-10')bad.push('calendar hidden '+fd().get('when'));
+    const head=document.querySelector('.cal-head span').textContent;if(!/März/.test(head))bad.push('locale month '+head);
+    const wd=document.querySelector('.cal-grid span').textContent;if(wd!=='S')bad.push('week start '+wd);
+    if(!document.querySelector('[data-day="4"]').disabled||document.querySelector('[data-day="5"]').disabled)bad.push('data-min');
+    if(!document.querySelector('[data-d="-1"]').disabled)bad.push('the month before data-min is open');
+    let got=null;document.addEventListener('aui:change',e=>{got=e.detail.value},{once:true});
+    document.querySelector('[data-day="12"]').click();
+    if(got!=='2026-03-12'||fd().get('when')!=='2026-03-12')bad.push('pick '+got+' '+fd().get('when'));
+    if(!/2026/.test($('cs').textContent))bad.push('status '+$('cs').textContent);
+    const a=$('pg').querySelector('a.ibtn[href="?page=5"]'),cur=$('pg').querySelector('[aria-current=page]');
+    if(!a||$('pg').querySelector('button'))bad.push('data-href did not draw links');
+    if(!cur||cur.localName!=='a'||cur.textContent!=='4')bad.push('current page link');
+    return bad.length?bad.join(', '):true})()"""),
+ ('the calls, the events, and settings changed on a live element',
+  '<script>window.__ev=[];document.addEventListener("aui:change",e=>__ev.push(e.target.getAttribute("data-aui")))</script>'
+  '<div><div role="tablist" class="tablist" data-aui="tabs" id="tl"><button role="tab" class="tab">A</button><button role="tab" class="tab">B</button></div><div role="tabpanel">a</div><div role="tabpanel">b</div></div>'
+  '<nav id="p" data-aui="pagination" data-pages="9" data-page="3"></nav><div class="cal" id="c" data-aui="calendar"></div>'
+  '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
+  '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
+    if(ASCIIUI.version!=='1.1.0')bad.push('version '+ASCIIUI.version);
+    if(__ev.length)bad.push('aui:change fired on load: '+__ev);
+    const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
+    if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');
+    if(__ev.length)bad.push('select() fired aui:change');
+    $('tl').querySelector('[role=tab]').click();if(__ev.join()!=='tabs')bad.push('a click did not fire aui:change: '+__ev);
+    ASCIIUI.pagination($('p')).set(5);if($('p').querySelector('[aria-current]').textContent!=='5')bad.push('pagination set');
+    $('p').setAttribute('data-page','7');await w(0);if($('p').querySelector('[aria-current]').textContent!=='7')bad.push('data-page change not followed');
+    $('p').setAttribute('data-pages','20');await w(0);if(!$('p').querySelector('[aria-label="Page 20"]'))bad.push('data-pages change not followed');
+    const c=ASCIIUI.calendar($('c'));c.set('2026-01-15');if(c.value!=='2026-01-15'||!/January/.test($('c').textContent))bad.push('calendar set '+c.value);
+    $('c').setAttribute('data-value','2026-02-02');await w(0);if(c.value!=='2026-02-02')bad.push('data-value change not followed');
+    const d=ASCIIUI.dropdown($('d'));d.open();const m=$('d').querySelector('[role=menu]');if(m.hidden)bad.push('dropdown open');d.close();if(!m.hidden)bad.push('dropdown close');
+    const o=ASCIIUI.otp($('o'));o.value='42';if(o.value!=='42'||$('o').querySelector('input').value!=='4')bad.push('otp value');
+    if(ASCIIUI.tabs($('p'))!==null)bad.push('tabs() on a pagination is not null');
+    $('sp').setAttribute('data-aui','spinner');await w(0);if(!$('sp').textContent)bad.push('a data-aui added later did not wire');
+    $('sp').setAttribute('data-aui','');await w(0);const s1=$('sp').textContent;await w(300);if($('sp').textContent!==s1)bad.push('a data-aui removed kept running');
+    if(__ev.filter(x=>x!=='tabs').length)bad.push('a call fired aui:change: '+__ev);
+    return bad.length?bad.join(', '):true})()"""),
+ ('frames reach 400 characters and walls 200 rows, before and after tones()',
+  '<div class="field frame tone-light"><div class="mid"><input></div></div>',
+  """(()=>{const g=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim(),bad=[];
+    const h=()=>g('--h-heavy').replace(/"/g,'').length,v=()=>(g('--v-heavy').match(/\\\\A/gi)||[]).length;
+    if(h()<400||v()<200)bad.push('css ships '+h()+' by '+v());
+    ASCIIUI.tones({'@':'#'});if(h()<400||v()<200||!g('--h-heavy').startsWith('"###'))bad.push('tones() gives '+h()+' by '+v());
+    return bad.length?bad.join(', '):true})()"""),
 ]
 
 async def edges(b):
     fails=[];notes=set()
-    for name,html,js in EDGES:
+    for e in EDGES:
+        name,html,js=e[:3];warn=e[3] if len(e)>3 else None
         page=('<!doctype html><html lang="en"><head><meta charset="utf-8">'
               '<link rel="stylesheet" href="file://'+os.path.join(KIT,'ascii-ui.css')+'">'
               '<script src="file://'+os.path.join(KIT,'ascii-ui.js')+'" defer></script></head><body>'+html+'</body></html>')
@@ -318,12 +546,89 @@ async def edges(b):
             await pg.goto('file://'+path); await pg.wait_for_timeout(250)
             r=await pg.evaluate(js)
             if r is not True: fails.append('edge: %s: %s'%(name,r))
-            if name.startswith('no dialog'):
-                w=[x for x in warns if 'data-aui-open' in x]
+            if warn:
+                w=[x for x in warns if warn in x]
                 if len(w)!=1: fails.append('edge: %s: expected one warning, got %d'%(name,len(w)))
             fails+=['edge: %s: %s'%(name,e) for e in errs]
         finally:
             await pg.close();os.remove(path)
+    return fails,notes
+
+def blank_page(body,head=''):
+    page=('<!doctype html><html lang="en"><head><meta charset="utf-8">'
+          '<link rel="stylesheet" href="file://'+os.path.join(KIT,'ascii-ui.css')+'">'
+          '<script src="file://'+os.path.join(KIT,'ascii-ui.js')+'" defer></script>'+head+'</head><body>'+body+'</body></html>')
+    fd,path=tempfile.mkstemp(suffix='.html',prefix='kit-page-');os.write(fd,page.encode('utf-8'));os.close(fd)
+    return path
+
+# the listeners on document and window that are still live: an add counts
+# until its remove or its signal's abort
+COUNT_LISTENERS="""(()=>{const L=[];
+  for(const t of [document,window]){const add=t.addEventListener,rem=t.removeEventListener;
+    const cap=o=>typeof o==='object'&&o?!!o.capture:!!o;
+    t.addEventListener=function(type,fn,o){
+      if(!L.some(e=>e.on&&e.t===t&&e.type===type&&e.fn===fn&&e.cap===cap(o))){
+        const e={t,type,fn,cap:cap(o),on:true};L.push(e);
+        if(o&&o.signal){if(o.signal.aborted)e.on=false;else o.signal.addEventListener('abort',()=>{e.on=false})}}
+      return add.call(this,type,fn,o)};
+    t.removeEventListener=function(type,fn,o){L.forEach(e=>{if(e.t===t&&e.type===type&&e.fn===fn&&e.cap===cap(o))e.on=false});return rem.call(this,type,fn,o)};
+  }
+  window.__live=()=>L.filter(e=>e.on).length;
+})()"""
+LIFE_HTML=('<div><div role="tablist" class="tablist" data-aui="tabs"><button role="tab" class="tab">A</button><button role="tab" class="tab">B</button></div><div role="tabpanel">a</div><div role="tabpanel">b</div></div>'
+  '<div class="pop" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
+  '<div class="pop" data-aui="tooltip"><button>T</button><span class="tip">tip</span></div>'
+  '<div><nav data-aui="pagination" data-pages="9" data-page="3"></nav><p role="status"></p></div>'
+  '<div><div class="cal" data-aui="calendar"></div><p role="status"></p></div>'
+  '<form>'+FIELD('v','required')+'</form>'
+  '<div class="otp" data-aui="otp"><span><input maxlength="1"></span></div>'
+  '<div class="progress" role="progressbar" data-aui="progress"><span class="bar"></span></div>'
+  '<b data-aui="spinner"></b><pre class="skel" data-aui="skeleton"></pre>').replace(' id="v"','')
+LIFE_JS="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),host=document.getElementById('host'),bad=[];
+  const base=__live();let one=null;
+  for(let i=0;i<20;i++){const box=document.createElement('div');box.innerHTML=__HTML__;host.appendChild(box);await w(0);
+    if(i===0){one=__live();ASCIIUI.init(box);ASCIIUI.init(box);if(__live()!==one)bad.push('init twice added listeners')}
+    box.remove();await w(0)}
+  if(!(one>base))bad.push('the test saw no listeners to count ('+base+' then '+one+')');
+  if(__live()!==base)bad.push('20 mounts and unmounts left '+(__live()-base)+' listeners on document and window');
+  /* taken off and put back: torn down, then wired again and moving */
+  const box=document.createElement('div');box.innerHTML='<b data-aui="spinner"></b><pre class="skel" data-aui="skeleton"></pre>';
+  host.appendChild(box);await w(50);box.remove();await w(50);
+  const b=box.querySelector('b'),p=box.querySelector('pre');if(b.__aui||p.__aui)bad.push('a removed spinner was not torn down');
+  host.appendChild(box);await w(50);
+  const s1=b.textContent+'|'+p.textContent;await w(450);const s2=b.textContent+'|'+p.textContent;
+  if(s1===s2)bad.push('a spinner and a skeleton put back did not move again');
+  /* destroy by hand, then init again */
+  ASCIIUI.destroy(box);const d1=b.textContent;await w(300);if(b.textContent!==d1)bad.push('destroy(el) left the spinner running');
+  ASCIIUI.init(box);const d2=b.textContent;await w(300);if(b.textContent===d2)bad.push('init after destroy did not wire it again');
+  return bad.length?bad.join(', '):true})()"""
+
+async def lifecycle(b):
+    fails=[];notes=set()
+    path=blank_page('<main id="host"></main>')
+    pg=await b.new_page(viewport={'width':1280,'height':900})
+    errs=[];watch(pg,errs,notes)
+    try:
+        await pg.add_init_script(COUNT_LISTENERS)
+        await pg.goto('file://'+path); await pg.wait_for_timeout(200)
+        r=await pg.evaluate(LIFE_JS.replace('__HTML__',json.dumps(LIFE_HTML)))
+        if r is not True: fails.append('lifecycle: '+r)
+        # reduced motion followed live: on, the spinners stop; off, they move again
+        await pg.evaluate("document.getElementById('host').innerHTML='<b data-aui=\"spinner\" data-kind=\"bounce\"></b>'"); await pg.wait_for_timeout(100)
+        async def frames():
+            seen=set()
+            for _ in range(5):
+                seen.add(await pg.evaluate("document.querySelector('#host b').textContent")); await pg.wait_for_timeout(130)
+            return seen
+        await pg.emulate_media(reduced_motion='reduce'); await pg.wait_for_timeout(150)
+        r1=await pg.evaluate("ASCIIUI.reduce"); f1=await frames()
+        if not r1 or len(f1)!=1: fails.append('reduced motion turned on while open: reduce=%s, spinner %s'%(r1,sorted(f1)))
+        await pg.emulate_media(reduced_motion='no-preference'); await pg.wait_for_timeout(100)
+        r2=await pg.evaluate("ASCIIUI.reduce"); f2=await frames()
+        if r2 or len(f2)<2: fails.append('reduced motion turned off while open: reduce=%s, the spinner did not move again'%r2)
+        fails+=['lifecycle: '+e for e in errs]
+    finally:
+        await pg.close();os.remove(path)
     return fails,notes
 
 async def paste(b,sid,html,notes):
@@ -383,10 +688,34 @@ async def main():
         b=await p.chromium.launch()
         f,n=await starter(b);fails+=f;notes|=n
         f,n=await edges(b);fails+=f;notes|=n
-        comps,errs,n=await harvest(b);notes|=n
+        f,n=await lifecycle(b);fails+=f;notes|=n
+        f,n=await tokens(b);fails+=f;notes|=n
+        comps,blocks,stirred,lost,errs,n=await harvest(b);notes|=n
         fails+=['index.html: '+e for e in errs]
+        fails+=['Code tab: %s changed after the demo was hovered and clicked'%s for s in stirred]
+        if lost: fails.append('Code tab: labels that do not read as their data-text: %s'%lost)
+        # what the kit does not style is named, and only where it is allowed
+        K=kit_classes()
+        for sid,html,js,css in comps+blocks:
+            if html is None or sid in ('s-install','s-rules'): continue
+            extra=sorted(classes_in(html)-K)
+            is_comp=any(sid==c[0] for c in comps)
+            if extra and is_comp and sid not in SITE_ONLY:
+                fails.append('%s: the Code tab prints classes the kit does not style: %s'%(sid,', '.join(extra)))
+            if extra and 'site-only: '+', '.join(extra)+'.' not in (css or ''):
+                fails.append('%s: the Code tab does not name its site-only classes (%s)'%(sid,', '.join(extra)))
+            if not extra and 'site-only' in (css or ''):
+                fails.append('%s: the Code tab calls a kit class site-only'%sid)
+            if sid in SITE_ONLY and 'Site only, not in the kit' not in (js or ''):
+                fails.append('%s: the Code tab does not say site only, not in the kit'%sid)
+        C={c[0]:c for c in comps}
+        if 'skeleton:function' not in (C.get('s-skeleton',[None,None,''])[2] or ''): fails.append('s-skeleton: the Code tab leaves out the behavior')
+        for sid in ('s-calendar','s-pagination'):
+            if '.ibtn{' not in (C.get(sid,[None]*4)[3] or ''): fails.append('%s: the Code tab leaves out the .ibtn css it draws'%sid)
+        B={c[0]:c for c in blocks}
+        if '.tbl' not in (B.get('s-table',[None]*4)[3] or ''): fails.append('s-table: the Code tab does not print the kit Table css')
         rows=[]
-        for sid,html,js in comps:
+        for sid,html,js,css in comps:
             if sid in ('s-install','s-rules','s-foundations'): continue   # not components
             if html is None: rows.append((sid,'no Code tab','',''));fails.append(sid+': no Code tab');continue
             names,why=await paste(b,sid,html,notes)
