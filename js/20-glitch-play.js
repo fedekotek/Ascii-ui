@@ -291,7 +291,7 @@ function rebuild(){
 A.shatter=shatter;A.rebuild=rebuild;
 $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
-const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker';
+const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel';
 /* A finger holds things to read them, select them or scroll: a long press on a
    button, a card or a table shattered it and ate the text selection, Copy on
    the Code tabs included. On touch only the pictures break: titles, charts

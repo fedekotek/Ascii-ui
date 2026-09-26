@@ -446,7 +446,7 @@
   var BAR=['pink','warn','ok','deep','ink','hot','violet'];   /* no cyan: blue is focus */
   /* the ring shades through violet and magenta, never blue: blue is focus */
   var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
-  var TOR_L=['ink','violet','violet','hot','hot','pink','pink'];
+  var TOR_L=['ink','ink','violet','violet','hot','hot','pink'];   /* one step more ink than dark: pale on paper otherwise */
   function rnd(n){return Math.floor(Math.random()*n)}
   function mkBlock(){
     var bars=Math.random()<0.4;
@@ -1297,7 +1297,7 @@
   }
   var RV='header .lede,header .row > *,section > p,section .demo .btn,.field-label,.field,.stack > .check,legend,'+
          '.slider > label,.slider-track,.slider output,.tablist:not(.views),.tabpanel,section .lift,.progress,.rules li,'+
-         '.stat,.ticker,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
+         '.stat,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
   function reveal(el,i){
     el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');

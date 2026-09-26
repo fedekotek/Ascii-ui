@@ -17,7 +17,7 @@ Ordered by how much they will hurt the next person.
 10. **Shatter of very large elements** is capped at 900 pieces by decimation, so a full table loses some characters. Pseudo-element characters are laid out by estimation, not measurement; side walls can be a few px off.
 11. **Long-press vs scroll.** 560ms with a 10px cancel radius. On some phones a slow scroll start can trigger it. If it annoys, raise to 700ms or require a still finger (already partly done).
 12. **Invaders keyboard capture.** Arrows/space are only captured while the canvas is in view and no dialog is open. Space still scrolls the page when the game is idle and unfocused; that is intentional.
-13. **Leftovers from the removed views.** `.ticker` is still in the shatter and entrance selector lists, `HP` knobs and the `'snap'` picture dialog are still in the engine, the Chirp rules (`.post`, `.typing`) are still in css/15, and `css/11-views-onepager.css` and `css/15-themes-play-menu-apps.css` keep their old names. None of it is reachable; it is dead weight, not a bug. The `#crumb` node is still in the markup, hidden by css, because js/70 still writes to it.
+13. **Leftovers from the removed views.** Cleared in v10.10: the dead selectors, the Chirp rules and the hidden crumb are gone, and css/11 and css/15 are renamed. `HP` keeps its knobs because the hero still reads them.
 14. **Placeholder copy** (see BLOCKS.md).
 
 ## Performance

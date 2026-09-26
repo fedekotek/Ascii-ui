@@ -1,6 +1,6 @@
 /* ---- navigation ------------------------------------------------------------
    Everything that moves you around the page: the address, the view links in
-   the bar, the sidebar, the [=] menu, the crumb, the name, the skip link.
+   the bar, the sidebar, the [=] menu, the name, the skip link.
 
    The address. Every view and every section has one: #components,
    #components/button, #onepager/faq (a section's id minus its s- or o-).
@@ -15,7 +15,7 @@
    anything.
 
    The list. The sidebar (from 1024px) and the menu (below) print the same
-   thing: the view and its count, then Start, the counted sections, About.
+   thing: the view and its count (none for Themes), then Getting started and the groups.
    It is built from the sections themselves, so it cannot drift from the
    page, and it follows the Blocks filter. */
 (function(){
@@ -64,6 +64,7 @@
   function model(v){
     /* Home is a landing, not a list: no sidebar */
     if(v==='home')return {title:LABEL[v],count:0,groups:[]};
+    if(v==='themes'){const all=sections($('view-themes'));return {title:LABEL[v],count:null,groups:all.length?[{items:all}]:[]}}
     const all=sections($('view-'+v)),counted=all.filter(s=>s._chip);
     let title=LABEL[v];
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
@@ -81,6 +82,8 @@
   }
   function heading(el,m){
     el.textContent=m.title+' ';
+    /* Themes is a set of tools, not a catalog: a number there reads as the presets */
+    if(m.count==null)return;
     const c=document.createElement('span');c.className='navcount';c.textContent=m.count;
     el.appendChild(c);
   }
@@ -366,7 +369,7 @@
     attributes:true,attributeFilter:['hidden'],subtree:true
   });
 
-  /* ---- the name, the crumb, the skip link ---- */
+  /* ---- the name, the skip link ---- */
   /* the name is Home, and on Home it is the way back to the top */
   $('brand').addEventListener('click',function(){
     settle=null;
@@ -374,12 +377,6 @@
     else go('home',null,{push:true,top0:true});
     tick();
   });
-  function crumb(){
-    const v=current();
-    $('crumbName').textContent=LABEL[v];
-    $('crumb').setAttribute('aria-label',LABEL[v]+', open the menu');
-  }
-  document.addEventListener('aui:view',crumb);
   $('skip').addEventListener('click',e=>{
     e.preventDefault();
     const m=$('main');m.tabIndex=-1;m.focus();
@@ -414,7 +411,7 @@
     syncControls();fill(current());
     opener=from;focusTo=null;
     md.classList.remove('out');md.showModal();
-    [$('menuBtn'),$('crumb')].forEach(b=>b.setAttribute('aria-expanded','true'));
+    $('menuBtn').setAttribute('aria-expanded','true');
     /* start where you are: the section you are reading, in the middle of the
        list, or else the view */
     const body=md.querySelector('.menu-body'),cur=ms.querySelector('[aria-current]'),t=mtabs.find(x=>x.dataset.v===shown);
@@ -436,13 +433,12 @@
     });
   }
   $('menuBtn').addEventListener('click',()=>openMenu($('menuBtn')));
-  $('crumb').addEventListener('click',()=>openMenu($('crumb')));
   $('menuX').addEventListener('click',closeMenu);
   md.addEventListener('cancel',e=>{e.preventDefault();closeMenu()});
   /* whatever closed it, focus goes where you went, or back where you were */
   md.addEventListener('close',()=>{
     md.classList.remove('out');
-    [$('menuBtn'),$('crumb')].forEach(b=>b.setAttribute('aria-expanded','false'));
+    $('menuBtn').setAttribute('aria-expanded','false');
     if(focusTo){focusTo.tabIndex=-1;focusTo.focus({preventScroll:true});focusTo=null}
     else if(opener&&opener.offsetParent!==null)opener.focus();
   });
@@ -477,7 +473,7 @@
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}
-  build();crumb();
+  build();
   if(location.hash){if(!route(location.hash,undefined,true))stray(location.hash)}
   else title('home',null);
 

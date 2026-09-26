@@ -349,7 +349,7 @@ dialog[open] .lift{animation:glitchin .34s steps(1) both}
   100%{clip-path:inset(0 0 0 0);transform:none;filter:none}
 }
 dialog .row{justify-content:flex-end;column-gap:1ch}
-/* ---------- lab headings, frame demo, details ---------- */
+/* ---------- views, labs, details ---------- */
 /* #views in the bar still carries .views: css/17 undoes the sticky and the
    margin, the z-index and the paper behind it are still read from here */
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}
@@ -738,7 +738,7 @@ figcaption b{color:var(--ink)}
 #cases .lift:focus-visible .bar-title{background:var(--accent);color:var(--bg)}
 /* charts and pictures you can drive from the keyboard */
 .chart:focus-visible,figure.pic canvas:focus-visible{outline:0;box-shadow:0 0 0 2px var(--accent)}
-/* =================== v8: themes, ramp editor, play, install =================== */
+/* =================== themes, ramp editor, menu, install =================== */
 /* Presets keep the four roles apart: action, focus, success and warning are
    four different colours in every one, and text clears 4.5:1 on the surface.
    Focus is a pale blue in each, as it is in the kit. Amber's action slab is
@@ -1015,7 +1015,6 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:focus-visible .slash{color:inherit}
 @media (hover:hover){.brand:hover .slash{color:var(--pink)}}
-.crumb{display:none}
 #v-home{display:none!important}
 
 /* the views: muted, the one you are in ink and bold with a heavy run of
@@ -1538,7 +1537,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
       <button class="brand" id="brand" type="button" title="Home">ascii<span class="slash">/</span>ui</button>
-      <button class="bbtn crumb" id="crumb" type="button" aria-haspopup="dialog" aria-expanded="false" aria-label="Home, open the menu" hidden><span id="crumbName">Home</span></button>
       <div class="tablist views" role="tablist" aria-label="Views" id="views">
         <a class="tab" role="tab" id="v-home" href="#home" aria-controls="view-home" aria-selected="true">Home</a>
         <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="false">Components</a>
@@ -2815,7 +2813,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   var BAR=['pink','warn','ok','deep','ink','hot','violet'];   /* no cyan: blue is focus */
   /* the ring shades through violet and magenta, never blue: blue is focus */
   var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
-  var TOR_L=['ink','violet','violet','hot','hot','pink','pink'];
+  var TOR_L=['ink','ink','violet','violet','hot','hot','pink'];   /* one step more ink than dark: pale on paper otherwise */
   function rnd(n){return Math.floor(Math.random()*n)}
   function mkBlock(){
     var bars=Math.random()<0.4;
@@ -3666,7 +3664,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   }
   var RV='header .lede,header .row > *,section > p,section .demo .btn,.field-label,.field,.stack > .check,legend,'+
          '.slider > label,.slider-track,.slider output,.tablist:not(.views),.tabpanel,section .lift,.progress,.rules li,'+
-         '.stat,.ticker,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
+         '.stat,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
   function reveal(el,i){
     el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');
@@ -4017,7 +4015,7 @@ function rebuild(){
 A.shatter=shatter;A.rebuild=rebuild;
 $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
-const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel,.ticker';
+const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel';
 /* A finger holds things to read them, select them or scroll: a long press on a
    button, a card or a table shattered it and ate the text selection, Copy on
    the Code tabs included. On touch only the pictures break: titles, charts
@@ -5091,7 +5089,7 @@ function buildView(panel,label,skip,pin,group){
   if(group)secs.forEach((s,i)=>{
     if(i&&secs[i-1].dataset.group===s.dataset.group)return;
     const h=document.createElement('p');h.className='grouph';h.setAttribute('aria-hidden','true');h.dataset.g=s.dataset.group;
-    h.innerHTML=s.dataset.group+' <span class="navcount">'+secs.filter(x=>x.dataset.group===s.dataset.group).length+'</span>';
+    h.textContent=s.dataset.group;
     panel.insertBefore(h,s);
   });
   const toc=document.createElement('section');toc.setAttribute('aria-label',label+' index');
@@ -5459,7 +5457,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
 <script>
 /* ---- navigation ------------------------------------------------------------
    Everything that moves you around the page: the address, the view links in
-   the bar, the sidebar, the [=] menu, the crumb, the name, the skip link.
+   the bar, the sidebar, the [=] menu, the name, the skip link.
 
    The address. Every view and every section has one: #components,
    #components/button, #onepager/faq (a section's id minus its s- or o-).
@@ -5474,7 +5472,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
    anything.
 
    The list. The sidebar (from 1024px) and the menu (below) print the same
-   thing: the view and its count, then Start, the counted sections, About.
+   thing: the view and its count (none for Themes), then Getting started and the groups.
    It is built from the sections themselves, so it cannot drift from the
    page, and it follows the Blocks filter. */
 (function(){
@@ -5523,6 +5521,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
   function model(v){
     /* Home is a landing, not a list: no sidebar */
     if(v==='home')return {title:LABEL[v],count:0,groups:[]};
+    if(v==='themes'){const all=sections($('view-themes'));return {title:LABEL[v],count:null,groups:all.length?[{items:all}]:[]}}
     const all=sections($('view-'+v)),counted=all.filter(s=>s._chip);
     let title=LABEL[v];
     if(v==='blocks'){const f=filterName();if(f)title+=', '+f}
@@ -5540,6 +5539,8 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
   }
   function heading(el,m){
     el.textContent=m.title+' ';
+    /* Themes is a set of tools, not a catalog: a number there reads as the presets */
+    if(m.count==null)return;
     const c=document.createElement('span');c.className='navcount';c.textContent=m.count;
     el.appendChild(c);
   }
@@ -5825,7 +5826,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
     attributes:true,attributeFilter:['hidden'],subtree:true
   });
 
-  /* ---- the name, the crumb, the skip link ---- */
+  /* ---- the name, the skip link ---- */
   /* the name is Home, and on Home it is the way back to the top */
   $('brand').addEventListener('click',function(){
     settle=null;
@@ -5833,12 +5834,6 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
     else go('home',null,{push:true,top0:true});
     tick();
   });
-  function crumb(){
-    const v=current();
-    $('crumbName').textContent=LABEL[v];
-    $('crumb').setAttribute('aria-label',LABEL[v]+', open the menu');
-  }
-  document.addEventListener('aui:view',crumb);
   $('skip').addEventListener('click',e=>{
     e.preventDefault();
     const m=$('main');m.tabIndex=-1;m.focus();
@@ -5873,7 +5868,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
     syncControls();fill(current());
     opener=from;focusTo=null;
     md.classList.remove('out');md.showModal();
-    [$('menuBtn'),$('crumb')].forEach(b=>b.setAttribute('aria-expanded','true'));
+    $('menuBtn').setAttribute('aria-expanded','true');
     /* start where you are: the section you are reading, in the middle of the
        list, or else the view */
     const body=md.querySelector('.menu-body'),cur=ms.querySelector('[aria-current]'),t=mtabs.find(x=>x.dataset.v===shown);
@@ -5895,13 +5890,12 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
     });
   }
   $('menuBtn').addEventListener('click',()=>openMenu($('menuBtn')));
-  $('crumb').addEventListener('click',()=>openMenu($('crumb')));
   $('menuX').addEventListener('click',closeMenu);
   md.addEventListener('cancel',e=>{e.preventDefault();closeMenu()});
   /* whatever closed it, focus goes where you went, or back where you were */
   md.addEventListener('close',()=>{
     md.classList.remove('out');
-    [$('menuBtn'),$('crumb')].forEach(b=>b.setAttribute('aria-expanded','false'));
+    $('menuBtn').setAttribute('aria-expanded','false');
     if(focusTo){focusTo.tabIndex=-1;focusTo.focus({preventScroll:true});focusTo=null}
     else if(opener&&opener.offsetParent!==null)opener.focus();
   });
@@ -5936,7 +5930,7 @@ js:"/* ascii/ui kit, ascii-ui.js\n   The behaviors for the components that need 
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}
-  build();crumb();
+  build();
   if(location.hash){if(!route(location.hash,undefined,true))stray(location.hash)}
   else title('home',null);
 

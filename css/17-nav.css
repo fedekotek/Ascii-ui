@@ -55,7 +55,6 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:focus-visible .slash{color:inherit}
 @media (hover:hover){.brand:hover .slash{color:var(--pink)}}
-.crumb{display:none}
 #v-home{display:none!important}
 
 /* the views: muted, the one you are in ink and bold with a heavy run of

@@ -1,4 +1,4 @@
-/* ---------- lab headings, frame demo, details ---------- */
+/* ---------- views, labs, details ---------- */
 /* #views in the bar still carries .views: css/17 undoes the sticky and the
    margin, the z-index and the paper behind it are still read from here */
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}

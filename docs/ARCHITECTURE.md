@@ -10,11 +10,11 @@ css/02-base-grid.css        body, main, grid overlay, scanlines, jolt keyframes
 css/03-posters.css          .poster, .ptitle (bitmap titles)
 css/04-frame.css            .frame, .mid  (borders made of strings)
 css/05..10                  one file per primitive
-css/11-views-onepager.css   view tabs, the lab pieces (now in Themes > Labs), details. The name is historical
+css/11-views-stats.css       view tabs, stats, the lab pieces (Themes > Labs), details
 css/12-toast.css
 css/13-rules-shell-blocks-charts.css   site shell, badge/alert/select/skeleton, blocks, charts, invaders, overlays
 css/14-docs-components-lcd.css         Preview/Code docs structure, 18 components added in v7, LCD, blocks added in v7
-css/15-themes-play-menu-apps.css       presets, ramp editor, install. The name is historical: Play and Apps are gone
+css/15-themes-menu.css       presets, ramp editor, menu, install
 css/16-grid.css             page width, galleries, the Home page, .dochead, .grouph, docs section headings
 css/17-nav.css              the top bar, the sidebar, the [=] menu
 css/18-search.css           Search, the palette in #cmdDlg
@@ -107,7 +107,7 @@ under 768     [=] ascii/ui                                        [/]  <)))  -O-
 1024 and up   ascii/ui  Components Blocks Charts Themes   [ Search...  Ctrl K ]  |  /\/  <)))  -O-
 ```
 
-`#cmdBtn` is Search, drawn as a field from 1024px (`Cmd K` on a Mac) and as `[/]` below. Then three glyph buttons: `#glitchBar` (`/\/`, `___` when off), `#soundBar` (`<)))`, `<) x` when off) and `#themeToggle` (`-O-` or `(C`). From 1280px each glyph gets its word next to it. Sound and Theme stay in the bar at every width; Glitch leaves it under 768px and lives in the menu. There is no crumb any more (its node is still in the markup, hidden by css). `qa/breakpoints.py` checks that nothing in the bar overlaps and that the views never scroll out of sight.
+`#cmdBtn` is Search, drawn as a field from 1024px (`Cmd K` on a Mac) and as `[/]` below. Then three glyph buttons: `#glitchBar` (`/\/`, `___` when off), `#soundBar` (`<)))`, `<) x` when off) and `#themeToggle` (`-O-` or `(C`). From 1280px each glyph gets its word next to it. Sound and Theme stay in the bar at every width; Glitch leaves it under 768px and lives in the menu. There is no crumb any more. `qa/breakpoints.py` checks that nothing in the bar overlaps and that the views never scroll out of sight.
 
 **Addresses.** Every view and every section has one: `#components`, `#components/button`, `#themes/labs` (the section heading's id minus `s-` or `o-`; views are home, components, blocks, charts, themes). Old `#play`, `#apps` and `#onepager` links land on `#home`. The view tabs and the sidebar and menu entries are real links, so they can be copied or opened in a new tab. Picking a view or a section pushes a history entry, so Back works; the scroll spy only replaces the current entry as you read, so reading does not fill up Back. Loading an address, Back, Forward and a hand-typed hash all go through `route()`. It is only hashes, so it works from `file://`. Search's `goto` command takes the same names.
 
@@ -115,7 +115,7 @@ under 768     [=] ascii/ui                                        [/]  <)))  -O-
 
 **The landing.** A jump puts the section's title (its first visible child) in the first row under the bar, measured from the title rather than from css margins, and under anything sticky in the view if there is one (found by looking, not by name; no view has one today). A link to Home lands at the top. For a moment after a jump the page is still moving (the font, charts sizing themselves, titles refitting), so the landing is redone whenever `main` changes size until you touch, scroll or press anything.
 
-**The list.** The sidebar and the menu print the same model: the view and its count, then the sections. Home has no list. Where a view has a chip index, the count is what the index counts, and the sections it leaves out (Get the kit, Rules) come first as Getting started, wherever they sit on the page. Components then lists its parts under their groups. After a Blocks filter the heading says so, `Blocks, Personal 6`. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`, because views and the Blocks filter both work by toggling it.
+**The list.** The sidebar and the menu print the same model: the view and its count (Themes has none: a number there read as the presets), then the sections. Home has no list. Where a view has a chip index, the count is what the index counts, and the sections it leaves out (Get the kit, Rules) come first as Getting started, wherever they sit on the page. Components then lists its parts under their groups. After a Blocks filter the heading says so, `Blocks, Personal 6`. It is built from the sections themselves, so it cannot drift from the page, and it is rebuilt by a MutationObserver watching `hidden` inside `main`, because views and the Blocks filter both work by toggling it.
 
 **Reading position** is plain maths on scroll, rAF throttled: the last section whose title has reached the line a jump lands on. Above the first section nothing is marked. A gallery row shares one top, so ties keep whatever is already marked, and fall back to the row's first entry. Clicking a sidebar entry pins the mark for 1.2s while the smooth scroll arrives.
 
