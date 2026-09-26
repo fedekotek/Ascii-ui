@@ -36,7 +36,7 @@
 if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElementById('boot').remove();else document.documentElement.classList.add('aui-booting')})()</script>
 <span id="probe" aria-hidden="true">MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM</span>
 <a class="skip" id="skip" href="#main">Skip to content</a>
-<div class="topbar">
+<div class="topbar" role="banner">
   <div class="topbar-in">
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
@@ -464,12 +464,12 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="demo lift"><div class="card frame tone-mid" id="login"><h3 class="bar-title">Sign in to Static</h3><form class="body" id="lgForm" novalidate>
         <div class="group">
           <label class="field-label" for="lgEmail">Email</label>
-          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgEmail" type="email" value="" placeholder="you@company.com" autocomplete="off" inputmode="email" autocapitalize="off" spellcheck="false" aria-describedby="lgEmailErr"></div></div>
+          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgEmail" type="email" value="" placeholder="you@company.com" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" aria-describedby="lgEmailErr"></div></div>
           <p class="error" id="lgEmailErr"></p>
         </div>
         <div class="group">
           <label class="field-label" for="lgPass">Password</label>
-          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="Min. 8 characters" autocomplete="off" aria-describedby="lgPassErr"></div></div>
+          <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="lgPass" type="password" value="" placeholder="Min. 8 characters" autocomplete="current-password" aria-describedby="lgPassErr"></div></div>
           <p class="error" id="lgPassErr"></p>
         </div>
         <div class="row full"><button class="btn btn-primary frame tone-heavy" id="lgBtn" type="submit"><span class="mid"><span class="label">Sign in</span></span></button></div>
@@ -493,7 +493,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-table" class="vh">Table</h2>
     <pre class="poster ptitle" data-text="TABLE" aria-hidden="true"></pre>
     <p class="muted">A real table. Tap a row to select it.</p>
-    <div class="demo tablewrap"><table class="tbl" id="incTable"><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Time</th></tr></thead><tbody>
+    <div class="demo tablewrap"><table class="tbl" id="incTable"><caption class="vh">Incidents, newest first. Pick a row for details.</caption><thead><tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th><th scope="col">Time</th></tr></thead><tbody>
       <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span><span class="dur">12m</span></td><td>12m</td></tr>
       <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span><span class="dur">48m</span></td><td>48m</td></tr>
       <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span><span class="dur">6m</span></td><td>6m</td></tr>
@@ -780,7 +780,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <h2 id="s-inv" class="vh">Invaders</h2>
       <pre class="poster ptitle" data-text="INVADERS" aria-hidden="true"></pre>
       <p class="muted">Every site needs a footer. Drag to move, hold to fire. On a keyboard: arrows and space.</p>
-      <canvas id="inv" class="demo" tabindex="0" aria-label="Space invaders game. Arrow keys move, space fires."></canvas>
+      <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
+      <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
     <p class="foot" id="footLine">ascii/ui. One HTML file, no dependencies. Set in Geist Mono.</p>
   </footer>
@@ -834,6 +835,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="menu-foot">
       <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+      <button class="bbtn" id="mSearch" type="button">Search</button>
+      <button class="bbtn" id="mTheme" type="button">Theme</button>
     </div>
   </div>
 </dialog>

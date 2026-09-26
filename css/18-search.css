@@ -54,15 +54,21 @@
 .s-foot span:first-child{overflow:hidden;text-overflow:ellipsis}
 @media (pointer:coarse){.s-foot span:first-child{visibility:hidden}}
 
-/* a phone: the whole width, from the top, and the list takes what is left */
-@media (max-width:767px){
+/* a phone, or a phone on its side with the keyboard up: the whole width less
+   a character each side, centred, from one row under the top, and the list
+   takes what is left. The frame starts one row down so its top row shows; the
+   shadow that would run off the right edge goes, and so does the room kept for
+   it. The height counts that row, one more at the foot and the safe areas, so
+   the frame never runs off the bottom. */
+@media (max-width:767px),(max-height:500px){
   #cmdDlg{
-    width:100%;max-width:100%;margin:0 0 auto;padding-top:env(safe-area-inset-top,0px);
-    max-height:100vh;max-height:100dvh;
+    --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
+    width:calc(100% - 2ch - var(--sal) - var(--sar));max-width:none;padding:0;
+    margin:calc(var(--r) + env(safe-area-inset-top,0px)) auto auto;
+    max-height:calc(100vh - var(--r)*2 - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+    max-height:calc(100dvh - var(--r)*2 - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
   }
   .s-list{max-height:none}
-  /* the frame starts one row down so its top row shows, and the shadow that
-     would run off the right edge goes */
-  #cmdDlg{margin-top:calc(var(--r) + env(safe-area-inset-top,0px));max-width:calc(100% - 2ch)}
+  #cmdDlg .lift{padding:0}
   #cmdDlg .lift::after,#cmdDlg .lift::before{display:none}
 }

@@ -10,7 +10,7 @@ document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest
 /* single-character inputs replace instead of refusing */
 document.addEventListener('beforeinput',e=>{
   const el=e.target;if(!el.matches||!el.matches('input[maxlength="1"]')||!e.data)return;
-  e.preventDefault();el.value=e.data.slice(-1);el.dispatchEvent(new Event('input',{bubbles:true}));
+  e.preventDefault();el.value=Array.from(e.data).pop();el.dispatchEvent(new Event('input',{bubbles:true}));
 });
 document.addEventListener('focusin',e=>{if(e.target.matches&&e.target.matches('input[maxlength="1"]'))e.target.select()});
 
@@ -165,7 +165,7 @@ LCD.prototype.draw=function(){
   }
   this.sect.forEach(s=>{if(s.swap>0)s.swap--;else if(s.shift&&Math.random()<0.3)s.shift=0;if(burst&&Math.random()<0.25){s.shift=rnd(9)-4;s.swap=2}});
 };
-LCD.prototype.setImage=function(file,cb){const img=new Image();img.onload=()=>{this.img=img;this.draw();cb&&cb(true)};img.onerror=()=>cb&&cb(false);img.src=URL.createObjectURL(file)};
+LCD.prototype.setImage=function(file,cb){const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);this.img=img;this.draw();cb&&cb(true)};img.onerror=()=>{URL.revokeObjectURL(url);cb&&cb(false)};img.src=url};
 document.querySelectorAll('canvas.lcd').forEach(c=>new LCD(c));
 const lcdOf=el=>LCDS.find(l=>l.cv===el);A.lcdOf=lcdOf;
 if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(!l.cw)l.size();else l.draw()}})});
@@ -181,7 +181,8 @@ document.addEventListener('change',e=>{
 });
 function wireLoad(btnId,fileId,lcd,after){
   $(btnId).addEventListener('click',()=>$(fileId).click());
-  $(fileId).addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(f)lcd.setImage(f,ok=>{if(ok){A.flash(lcd.cv);after&&after()}else A.say('That file did not decode as an image.',true)})});
+  /* the input is cleared each time, so the same file picked twice still loads */
+  $(fileId).addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];e.target.value='';if(f)lcd.setImage(f,ok=>{if(ok){A.flash(lcd.cv);after&&after()}else A.say('That file did not decode as an image.',true)})});
 }
 wireLoad('picLoad','picFile',bigPic,()=>{$('picCap').innerHTML='<b>Your photo.</b> It never leaves this page.'});
 wireLoad('portLoad','portFile',lcdOf(document.querySelector('.profile canvas.lcd')));
@@ -230,10 +231,16 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.dropdown=function(){
   const btn=$('ddBtn'),menu=$('ddMenu'),items=[...menu.querySelectorAll('[role="menuitem"]')];
   function open(on){menu.hidden=!on;menu.classList.toggle('open',on);btn.setAttribute('aria-expanded',on?'true':'false');if(on){items[0].focus();if(live())sfx.open()}}
   btn.addEventListener('click',()=>open(menu.hidden));
+  /* the arrows open it from the button too: down lands on the first item, up on the last */
+  btn.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(menu.hidden)open(true);(e.key==='ArrowUp'?items[items.length-1]:items[0]).focus()}
+  });
   menu.addEventListener('keydown',e=>{
     const i=items.indexOf(document.activeElement);
     if(e.key==='ArrowDown'){e.preventDefault();items[(i+1)%items.length].focus()}
     else if(e.key==='ArrowUp'){e.preventDefault();items[(i-1+items.length)%items.length].focus()}
+    else if(e.key==='Home'){e.preventDefault();items[0].focus()}
+    else if(e.key==='End'){e.preventDefault();items[items.length-1].focus()}
     else if(e.key==='Escape'){open(false);btn.focus()}
   });
   items.forEach(it=>it.addEventListener('click',()=>{open(false);btn.focus();const t=it.firstChild.textContent.trim();if(it.classList.contains('danger')){toast(t+'. It is gone.',true);A.jolt()}else A.say(t+'.')}));
@@ -300,7 +307,11 @@ function toast(msg,err){A.say(msg,err);if(err&&live())sfx.err()}
 $('toastOk').addEventListener('click',()=>{A.say('Changes saved.');if(live())sfx.ok()});
 $('toastErr').addEventListener('click',()=>{toast('Something broke. It was you.',true);A.jolt()});
 /* tooltip on touch */
-$('ttBtn').addEventListener('click',()=>{const p=$('tt');clearTimeout(p._t);p.classList.add('on');p._t=setTimeout(()=>p.classList.remove('on'),1800)});
+$('ttBtn').addEventListener('click',()=>{const p=$('tt');clearTimeout(p._t);p.classList.remove('off');p.classList.add('on');p._t=setTimeout(()=>p.classList.remove('on'),1800)});
+/* Escape puts it away while the button keeps the focus (WCAG 1.4.13); it
+   comes back the next time you point at it or focus it */
+$('tt').addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('tt');if(!p.classList.contains('off')){e.preventDefault();e.stopPropagation()}clearTimeout(p._t);p.classList.remove('on');p.classList.add('off')}});
+['focusout','pointerenter'].forEach(t=>$('tt').addEventListener(t,()=>$('tt').classList.remove('off')));
 
 /* ================= blocks ================= */
 $('sayHi').addEventListener('click',()=>A.say('Hi. No inbox is wired in this prototype.'));

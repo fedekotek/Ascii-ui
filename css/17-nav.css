@@ -18,7 +18,7 @@
 }
 .topbar-in{margin:0 auto;padding:0 2ch;position:relative}
 .topbar::after{
-  content:var(--h-faint);position:absolute;left:0;right:0;bottom:0;height:var(--r);
+  content:var(--h-faint);content:var(--h-faint) / "";position:absolute;left:0;right:0;bottom:0;height:var(--r);
   overflow:hidden;white-space:nowrap;font-weight:400;color:var(--muted);opacity:.5;pointer-events:none;
 }
 html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
@@ -70,7 +70,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 }
 #views .tab[aria-selected="true"]{color:var(--ink);font-weight:700;background:none;box-shadow:none}
 #views .tab[aria-selected="true"]::after{
-  content:var(--h-heavy);position:absolute;left:.5ch;right:.5ch;top:100%;
+  content:var(--h-heavy);content:var(--h-heavy) / "";position:absolute;left:.5ch;right:.5ch;top:100%;
   height:var(--r);overflow:hidden;white-space:nowrap;color:var(--ink);background:var(--bg);z-index:1;
   font-weight:700;pointer-events:none;
 }
@@ -111,7 +111,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   .barctl .sep,.sf-l,.sf-k{display:none}
   .sfield{width:5ch;padding:12px .5ch;margin:0 -.5ch;box-sizing:content-box;justify-content:center;color:var(--ink);font-weight:700}
   .sf-g{display:inline}
-  #menuBtn{display:block;min-width:44px;text-align:left;padding:12px 1ch 12px 0}
+  #menuBtn{display:block;min-width:44px;text-align:left;padding:12px 1ch 12px 0;padding-block:calc(var(--r)/2 + 1px)}
 }
 @media (max-width:767px){#views,#glitchBar{display:none}}
 
@@ -194,9 +194,13 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* ---- small screens --------------------------------------------------------
    Fixes that only matter under a phone's width. */
 
-/* the tooltip is one long line, which on a 320px screen pushes the page
-   sideways even while it is clipped out of sight */
-.tip{max-width:calc(100vw - 4ch);white-space:normal}
+/* the tooltip is as wide as its words and wraps only when the screen is
+   narrower than 40 characters. It used to wrap everywhere, to three lines,
+   with the arrow sitting on the second one. The arrow hangs off the bottom
+   edge, whatever the height. Escape puts it away (js/30 adds .off) */
+.tip{width:max-content;max-width:min(40ch,calc(100vw - 4ch));white-space:normal}
+@media not (pointer:coarse){.tip::after{top:100%}}
+.pop.off .tip{clip-path:inset(0 100% 0 0)!important}
 
 /* ---- sheets ----------------------------------------------------------------
    The Filters sheet scrolls inside itself, and the way out is the [x] in its
@@ -264,6 +268,9 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 /* on a phone the seven views wrap to two rows rather than scroll sideways and
    cut a word in half; the menu has the height */
 @media (max-width:767px){.menu-views{flex-wrap:wrap;overflow:visible}}
+/* at 360 the five names and their side space were a character too wide, so
+   Themes went to a row of its own. Half a character each side fits them */
+@media (max-width:479px){.menu-views .tab{padding-inline:.5ch}}
 .menu-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;padding:var(--r) 0}
 .menu-h{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
 .menu-foot{
@@ -271,7 +278,7 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   position:relative;padding:var(--r) 0 calc(var(--r)/2);
 }
 .menu-foot::before{
-  content:var(--h-faint);position:absolute;left:0;right:0;top:0;height:var(--r);
+  content:var(--h-faint);content:var(--h-faint) / "";position:absolute;left:0;right:0;top:0;height:var(--r);
   overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;
 }
 .menu-foot .check{padding:12px 0;margin:0}
@@ -281,9 +288,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
    landing is measured in js/70-nav.js from the title itself, so the rule and
    the margin above it do not push it down. Native jumps (focus, find) get no
    extra margin either. Under 768px sections are also closer together. */
-@media (max-width:1023px){
-  [role="tabpanel"] > section[aria-labelledby]{scroll-margin-top:0}
-}
 @media (max-width:767px){
   [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*2)}
   [role="tabpanel"] > section[aria-labelledby] + section[aria-labelledby]::before{margin-bottom:var(--r)}
@@ -293,11 +297,8 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
    calendar columns and six code cells at 44px each do not fit on the narrowest
    phones, so there the brackets step aside rather than the target shrinking. */
 @media (max-width:1023px){
-  .cal-grid button{padding:12px 0}
   .rampcells input{min-width:3ch}
-  .menu [role="menuitem"]{padding:12px 0}
-  .pager button,.pager a,.stepper button{padding:12px 1ch;margin:-12px 0}
-  .feed .bell,.feed .like,.feed .rt{padding:12px 1ch;margin:-12px 0}
+  .stepper button{padding:12px 1ch;margin:-12px 0}
   .otp{flex-wrap:wrap}
 }
 @media (min-width:384px) and (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,5ch)}}
@@ -367,10 +368,100 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   .progress .bar,.progress .glyph{max-width:100%;overflow:hidden}
 }
 
-/* a select is a control, it gets a thumb's worth of height on touch */
-@media (max-width:1023px){.field select,select{min-height:calc(var(--r)*2)}}
+/* a select is a control, it gets a thumb's worth of height on touch. Two
+   rows of min-height put the value half a row low; it is one row that
+   reaches a thumb's height past its frame instead */
+@media (max-width:1023px){.field select{height:calc(var(--r) + 24px);padding-block:12px;margin-block:-12px}}
 
 /* The camera and photo messages print under their own buttons, not a grid row
    further down beside the poster button. Empty, the line gives its row back. */
 #heroSrc > #heroStatus{flex-basis:100%;margin:0}
 #heroSrc > #heroStatus:empty{min-height:0;margin-top:calc(var(--r)*-1)}
+
+/* ---- safe areas ------------------------------------------------------------
+   viewport-fit=cover hands the whole screen over, notch and rounded corners
+   included. The top inset is kept once, by the bar (css/01 also padded the
+   page, which doubled it under the bar). The side insets are exposed here for
+   layout() in js/10, which keeps the column and the bar clear of both, and
+   everything fixed to the screen edges keeps clear of them too. */
+:root{
+  padding-top:0;
+  --sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);
+}
+.menu-in{padding-left:calc(2ch + var(--sal));padding-right:calc(2ch + var(--sar))}
+/* the sheet's walls stood on the screen edge: a character of page each side */
+dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
+
+/* ---- the bar is exactly three rows ------------------------------------------
+   Everything in it was 45px tall, so the bar came to 66px and the toast (and
+   anything else that starts on row four) tucked 3px under it. Each item is now
+   a row and a half of padding a side, 42px on the grid, and reaches one pixel
+   further up and down so the target is still 44px. */
+.topbar .bbtn,.topbar .brand,.topbar #views .tab,.topbar .barctl .sep,.topbar .gbtn,.topbar .sfield{
+  padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px);margin-top:-1px;margin-bottom:-1px;
+}
+/* the heavy mark under the view you are in sits on the rule row, not a pixel below it */
+.topbar #views .tab[aria-selected="true"]::after{top:calc(100% - 1px)}
+/* 200% text: the words next to the glyphs go first, then the bar wraps
+   (js/10 sets these when it does not fit) */
+.topbar.tight .gw{display:none}
+.topbar.tight .gbtn{width:5ch;display:block;margin-left:-.5ch;margin-right:-.5ch}
+.topbar.wrap .viewsbar{flex-wrap:wrap}
+
+/* ---- phones: no zoom on focus ---------------------------------------------
+   iOS zooms into any field under 16px and leaves the page zoomed. On a touch
+   screen fields get 16px type on the same row. */
+@media (pointer:coarse){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),select,textarea,.field select,.field textarea{
+    font-size:16px;line-height:var(--r);
+  }
+  /* no keyboard, no shortcut */
+  #sfKey{display:none}
+}
+
+/* ---- phones on their side --------------------------------------------------
+   With the menu's rows pinned there was room for two entries between the views
+   and the foot. On a short screen the whole menu scrolls instead. */
+@media (max-height:500px){
+  .menu-in{overflow-y:auto;overscroll-behavior:contain}
+  .menu-body{flex:none;overflow:visible;min-height:auto}
+}
+
+/* ---- the picture dialog -------------------------------------------------------
+   On a short screen (a phone on its side, a small laptop) the poster was
+   taller than the window and Close was out of reach. The dialog is capped a
+   row short of each edge and scrolls, the picture gives up height first, and a
+   tap on the page around it closes it (js/20). */
+#posterDlg{max-height:calc(100vh - 2*var(--r));max-height:calc(100dvh - 2*var(--r));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#posterDlg #posterImg{width:auto;max-width:100%;max-height:max(calc(var(--r)*6),calc(100dvh - var(--r)*14));margin:0 auto}
+
+/* ---- tap targets ------------------------------------------------------------
+   Each of these was a pixel or two short of 44. They reach further, the rows
+   they sit on stay where they were. */
+.doc-tabs .tab{padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px);margin-top:-1px;margin-bottom:-1px}
+.doc-tabs .tab[aria-selected="true"]::after{top:calc(100% - 1px)}
+.acc summary{padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px);margin-top:calc(var(--r)/-2 - 1px);margin-bottom:calc(var(--r)/-2 - 1px)}
+.sheet-x{padding-left:calc(1ch + 1px);padding-right:calc(1ch + 1px)}
+.menu-x{padding:calc(var(--r)/2 + 1px) calc(1ch + 1px);margin:-1px calc(-1ch - 1px) -1px 0}
+.menu-views .tab{padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px)}
+/* seven columns that never push the page sideways, however big the text */
+@media (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,minmax(0,5ch))}}
+/* the ramp editor on a phone: four slots a row, each a thumb wide, rather
+   than seven and the eighth alone underneath */
+@media (max-width:1023px){
+  .rampcells{display:grid;grid-template-columns:repeat(8,6ch);gap:0 1ch}
+  .rampcells label{grid-template-columns:minmax(0,1fr);justify-items:stretch;text-align:center}
+  .rampcells span{width:100%}
+  .rampcells input{flex:1 1 0;width:0;min-width:0}
+}
+@media (max-width:767px){.rampcells{grid-template-columns:repeat(4,minmax(0,7ch))}}
+
+/* ---- the menu on Home lists the ways in (js/20 fills #menuHome) ---------- */
+#menuHome{display:none}
+#menuDlg:has(#mv-home[aria-selected="true"]) #menuHome{display:block}
+#menuDlg:has(#mv-home[aria-selected="true"]) #menuH .navcount{display:none}
+#menuHome .navlink{padding:12px 1ch}
+
+/* ---- Themes > Labs: the headline you type is the one poster that shows ----
+   css/16 hides the section posters in docs views; this one is the demo */
+#view-themes > section > pre#typeOut{display:block}
