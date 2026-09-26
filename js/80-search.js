@@ -6,7 +6,9 @@
      SETTINGS      Theme, Sound, Glitch, Show grid, with their live values
      TRICKS        the verbs that do something to the page
    Typing searches every section of every view as well. A word that starts
-   with what you typed ranks first, then anything that contains it. A typed
+   with what you typed ranks first, then anything that contains it, then the
+   other names people type for it (ALIAS), then one typo away. Empty, it also
+   offers five COMMON components before the tricks. A typed
    command line (glitch 80, sign ada, rm -rf all) gets a Run row on top that
    hands it to run() in js/20, which answers on the status line.
 
@@ -36,20 +38,34 @@
     {name:'Show grid',kw:'grid debug rows columns',val:()=>$('gridToggle').checked?'on':'off',flip:flip('gridToggle')}
   ].map(s=>Object.assign({kind:'set'},s));
   const TRICKS=[['Tear','tear'],['Jolt','jolt'],['Boot','boot'],['Poster','poster'],
-    ['Invaders','invaders'],['Load a photo','photo'],['Rebuild','rebuild']]
+    ['Invaders','invaders'],['Feed the ring a photo','photo'],['Rebuild','rebuild']]
     .map(t=>({kind:'trick',name:t[0],verb:t[1],meta:t[1],kw:t[1]}));
   /* verbs run() knows. A bare one only gets a Run row when nothing else
      answers to it: "tear" is already a trick, "theme" a setting */
   const VERBS=/^(help|glitch|theme|sound|goto|cd|rm|rebuild|tear|jolt|boot|poster|sign|invaders|photo|ring|torus|tilt|sudo)$/;
   const BARE=/^(help|sudo|ring|torus|tilt|rm)$/;
 
-  let views=[],secGroups=[],bySec=new Map(),total=0;
+  /* the other names people type, by section id. They join the keywords, so
+     they rank under a match on the name itself */
+  const ALIAS={
+    's-button':'btn cta submit','s-card':'modal dialog popup panel','s-details':'accordion collapsible faq disclosure',
+    's-sheet':'drawer bottom panel','s-dropdown':'menu dropdown-menu context actions','s-togglegroup':'toggle segmented',
+    's-toggles':'toggle checkbox radio switch','s-command':'palette cmdk search','s-select':'dropdown picker combobox',
+    's-separator':'divider rule hr','s-pagination':'pager pages','s-breadcrumb':'crumbs path','s-otp':'otp pin code',
+    's-textarea':'multiline','s-tooltip':'hint popover','s-toast':'notification snackbar sonner','s-progress':'loading bar',
+    's-skeleton':'loading placeholder','s-spinner':'loading loader','s-kbd':'keyboard key shortcut',
+    's-install':'install copy code kit download starter css js cdn license mit version'};
+  const COMMON=['s-button','s-input','s-card','s-select','s-toast'];
+
+  let views=[],secGroups=[],bySec=new Map(),byId=new Map(),total=0;
   function build(){
     const ix=N.index();
-    bySec=new Map();
+    bySec=new Map();byId=new Map();
     views=ix.map(x=>({kind:'view',v:x.v,name:x.label,meta:'view',kw:x.v}));
     secGroups=ix.filter(x=>x.sections.length).map(x=>({label:x.label,items:x.sections.map(s=>{
-      const it={kind:'sec',v:x.v,sec:s.sec,name:s.name,meta:x.label,kw:s.kw};
+      const id=s.sec.getAttribute('aria-labelledby');
+      const it={kind:'sec',v:x.v,sec:s.sec,name:s.name,meta:x.label,kw:s.kw+(ALIAS[id]?' '+ALIAS[id]:'')};
+      byId.set(id,it);
       bySec.set(s.sec,it);return it;
     })}));
     total=views.length+bySec.size+SETS.length+TRICKS.length;
@@ -66,10 +82,24 @@
     const items=secs.map(s=>bySec.get(s)).filter(Boolean);
     return {label:label,items:items.slice(0,HERE),more:Math.max(0,items.length-HERE)};
   }
+  const common=()=>COMMON.map(id=>byId.get(id)).filter(Boolean);
 
   /* ---- ranking: 0 the name starts with it, 1 a word in the name does,
-     2 the name contains it, 3 a keyword starts with it, 4 contains it ---- */
-  const words=s=>s.toLowerCase().split(/[^a-z0-9]+/);
+     2 the name contains it, 3 a keyword starts with it, 4 contains it,
+     5 a word in the name is one typo away (a letter wrong, missing, extra or
+     swapped), 6 a keyword is ---- */
+  const words=s=>s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  function near(a,b){
+    if(a===b)return true;
+    const la=a.length,lb=b.length;
+    if(Math.abs(la-lb)>1)return false;
+    let i=0;while(i<la&&i<lb&&a[i]===b[i])i++;
+    if(la===lb)return a.slice(i+1)===b.slice(i+1)||
+      (a[i]===b[i+1]&&a[i+1]===b[i]&&a.slice(i+2)===b.slice(i+2));
+    return la>lb?a.slice(i+1)===b.slice(i):a.slice(i)===b.slice(i+1);
+  }
+  /* four letters or more, so "tab" does not turn into "tea" */
+  const typo=(t,ws)=>t.length>=4&&ws.some(w=>near(t,w)||(t.length>=5&&w.length>t.length&&near(t,w.slice(0,t.length))));
   function rank(it,toks){
     const n=it.name.toLowerCase(),nw=words(n),k=(it.kw||'').toLowerCase(),kw=words(k);
     let worst=0;
@@ -80,6 +110,8 @@
       else if(n.includes(t))r=2;
       else if(kw.some(w=>w.startsWith(t)))r=3;
       else if(k.includes(t))r=4;
+      else if(typo(t,nw))r=5;
+      else if(typo(t,kw))r=6;
       if(r>worst)worst=r;
       if(worst===9)break;
     }
@@ -104,7 +136,7 @@
     if(!q){
       const h=here();
       return [{label:'Views',items:views},{label:h.label,items:h.items,more:h.more},
-              {label:'Settings',items:SETS},{label:'Tricks',items:TRICKS}];
+              {label:'Settings',items:SETS},{label:'Components',items:common()},{label:'Tricks',items:TRICKS}];
     }
     const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
     const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS}]);
@@ -137,6 +169,21 @@
     count.textContent='';
     /* a failed search selects nothing, so Enter does not go somewhere you did not ask for */
     setActive(rows.length&&!none?0:-1);
+    tell(q,none?0:rows.filter(r=>r.it.kind!=='run').length);
+  }
+  /* the count is read out once typing stops, into the dialog's own status
+     line (the toast sits outside the modal, so it is not heard from here).
+     Hidden, because the list already shows it */
+  let told=null,telling=false;
+  function tell(q,n){
+    if(told){told.stop();told=null}
+    if(telling){stat.textContent='';telling=false}
+    if(!q)return;
+    told=A.times(600,1,function(){},function(){
+      told=null;if(!dlg.open||inp.value.trim()!==q)return;
+      stat.innerHTML='<span class="vh">'+esc(n?n+(n===1?' result':' results'):'Nothing called "'+q+'"')+'.</span>';
+      telling=true;
+    });
   }
   function rowEl(i){return $('so-'+i)}
   function setActive(i,keep){

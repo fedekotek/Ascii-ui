@@ -4,18 +4,36 @@ shadcn-style components with a brutalist ASCII skin and a bad signal. One HTML f
 
 Live: https://asciiui.vercel.app (Vercel deploys `main` on every push). The single-file build is `dist/ascii-ui.html`.
 
+## How to use it
+
+1. Link the kit once, in your page's `<head>` and before `</body>`:
+
+   ```html
+   <link rel="stylesheet" href="https://asciiui.vercel.app/kit/ascii-ui.css">
+   <script src="https://asciiui.vercel.app/kit/ascii-ui.js"></script>
+   ```
+
+2. Open https://asciiui.vercel.app, go to Components, open the Code tab on any component and copy its HTML into your page.
+3. Or start from the starter page, which already links both: https://asciiui.vercel.app/kit/starter.html
+
+There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
+
 Five views: Home (the ring, where to start, questions, invaders), Components (30, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
 
 ```
 index.html          the page, linking css/ and js/ (develop here)
 css/                18 files, load order matters (numbered)
 js/                 7 files, load order matters (numbered)
-build.py            inlines css/ and js/ into dist/ascii-ui.html
-dist/ascii-ui.html  the single-file build, what gets published
+kit/                the kit you link from your own page: ascii-ui.css, ascii-ui.js, starter.html
+build.py            inlines css/ and js/ into dist/ascii-ui.html and writes site/
+dist/ascii-ui.html  the single-file build
+site/               the deploy output, built by build.py: the single file plus kit/
+vercel.json         tells Vercel to serve site/
 qa/                 Playwright scripts used for every release
 docs/               everything you need to keep going (start with docs/ARCHITECTURE.md)
-archive/            every published version, as single files
+archive/            published versions v2 to v9.3, as single files. From v10 the history is in git
 assets/             screenshots used in reviews
+LICENSE             MIT
 CLAUDE.md           instructions for an AI agent working on this repo
 ```
 
@@ -30,21 +48,23 @@ python3 -m http.server 8000     # then http://localhost:8000
 ## Build the single file
 
 ```
-python3 build.py                # writes dist/ascii-ui.html
+python3 build.py                # writes dist/ascii-ui.html and site/
 ```
 
-`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, and merges the adjacent `<style>` blocks. Publish `dist/ascii-ui.html` anywhere that serves one HTML file.
+`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, and merges the adjacent `<style>` blocks. Then it writes `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file.
 
 ## QA
 
 ```
-pip install playwright pillow && playwright install chromium
+pip install playwright && playwright install chromium
 python3 qa/qa.py 390 844 dark m x     # errors + overflow, every view, mobile dark
 python3 qa/qa.py 1440 900 light d x   # same on desktop light
 python3 qa/breakpoints.py             # columns, overflow and overlap, 360 to 1920
 python3 qa/clock.py                   # the single animation clock still holds
 python3 qa/audit.py                   # tap targets under 40px, text under 12px
 python3 qa/keyboard.py                # sliders and fields never open the phone keyboard by accident
+python3 qa/kit.py                     # the kit files and the starter page load clean
+python3 qa/reduced.py                 # reduced motion turns off every animation and sound
 ```
 
 Drop the trailing `x` to also get one screenshot per screen. See `qa/README.md`.

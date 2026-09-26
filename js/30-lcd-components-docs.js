@@ -317,7 +317,7 @@ $('sayHi').addEventListener('click',()=>A.say('Hi. No inbox is wired in this pro
 $('nowRead').innerHTML=A.colorize(A.barRow(Math.round(163/179*14),false,14))+' <span class="muted">163/179</span>';
 if(!reduce)every(140,()=>{const e=$('nowPull');if(e&&inView(e))e.textContent='|/-\\'[Date.now()/140&3]+' loading'});else $('nowPull').textContent='loading';
 (function(){
-  const ING=[['Tira de asado',400,'g'],['Vacio',220,'g'],['Chorizo',1,'u'],['Provoleta',0.34,'u'],['Coarse salt',12,'g'],['Charcoal',700,'g'],['Malbec',0.25,'l']];let n=6;
+  const ING=[['Tira de asado',400,'g'],['Vacío',220,'g'],['Chorizo',1,'u'],['Provoleta',0.34,'u'],['Coarse salt',12,'g'],['Charcoal',700,'g'],['Malbec',0.25,'l']];let n=6;
   const fmt=(q,u)=>u==='g'?(q>=1000?(q/1000).toFixed(1).replace(/\.0$/,'')+' kg':Math.round(q/10)*10+' g'):(u==='l'?(Math.round(q*10)/10)+' l':Math.max(1,Math.ceil(q))+'');
   function draw(){$('srvN').textContent=n;$('ing').innerHTML=ING.map(i=>'<li><span>'+i[0]+'</span><span class="qty">'+fmt(i[1]*n,i[2])+'</span></li>').join('');$('srvDown').disabled=n<=1;$('srvUp').disabled=n>=20}
   $('srvDown').addEventListener('click',()=>{n=Math.max(1,n-1);draw();ping(330)});

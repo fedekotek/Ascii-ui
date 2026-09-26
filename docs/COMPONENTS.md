@@ -6,36 +6,36 @@ The view opens with a `.dochead` (the COMPONENTS bitmap title, `data-nobars`, an
 
 Every section gets Preview and Code tabs; the Code tab prints the preview's HTML (cleaned), the CSS rules that match its classes, and its JS if it is registered in `window.AUI_JS`.
 
-| Component | Group | Section id | Caption | JS | Where the code lives |
+| Component | Group | Section id | Summary | JS | Where the code lives |
 |---|---|---|---|---|---|
 | Alert | Feedback | `s-alert` | A card with a hazard rim. | none | css/13 `.alert` |
 | Avatar | Display | `s-avatar` | Initials on a slab, or a picture pushed through the LCD. | LCD | css/14 `.avatar`, js/30 LCD |
 | Badge | Display | `s-badge` | Inverse slabs for status, brackets for everything else. | none | css/13 `.badge` |
-| Crumbs (breadcrumb) | Navigation | `s-breadcrumb` | Slashes separate, current page is a slab. | none | css/14 `.crumbs` |
+| Breadcrumb | Navigation | `s-breadcrumb` | Slashes separate, current page is a slab. | none | css/14 `.crumbs` |
 | Button | Form | `s-button` | Rim says how loud: @ primary, = default, / danger. | engine (scramble, rim march, burst) | css/05, js/10 "button labels", "button rims" |
-| Calendar | Form | `s-calendar` | Month of buttons, today magenta, pick is a slab. | `AUI_JS.calendar` | css/14 `.cal`, js/30 |
+| Calendar | Form | `s-calendar` | Month of buttons, today in the action color, pick is a slab. | `AUI_JS.calendar` | css/14 `.cal`, js/30 |
 | Card and dialog | Display | `s-card` | Title bar of @, walls of #, colon shadow. | engine | css/10, js/10 "card and dialog" |
-| Command | Overlay | `s-command` | Search as a component. | opens `AUI3.openCmd` | js/80, commands in js/20 "command palette" |
+| Command | Overlay | `s-command` | The command menu; on this site it is Search. | opens `AUI3.openCmd` | js/80, commands in js/20 "command palette" |
 | Details | Display | `s-details` | Native details, [+]/[-] marker, answer decodes. | engine (toggle decode) | css/11 `.acc`, js/10 |
 | Dropdown | Overlay | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `AUI_JS.dropdown` | css/14 `.pop .menu`, js/30 |
 | Empty | Feedback | `s-empty` | Nothing here, plus the next step. | one toast | css/04 tone-faint |
-| Input | Form | `s-input` | Frame turns cyan on focus, wall of ! on error. | engine (ripple, validation) | css/06, js/10 "input validation" |
+| Input | Form | `s-input` | Frame turns to the focus color, wall of ! on error. | engine (ripple, validation) | css/06, js/10 "input validation" |
 | Input OTP | Form | `s-otp` | Six brackets, auto-advance, paste. Under 1024px the brackets sit inside each 5ch target, `[ _ ]`. | `AUI_JS.otp` | css/14 `.otp`, js/30 |
 | Kbd | Display | `s-kbd` | Keys in brackets. | none | css/13 `kbd` |
-| Pager (pagination) | Navigation | `s-pagination` | Brackets on every page, slab on current. | `AUI_JS.pagination` | css/14 `.ibtn`, js/30 |
+| Pagination | Navigation | `s-pagination` | Brackets on every page, slab on current. | `AUI_JS.pagination` | css/14 `.ibtn`, js/30 |
 | Picture | Display | `s-picture` | Sectorized LCD, tap a sector. | LCD | css/14 `figure.pic .lcd`, js/30 LCD |
-| Progress | Feedback | `s-progress` | Halftone bar, spinner in the button. | engine | css/08, js/10 "progress" |
+| Progress | Feedback | `s-progress` | How far along a task is, halftone bar, spinner in the button. | engine | css/08, js/10 "progress" |
 | Select | Form | `s-select` | Native select in the input frame. | none | css/13 `.field select` |
-| Divider (separator) | Display | `s-separator` | Four weights of nothing. | none | css/14 `.sepd .sepl` |
+| Separator | Display | `s-separator` | Four weights of nothing. | none | css/14 `.sepd .sepl` |
 | Sheet | Overlay | `s-sheet` | Bottom dialog, seven steps. | small | css/14 `dialog.sheet`, js/30 |
 | Skeleton | Feedback | `s-skeleton` | A card silhouette (faint frame, a slab line, two text lines) with a wave through the ramp, sized to its column. | clock task | css/13 `.skel`, js/20 "sparklines, skeleton" |
-| Slider | Form | `s-slider` | Halftone bar with a real range on top. Wired to glitch amount. | engine `bindSlider` | css/08, js/10 "halftone bar" |
+| Slider | Form | `s-slider` | Pick a value on a range: halftone bar with a real range on top. Wired to the glitch amount. | engine `bindSlider` | css/08, js/10 "halftone bar" |
 | Spinner | Feedback | `s-spinner` | Five ways to wait. | `AUI_JS.spinners` | css/14 `.spins`, js/30 |
 | Tabs | Navigation | `s-tabs` | Active tab is a slab. | engine | css/09, js/10 "tabs" |
 | Textarea | Form | `s-textarea` | Four-row frame with a counter. | counter | css/14 `.field.area`, js/30 |
-| Timeline | Display | `s-timeline` | Nodes are @, wire is colons. | none | css/14 `.timeline` |
+| Timeline | Display | `s-timeline` | Events in order. Nodes are @, wire is colons. | none | css/14 `.timeline` |
 | Toast | Feedback | `s-toast` | One line typed in, lime or yellow. | engine `say(msg, err)` | css/12, js/10 "toast" |
-| Segment (toggle group) | Form | `s-togglegroup` | Radios dressed as slabs. | status only | css/14 `.tgroup` |
+| Toggle group | Form | `s-togglegroup` | Pick one of a few options, radios dressed as slabs. | status only | css/14 `.tgroup` |
 | Toggles | Form | `s-toggles` | Checkbox, radio, switch; glyph is only paint. | engine (develop through ramp) | css/07, js/10 "checkbox and radio" |
 | Tooltip | Overlay | `s-tooltip` | Hover, focus or tap; types itself in. | tap fallback | css/14 `.tip` |
 

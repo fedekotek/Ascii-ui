@@ -1,12 +1,13 @@
 # JS surface
 
-All scripts are IIFEs. The public surface is three objects on `window`, plus two hooks for the ramp.
+All scripts are IIFEs. The public surface is six objects on `window` (`AUI`, `AUI2`, `AUI3`, `AUI_NAV`, `AUI_SEARCH`, `AUI_JS`), one function (`AUI_WIDE`), plus two hooks for the ramp (`AUI_TONES`, `AUI_MAP`).
 
 ## window.AUI (the engine, from js/10-engine.js)
 
 | Member | What it is |
 |---|---|
 | `$(id)` | `document.getElementById` |
+| `backdropClose(dialog)` | a tap on the backdrop closes the dialog: on click, and only when the press started on the backdrop too, so a drag out of the sheet does not close it. The sheet and Search use it |
 | `ROW` | the row height in px, read from `--r` (21). Use it instead of a hard-coded number |
 | `G` | glitch state: `{on, amt (0..1), burst (0..1, decays), next, scroll (0..1, scroll velocity)}` |
 | `HP` | hero params: `{t1, t2 (the two words, COPY IT and OWN IT), speed, rad, split, tear, streaks, blocks, map}`. Nothing on the page edits them since Play went; they are still read on every frame |
@@ -76,11 +77,14 @@ Events: `document` gets `aui:view` (detail: the view's tab) after a view has swa
 ## window.AUI_JS (from js/30)
 Registry of component source for the Code tab: `{calendar, dropdown, otp, pagination, spinners}`. Each is a function whose `toString()` is printed. To add one, wrap the component's wiring in `window.AUI_JS.name=function(){...};window.AUI_JS.name();` and map the section id in `JSMAP` (js/40).
 
+## window.AUI_WIDE() (from js/30)
+Re-checks every `.tablewrap` and sets `data-wide` on the ones whose table is wider than the box, so css can say there is more to the side (on touch there is no scrollbar). Runs on load and after every view switch; call it after you change a table.
+
 ## window.AUI_TONES(), window.AUI_MAP
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
 
 ## Search (`/`, Ctrl K or Cmd K, `#cmdBtn` in the bar)
-Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (the sections of the view you are in; Home offers Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Tricks (Tear, Jolt, Boot, Poster, Invaders, Load a photo, Rebuild). Typing searches every section of every view by name, poster title and caption. A typed command gets a Run row on top. The commands:
+Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (the sections of the view you are in; Home offers Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Components (Button, Input, Card and dialog, Select, Toast), Tricks (Tear, Jolt, Boot, Poster, Invaders, Feed the ring a photo, Rebuild). Typing searches every section of every view by name, poster title, caption and the other names people type (`ALIAS` in js/80: accordion finds Details, drawer finds Sheet, modal finds Card and dialog, install finds Get the kit), and a word four letters or longer may be one typo off. Once typing stops, the count is read out on the dialog's status line (`#cmdOut`), visually hidden. A typed command gets a Run row on top. The commands:
 `help`, `glitch 0-100`, `theme`, `sound on|off`, `goto home|components|blocks|charts|themes` (alias `cd`; also `kit` and `view/section`; `play`, `apps`, `onepager` and `page` land on Home), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to the game and starts it), `photo` (opens the picker and lands on the Home hero), `ring` (alias `torus`, back to the ring), `tilt`, `sudo`.
 
 ## Keyboard
@@ -90,4 +94,4 @@ Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (t
 `data-text` (bitmap title), `data-nobars` (title without color bars), `data-rv` (element gets an entrance), `data-cat` (block category for filters), `data-scene|data-cols|data-rows|data-mode` on `canvas.lcd`, `data-spark` (sparkline values 0..7 comma separated), `data-v` (the view a Home tile goes to), `data-group` (set by the docs builder on each component: its group).
 
 ## CSS classes worth knowing
-`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.dochead` (a docs view's one title and lede), `.grouph` (a component group label), `.band` (a Home section label), `.tile` (Home link tiles), `.try` (Home live parts), `.inl` (inline link), `.linkbtn` (a button that reads as a link), `.u .in` (entrance), `.calm` on `:root` when glitch is off.
+`.frame` + `.tone-heavy|dense|mid|light|shade|faint|danger|error` (border character), `.mid` (row with side strings), `.lift` (offset shadow wrapper), `.card`, `.bar-title`, `.body` (walls), `.btn .btn-primary .btn-danger`, `.field .invalid .area`, `.check` (checkbox/radio/switch), `.slider .slider-track .bar`, `.progress`, `.tablist .tab .tabpanel`, `.badge .b-ok .b-warn .b-hot .b-out`, `.alert .info`, `.acc` (details), `.skel`, `.poster .ptitle`, `.lcd`, `.chart`, `.dochead` (a docs view's one title and lede), `.grouph` (a component group label), `.band` (a Home section label), `.tile` (Home link tiles), `.inl` (inline link), `.linkbtn` (a button that reads as a link), `.u .in` (entrance), `.calm` on `:root` when glitch is off.

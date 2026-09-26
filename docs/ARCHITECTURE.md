@@ -41,11 +41,15 @@ js/70-nav.js                navigation: the addresses (#view/section), the view 
 js/80-search.js             Search: the palette in #cmdDlg (views, sections, settings, tricks, typed commands).
 ```
 
-Every js file is an IIFE. They share three globals created by `10-engine.js` and extended later:
+Every js file is an IIFE. They share these globals (see API.md):
 
-- `window.AUI` (`A` inside scripts): the engine surface. See API.md.
-- `window.AUI2` (`B`): fx and transitions.
-- `window.AUI3` (`C`): invaders, poster, `run()` for typed commands.
+- `window.AUI` (`A` inside scripts): the engine surface, from js/10, extended by the later files.
+- `window.AUI2` (`B`): fx and transitions, from js/20.
+- `window.AUI3` (`C`): invaders, poster, `run()` for typed commands, from js/20.
+- `window.AUI_JS`: component source for the Code tab, and `window.AUI_WIDE()`, which marks tables wider than their box, from js/30.
+- `window.AUI_NAV`: addresses, the sidebar and menu model, the search index, from js/70.
+- `window.AUI_SEARCH`: Search `open()` and `close()`, from js/80.
+- `window.AUI_TONES()` and `window.AUI_MAP`: the frame strings and the ramp translation, from js/00.
 
 Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLayout`). Earlier scripts call these guarded (`if(window.AUI&&AUI.onLayout)`), because `layout()` runs before the later files load.
 
@@ -58,11 +62,11 @@ Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.codeExtra`, `A.onLa
                             #cmdBtn search field, a separator, #glitchBar, #soundBar, #themeToggle
 <main id="main">
   <header>                  Home only (hidden on the other views). Hero canvas (the ring, COPY IT / OWN IT),
-                            lede, See components + Get the kit, facts line, Feed the ring a photo
-                            (Camera and Back to the ring appear once a picture is in), #heroSw (hidden,
-                            holds the real Show grid and Glitch inputs the menu and Search flip)
+                            lede, who it is for, See components + Get the kit, facts line, #heroSw
+                            (hidden, holds the real Show grid and Glitch inputs the menu and Search flip)
   <nav id="sidenav">        the sections of the view you are in (from 1024px, not on Home)
-  <div id="view-home">      Where to start (s-go, four tiles), Questions (s-faq)
+  <div id="view-home">      Where to start (s-go, four tiles, then #heroSrc: Feed the ring a photo, with
+                            Camera and Back to the ring once a picture is in), Questions (s-faq)
   <div id="view-kit">       Components: .dochead, index, five groups of parts, Get the kit, Rules
   <div id="view-blocks">    Blocks: .dochead, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5): .dochead, then the charts
@@ -89,7 +93,7 @@ The header and the game belong to Home: `placeHero()` in js/40 runs on every vie
 
 ## The grid
 
-Everything is a character. `--r` is 21px (14px type), everywhere, at every width, and the scripts read it as `A.ROW` instead of hard-coding it. `main` width is snapped to a whole number of `ch` in `layout()`. The hero canvas measures the real glyph width (`ctx.measureText('M')`) and sizes itself to `HC` columns. Titles are 5x7 bitmaps rendered at 2 characters per pixel, and `fitTitles()` drops the color bars or halves the scale when the box is too narrow.
+Everything is a character. `--r` is 21px (14px type), everywhere, at every width, and the scripts read it as `A.ROW` instead of hard-coding it. `main` width is snapped to a whole number of `ch` in `layout()`. The hero canvas measures the real glyph width (`ctx.measureText('M')`) and sizes itself to `HC` columns. Titles are 5x7 bitmaps rendered at 2x2 characters per pixel, and `fitTitles()` drops the color bars or halves the scale when the box is too narrow.
 
 ## Navigation
 
@@ -156,6 +160,10 @@ Cadences: hero ~12 fps (85ms), LCDs 8 fps (125ms), invaders 20 fps (50ms). `qa/c
 ## Sound
 
 One `AudioContext`, created on first pointerdown/keydown (browsers require a gesture). `tone(type,f0,f1,dur,vol,when)` and `noise(dur,vol,f0,f1)` are the primitives. `human()` randomizes pitch, duration and volume, and applies fatigue: the same sound within 2.2s gets 16 percent quieter each time, shorter after 3, skipped half the time after 5. `sfx.*` are named motifs. `A.live()` says whether sound is on and running.
+
+## Shipping
+
+You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then writes `site/`: the single file as the page, plus `kit/` (`ascii-ui.css`, `ascii-ui.js`, `starter.html`, the files people link from their own pages). `vercel.json` points Vercel at `site/`, so the deploy serves the single file and the kit and nothing else from the repo. Vercel deploys `main` on every push, to https://asciiui.vercel.app.
 
 ## What is intentionally not here
 - No i18n. Copy is English, a couple of Rioplatense words in personal blocks.

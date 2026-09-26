@@ -10,7 +10,7 @@ Ordered by how much they will hurt the next person.
 5. **Reveal system and the docs builder both move DOM.** The builder moves demo nodes into Preview panels after the engine has already armed `[data-rv]` elements; it works because IntersectionObserver follows the node. Keep that order (js/10 then js/30) if you reorganize. The builder also reorders Components by group and appends Get the kit (js/40) and Rules at the end, so source order in `index.html` says nothing about page order.
 
 ## Behavior
-6. **Camera and clipboard fail from `file://` and inside the artifact sandbox.** They fail with a toast, not an error. Serve over http(s) to test them.
+6. **Camera and clipboard fail from `file://` and inside sandboxed frames.** They fail with a toast, not an error. Serve over http(s) to test them.
 7. **Android keyboard on sliders.** Fixed in 9.2 with `inputmode="none"` and blur-after-touch. If a keyboard still appears on some device, replace the native range with a pointer-driven bar.
 8. **Text autosizing / accessibility font scale.** Titles adapt (9.3). The hero canvas does not: it computes from measured px, so with a 130 percent system scale the canvas is correct but the body text around it is larger than designed. Untested above 130.
 9. **Ramp swap does not reach:** the Progress component's bar until it runs, the ramp lab in Themes > Labs, the boot title (uses `A.TR` but only if the ramp was set before boot). Low priority, all self-heal on next draw.
@@ -30,4 +30,4 @@ Ordered by how much they will hurt the next person.
 19. `prefers-reduced-motion` disables animation, boot, entrances, hero spin (drag still works), long-press destruction and all sound (one gate in `audio()`, and the sound switch starts off). The tearing backdrop filter is also off.
 
 ## Browser
-20. Tested: headless Chromium (Playwright) at 320/360/390/430/820/1440, dark and light; the owner's Android phone in the claude.ai artifact frame. Not tested: Safari/iOS, Firefox. Suspects for Safari: `color-mix()`, `:has()` in slider focus styling, `caret-shape`, `backdrop-filter` prefix (present), `dialog` animations, `AudioContext` unlock rules (should be fine, unlock is on pointerdown).
+20. Tested: headless Chromium (Playwright) at widths from 360 to 1920 (`qa/breakpoints.py`), titles down to 320, dark and light; the owner's Android phone. Not tested: Safari/iOS, Firefox. Suspects for Safari: `color-mix()`, `:has()` in slider focus styling, `caret-shape`, `backdrop-filter` prefix (present), `dialog` animations, `AudioContext` unlock rules (should be fine, unlock is on pointerdown).
