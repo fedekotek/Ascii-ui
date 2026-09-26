@@ -455,8 +455,12 @@ function docify(sec){
   function build(){
     const html=pretty(cleanHTML(snap,sec)),ex=A.codeExtra?A.codeExtra(sec,html):{css:'',js:''},pre=p2.querySelector('pre');
     /* built every time Code opens, from the snapshot; the same text is not redrawn */
-    const key=html+'\u0000'+ex.css+'\u0000'+ex.js;if(key===last)return;last=key;
+    const key=(ex.note||'')+'\u0000'+html+'\u0000'+ex.css+'\u0000'+ex.js;if(key===last)return;last=key;
     p2.querySelector('.copyrow').textContent='';
+    /* what the kit does not cover goes first, above the html */
+    let note=p2.querySelector('[data-part="note"]');
+    if(ex.note&&!note){note=document.createElement('p');note.className='muted';note.setAttribute('data-part','note');p2.insertBefore(note,pre)}
+    if(note){note.textContent=ex.note||'';note.hidden=!ex.note}
     pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
       (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
       '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
@@ -516,7 +520,7 @@ function buildView(panel,label,skip,pin,group){
      1024px the sidebar is, and css hides it */
   toc.innerHTML='<details class="acc toc"><summary>'+label+', '+secs.length+'</summary><div class="chips"></div></details>';
   const chips=toc.querySelector('.chips');
-  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.textContent=name(s);b.addEventListener('click',()=>{if(A.jump)A.jump(s);else s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
+  secs.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='chip';b.dataset.sec=id(s);b.textContent=name(s);b.addEventListener('click',()=>{if(A.jump)A.jump(s);else s.scrollIntoView({block:'start'});ping(440)});s._chip=b;chips.appendChild(b)});
   /* after the intro and anything else that is not a section of its own (the
      Blocks filters), right before the first card */
   /* before the first group label, so a label always sits on its own group */

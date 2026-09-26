@@ -54,3 +54,5 @@
   .fst td:nth-of-type(5)::before{content:"disabled"}
   .fst td:nth-of-type(6)::before{content:"error"}
 }
+/* the chip index marks the two site-only components too */
+.chip[data-sec="s-command"]::after,.chip[data-sec="s-picture"]::after{content:"] site only";content:"] site only" / "";color:var(--violet)}
