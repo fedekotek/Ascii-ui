@@ -14,8 +14,11 @@ body{
 #sidenav .navlink,.s-meta,.s-dots,.s-head,.foot,.sfield{font-weight:400}
 ::selection{background:var(--hot);color:var(--bg)}
 ::placeholder{color:var(--muted);opacity:1}
-/* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
-body::before{
+/* Scanlines are off by default: they striped every slab, printed as blank
+   pages and are not characters. They come back as an option, the crt class on
+   the root element (a typed command can set it). Above every in-page layer
+   (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
+:root.crt body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:250;
   background:var(--scanlines);
 }
