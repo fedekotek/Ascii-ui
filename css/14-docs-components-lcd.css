@@ -120,6 +120,9 @@
 /* a wrong code looks like an invalid field: brackets and digits in the warning colour */
 .otp.invalid span::before,.otp.invalid span::after,.otp.invalid input,
 .otp:has([aria-invalid="true"]) span::before,.otp:has([aria-invalid="true"]) span::after,.otp:has([aria-invalid="true"]) input{color:var(--danger)}
+/* and the brackets turn into the error wall, so it does not rest on colour alone */
+.otp.invalid span::before,.otp.invalid span::after,
+.otp:has([aria-invalid="true"]) span::before,.otp:has([aria-invalid="true"]) span::after{content:"!";content:"!" / ""}
 /* the digit itself inverts, brackets alone were too quiet to find */
 .otp input:focus{background:var(--accent);background-clip:content-box;color:var(--bg);caret-color:var(--bg)}
 .otp input:focus::placeholder{color:var(--bg)}
@@ -218,6 +221,9 @@ figcaption b{color:var(--ink)}
    takes the kit's focus colour instead of the browser ring */
 #cases .lift{outline:0}
 #cases .lift[aria-pressed="true"] .bar-title{background:var(--ink);color:var(--bg)}
+/* the pick is also a > in its title, the way the sidebar marks where you are,
+   so it does not rest on colour alone */
+#cases .lift[aria-pressed="true"] .bar-title::before{content:"> ";content:"> " / ""}
 #cases .lift[aria-pressed="true"] .card{--frame-color:var(--hot)}
 #cases .lift:focus-visible .card{--frame-color:var(--accent)}
 #cases .lift:focus-visible .bar-title{background:var(--accent);color:var(--bg)}

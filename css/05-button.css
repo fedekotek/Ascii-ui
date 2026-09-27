@@ -37,5 +37,8 @@
 .btn:not(:disabled):active .label{background:var(--ink);color:var(--bg)}
 .btn-primary:not(:disabled):active .label{background:var(--bg);color:var(--ink)}
 .btn:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
+/* the primary rim is @ already, so a focus that only recolours it was a few
+   pixels for some eyes: its slab takes the focus colour too */
+.btn-primary:focus-visible .label{background:var(--accent);color:var(--bg)}
 .btn:disabled{--h:var(--h-faint);--s:var(--s-faint);--frame-color:var(--muted);color:var(--muted);cursor:not-allowed}
 .btn-primary:disabled .label{background:var(--muted);color:var(--bg);box-shadow:none}

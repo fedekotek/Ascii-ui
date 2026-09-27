@@ -1,0 +1,126 @@
+/* ---- the page on media it was not drawn for ---------------------------------
+   Last in the sequence on purpose, so these win over everything before them.
+     print                 black characters on white paper
+     forced-colors:active  Windows High Contrast: the viewer's own colours
+     prefers-contrast:more no dim text, no faded rules
+   The design is weight made of characters, so all three keep the characters
+   and change only what colour they are. */
+
+/* ---- print -------------------------------------------------------------------
+   The screen's page printed blank: the scanlines covered it, anything not yet
+   scrolled into view was still at opacity 0, and the bar printed in the middle
+   of the document. On paper every token is black on white, the chrome and the
+   canvases step out, every section is visible, code prints at full length and
+   a link to another site prints its address. Slabs (titles, badges, the picked
+   row) stay slabs: black with white letters, printed on purpose. */
+@media print{
+  @page{margin:12mm 10mm}
+  /* three :root so it outranks the dark theme and the presets (two each) */
+  :root:root:root{
+    --bg:#fff;--ink:#000;--muted:#3a3a3a;--hot:#000;--pink:#000;--cy:#000;--ok:#000;--warn:#000;
+    --deep:#555;--violet:#000;--t0:#000;--t1:#000;--t2:#000;--t3:#000;--tbar:#000;--on-pink:#fff;
+    --scan:transparent;--lcd-bg:#fff;
+    color-scheme:light;print-color-adjust:exact;-webkit-print-color-adjust:exact;
+  }
+  html,body{background:#fff !important;color:#000}
+  body{font-weight:400}
+  *,*::before,*::after{animation:none !important;transition:none !important;text-shadow:none !important}
+  /* the chrome and the effects */
+  .topbar,#sidenav,.skip,#boot,#fx,#sand,#rebuild,#hud,#track,.hud,.track,.toast,#footGame,
+  dialog,#heroSw,#heroSrc,#heroGo,.doc-tabs,.copyrow,.toc,.filters,body::before{display:none !important}
+  /* canvases are moving noise on paper: the ring, the pictures, the game */
+  canvas,figure.pic .bezel{display:none !important}
+  /* the colour bars beside a bitmap title are slabs of colour; on paper they are black bricks */
+  .ptitle b[style*="background"],.poster b[style*="background"]{visibility:hidden}
+  /* one column, as wide as the paper, whatever layout() measured on screen */
+  main{width:auto !important;max-width:none !important;display:block !important;padding:0 !important;margin:0 !important}
+  main > [role="tabpanel"]{margin-top:0 !important}
+  :is(#view-kit,#view-blocks,#view-charts):not([hidden]){display:block !important}
+  body:has(dialog[open]){overflow:visible !important}
+  /* everything prints, scrolled to or not */
+  .js-rv [data-rv],[data-rv]{opacity:1 !important;clip-path:none !important;transform:none !important;filter:none !important}
+  main.sv,main.jolt,main.split{transform:none !important;filter:none !important}
+  /* code at its full length, wrapped, without the "more below" row */
+  .code{max-height:none !important;overflow:visible !important;display:block !important}
+  .code::before,.code::after{display:none !important}
+  .tablewrap,.progress{overflow:visible !important}
+  /* charts were drawn to the screen's width; smaller type (the same 12 to 14
+     proportion) fits the widest of them on the paper */
+  .chart{font-size:9px !important;line-height:10.5px !important;height:auto !important}
+  /* keep a thing and its title together; break between sections, not inside cards */
+  .lift,.card,.frame,figure,tr,.acc,.kpi,.chart,.cal,.otp,.field,.tile,.menu,pre.poster,.ptitle{break-inside:avoid}
+  h1,h2,h3,.lab-h,.band,.grouph,.dochead,section > h2 + p{break-after:avoid}
+  [role="tabpanel"] > section[aria-labelledby]{margin-top:calc(var(--r)*2) !important}
+  /* a link to another site says where it goes */
+  main a[href^="http"]:not(.frame):not(.btn)::after{content:" (" attr(href) ")";overflow-wrap:anywhere;font-weight:400}
+  /* paper has no thumbs: the 44px reach round links would spill a page */
+  .inl,.linkbtn{padding:0 !important;margin:0 !important}
+}
+
+/* ---- Windows High Contrast (forced colors) -----------------------------------
+   Forced colours take away background colours and box shadows. Frames and
+   markers made of characters survive (a button's = becomes @, the sidebar's
+   > ), but every slab did not: a focused chip, the picked tab, the current
+   page, the picked day. Here they come back as slabs in the viewer's own
+   system colours: CanvasText on Canvas for what is picked, Highlight for
+   where the focus is. Focus is written after the picks, so a focused pick
+   shows the focus. */
+@media (forced-colors:active){
+  /* the transparent outline that waited for focus became a box round every button and tab */
+  .btn,.tab{outline:0 !important}
+  /* picked, current, and the slabs that carry a label */
+  :where(
+    .tablist:not(#views):not(.doc-tabs) .tab[aria-selected="true"],.menu-views .tab[aria-selected="true"],
+    .chip[aria-pressed="true"],.ibtn[aria-current="page"],.cal-grid button[aria-pressed="true"],
+    .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
+    .crumbs [aria-current] span,.side button[aria-current="page"],
+    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast span,.tip,.avatar,.menu-slab,
+    .tbl th,.ftbl thead th
+  ){forced-color-adjust:none !important;background:CanvasText !important;color:Canvas !important}
+  :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
+  .tip::after{forced-color-adjust:none;color:CanvasText}
+  /* where the focus is */
+  :where(
+    .tab:focus-visible,.chip:focus-visible,.crumbs a:focus-visible,.cal-grid button:focus-visible,
+    .btn-primary:focus-visible .label,.ibtn:focus-visible,.otp input:focus,.tgroup input:focus-visible + span,.side button:focus-visible,
+    .check input:focus-visible + .glyph,
+    .linkbtn:focus-visible,.inl:focus-visible,.skip:focus,.bbtn:focus-visible,.brand:focus-visible,
+    #soundBar:has(#soundToggle:focus-visible),.navlink:focus-visible,.sheet-x:focus-visible,
+    .menu [role="menuitem"]:focus-visible,#cases .lift:focus-visible .bar-title,
+    .rampcells span:focus-within input,.otp span:focus-within input
+  ){forced-color-adjust:none !important;background:Highlight !important;color:HighlightText !important}
+  .acc summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
+  :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
+  :where(.check input:focus-visible + .glyph .switch-track)::after{forced-color-adjust:none;color:HighlightText !important}
+  :where(.navlink:focus-visible,.brand:focus-visible) *,.navlink:focus-visible::before{forced-color-adjust:none;color:HighlightText !important}
+  .slider:has(input:focus-visible) > label{forced-color-adjust:none}
+  .slider:has(input:focus-visible) > label::first-line{background:Highlight;color:HighlightText}
+  /* rings on the canvases and charts, in the system focus colour */
+  .chart:focus-visible,canvas:focus-visible,#inv:focus-visible{forced-color-adjust:none;outline:2px solid Highlight !important}
+  .tabpanel:focus-visible::before,.tbl tbody tr:focus-visible > td:first-child::before{forced-color-adjust:none;color:Highlight}
+  /* the Foundations swatches are colours on purpose, the only ones left */
+  .ftbl .fsw{forced-color-adjust:none}
+}
+
+/* ---- more contrast ------------------------------------------------------------
+   For people who ask their system for more contrast: grey text moves two
+   thirds of the way to ink (it still reads as secondary, and disabled still
+   looks disabled), faded rules go solid, body type gets heavier and the
+   shadow blue is lifted in Signal, where it was 3.25:1. Each grey is the mix
+   of that theme's grey and ink, written out (a token cannot mix itself). */
+@media (prefers-contrast:more){
+  :root:root{--muted:#2b2b28}
+  @media (prefers-color-scheme:dark){:root:root:not([data-theme="light"]){--muted:#d8d2e0}}
+  :root:root[data-theme="dark"]{--muted:#d8d2e0}
+  @media (prefers-color-scheme:dark){:root:root:not([data-theme="light"]):not([data-preset]){--deep:#8f86ff}}
+  :root:root[data-theme="dark"]:not([data-preset]){--deep:#8f86ff}
+  :root:root[data-preset="amber"]{--muted:#e6a000}
+  :root:root[data-preset="gameboy"]{--muted:#90b413}
+  :root:root[data-preset="blueprint"]{--muted:#d3e1f9}
+  :root:root[data-preset="hotdog"]{--muted:#ffe438}
+  body{font-weight:400}
+  .topbar::after,.menu-foot::before,.skel .f,
+  [role="tabpanel"] > section[aria-labelledby]::before,
+  [role="tabpanel"] > section[aria-labelledby] ~ section[aria-labelledby]::before{opacity:1 !important}
+  dialog:not(#menuDlg)[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}
+}
