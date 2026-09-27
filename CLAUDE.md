@@ -37,7 +37,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching. W
 - Never use emojis.
 - Metric units everywhere (kg, g, ml, l).
 - Voice for UI copy: plain, declarative, a little dry. Short jokes are fine, hedging is not. Read the existing captions before writing new ones.
-- No frameworks, no bundler, no npm dependencies. Vanilla HTML, CSS, JS. No external requests at all: no CDN, no font service, no analytics (the flag in `build.py` stays off). Geist Mono is self-hosted and inlined. `qa/budget.py` fails on a request to anyone else.
+- No frameworks, no bundler, no npm dependencies. Vanilla HTML, CSS, JS. No external requests at all: no CDN, no font service. The one exception is Vercel Web Analytics (cookieless, same origin, `ANALYTICS` in `build.py`): off until it is switched on in the Vercel dashboard, and even then only on https://ascii.fedekotek.design, never from `file://` or in `dist/`. Geist Mono is self-hosted and inlined. `qa/budget.py` fails on a request to anyone else.
 - Everything must keep working from `file://`. Features that need an origin (camera, clipboard) must fail with a message, never with an error.
 - `prefers-reduced-motion` must turn off every animation and sound. Check `A.reduce` before starting any timer.
 - Cyan (`--cy`, the focus color) means focus and nothing else. Magenta acts, lime confirms, yellow warns. Magenta and yellow must stay clearly distinct (see Rebrand in `docs/ARCHITECTURE.md`).
