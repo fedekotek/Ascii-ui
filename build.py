@@ -15,6 +15,7 @@
      robots.txt
      assets/           og.png (the share picture), icon-180.png (the home screen icon)
      llms.txt          a copy of llms.txt at the repo root, when it exists
+     llms-full.txt     every component in full, written by qa/reference.py
      kit/              a copy of kit/, when that folder exists: the latest kit
      kit/<version>/    every released kit, from kit/releases/<version>/, at an
                        address that never changes (pin it, and it stays put)
@@ -159,8 +160,9 @@ def build(out,quiet=False):
         p=root/'assets'/a
         if p.exists(): shutil.copy2(p,site/'assets'/a)
         else: say('build: missing assets/'+a+' (run qa/shots.py)')
-    llms=root/'llms.txt'
-    if llms.exists(): shutil.copy2(llms,site/'llms.txt')
+    # the one-page map, and every component in full (both written by qa/reference.py)
+    for f in ('llms.txt','llms-full.txt'):
+        if (root/f).exists(): shutil.copy2(root/f,site/f)
     kv=None
     if has_kit:
         # the latest kit, then every released one at its own address

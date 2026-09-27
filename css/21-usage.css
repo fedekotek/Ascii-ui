@@ -1,0 +1,72 @@
+/* ---------- the Usage tab (js/90): when, anatomy, states, keyboard, accessibility, API ----------
+   Docs chrome, so it is quieter than the exhibits: ink for names, muted for
+   what they mean, color only where it carries a role. Everything sits on the
+   grid: one row between blocks, none inside one. Sections open like Details,
+   so a closed tab is a list of what is in it and the card stays short. */
+.use{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--r);max-width:72ch;container-type:inline-size}
+.use p,.use ul,.use ol,.use dl,.use dd,.use h3,.use pre{margin:0}
+.u-h{font:inherit;font-weight:700;color:var(--ink);text-transform:uppercase;line-height:var(--r)}
+.u-empty{color:var(--muted);font-weight:400}
+.u-empty::before{content:": : ";content:": : " / "";color:var(--violet);font-weight:700}
+.use code{font:inherit;font-weight:400;color:var(--ink);white-space:nowrap}
+.use code.u-long{white-space:normal;overflow-wrap:anywhere}
+.use .inl{color:var(--ink)}
+/* use it for, not for, limits: the toast's own marks, @@ good news and !! the other kind */
+.u-list{list-style:none;padding:0}
+.u-list li{position:relative;padding-left:3ch;color:var(--muted);font-weight:400}
+.u-list li::before{position:absolute;left:0;top:0;font-weight:700}
+.u-yes li::before{content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";color:var(--ok)}
+.u-no li::before{content:"!!";content:"!!" / "";color:var(--warn)}
+/* the sections: a row each while closed, the name and a line of what is in it */
+.u-secs{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--r)}
+.u-sec{min-width:0}
+.u-sec > summary{
+  list-style:none;cursor:pointer;display:flex;gap:1ch;padding:12px 0;margin:-12px 0;outline:0;min-width:0;
+  -webkit-tap-highlight-color:transparent;
+}
+.u-sec > summary::-webkit-details-marker{display:none}
+.u-sec > summary::before{content:"[+]";content:"[+]" / "";flex:none;font-weight:700;color:var(--hot)}
+.u-sec[open] > summary::before{content:"[-]";content:"[-]" / "";color:var(--ok)}
+.u-sec > summary:focus-visible::before{background:var(--accent);color:var(--bg)}
+.u-sn{flex:none;width:13ch;font-weight:700;color:var(--ink);text-transform:uppercase}
+.u-tz{flex:1;min-width:0;color:var(--muted);font-weight:400;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.u-sec[open] .u-tz{visibility:hidden}
+@media (hover:hover){.u-sec > summary:hover .u-sn{color:var(--hot)}}
+.u-body{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--r);padding:var(--r) 0 0 4ch}
+/* a narrow card keeps every column for the words */
+@container (max-width:52ch){.u-body{padding-left:0}}
+/* the drawing: paint is bold and follows the ramp, words are not */
+.u-draw{white-space:pre;overflow-x:auto;font-weight:400;line-height:var(--r);max-width:100%;scrollbar-width:thin}
+.u-draw .f,.u-sw .f{font-weight:700}
+.u-slab{color:var(--bg)}
+.u-edge{box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.u-edge.u-h2{box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+/* the legend: the number, the name and its selector, then what it is */
+.u-parts{list-style:none;padding:0;display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+.u-parts li{display:grid;grid-template-columns:3ch minmax(0,1fr)}
+.u-n{color:var(--violet);font-weight:700}
+.u-parts b,.u-kv b{font-weight:700;color:var(--ink)}
+.u-parts p > code{color:var(--muted);white-space:normal;overflow-wrap:anywhere}
+.u-d{display:block;color:var(--muted);font-weight:400}
+.u-parts p{color:var(--ink)}
+/* two columns: a tag, a key or a swatch on the left, what it means on the right */
+.u-kv{display:grid;grid-template-columns:6ch minmax(0,1fr);gap:0 1ch}
+.u-kv dt{color:var(--muted);font-weight:400}
+.u-kv dd{color:var(--muted);font-weight:400;min-width:0}
+.u-keys{grid-template-columns:fit-content(8ch) minmax(0,1fr)}
+/* one key a line when a chord or a pair does not fit the column */
+.u-keys dt kbd{white-space:nowrap}
+.u-keys dt{color:var(--ink)}
+.u-st{grid-template-columns:8ch minmax(0,1fr)}
+.u-sw{white-space:pre;display:block}
+.u-api .u-nm{display:block;color:var(--ink);white-space:normal;overflow-wrap:anywhere}
+/* ~ marks what the kit said about itself, where nobody has written it yet */
+.u-auto{color:var(--violet);font-weight:700;margin-right:1ch}
+.u-empty .u-auto{margin:0}
+.u-see{display:flex;flex-wrap:wrap;gap:var(--r) 2ch}
+.u-see .chip{text-decoration:none;display:inline-block}
+/* do and don't: pairs, the toast's marks again, a row between two pairs */
+.u-dd .u-do::before{content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";color:var(--ok)}
+.u-dd .u-dont::before{content:"!!";content:"!!" / "";color:var(--warn)}
+.u-dd .u-do:not(:first-child){margin-top:var(--r)}
+.u-dd b{color:var(--ink);font-weight:700}

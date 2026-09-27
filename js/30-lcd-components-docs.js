@@ -436,16 +436,23 @@ function docify(sec){
   const kids=[...sec.children],di=kids.findIndex(k=>k.matches('p.muted:not(.status)'));if(di<0)return;
   const demo=kids.slice(di+1);if(!demo.length)return;
   const id='doc'+(++docN),wrap=document.createElement('div');wrap.className='doc';
+  /* components get a third tab, Usage (js/90). It goes last so Code keeps its
+     place: the order people learned, and the scripts that open the second tab */
+  const use=!!sec.closest('#view-kit');
   wrap.innerHTML='<div class="tablist doc-tabs" role="tablist" aria-label="'+esc(sec.querySelector('h2').textContent)+' views">'+
     '<button class="tab" role="tab" type="button" id="'+id+'t1" aria-controls="'+id+'p1" aria-selected="true">Preview</button>'+
-    '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button></div>'+
+    '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button>'+
+    (use?'<button class="tab" role="tab" type="button" id="'+id+'t3" aria-controls="'+id+'p3" aria-selected="false" tabindex="-1">Usage</button>':'')+'</div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
-    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>';
+    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>'+
+    (use?'<div class="doc-panel" role="tabpanel" id="'+id+'p3" aria-labelledby="'+id+'t3" hidden></div>':'');
   /* the demo as the html has it, before any glitch, scramble or click: the
      Code tab is built from this copy, never from the live preview, so a
      label caught mid-scramble or a slider you moved does not get printed */
   const snap=document.createElement('div');demo.forEach(n=>snap.appendChild(n.cloneNode(true)));
-  sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2];demo.forEach(n=>p1.appendChild(n));
+  sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2],p3=wrap.children[3]||null;demo.forEach(n=>p1.appendChild(n));
+  /* the kit html of this component, for the Usage tab and qa/reference.py */
+  sec._kitHTML=()=>pretty(cleanHTML(snap,sec));
   /* only the doc's own two tabs: the Tabs demo, now inside p1, has its own */
   const tabs=[...wrap.firstChild.querySelectorAll('[role="tab"]')];let last=null;
   /* The Code tab prints what works next to the two kit files: the html with
@@ -470,17 +477,23 @@ function docify(sec){
     };
     mk('Copy HTML',html,'html');if(ex.css)mk('Copy CSS',ex.css,'css');
   }
+  const panels=[p1,p2,p3].filter(Boolean);
   function pick(t,focus){
     tabs.forEach(x=>{const on=x===t;x.setAttribute('aria-selected',on?'true':'false');x.tabIndex=on?0:-1});
-    const code=t===tabs[1];p1.hidden=code;p2.hidden=!code;
-    /* The section keeps its column when Code opens. Widening it to the whole
-       row reshuffled the gallery under your cursor; long lines scroll sideways
-       inside the code box instead. */
-    if(code)build();
-    if(code&&A.glitch()>0&&!reduce)B.tear(1);
+    const k=tabs.indexOf(t);panels.forEach((p,i)=>{p.hidden=i!==k});
+    /* The section keeps its column when Code or Usage opens. Widening it to
+       the whole row reshuffled the gallery under your cursor; long lines
+       scroll sideways inside the code box instead. */
+    if(k===1)build();
+    if(k===2&&A.usage)A.usage(sec,p3);
+    if(k>0&&A.glitch()>0&&!reduce)B.tear(1);
     if(live())sfx.tab();if(focus)t.focus();
   }
-  tabs.forEach((t,i)=>{t.addEventListener('click',()=>pick(t));t.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pick(tabs[1-i],true)}})});
+  /* the arrows walk the tabs and wrap, Home and End go to the ends, as the Tabs component does */
+  tabs.forEach((t,i)=>{t.addEventListener('click',()=>pick(t));t.addEventListener('keydown',e=>{
+    const n=tabs.length,to=e.key==='ArrowRight'?tabs[(i+1)%n]:e.key==='ArrowLeft'?tabs[(i+n-1)%n]:e.key==='Home'?tabs[0]:e.key==='End'?tabs[n-1]:null;
+    if(to){e.preventDefault();pick(to,true)}
+  })});
 }
 /* which sections cannot live in a narrow gallery column: anything with a table,
    a chart, a canvas, a phone frame or its own tab strip. Set data-span in the
