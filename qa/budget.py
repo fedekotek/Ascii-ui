@@ -27,8 +27,10 @@ WEIGHT={                             # gzip -9 bytes
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it
     'favicon.ico':         4*KB,
+    'assets/reel.mp4':  3900*KB,     # 3.7 MB, 15 s at 720p; fetched only when someone presses play
+    'assets/reel-poster.jpg': 60*KB, # 45 KB, lazy, only near the bottom of Home
 }
-TOTAL=2000*KB                        # every file in site/, raw: 1.85 MB at 11.2
+TOTAL=7000*KB                        # every file in site/, raw: 1.85 MB at 11.2, plus 3.7 MB of reel at 11.2 (5 MB of room added for it)
 
 bad=[]
 for f,cap in WEIGHT.items():

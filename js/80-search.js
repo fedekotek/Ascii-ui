@@ -4,7 +4,8 @@
      VIEWS         Home, Components, Blocks, Charts, Themes
      ON THIS PAGE  the sections of the view you are in (Home: Getting started)
      SETTINGS      Theme, Sound, Glitch, Show grid, with their live values
-     TRICKS        the verbs that do something to the page
+     TRICKS        the verbs that do something to the page, plus Credits
+                   (whoami) and the kit's changelog
    Typing searches every section of every view as well. A word that starts
    with what you typed ranks first, then anything that contains it or has it
    as one of its other names (ALIAS), then captions and partial other names,
@@ -36,8 +37,26 @@
     {name:'Sound',kw:'audio mute noise',val:()=>$('soundToggle').checked?'on':'off',
      flip:()=>{const s=$('soundToggle');if(s.disabled){say('Sound stays off while reduced motion is on.');return false}s.click()}},
     {name:'Glitch',kw:'noise calm motion',val:()=>$('glitchToggle').checked?'on':'off',flip:flip('glitchToggle')},
-    {name:'Show grid',kw:'grid debug rows columns',val:()=>$('gridToggle').checked?'on':'off',flip:flip('gridToggle')}
+    {name:'Show grid',kw:'grid debug rows columns',val:()=>$('gridToggle').checked?'on':'off',flip:flip('gridToggle')},
+    /* crt: the scanlines, off by default (css/02), kept for the next visit */
+    {name:'CRT scanlines',kw:'crt scanlines lines tv monitor retro',val:()=>root.classList.contains('crt')?'on':'off',flip:()=>crt(!root.classList.contains('crt'))}
   ].map(s=>Object.assign({kind:'set'},s));
+  const root=document.documentElement;
+  function crt(on){
+    root.classList.toggle('crt',on);
+    try{if(on)localStorage.setItem('aui-crt','1');else localStorage.removeItem('aui-crt')}catch(e){}
+  }
+  try{if(localStorage.getItem('aui-crt')==='1')root.classList.add('crt')}catch(e){}
+  /* things to do that are not tricks on the page: who made it, the kit's
+     changelog. They answer in the dialog's own status line or open a page */
+  const kitDoc=f=>{const k=$('footKit');return k?k.getAttribute('href').replace(/starter\.html$/,f):'https://ascii.fedekotek.design/kit/'+f};
+  function openTab(url){const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()}
+  const DOS=[
+    {name:'Credits',meta:'whoami',kw:'whoami contact author credits credit who made about fede kotek hire email portfolio designer',
+     run:()=>{stat.innerHTML='Designed by <a class="inl" href="https://fedekotek.design" target="_blank" rel="noopener author">Fede Kotek</a>. Built with Claude Code.';return false}},
+    {name:'Kit changelog',meta:'kit',kw:'changelog changes versions release releases notes history whats new',
+     run:()=>{openTab(kitDoc('CHANGELOG.md'))}}
+  ].map(d=>Object.assign({kind:'do',al:words(d.kw)},d));
   const TRICKS=[['Tear','tear'],['Jolt','jolt'],['Boot','boot'],['Poster','poster'],
     ['Invaders','invaders'],['Feed the ring a photo','photo'],['Rebuild','rebuild']]
     .map(t=>({kind:'trick',name:t[0],verb:t[1],meta:t[1],kw:t[1]}));
@@ -53,12 +72,14 @@
     's-sheet':'drawer bottom panel','s-dropdown':'menu dropdown-menu actions','s-togglegroup':'toggle segmented',
     's-toggles':'toggle checkbox radio switch','s-command':'palette cmdk search','s-select':'dropdown picker',
     's-separator':'divider rule hr','s-pagination':'pager pages','s-breadcrumb':'crumbs path','s-otp':'otp pin code',
-    's-textarea':'multiline','s-tooltip':'hint','s-toast':'notification snackbar sonner','s-popover':'popup flyout popover',
+    's-textarea':'multiline','s-calendar':'date datepicker date-picker day month','s-tooltip':'hint','s-toast':'notification snackbar sonner','s-popover':'popup flyout popover',
     's-combobox':'autocomplete typeahead select search combo','s-alertdialog':'confirm are you sure alert-dialog','s-contextmenu':'right click right-click context menu','s-progress':'loading bar',
     's-skeleton':'loading placeholder','s-spinner':'loading loader','s-kbd':'keyboard key shortcut',
-    's-install':'install copy code kit download starter css js cdn license mit version single one file offline html',
-    's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors',
-    's-foundations':'tokens color colors grid ramp tone tones states foundations'};
+    's-install':'install copy code kit download export starter css js cdn license mit version single one file offline html',
+    's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors export download variables',
+    's-foundations':'tokens color colors grid ramp tone tones states foundations a11y accessibility accessible',
+    's-rules':'principles a11y accessibility accessible','s-presets':'amber gameboy blueprint hotdog paper signal preset presets',
+    's-faq':'faq help questions','s-made':'case study process story agents reel video credits about'};
   const COMMON=['s-button','s-input','s-card','s-select','s-toast'];
 
   let views=[],secGroups=[],bySec=new Map(),byId=new Map(),total=0;
@@ -72,7 +93,7 @@
       byId.set(id,it);
       bySec.set(s.sec,it);return it;
     })}));
-    total=views.length+bySec.size+SETS.length+TRICKS.length;
+    total=views.length+bySec.size+SETS.length+TRICKS.length+DOS.length;
   }
   /* the view you are in, as its own list prints it. Home has no list, so it
      offers where to start */
@@ -94,7 +115,7 @@
      3 a keyword starts with it, 4 contains it,
      5 a word in the name is one typo away (a letter wrong, missing, extra or
      swapped), 6 a keyword is ---- */
-  const words=s=>s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+  function words(s){return s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)}
   function near(a,b){
     if(a===b)return true;
     const la=a.length,lb=b.length;
@@ -144,11 +165,11 @@
          when nothing is left, so no row shows twice */
       const h=here(),seen=new Set(h.items),com=common().filter(it=>!seen.has(it));
       return [{label:'Views',items:views},{label:h.label,items:h.items,more:h.more},
-              {label:'Settings',items:SETS},{label:'Components',items:com},{label:'Tricks',items:TRICKS}]
+              {label:'Settings',items:SETS},{label:'Components',items:com},{label:'Tricks',items:TRICKS.concat(DOS)}]
              .filter(g=>g.items.length);
     }
     const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
-    const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS}]);
+    const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS.concat(DOS)}]);
     let left=MAX;
     const out=cand.map((g,gi)=>{
       const m=g.items.map((it,i)=>({it:it,r:rank(it,toks),i:i})).filter(x=>x.r<9)
@@ -239,6 +260,7 @@
       }
     }
     else if(it.kind==='trick')C.run(it.verb);
+    else if(it.kind==='do'){if(it.run()!==false)close()}
     else if(it.kind==='run'){
       Promise.resolve(C.run(it.line)).then(function(){if(dlg.open){inp.value='';render()}});
     }

@@ -64,6 +64,7 @@
 <link rel="stylesheet" href="css/19-foundations.css">
 <link rel="stylesheet" href="css/20-overlays.css">
 <link rel="stylesheet" href="css/21-usage.css">
+<link rel="stylesheet" href="css/22-home.css">
 <link rel="stylesheet" href="css/29-print.css">
 <script src="js/00-tones.js"></script>
 </head>
@@ -122,6 +123,15 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
   <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>34 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
+  <div class="nosig" id="noSig" hidden>
+    <pre class="poster ptitle" data-text="NO SIGNAL" data-nobars aria-hidden="true"></pre>
+    <pre class="nosig-snow" aria-hidden="true">. ===  ==.=@  ..=+=.==.=:-.+ =::
+ -:-+=::= =++++=+-= :.--:*=:-:..
+=:-=.= +--+..  = @..:--#: ++ =+ </pre>
+    <h2 class="band" id="noSigH" tabindex="-1">No signal</h2>
+    <p class="muted">Nothing lives at <b id="noSigAt"></b>. The link is old, or it lost a letter on the way.</p>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="noSigHome" type="button"><span class="mid"><span class="label">Back to Home</span></span></button><button class="btn frame tone-light" id="noSigFind" type="button"><span class="mid"><span class="label">Search</span></span></button></div>
+  </div>
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
@@ -142,11 +152,124 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-faq">
     <h2 id="s-faq" class="band">Questions</h2>
     <div class="demo">
-      <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion switches the glitch off.</p></details>
+      <details class="acc"><summary>Is this accessible?</summary><p>The characters are paint. Underneath are native controls with labels, focus states and keyboard support, and decorative glyphs are hidden from assistive tech. Reduced motion turns off every animation and every sound.</p></details>
       <details class="acc"><summary>Does it need a framework?</summary><p>No. The kit is two files, ascii-ui.css and ascii-ui.js. The components are classes and custom properties, so they drop into anything.</p></details>
       <details class="acc"><summary>Why monospace only?</summary><p>The grid is the design. Every width is a number of characters and every height a number of rows, which is what lets strings work as borders.</p></details>
       <details class="acc"><summary>Can I turn the glitch off?</summary><p>Yes. The Glitch switch kills it, the slider scales it, and the page respects reduced motion.</p></details>
+      <details class="acc"><summary>Who made this?</summary><p>Fede Kotek designed it. Claude Code built it, in rounds: agents audit, agents fix, and a script decides what ships. The whole story is in <a class="inl" href="#home/made">How it was made</a>, at the end of this page.</p></details>
     </div>
+  </section>
+
+  <section aria-labelledby="s-made">
+    <h2 id="s-made" class="band">How it was made</h2>
+    <p class="lede">A design system with one material: the character.</p>
+    <figure class="reel demo" id="reel">
+      <div class="reel-box">
+        <button class="reel-play" id="reelPlay" type="button" aria-describedby="reelCap"><img id="reelPoster" src="assets/reel-poster.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"><span class="reel-go"><span aria-hidden="true">[&gt;] </span>Play the reel</span></button>
+      </div>
+      <figcaption class="muted" id="reelCap">15 seconds of the kit at work. It loads when you press play, and starts muted.</figcaption>
+      <p class="muted status" id="reelStatus" role="status"></p>
+      <span hidden id="reelSrc" data-src="assets/reel.mp4"></span>
+    </figure>
+
+    <h3 class="lab-h">The problem</h3>
+    <p class="muted">Most component kits look like the same kit. ASCII interfaces look different, and most of them are screenshots or terminal toys: pure text breaks screen readers and does not reflow on a phone. The brief was a kit made of characters that still works like a kit, with a keyboard, a screen reader, a phone, and copy and paste. The person in charge is a product designer, so every rule had to be one a script can check.</p>
+
+    <h3 class="lab-h">Constraints</h3>
+    <ul class="rules demo muted">
+      <li>No frameworks, no bundler, no dependencies.</li>
+      <li>The whole site ships as one HTML file, and it works from file:// too.</li>
+      <li>Nothing loads from elsewhere except the font.</li>
+      <li>One clock runs every animation. A script fails if anything calls setInterval.</li>
+      <li>Every tap target is 44px.</li>
+      <li>No em dashes. Not even in commit messages.</li>
+    </ul>
+
+    <h3 class="lab-h">Principles</h3>
+    <ul class="rules demo muted">
+      <li><b>Plain HTML underneath.</b> The characters are paint. A button stays a button, so keyboards and screen readers work.</li>
+      <li><b>Every frame is a string.</b> A border is one character repeated, so a new character reskins the part.</li>
+      <li><b>Weight is density.</b> @ is the loudest thing on the page and . is the quietest.</li>
+      <li><b>One grid, 1ch by 21px.</b> Widths are counts of characters, heights are counts of rows.</li>
+      <li><b>Cyan means focus and nothing else.</b> It is how you see where the keyboard is.</li>
+      <li><b>Glitch is feedback.</b> It fires on touch and on state changes. At rest, the page reads.</li>
+      <li><b>Reduced motion means none.</b> Every animation and every sound stops, and a script checks it before every release.</li>
+    </ul>
+
+    <h3 class="lab-h">Process</h3>
+    <p class="muted">It started as one HTML file and stayed one for nine versions. v10 made it a repo, with docs and Playwright scripts for QA.</p>
+    <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">.</span>  v1   <span class="muted">HTML on a character grid</span>
+<span style="color:var(--hot)" aria-hidden="true">:</span>  v2   <span class="muted">frames are strings</span>
+<span style="color:var(--hot)" aria-hidden="true">=</span>  v3   <span class="muted">the ring spins</span>
+<span style="color:var(--hot)" aria-hidden="true">+</span>  v4   <span class="muted">glitch, signal palette</span>
+   v5   <span class="muted">never published</span>
+<span style="color:var(--hot)" aria-hidden="true">*</span>  v7   <span class="muted">18 more parts, Code tabs</span>
+<span style="color:var(--hot)" aria-hidden="true">#</span>  v8   <span class="muted">6 presets, a ramp editor</span>
+<span style="color:var(--hot)" aria-hidden="true">%</span>  v10  <span class="muted">a repo, docs, QA scripts</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span>  v11  <span class="muted">the kit: 2 files, MIT</span></pre>
+    <p class="muted demo">Each row is one step heavier on the ramp. v5 is a space because it never shipped. v10 to v11.1 took 76 commits in five days.</p>
+    <p class="muted demo">From v10.8 on, the work ran in rounds. Auditors read the site in parallel, one lens each, and change nothing. Their findings are split by file, so no two builders touch the same one.</p>
+    <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">@</span> audit   <span class="muted">read only, in parallel</span>
+<span style="color:var(--violet)" aria-hidden="true">:</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span> plan    <span class="muted">fixes split by file</span>
+<span style="color:var(--violet)" aria-hidden="true">:</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span> build   <span class="muted">one worktree each</span>
+<span style="color:var(--violet)" aria-hidden="true">:</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span> review  <span class="muted">reviewer and ux-critic</span>
+<span style="color:var(--violet)" aria-hidden="true">:</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span> release <span class="muted">every step passes</span>
+<span style="color:var(--violet)" aria-hidden="true">:</span>
+<span style="color:var(--hot)" aria-hidden="true">@</span> ship    <span class="muted">main, Vercel, live</span></pre>
+    <pre class="demo statbars"><span class="muted" aria-hidden="true">ROUND   AUDIT       BUILD</span>
+v10.8   <span style="color:var(--violet)" aria-hidden="true">########</span>    <span style="color:var(--hot)" aria-hidden="true">#####</span><span class="vh"> 8 auditors, 5 builders.</span>
+v11.0   <span style="color:var(--violet)" aria-hidden="true">##########</span>  <span style="color:var(--hot)" aria-hidden="true">#####</span><span class="vh"> 10 auditors, 5 builders.</span>
+v11.1   <span style="color:var(--violet)" aria-hidden="true">#######</span>     <span style="color:var(--hot)" aria-hidden="true">####</span><span class="vh"> 7 auditors, 4 builders.</span></pre>
+    <p class="muted demo">One # is one agent. v11.1 had seven lenses: a UI designer, legibility, copy, a frontend engineer, an interaction bug hunt, the Code tab's truth, and an LLM reading the docs cold.</p>
+    <p class="muted demo">The release bar is one command. It runs 17 steps and stops at the first failure. A rule no script checks is a suggestion.</p>
+    <pre class="demo statbars"><span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">clean at 2 sizes, 2 themes</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the shipped file loads clean</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">11 widths, 360 to 1920</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">one animation clock</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no tiny taps, no tiny text</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no surprise phone keyboard</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every kit part, pasted twice</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every Usage tab holds true</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">reduced motion, both builds</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every address lands</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the docs match the code</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">what ships is what builds</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">under the size budget</span>
+
+<span style="color:var(--ok)">release: ok</span></pre>
+
+    <h3 class="lab-h">Results</h3>
+    <p class="muted">What shipped, counted.</p>
+    <pre class="demo statbars">34  <span class="muted">components, 32 in the kit</span>
+16  <span class="muted">blocks</span>
+ 5  <span class="muted">charts</span>
+ 6  <span class="muted">presets</span>
+ 7  <span class="muted">ramps</span>
+ 0  <span class="muted">dependencies</span>
+ 2  <span class="muted">kit files, 33 kB gzipped</span>
+ 4  <span class="muted">kit versions, each pinned</span>
+ 1  <span class="muted">HTML file for the whole site</span>
+16  <span class="muted">QA scripts</span>
+17  <span class="muted">steps in the release bar</span>
+11  <span class="muted">screen widths, 360 to 1920</span></pre>
+
+    <h3 class="lab-h">What did not work</h3>
+    <ul class="rules demo muted">
+      <li><b>A masonry gallery.</b> It packed the cards tight and broke the alphabetical order the index promised. It lasted 29 minutes.</li>
+      <li><b>The phone menu.</b> The second patch made it worse, so it was rebuilt instead.</li>
+      <li><b>Three views: Play, Apps and One pager.</b> They read as a portfolio, and this is a kit.</li>
+      <li><b>Thirty bitmap titles in a row.</b> A wall of shouting. Now there is one per page.</li>
+      <li><b>A Try it strip on Home.</b> It lasted nine hours.</li>
+      <li><b>A Code tab that printed the site's own engine.</b> Now it prints the kit, and a script pastes every component twice into a blank page to prove it works.</li>
+      <li><b>Still not done:</b> the WebGL CRT pass, Safari and Firefox on real devices, and an audit by someone who uses a screen reader.</li>
+    </ul>
+
+    <h3 class="lab-h">Credits</h3>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
   </section>
   </div>
 
@@ -182,11 +305,11 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
           <tr><th scope="row">--bg</th><td>Surface. The page.</td><td><span class="fsw" style="color:#0a0612" aria-hidden="true">@@</span> #0a0612</td><td><span class="fsw" style="color:#ecebe4" aria-hidden="true">@@</span> #ecebe4</td></tr>
           <tr><th scope="row">--ink</th><td>Text, frames, slabs.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
           <tr><th scope="row">--muted</th><td>Captions, disabled.</td><td><span class="fsw" style="color:#a79db5" aria-hidden="true">@@</span> #a79db5</td><td><span class="fsw" style="color:#5c5b55" aria-hidden="true">@@</span> #5c5b55</td></tr>
-          <tr><th scope="row">--hot</th><td>Acts. Primary, title bars.</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
+          <tr><th scope="row">--hot</th><td>Acts. Primary, title bars, and the worst state (Down).</td><td><span class="fsw" style="color:#ff3d9a" aria-hidden="true">@@</span> #ff3d9a</td><td><span class="fsw" style="color:#c91468" aria-hidden="true">@@</span> #c91468</td></tr>
           <tr><th scope="row">--pink</th><td>Second emphasis.</td><td><span class="fsw" style="color:#ffb3d9" aria-hidden="true">@@</span> #ffb3d9</td><td><span class="fsw" style="color:#d02a78" aria-hidden="true">@@</span> #d02a78</td></tr>
           <tr><th scope="row">--cy</th><td>Focus. Nothing else.</td><td><span class="fsw" style="color:#35e6f0" aria-hidden="true">@@</span> #35e6f0</td><td><span class="fsw" style="color:#0a7287" aria-hidden="true">@@</span> #0a7287</td></tr>
           <tr><th scope="row">--ok</th><td>Confirms. On, done.</td><td><span class="fsw" style="color:#c8f02c" aria-hidden="true">@@</span> #c8f02c</td><td><span class="fsw" style="color:#3f6b00" aria-hidden="true">@@</span> #3f6b00</td></tr>
-          <tr><th scope="row">--warn</th><td>Warns. Errors, degraded.</td><td><span class="fsw" style="color:#ffd23f" aria-hidden="true">@@</span> #ffd23f</td><td><span class="fsw" style="color:#8a5a00" aria-hidden="true">@@</span> #8a5a00</td></tr>
+          <tr><th scope="row">--warn</th><td>Warns, in yellow. Errors, degraded.</td><td><span class="fsw" style="color:#ffd23f" aria-hidden="true">@@</span> #ffd23f</td><td><span class="fsw" style="color:#8a5a00" aria-hidden="true">@@</span> #8a5a00</td></tr>
           <tr><th scope="row">--deep</th><td>Shadows, slab edges.</td><td><span class="fsw" style="color:#4a3dff" aria-hidden="true">@@</span> #4a3dff</td><td><span class="fsw" style="color:#2b2bd1" aria-hidden="true">@@</span> #2b2bd1</td></tr>
           <tr><th scope="row">--violet</th><td>Dividers, rules, info.</td><td><span class="fsw" style="color:#9b7bea" aria-hidden="true">@@</span> #9b7bea</td><td><span class="fsw" style="color:#6a45d9" aria-hidden="true">@@</span> #6a45d9</td></tr>
           <tr><th scope="row">--t0</th><td>Title, top band.</td><td><span class="fsw" style="color:#f3eef7" aria-hidden="true">@@</span> #f3eef7</td><td><span class="fsw" style="color:#111110" aria-hidden="true">@@</span> #111110</td></tr>
@@ -563,7 +686,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-togglegroup">
     <h2 id="s-togglegroup" class="vh">Toggle group</h2>
     <pre class="poster ptitle" data-text="SEGMENT" aria-hidden="true"></pre>
-    <p class="muted">Pick one of a few options. Radios dressed as slabs.</p>
+    <p class="muted">Pick one of a few options. Radios dressed as slabs. Arrow keys move the pick, Tab leaves the group.</p>
     <div class="demo"><div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div></div>
     <p class="muted status" id="tgStatus" role="status">Board view.</p>
   </section>
@@ -777,9 +900,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <pre class="poster ptitle" data-text="STATS" aria-hidden="true"></pre>
     <p class="muted">The number is a bitmap, the trend is eighteen characters of ramp.</p>
     <div class="demo kpis">
-      <div class="kpi"><p class="muted">Uptime, last 90 days</p><pre class="poster ptitle" data-text="99.98" aria-hidden="true"></pre><p><span class="vh">99.98 percent.</span><span class="badge b-ok">+0.02</span> <span class="spark" data-spark="6,7,7,6,7,7,7,5,7,7,7,7,6,7,7,7,7,7" aria-hidden="true"></span></p></div>
-      <div class="kpi"><p class="muted">p95 latency, milliseconds</p><pre class="poster ptitle" data-text="182" aria-hidden="true"></pre><p><span class="vh">182 milliseconds.</span><span class="badge b-warn">+14</span> <span class="spark" data-spark="2,3,2,3,3,4,3,5,7,4,3,3,4,3,3,4,5,4" aria-hidden="true"></span></p></div>
-      <div class="kpi"><p class="muted">Incidents this month</p><pre class="poster ptitle" data-text="2" aria-hidden="true"></pre><p><span class="vh">2 incidents.</span><span class="badge b-hot">-3</span> <span class="spark" data-spark="1,1,5,1,1,1,1,1,1,7,1,1,1,1,1,1,1,1" aria-hidden="true"></span></p></div>
+      <div class="kpi"><p class="muted">Uptime, last 90 days</p><pre class="poster ptitle" data-text="99.98" aria-hidden="true"></pre><p><span class="vh">99.98 percent.</span><span class="badge b-ok"><span aria-hidden="true">^ +0.02</span><span class="vh">up 0.02</span></span> <span class="spark" data-spark="6,7,7,6,7,7,7,5,7,7,7,7,6,7,7,7,7,7" aria-hidden="true"></span></p></div>
+      <div class="kpi"><p class="muted">p95 latency, milliseconds</p><pre class="poster ptitle" data-text="182" aria-hidden="true"></pre><p><span class="vh">182 milliseconds.</span><span class="badge b-warn"><span aria-hidden="true">^ +14</span><span class="vh">up 14</span></span> <span class="spark" data-spark="2,3,2,3,3,4,3,5,7,4,3,3,4,3,3,4,5,4" aria-hidden="true"></span></p></div>
+      <div class="kpi"><p class="muted">Incidents this month</p><pre class="poster ptitle" data-text="2" aria-hidden="true"></pre><p><span class="vh">2 incidents.</span><span class="badge b-hot"><span aria-hidden="true">v -3</span><span class="vh">down 3</span></span> <span class="spark" data-spark="1,1,5,1,1,1,1,1,1,7,1,1,1,1,1,1,1,1" aria-hidden="true"></span></p></div>
     </div>
   </section>
 
@@ -839,8 +962,8 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h2 id="s-cases" class="vh">Cases</h2>
     <pre class="poster ptitle" data-text="CASES" aria-hidden="true"></pre>
     <p class="muted">Four cards, four LCD thumbnails. Tap one.</p>
-    <div class="demo grid2" id="cases"><div class="lift" data-case="Reporting" tabindex="0" role="button" aria-label="Open Reporting case study"><article class="card frame tone-mid"><h3 class="bar-title">Reporting</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui1" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Reporting case study"></canvas></div><p>Dashboards people read without being asked to.</p><div class="tags"><span class="badge b-out">B2B</span><span class="badge b-out">Data viz</span><span class="badge b-out">Mobile</span></div></div></article></div><div class="lift" data-case="Search" tabindex="0" role="button" aria-label="Open Search case study"><article class="card frame tone-mid"><h3 class="bar-title">Search</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui2" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Search case study"></canvas></div><p>One box, every work order, under 200 ms.</p><div class="tags"><span class="badge b-out">IA</span><span class="badge b-out">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div><div class="lift" data-case="Automations" tabindex="0" role="button" aria-label="Open Automations case study"><article class="card frame tone-mid"><h3 class="bar-title">Automations</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui3" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Automations case study"></canvas></div><p>If this breaks, then page someone. No code.</p><div class="tags"><span class="badge b-out">Workflow</span><span class="badge b-out">Logic</span></div></div></article></div><div class="lift" data-case="Chat" tabindex="0" role="button" aria-label="Open Chat case study"><article class="card frame tone-mid"><h3 class="bar-title">Chat</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui4" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Chat case study"></canvas></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-out">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div></div>
-    <p class="muted status" id="caseStatus" role="status">Pick a case study.</p>
+    <div class="demo grid2" id="cases"><div class="lift" data-case="Reporting" tabindex="0" role="button" aria-label="Reporting case study"><article class="card frame tone-mid"><h3 class="bar-title">Reporting</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui1" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Reporting case study"></canvas></div><p>Dashboards people read without being asked to.</p><div class="tags"><span class="badge b-out">B2B</span><span class="badge b-out">Data viz</span><span class="badge b-out">Mobile</span></div></div></article></div><div class="lift" data-case="Search" tabindex="0" role="button" aria-label="Search case study"><article class="card frame tone-mid"><h3 class="bar-title">Search</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui2" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Search case study"></canvas></div><p>One box, every work order, under 200 ms.</p><div class="tags"><span class="badge b-out">IA</span><span class="badge b-out">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div><div class="lift" data-case="Automations" tabindex="0" role="button" aria-label="Automations case study"><article class="card frame tone-mid"><h3 class="bar-title">Automations</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui3" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Automations case study"></canvas></div><p>If this breaks, then page someone. No code.</p><div class="tags"><span class="badge b-out">Workflow</span><span class="badge b-out">Logic</span></div></div></article></div><div class="lift" data-case="Chat" tabindex="0" role="button" aria-label="Chat case study"><article class="card frame tone-mid"><h3 class="bar-title">Chat</h3><div class="body"><div class="thumb"><canvas class="lcd " data-scene="ui4" data-cols="40" data-rows="22" data-mode="rgb" role="img" aria-label="LCD thumbnail of the Chat case study"></canvas></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-out">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div></div>
+    <p class="muted status" id="caseStatus" role="status">Pick a case study to read its one line.</p>
   </section>
 
   <section data-cat="personal" aria-labelledby="s-now">
@@ -1013,9 +1136,10 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-tokens">
     <h2 id="s-tokens" class="vh">Tokens</h2>
     <pre class="poster ptitle" data-text="TOKENS" aria-hidden="true"></pre>
-    <p class="muted">What you would paste into your own project.</p>
-    <pre class="demo code" id="tokensOut" tabindex="0"></pre>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button"><span class="mid"><span class="label">Copy tokens</span></span></button></div>
+    <p class="muted">The theme you are looking at, as CSS. Paste it after ascii-ui.css, or save it as tokens.css.</p>
+    <pre class="demo code" id="tokensOut" tabindex="0" aria-label="The tokens, as CSS"></pre>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button"><span class="mid"><span class="label">Copy tokens</span></span></button><button class="btn frame tone-light" id="tokensSave" type="button"><span class="mid"><span class="label">Download tokens.css</span></span></button></div>
+    <p class="muted status" id="tokensStatus" role="status"></p>
   </section>
 
 
@@ -1077,7 +1201,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.1. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>.</p>
+    <p class="foot" id="footLine">ascii/ui v11.1. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
   </footer>
 </main>
 
@@ -1131,6 +1255,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
       <button class="bbtn" id="mSearch" type="button">Search</button>
       <button class="bbtn" id="mTheme" type="button">Theme</button>
+      <p class="menu-credit muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
     </div>
   </div>
 </dialog>

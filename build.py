@@ -16,7 +16,9 @@
      robots.txt, sitemap.xml
      favicon.ico       for search results and browsers that ask for it by name
      LICENSE.txt       the MIT license, also in kit/ and every kit/<version>/
-     assets/           og.png (the share picture), icon-180.png (the home screen icon)
+     assets/           og.png (the share picture), icon-180.png (the home screen icon),
+                       reel.mp4 and reel-poster.jpg (Home, How it was made; the video
+                       loads only when someone presses play)
      llms.txt          a copy of llms.txt at the repo root, when it exists
      llms-full.txt     every component in full, written by qa/reference.py
      kit/              a copy of kit/, when that folder exists: the latest kit
@@ -44,7 +46,7 @@ refreeze it.
 import re,pathlib,shutil,sys,tempfile,filecmp,hashlib,base64,json
 root=pathlib.Path(__file__).resolve().parent
 SITE_URL='https://ascii.fedekotek.design'
-SITE_ASSETS=['og.png','icon-180.png']
+SITE_ASSETS=['og.png','icon-180.png','reel.mp4','reel-poster.jpg']
 KIT_FILES=['ascii-ui.css','ascii-ui.js']
 FONT='assets/fonts/geist-mono-site.woff2'
 
@@ -267,6 +269,8 @@ def links(h,dl,kit,icon,fav,og):
         h=re.sub(r'(id="footKit" href=")[^"]*(")',lambda m:m.group(1)+kit+m.group(2),h)
     h=h.replace('<link rel="apple-touch-icon" href="assets/icon-180.png">','<link rel="apple-touch-icon" href="'+icon+'">')
     h=h.replace('<link rel="icon" href="assets/favicon.ico"','<link rel="icon" href="'+fav+'"')
+    # the reel's poster and video sit in the same folder as the icon
+    h=h.replace('="assets/reel','="'+icon[:-len('icon-180.png')]+'reel')
     return og_version(h,og)
 
 def og_version(h,og):
@@ -290,7 +294,7 @@ def csp(h):
          "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else ''),
          "style-src 'unsafe-inline'",      # the engine writes style="" on titles, charts and colored text
          "font-src data:","img-src 'self' data: blob:","connect-src 'self'",
-         "media-src 'none'","worker-src 'none'","frame-src 'none'","manifest-src 'none'",
+         "media-src 'self'",                 # the reel on Home, fetched on play"worker-src 'none'","frame-src 'none'","manifest-src 'none'",
          "object-src 'none'","base-uri 'none'","form-action 'none'"]
     meta='<meta http-equiv="Content-Security-Policy" content="'+'; '.join(pol)+'">'
     if '<meta charset="utf-8">' not in h: sys.exit('build: no <meta charset="utf-8"> to put the CSP after')

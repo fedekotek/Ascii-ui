@@ -1,0 +1,52 @@
+/* ---- Home: the reel, No signal, credits, and the copy-link on every title ----
+   Wired in js/70 (the router, No signal, the [#] links) and js/80 (whoami, crt).
+   The reel plays in js/70 too: nothing is fetched until you press play. */
+
+/* the reel: a 16:9 box whose height is a whole number of rows */
+.reel{margin:var(--r) 0 0;max-width:80ch}
+.reel-box{container-type:inline-size;position:relative;background:#05030a;aspect-ratio:16/9}
+@supports (height:round(up,1px,1px)){
+  .reel-box{aspect-ratio:auto;height:round(up,56.25cqi,var(--r))}
+}
+.reel-play{
+  display:block;width:100%;height:100%;margin:0;padding:0;border:0;border-radius:0;
+  background:none;color:var(--ink);font:inherit;cursor:pointer;position:relative;outline:0;
+}
+.reel-play img{display:block;width:100%;height:100%;object-fit:contain}
+.reel-play.noposter img{visibility:hidden}
+.reel-go{
+  position:absolute;left:0;bottom:0;padding:0 1ch;line-height:var(--r);
+  background:var(--ink);color:var(--bg);font-weight:700;text-transform:uppercase;
+}
+@media (hover:hover) and (pointer:fine){.reel-play:hover .reel-go{background:var(--hot)}}
+.reel-play:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+.reel-play:focus-visible .reel-go{background:var(--accent);color:var(--bg)}
+.reel video{display:block;width:100%;height:100%;background:#05030a}
+.reel video:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+.reel figcaption{margin-top:var(--r)}
+.reel .status{margin:0}
+
+/* No signal: an address that is not ours lands here, on Home */
+.nosig{margin:0 0 calc(var(--r)*2)}
+.nosig .ptitle{margin:0 0 var(--r)}
+.nosig-snow{margin:0 0 var(--r);color:var(--muted);font:inherit;font-weight:700;white-space:pre;overflow:hidden}
+.nosig h2:focus{outline:0}
+.nosig h2:focus-visible{outline:0}   /* focused by the router, so a screen reader hears it; not a control */
+.nosig b{color:var(--ink);overflow-wrap:anywhere}
+
+/* credits in the [=] menu, a line of its own under the switches */
+.menu-credit{flex:1 0 100%;margin:0;line-height:var(--r)}
+.menu-credit .inl{display:inline-block}
+
+/* [#] after a section's title copies its address. The title stays the
+   heading (the button sits after it, not in it), on the same row */
+.hl-h{display:inline-block!important;vertical-align:top}
+.hlink{
+  display:inline-block;vertical-align:top;font:inherit;font-weight:400;line-height:var(--r);
+  background:none;border:0;border-radius:0;color:var(--muted);cursor:pointer;outline:0;
+  padding:12px 1ch;margin:-12px 0;background-clip:content-box;text-transform:none;
+}
+@media (hover:hover) and (pointer:fine){.hlink:hover{color:var(--hot)}}
+.hlink:focus-visible{background:var(--accent);color:var(--bg)}
+.hlink.ok{color:var(--ok)}
+@media print{.hlink,.reel-go{display:none!important}}

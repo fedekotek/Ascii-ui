@@ -26,7 +26,8 @@ function syncPickers(){
   VARS.concat(['t0','t1','t2','t3']).forEach(k=>{body+='--'+k+': '+readVar(k)+';\n'});
   body+='--accent: var(--cy);\n--danger: var(--warn);\n--r: 21px;\ncolor-scheme: '+scheme+';\n';
   const ind=(s,p)=>s.replace(/^(?=.)/gm,p);
-  $('tokensOut').textContent='/* this theme. Paste it after ascii-ui.css */\n:root,\n:root[data-theme] {\n'+ind(body,'  ')+'}\n'+
+  const pk=document.querySelector('input[name="preset"]:checked'),pn=pk&&pk.nextElementSibling?pk.nextElementSibling.textContent.trim():'';
+  $('tokensOut').textContent='/* ascii/ui tokens'+(pn?', '+pn:'')+(PICK.some(k=>root.style.getPropertyValue('--'+k))?' with your colors':'')+'. Paste it after ascii-ui.css */\n:root,\n:root[data-theme] {\n'+ind(body,'  ')+'}\n'+
     '@media (prefers-color-scheme: dark) {\n  :root:not([data-theme="light"]) {\n'+ind(body,'    ')+'  }\n}';
   /* A ramp other than the default comes along as the one call that re-skins
      the frames. It is a script, so it is its own snippet, and it waits for
@@ -45,16 +46,26 @@ const tonesBox=document.createElement('div');tonesBox.className='demo';tonesBox.
 tonesBox.innerHTML='<p class="muted">The characters of your ramp, as a script. Paste it after the ascii-ui.js tag.</p>'+
   '<pre class="demo code" id="tonesOut" tabindex="0" aria-label="The ramp, as a script"></pre>'+
   '<div class="row demo"><button class="btn frame tone-light" id="tonesCopy" type="button"><span class="mid"><span class="label">Copy the script</span></span></button></div>';
-$('tokensCopy').closest('.row').after(tonesBox);
+($('tokensStatus')||$('tokensCopy').closest('.row')).after(tonesBox);
 function applyPreset(p){
   PICK.concat(VARS).forEach(k=>root.style.removeProperty('--'+k));
   if(p==='signal'||p==='paper'){root.removeAttribute('data-preset');root.setAttribute('data-theme',p==='paper'?'light':'dark')}
   else{root.setAttribute('data-theme','dark');root.setAttribute('data-preset',p)}
   setTimeout(()=>{A.refresh();syncPickers()},30);
 }
+/* Arrow keys walk the radios and each step is a change. Held down, that
+   queued a wipe per step. So a pick made with the keys applies once, when the
+   key comes up (or the group loses focus); a tap applies at once */
+let presetKey=false,presetWait=null;
+function pickPreset(v){if(reduce||A.glitch()<=0)applyPreset(v);else A.wipe(()=>applyPreset(v))}
+document.addEventListener('keydown',e=>{if(e.target&&e.target.name==='preset'&&/^(Arrow|Home$|End$)/.test(e.key))presetKey=true},true);
+function presetFlush(){presetKey=false;if(presetWait!==null){const v=presetWait;presetWait=null;pickPreset(v)}}
+document.addEventListener('keyup',e=>{if(presetKey&&e.target&&e.target.name==='preset')presetFlush()},true);
+document.addEventListener('focusout',e=>{if(presetKey&&e.target&&e.target.name==='preset'&&!(e.relatedTarget&&e.relatedTarget.name==='preset'))presetFlush()},true);
 document.addEventListener('change',e=>{
   const el=e.target;if(el.name!=='preset')return;
-  if(reduce||A.glitch()<=0)applyPreset(el.value);else A.wipe(()=>applyPreset(el.value));
+  if(presetKey){presetWait=el.value;return}
+  pickPreset(el.value);
 });
 PICK.forEach(k=>$('c-'+k).addEventListener('input',e=>{
   root.style.setProperty('--'+k,e.target.value);
@@ -63,7 +74,8 @@ PICK.forEach(k=>$('c-'+k).addEventListener('input',e=>{
   $('h-'+k).textContent=e.target.value;A.refresh();syncPickers();
 }));
 $('colReset').addEventListener('click',()=>{PICK.concat(['t0','t2']).forEach(k=>root.style.removeProperty('--'+k));A.refresh();syncPickers();A.kick()});
-$('tokensCopy').addEventListener('click',()=>copy($('tokensOut').textContent,'the tokens',$('tokensOut')));
+$('tokensCopy').addEventListener('click',()=>copy($('tokensOut').textContent,'the tokens',$('tokensOut'),$('tokensStatus')));
+$('tokensSave').addEventListener('click',()=>{download('tokens.css',$('tokensOut').textContent+'\n','text/css',$('tokensStatus'));if(live())sfx.ok()});
 $('tonesCopy').addEventListener('click',()=>copy($('tonesOut').textContent,'the script',$('tonesOut')));
 new MutationObserver(()=>setTimeout(syncPickers,40)).observe(root,{attributes:true,attributeFilter:['data-theme','data-preset']});
 

@@ -183,11 +183,12 @@
   function go(v,sec,opt){
     opt=opt||{};
     const tab=$('v-'+v);if(!tab)return;
+    if(!opt.nosig)noSignal(null);
     if(opt.push!==undefined)setHash(hashFor(v,sec),opt.push);
     busy=true;
     A.showView(tab,function(){
       busy=false;
-      title(v,sec);
+      if(opt.nosig)document.title='No signal, ascii/ui';else title(v,sec);
       /* a filtered-out block comes back when you ask for it by name */
       let stale=!links.length||links[0].v!==v;
       if(sec&&sec.hidden&&v==='blocks'){const all=document.querySelector('#blockFilters [data-f="all"]');if(all){all.click();stale=true}}
@@ -227,9 +228,24 @@
     if(el)return false;
     try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
     routed=location.hash;
-    go('home',null,{top0:true,instant:true});
+    const box=noSignal(h);
+    go('home',null,box?{el:box,instant:true,nosig:true,after:()=>{const t=$('noSigH');if(t)t.focus({preventScroll:true})}}:{top0:true,instant:true});
     return true;
   }
+  /* No signal: what an address that is neither a view nor anything on the
+     page gets. It is a block at the top of Home, drawn in characters, with
+     the way back; the address bar goes bare. noSignal(null) puts it away */
+  function noSignal(h){
+    const box=$('noSig');if(!box)return null;
+    if(h==null){if(!box.hidden)box.hidden=true;return null}
+    let at=h;try{at=decodeURIComponent(h)}catch(e){}
+    $('noSigAt').textContent=at.replace(/[\u0000-\u001f]/g,'').slice(0,48);
+    box.hidden=false;
+    if(A.layout)A.layout();
+    return box;
+  }
+  if($('noSigHome'))$('noSigHome').addEventListener('click',()=>{go('home',null,{push:false,top0:true});tick()});
+  if($('noSigFind'))$('noSigFind').addEventListener('click',()=>{if(window.AUI_SEARCH)window.AUI_SEARCH.open()});
   const GONE={play:'Play is gone. Its toys live in Themes, Labs.',
               onepager:'One pager is gone. Its toys live in Themes, Labs.',
               page:'One pager is gone. Its toys live in Themes, Labs.',
@@ -350,8 +366,7 @@
     }
     /* the last sections of a short view can never reach the line: at the
        bottom of the page the one you landed on stays marked while its title
-       is on screen, otherwise the last title on screen, in page order (the
-       sidebar lists Getting started first, the page puts it last) */
+       is on screen, otherwise the last title on screen, in page order */
     if(window.scrollY>=document.documentElement.scrollHeight-window.innerHeight-2){
       let keep=false,last=null,lt=-Infinity;
       for(const l of links){
@@ -388,7 +403,7 @@
   /* ---- the name, the skip link ---- */
   /* the name is Home, and on Home it is the way back to the top */
   $('brand').addEventListener('click',function(){
-    settle=null;
+    settle=null;noSignal(null);
     if(current()==='home')window.scrollTo({top:0,behavior:A.reduce?'auto':'smooth'});
     else go('home',null,{push:true,top0:true});
     tick();
@@ -514,6 +529,68 @@
     n.focus();
   });
 
+  /* ---- [#]: copy a section's address ----
+     After every section's title, in every view. It copies the public
+     address (https://ascii.fedekotek.design/#components/button), so a copy
+     made from file:// or a preview still works for whoever gets it, and the
+     address bar says the same. Where the browser will not copy (file://, an
+     old browser) it says the address instead, never an error */
+  const SITE='https://ascii.fedekotek.design/';
+  function copyLink(sec,b){
+    const v=VIEWS.find(x=>$('view-'+x).contains(sec));if(!v)return;
+    const hs=hashFor(v,sec),url=SITE+hs;
+    if(current()===v)setHash(hs,false);
+    const ok=()=>{
+      A.say('Copied the link to '+name(sec)+'.');
+      if(!A.reduce){b.classList.add('ok');if(b._t)b._t.stop();b._t=A.times(900,1,function(){},function(){b.classList.remove('ok');b._t=null})}
+    };
+    const no=()=>A.say('Copy is blocked here. The link is '+url,true);
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(ok,no);return}}catch(e){}
+    no();
+  }
+  VIEWS.forEach(v=>{
+    [].forEach.call($('view-'+v).querySelectorAll(':scope > section[aria-labelledby]'),sec=>{
+      const h=$(sec.getAttribute('aria-labelledby'));
+      if(!h||h.parentNode!==sec||!/^H[23]$/.test(h.tagName)||sec.querySelector(':scope > .hlink'))return;
+      const b=document.createElement('button');
+      b.type='button';b.className='hlink';b.textContent='[#]';
+      b.setAttribute('aria-label','Copy the link to '+h.textContent.trim());b.title='Copy the link';
+      b.addEventListener('click',e=>{e.stopPropagation();copyLink(sec,b);tick()});
+      h.classList.add('hl-h');h.after(b);
+    });
+  });
+
+  /* ---- the reel, at the top of How it was made ----
+     Only a poster until you press play: then the video is made, muted, with
+     controls, and played because you asked. Under reduced motion it waits
+     for you to press play in its own controls. It tries the file next to the
+     page, then the one on the site (the single file has no assets folder) */
+  const reelBtn=$('reelPlay');
+  if(reelBtn){
+    const poster=$('reelPoster'),rs=$('reelStatus'),REL=($('reelSrc')&&$('reelSrc').dataset.src)||'assets/reel.mp4',ABS=SITE+'assets/reel.mp4';
+    const noPoster=()=>reelBtn.classList.add('noposter');
+    poster.addEventListener('error',noPoster);
+    if(poster.complete&&!poster.naturalWidth)noPoster();
+    reelBtn.addEventListener('click',()=>{
+      const v=document.createElement('video');
+      v.controls=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='auto';
+      v.setAttribute('playsinline','');v.setAttribute('aria-label','The ascii/ui reel, 15 seconds');
+      if(poster.naturalWidth)v.poster=poster.currentSrc||poster.src;
+      let tried=0;
+      v.addEventListener('error',()=>{
+        if(!tried){tried=1;v.src=ABS;v.load();if(!A.reduce)v.play().catch(()=>{});return}
+        rs.textContent='';rs.classList.add('err');
+        setTimeout(()=>{rs.textContent='The reel did not load. It lives at '+ABS+'.'},40);
+      });
+      v.src=REL;
+      reelBtn.replaceWith(v);
+      v.focus({preventScroll:true});
+      if(A.reduce)rs.textContent='Reduced motion is on, so it waits for you. Press play.';
+      else{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{})}
+      tick();
+    });
+  }
+
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}
   build();
@@ -526,13 +603,16 @@
     go(p.id.replace(/^view-/,''),sec,{push:true});
   };
   /* Search (js/80) reads the same sections: every view, every named section,
-     Home's landing left out. Blocks the filter hides are listed too, go()
+     Home's landing (Where to start) left out; its Questions and How it was
+     made are in, with the questions as keywords. Blocks the filter hides are listed too, go()
      brings them back by name. Keywords are the poster title and the caption. */
+  const HOME_OUT=/^(go|nojs)$/;
   function index(){
-    return VIEWS.map(v=>({v:v,label:LABEL[v],sections:v==='home'?[]:
-      [].slice.call($('view-'+v).querySelectorAll(':scope > section[aria-labelledby]')).filter(name).map(s=>{
-        const t=s.querySelector('pre.ptitle[data-text]'),c=s.querySelector('p.muted');
-        return {sec:s,name:name(s),kw:((t?t.dataset.text:'')+' '+(c?c.textContent.trim().slice(0,80):'')).toLowerCase()};
+    return VIEWS.map(v=>({v:v,label:LABEL[v],sections:
+      [].slice.call($('view-'+v).querySelectorAll(':scope > section[aria-labelledby]')).filter(s=>name(s)&&!(v==='home'&&HOME_OUT.test(slugOf(s)))).map(s=>{
+        const t=s.querySelector('pre.ptitle[data-text]'),c=s.querySelector('p.muted'),
+              q=v==='home'?[].map.call(s.querySelectorAll('summary,h3'),x=>x.textContent).join(' '):'';
+        return {sec:s,name:name(s),kw:((t?t.dataset.text:'')+' '+(c?c.textContent.trim().slice(0,80):'')+' '+q).toLowerCase()};
       })}));
   }
   window.AUI_NAV={build:build,route:route,go:go,model:model,index:index,current:current};
