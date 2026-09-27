@@ -184,11 +184,39 @@
   function letGo(){var el=document.activeElement;if(isRange(el)&&Date.now()-touchAt<5000)setTimeout(function(){el.blur()},0)}
   ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(t){document.addEventListener(t,letGo,true)});
   document.addEventListener('change',function(e){if(isRange(e.target)&&Date.now()-touchAt<5000)letGo()},true);
+  /* a vertical swipe that starts on a slider is a scroll: the browser moves
+     the value, cancels the pointer, then commits it anyway. The value from
+     touch-down comes back on the cancel, and the late commit gets it too */
+  document.addEventListener('pointerdown',function(e){var el=e.target;if(e.pointerType!=='mouse'&&isRange(el)){el._v0=el.value;el._undo=0}},true);
+  document.addEventListener('pointerup',function(e){if(isRange(e.target))e.target._v0=null},true);
+  document.addEventListener('pointercancel',function(e){
+    var el=e.target;if(!isRange(el)||el._v0==null)return;
+    el._undo=Date.now();if(el.value!==el._v0){el.value=el._v0;el.dispatchEvent(new Event('change',{bubbles:true}))}
+  },true);
+  document.addEventListener('change',function(e){var el=e.target;if(isRange(el)&&el._undo&&Date.now()-el._undo<1000&&el.value!==el._v0)el.value=el._v0},true);
   document.addEventListener('focusin',function(e){
     /* focused from a label or anything that is not the slider: nothing to drag, let go now */
     if(isRange(e.target)&&Date.now()-touchAt<1000&&touchOn!==e.target)setTimeout(function(){e.target.blur()},0);
   },true);
   document.addEventListener('keydown',unlock,true);
+
+  /* A tap, not a touch-down. A finger that starts a scroll on a chart or a
+     picture used to change it on the way past. A mouse still acts on press;
+     a finger or a pen acts when it lifts, if it moved under 10px and the
+     browser did not take the gesture for a scroll (pointercancel). */
+  function onTap(el,fn){
+    var d=null;
+    el.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'){d=null;if(!e.button)fn(e);return}
+      d={x:e.clientX,y:e.clientY,id:e.pointerId};
+    });
+    el.addEventListener('pointermove',function(e){if(d&&e.pointerId===d.id&&Math.hypot(e.clientX-d.x,e.clientY-d.y)>=10)d=null});
+    el.addEventListener('pointercancel',function(){d=null});
+    el.addEventListener('pointerup',function(e){
+      if(!d||e.pointerId!==d.id)return;
+      var ok=Math.hypot(e.clientX-d.x,e.clientY-d.y)<10;d=null;if(ok)fn(e);
+    });
+  }
 
   /* ---- 5x7 bitmap face, squared off ---- */
   var F={
@@ -876,7 +904,12 @@
      first. Now there is one lock: a transition asked for while another is
      running waits its turn, and the overlay swallows taps while it covers.
      The curtain is for the theme and the presets, the datamosh for views. */
-  var busy=false,waiting=[];
+  /* Asked for faster than they can play (a preset held on an arrow key, ten
+     taps on the theme), they used to queue and flash for seconds. Now what
+     waited lands at once, only the latest one plays, and two never start
+     closer than 400ms apart (WCAG 2.3.1). */
+  var busy=false,waiting=[],lastEnd=-1e9,GAP=400;
+  function nowMs(){return window.performance?performance.now():Date.now()}
   /* the overlay eats taps, except one on a view link under it: that one
      becomes the new target, so rapid picks still end where you stopped */
   function hold(wrap){
@@ -889,10 +922,18 @@
       if(t)t.click();
     });
   }
-  function free(){busy=false;while(!busy&&waiting.length)waiting.shift()()}
+  function free(){busy=false;lastEnd=nowMs();drain()}
+  function drain(){
+    if(busy||!waiting.length)return;
+    var q=waiting,i;waiting=[];
+    for(i=0;i<q.length-1;i++)q[i].cb();
+    transition(q[q.length-1].kind,q[q.length-1].cb);
+  }
   function transition(kind,cb){
     if(reduce){cb();return}
-    if(busy){waiting.push(function(){transition(kind,cb)});return}
+    if(busy){waiting.push({kind:kind,cb:cb});return}
+    var wait=lastEnd+GAP-nowMs();
+    if(wait>0){busy=true;setTimeout(function(){busy=false;waiting.unshift({kind:kind,cb:cb});drain()},wait);return}
     if(kind==='mosh'&&window.AUI&&AUI.mosh)AUI.mosh(cb);else curtain(cb);
   }
 
@@ -1336,6 +1377,8 @@
          '.slider > label,.slider-track,.slider output,.tablist:not(.views),.tabpanel,section .lift,.progress,.rules li,'+
          '.stat,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
   function reveal(el,i){
+    /* Glitch off is the page's pause switch: things arrive, they do not glitch in */
+    if(glitch()<=0){el.classList.add('in','done');if(el._anim)el._anim();return}
     el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');
     setTimeout(function(){
@@ -1383,7 +1426,7 @@
     };
   }
 
-  window.AUI={heroWake:heroWake,ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={onTap:onTap,heroWake:heroWake,ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,announce:announce,rawFill:rawFill,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,

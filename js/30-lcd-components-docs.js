@@ -91,7 +91,7 @@ function LCD(cv){
   for(let i=0;i<this.sx*this.sy;i++)this.sect.push({mode:null,shift:0,swap:0,scan:Math.random()});
   if(this.cols>=60){this.sect[rnd(this.sect.length)].mode='ascii';this.sect[rnd(this.sect.length)].mode='mono'}
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{this.vis=en[0].isIntersecting}).observe(cv);else this.vis=true;
-  cv.addEventListener('pointerdown',e=>{
+  A.onTap(cv,e=>{
     const r=cv.getBoundingClientRect();this.tap(Math.floor((e.clientX-r.left)/r.width*this.sx)+Math.floor((e.clientY-r.top)/r.height*this.sy)*this.sx);
   });
   /* a picture on its own is a control too: arrows walk the sectors, Enter or

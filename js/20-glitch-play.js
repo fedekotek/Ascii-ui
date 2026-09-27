@@ -295,22 +295,40 @@ $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
 const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel';
 /* A finger holds things to read them, select them or scroll: a long press on a
-   button, a card or a table shattered it and ate the text selection, Copy on
-   the Code tabs included. On touch only the pictures break: titles, charts
-   and badges. A mouse still gets the whole set. */
-const DEST_TOUCH='.chart,.ptitle,.badge';
-let lp=null,swallow=false;
+   button, a card, a badge or a stat shattered it and ate the text selection.
+   On touch only the titles break. A mouse still gets the whole set. The hold
+   is 900ms and it warns you: a row of characters under the target fills up
+   the ramp, and letting go before it is full cancels. */
+const DEST_TOUCH='.ptitle',HOLD=900,FILL='.:=+*#%@';
+let lp=null,swallow=false,lastType='mouse';
+function warnRow(t){
+  const r=t.getBoundingClientRect(),d=document.createElement('div'),cols=Math.max(1,Math.floor(r.width/A.CH()));
+  d.setAttribute('aria-hidden','true');
+  d.style.cssText='left:'+r.left+'px;top:'+Math.max(0,Math.min(window.innerHeight-A.ROW,r.bottom))+'px;line-height:'+A.ROW+'px;height:'+A.ROW+'px;font-weight:700;white-space:pre;color:var(--hot)';
+  fx.appendChild(d);d._cols=cols;return d;
+}
+function endLp(){if(!lp)return;if(lp.run)lp.run.stop();if(lp.row)lp.row.remove();lp=null}
 document.addEventListener('pointerdown',e=>{
+  lastType=e.pointerType||'mouse';
   if(reduce||e.button)return;
   const t=e.target.closest&&e.target.closest(e.pointerType==='mouse'?DEST:DEST_TOUCH);
   if(!t||t.closest('dialog,#rebuild,.copyrow,.code')||e.target.closest('input,select,textarea'))return;
-  const x=e.clientX,y=e.clientY;
-  lp={t,x,y,id:setTimeout(()=>{if(lp&&lp.t===t){swallow=true;shatter(t);lp=null;setTimeout(()=>{swallow=false},700)}},560)};
+  endLp();
+  const row=warnRow(t),n=FILL.length;
+  lp={t,x:e.clientX,y:e.clientY,row};
+  lp.run=times(Math.round(HOLD/n),n,f=>{row.textContent=A.TR(rep(FILL[f-1],row._cols))},()=>{
+    if(!lp||lp.t!==t)return;lp.run=null;endLp();swallow=true;shatter(t);setTimeout(()=>{swallow=false},700);
+  });
 });
-const cancelLp=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null};
+const cancelLp=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)<10)return;endLp()};
 ['pointerup','pointercancel','pointermove','scroll'].forEach(ev=>window.addEventListener(ev,cancelLp,{passive:true,capture:true}));
 document.addEventListener('click',e=>{if(swallow){e.preventDefault();e.stopPropagation();swallow=false}},true);
-document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest(DEST_TOUCH)&&!e.target.closest('input,#posterDlg,dialog'))e.preventDefault()});
+/* the menu a long press opens is blocked only for a finger on a title; a
+   mouse keeps its right click everywhere */
+document.addEventListener('contextmenu',e=>{
+  const touch=(e.pointerType||lastType)==='touch'||(e.sourceCapabilities&&e.sourceCapabilities.firesTouchEvents);
+  if(touch&&e.target.closest&&e.target.closest(DEST_TOUCH)&&!e.target.closest('input,#posterDlg,dialog'))e.preventDefault();
+});
 
 /* ================= photo / camera hero ================= */
 const off=document.createElement('canvas'),octx=off.getContext('2d',{willReadFrequently:true});
@@ -591,7 +609,10 @@ const INV=(function(){
     }
   }
   function ptr(e){const r=cv.getBoundingClientRect();px=clamp((e.clientX-r.left)/cw-4,0,COLS-8)}
-  cv.addEventListener('pointerdown',e=>{if(state!=='play'){start();ptr(e);return}down=true;ptr(e)});
+  /* a game starts on a tap (a finger may only be scrolling past); once it
+     runs, a finger steers and fires from the moment it lands */
+  cv.addEventListener('pointerdown',e=>{if(state!=='play')return;down=true;ptr(e)});
+  A.onTap(cv,e=>{if(state!=='play'){start();ptr(e)}});
   cv.addEventListener('pointermove',e=>{if(state==='play')ptr(e)});
   ['pointerup','pointercancel','pointerleave'].forEach(ev=>cv.addEventListener(ev,()=>{down=false}));
   document.addEventListener('keydown',e=>{
@@ -640,7 +661,7 @@ Grid.prototype.html=function(){
    and cut the right side off. A chart in a hidden view measures nothing, so it
    keeps the page's width until it shows, and a ResizeObserver redraws it then. */
 function colsOf(el){const w=el&&el.clientWidth;return w?Math.max(20,Math.floor(w/CCW)):CC}
-function grow(draw){return function(){if(reduce){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
+function grow(draw){return function(){if(reduce||A.glitch()<=0){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
 function cellAt(el,e){const r=el.getBoundingClientRect();return {x:Math.floor((e.clientX-r.left)/CCW),y:Math.floor((e.clientY-r.top)/14)}}
 /* every chart you can tap you can also drive: it takes a Tab stop, the arrows
    move the pick and Enter or Space does what a tap does. fn(key) returns true
@@ -662,7 +683,7 @@ function drawBars(p){
   $('st-bars').textContent=DAYS[selBar]+'  '+REQ[selBar].toLocaleString('en-US')+' requests';
 }
 function pickBar(i){selBar=clamp(i,0,6);drawBars();blip(300+REQ[selBar]/3,0.06,'square',0.09)}
-$('ch-bars').addEventListener('pointerdown',e=>{
+A.onTap($('ch-bars'),e=>{
   const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((colsOf($('ch-bars'))-5)/7)-1);pickBar(Math.floor((c.x-5)/(bw+1)));
 });
 keys($('ch-bars'),k=>{
@@ -693,7 +714,7 @@ function Line(id){
   st.removeAttribute('role');st.removeAttribute('aria-live');
   const hit=()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5);
     d.push(next());if(d.length>300)d.shift();draw();A.announce('Spike sent. p95 '+d[d.length-1]+' ms.')};
-  el.addEventListener('pointerdown',hit);
+  A.onTap(el,hit);
   keys(el,k=>{if(k!=='Enter'&&k!==' ')return false;hit();return true});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(el);
   /* it moves on its own, so it stops with reduced motion and with Glitch off
@@ -735,7 +756,7 @@ function pickHeat(y,w){
   $('st-heat').textContent=names[y]+', '+(weeks-w)+' weeks ago: '+(v*100).toFixed(2)+'%'+(v<0.78?'  outage':(v<0.93?'  degraded':''));
   blip(v>0.93?880:(v>0.78?440:160),0.06,'square',0.09);if(v<0.78)A.kick();
 }
-$('ch-heat').addEventListener('pointerdown',e=>{const c=cellAt($('ch-heat'),e);pickHeat(c.y,Math.floor((c.x-5)/2))});
+A.onTap($('ch-heat'),e=>{const c=cellAt($('ch-heat'),e);pickHeat(c.y,Math.floor((c.x-5)/2))});
 keys($('ch-heat'),k=>{
   const d={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0],Enter:[0,0],' ':[0,0]}[k];if(!d)return false;
   /* the first key lands on the newest week, where the eye starts */
@@ -757,7 +778,7 @@ function drawDonut(p){
   SEG.forEach((s,i)=>{const on=selD<0||selD===i;g.set(29,3+i*2,'@',on?s[2]:'muted');g.set(30,3+i*2,'@',on?s[2]:'muted');g.text(32,3+i*2,s[0].padEnd(7,' ')+Math.round(s[1]*100)+'%',on?'ink':'muted')});
   $('ch-donut').innerHTML=g.html();
 }
-$('ch-donut').addEventListener('pointerdown',e=>{
+A.onTap($('ch-donut'),e=>{
   const c=cellAt($('ch-donut'),e);let i=-1;
   if(c.x>=29){i=Math.floor((c.y-3)/2);if(i<0||i>=SEG.length||(c.y-3)%2)i=-1}
   else{const dx=c.x-13,dy=(c.y-6)*(14/CCW),r=Math.hypot(dx,dy);if(r>=5&&r<=13.2){let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;i=segAt(a)}}

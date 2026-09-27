@@ -24,15 +24,16 @@ body::before{
 .js-rv [data-rv]{opacity:0}
 .js-rv [data-rv].in{opacity:1;animation:rvin .22s steps(1) both;animation-delay:var(--d,0ms)}
 .js-rv [data-rv].done{animation:none;opacity:1}
+/* no opacity dips after the first frame: on a big dark block over paper they flashed (WCAG 2.3.1) */
 @keyframes rvin{
   0%{opacity:0}
   2%{opacity:1;clip-path:inset(0 0 62% 0);transform:translateX(-12px);filter:hue-rotate(90deg) saturate(2)}
   16%{opacity:1;clip-path:inset(38% 0 8% 0);transform:translateX(9px)}
-  30%{opacity:.25;clip-path:inset(0 0 0 0);transform:translateX(-5px);filter:hue-rotate(-70deg)}
+  30%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(-5px);filter:hue-rotate(-70deg)}
   44%{opacity:1;transform:translateX(3px);filter:none}
-  58%{opacity:.45;transform:translateX(-2px)}
+  58%{opacity:1;transform:translateX(-2px)}
   72%{opacity:1;transform:translateX(1px)}
-  86%{opacity:.8;transform:none}
+  86%{opacity:1;transform:none}
   100%{opacity:1;clip-path:inset(0 0 0 0);transform:none;filter:none}
 }
 main.sv{text-shadow:calc(var(--sv,0)*-1px) 0 var(--cy),calc(var(--sv,0)*1px) 0 var(--hot)}
