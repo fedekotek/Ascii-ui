@@ -1,6 +1,6 @@
 # ascii/ui kit
 
-Version 1.1.1. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
+Version 1.2.0. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
 
 The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://ascii.fedekotek.design.
 
@@ -18,13 +18,13 @@ Latest, which follows every new version:
 Pinned, which never changes under you:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.css">
-<script defer src="https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.js"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css">
+<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js"></script>
 ```
 
-Every version stays at its own address: 1.0.0, 1.1.0 and 1.1.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version in their first line, and `ASCIIUI.version` says it in the console.
+Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
 
-The CSS pulls Geist Mono from Google Fonts with an `@import`. For a faster first paint, remove that line and put the `<link>` from the comment next to it in your `<head>`. Without the font it falls back to the system monospace.
+The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a Latin-1 subset, 19 kB, SIL OFL 1.1, the license is `fonts/OFL.txt`). Linked from this site, it comes from here too, and nothing asks Google or anyone else. With your own copies, put the `fonts/` folder next to `ascii-ui.css`, or leave it out: an installed Geist Mono is used first, then the system monospace. `LICENSE.txt` sits next to the two files on the site.
 
 ## Use it in three steps
 
@@ -108,7 +108,7 @@ document.addEventListener('aui:change', e => {
 
 | Call | Does |
 |---|---|
-| `version` | `"1.1.1"` |
+| `version` | `"1.2.0"` |
 | `init(root)` | wires everything under `root` (the page when left out). Safe to call again: a component is wired once |
 | `destroy(root)` | tears down the components under `root`, and `root` itself: their listeners, observers and animations go |
 | `get(el)` | the calls of the component on `el`, whatever it is, or `null` |

@@ -1,4 +1,5 @@
-/* ascii/ui kit 1.1.1, ascii-ui.js
+/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */
+/* ascii-ui.js
    The behaviors for the components that need a script, wired by data
    attributes. No dependencies. Link it after ascii-ui.css:
 
@@ -42,11 +43,12 @@
    dropdown(el), otp(el), bar(k, n), colorize(str), tones(map), reduce,
    behaviors. The README has the events and the calls for each component.
 
-   MIT license. Copyright (c) 2026 Fede Kotek. The full text is in README.md. */
+   MIT license. Copyright (c) 2026 Fede Kotek. The full text is in LICENSE.txt
+   next to this file, and in README.md. */
 (function(){
 'use strict';
 if(window.ASCIIUI)return;   /* linked twice: keep the first */
-var VERSION='1.1.1';
+var VERSION='1.2.0';
 var doc=document;
 
 /* ---- reduced motion, followed live ---- */

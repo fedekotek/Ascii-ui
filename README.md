@@ -35,8 +35,9 @@ qa/                 Playwright scripts, the release bar (qa/release.sh) and the 
 docs/               everything you need to keep going (start with docs/ARCHITECTURE.md)
 archive/            old published versions (v2 to v9.3) as single files, not every point release. From v10 the history is in git
 assets/             og.png (the link preview) and icon-180.png (the home screen icon), both made by qa/shots.py and
-                    shipped in site/; the other pictures are old review screenshots, some of views that are gone
-llms.txt            a one-page map of the repo and the kit for an AI agent
+                    shipped in site/, favicon.ico, and fonts/ (the Geist Mono subset build.py inlines); the other
+                    pictures are old review screenshots, some of views that are gone
+llms.txt            a one-page map of the repo and the kit for an AI agent (llms-full.txt: every component in full)
 LICENSE             MIT
 CLAUDE.md           instructions for an AI agent working on this repo (the rules, the checklist, the release bar)
 ```
@@ -55,7 +56,7 @@ python3 -m http.server 8000     # then http://localhost:8000
 python3 build.py                # writes dist/ascii-ui.html and site/
 ```
 
-`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, and merges the adjacent `<style>` blocks. Then it rebuilds `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page and as the Download, a 404 page, `robots.txt`, the two pictures in `assets/`, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file. The version is the `aui-version` meta in `index.html`; `build.py` refuses to build when the footer says another. `python3 build.py --check` fails when the committed `site/` or `dist/` is not what the source builds.
+`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, merges the adjacent `<style>` blocks, minifies, and inlines the font. Then it rebuilds `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page (with a Content-Security-Policy, and the Code tab's kit text fetched on first use) and as the Download (everything embedded), a 404 page, `robots.txt`, `sitemap.xml`, `favicon.ico`, `LICENSE.txt`, the two pictures in `assets/`, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file. The version is the `aui-version` meta in `index.html`; `build.py` refuses to build when the footer says another. `python3 build.py --check` fails when the committed `site/` or `dist/` is not what the source builds.
 
 ## QA
 

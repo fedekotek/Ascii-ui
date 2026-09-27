@@ -9,12 +9,16 @@
 1. dist/ascii-ui.html  index.html with css/ and js/ inlined, the single file.
 2. site/               the folder Vercel serves (vercel.json: outputDirectory).
                        It is committed, so the deploy needs no build step:
-     index.html        the single file
-     ascii-ui.html     the same file, served as a download
+     index.html        the single file, with a Content-Security-Policy, and the
+                       kit text for the Code tab fetched on first use (LAZY_KIT)
+     ascii-ui.html     the single file with everything embedded, served as a download
      404.html          what a wrong address gets
-     robots.txt
+     robots.txt, sitemap.xml
+     favicon.ico       for search results and browsers that ask for it by name
+     LICENSE.txt       the MIT license, also in kit/ and every kit/<version>/
      assets/           og.png (the share picture), icon-180.png (the home screen icon)
      llms.txt          a copy of llms.txt at the repo root, when it exists
+     llms-full.txt     the same for llms-full.txt
      kit/              a copy of kit/, when that folder exists: the latest kit
      kit/<version>/    every released kit, from kit/releases/<version>/, at an
                        address that never changes (pin it, and it stays put)
@@ -22,18 +26,133 @@
 Nothing else in the repo (docs, qa, CLAUDE.md, archive) is published.
 The version is the aui-version meta in index.html; the footer must say the same.
 
+Every build is the same bytes for the same source, so --check can compare:
+no dates, no random ids. The switches below are what changes between copies.
+
+The font: index.html links assets/fonts/geist-mono-site.woff2 (the characters
+the site uses, 12 kB). Every built copy carries it as a data: URL, so the page
+makes no request for it, from file:// too.
+
 The kit has its own version, ASCIIUI.version in kit/ascii-ui.js, and both kit
 files say it in their first line. The first build of a version freezes
-ascii-ui.css and ascii-ui.js into kit/releases/<version>/. After that the kit
-files must match the frozen copy: a change to the kit needs a new version
-(ascii-ui.js, both headers, kit/CHANGELOG.md). Until a version has shipped,
-delete its kit/releases/<version>/ folder and build again to refreeze it.
+ascii-ui.css and ascii-ui.js (and kit/fonts/) into kit/releases/<version>/.
+After that the kit files must match the frozen copy: a change to the kit needs
+a new version (ascii-ui.js, both headers, kit/CHANGELOG.md). Until a version
+has shipped, delete its kit/releases/<version>/ folder and build again to
+refreeze it.
 """
-import re,pathlib,shutil,sys,tempfile,filecmp
+import re,pathlib,shutil,sys,tempfile,filecmp,hashlib,base64,json
 root=pathlib.Path(__file__).resolve().parent
+SITE_URL='https://ascii.fedekotek.design'
 SITE_ASSETS=['og.png','icon-180.png']
 KIT_FILES=['ascii-ui.css','ascii-ui.js']
+FONT='assets/fonts/geist-mono-site.woff2'
 
+MINIFY=True      # strip comments and indentation from the inlined css and js, every copy
+LAZY_KIT=True    # site/index.html only: the Code tab's kit text is fetched from kit/<version>/
+                 # the first time Code or a kit download is asked for. dist/ and the
+                 # download keep it embedded, so they work from file://
+CSP=True         # site/index.html only: a Content-Security-Policy meta with the hash of
+                 # every inline script. vercel.json adds the rules a meta cannot carry
+ANALYTICS=False  # site/index.html only: Vercel Web Analytics, loaded only on
+                 # https://ascii.fedekotek.design. Never in dist/ or the download.
+                 # Turning it on: update the privacy words (ARCHITECTURE says no analytics)
+
+# ---------------- minify: standard library, keeps every line break ----------------
+# JS: drops comments (keeps /*! ... */), leading and trailing whitespace, blank
+# lines, runs of spaces. Every line break stays, so automatic semicolon insertion
+# reads the code as before. Strings, template literals and regex literals pass
+# through untouched. CSS: drops comments (keeps /*!), collapses whitespace, trims
+# it around { } ; , and drops the ; before }. Strings pass through untouched.
+KW_BEFORE_REGEX={'return','typeof','case','do','else','in','of','new','delete','void','throw','yield','await','instanceof'}
+def min_js(src):
+    out=[];i=0;n=len(src);stack=[]   # brace depths for template ${ }
+    last='';lastword=''              # the last character and word that were not space or comment
+    def emit(s):
+        nonlocal last,lastword
+        out.append(s)
+        t=s.rstrip(' \t\n')
+        if t:
+            last=t[-1]
+            m=re.search(r'[A-Za-z_$][\w$]*$',t);lastword=m.group(0) if m else ''
+    while i<n:
+        c=src[i]
+        if c in '"\'':
+            j=i+1
+            while j<n and src[j]!=c:
+                if src[j]=='\\':j+=1
+                j+=1
+            emit(src[i:j+1]);i=j+1;continue
+        if c=='`' or (c=='}' and stack and stack[-1]==0):
+            if c=='}':stack.pop()
+            j=i+1
+            while j<n:
+                if src[j]=='\\':j+=2;continue
+                if src[j]=='`':j+=1;break
+                if src[j]=='$' and j+1<n and src[j+1]=='{':stack.append(0);j+=2;break
+                j+=1
+            emit(src[i:j]);i=j;continue
+        if c=='{' and stack:stack[-1]+=1
+        if c=='}' and stack and stack[-1]>0:stack[-1]-=1
+        if c=='/' and i+1<n and src[i+1]=='/':
+            j=src.find('\n',i);j=n if j<0 else j;i=j;continue
+        if c=='/' and i+1<n and src[i+1]=='*':
+            j=src.find('*/',i+2);j=n if j<0 else j+2
+            body=src[i:j]
+            if body.startswith('/*!'):emit(body)
+            else:out.append('\n' if '\n' in body else ' ')
+            i=j;continue
+        if c=='/':
+            regex=(last=='' or last in '(,=:[!&|?{};+-*%<>~^' or lastword in KW_BEFORE_REGEX) and last not in ')]'
+            if last and (last.isalnum() or last in '_$)]') and lastword not in KW_BEFORE_REGEX:regex=False
+            if regex:
+                j=i+1;cls=False
+                while j<n:
+                    ch=src[j]
+                    if ch=='\\':j+=2;continue
+                    if ch=='[':cls=True
+                    elif ch==']':cls=False
+                    elif ch=='/' and not cls:break
+                    elif ch=='\n':break
+                    j+=1
+                j+=1
+                while j<n and src[j].isalpha():j+=1
+                emit(src[i:j]);i=j;continue
+        if c in ' \t':
+            j=i
+            while j<n and src[j] in ' \t':j+=1
+            out.append(' ');i=j;continue
+        emit(c);i+=1
+    lines=[l.strip() for l in ''.join(out).split('\n')]
+    return '\n'.join(l for l in lines if l)+'\n'
+
+def min_css(src):
+    out=[];i=0;n=len(src)
+    while i<n:
+        c=src[i]
+        if c in '"\'':
+            j=i+1
+            while j<n and src[j]!=c:
+                if src[j]=='\\':j+=1
+                j+=1
+            out.append(src[i:j+1]);i=j+1;continue
+        if src.startswith('/*',i):
+            j=src.find('*/',i+2);j=n if j<0 else j+2
+            if src.startswith('/*!',i):out.append(src[i:j])
+            i=j;continue
+        if c in ' \t\r\n':
+            j=i
+            while j<n and src[j] in ' \t\r\n':j+=1
+            out.append(' ');i=j;continue
+        out.append(c);i+=1
+    res=[];parts=re.split(r'("(?:[^"\\]|\\.)*"|\'(?:[^\'\\]|\\.)*\')',''.join(out))
+    for k,p in enumerate(parts):
+        if k%2:res.append(p);continue
+        p=re.sub(r'\s*([{};,])\s*',r'\1',p).replace(';}','}')
+        res.append(p)
+    return ''.join(res).strip()+'\n'
+
+# ---------------- the kit ----------------
 def kit_version(kit):
     """ASCIIUI.version, read from kit/ascii-ui.js; both kit files must say it"""
     js=(kit/'ascii-ui.js').read_text(encoding='utf-8')
@@ -53,6 +172,8 @@ def kit_release(kit,v,freeze):
         if not freeze: return ['kit/releases/'+v+'  missing, run python3 build.py']
         rel.mkdir(parents=True)
         for f in KIT_FILES: shutil.copy2(kit/f,rel/f)
+        # the css asks for fonts/ next to itself, so the pinned copy carries its own
+        if (kit/'fonts').is_dir(): shutil.copytree(kit/'fonts',rel/'fonts',ignore=shutil.ignore_patterns('.DS_Store'))
         print('kit '+v+' frozen into kit/releases/'+v+'/')
         return []
     bad=[]
@@ -61,19 +182,83 @@ def kit_release(kit,v,freeze):
             bad.append('kit/'+f+'  differs from the released '+v+' in kit/releases/'+v+'/: give the kit a new version')
     return bad
 
-def inline(src):
-    def css(m): return '<style>\n'+(root/m.group(1)).read_text()+'</style>'
-    def js(m):  return '<script>\n'+(root/m.group(1)).read_text().replace('</script>','<\\/script>')+'</script>'
+# The site's own copy of KIT() (js/40), with the text fetched instead of embedded.
+# KIT() keeps its shape: css and js are read when they are needed. Until the
+# text is here, they are a stand-in of the right size that says the version,
+# which is all Get the kit reads when the page starts. The Code tab and the two
+# downloads wait for the real text: their click (or the arrow key that opens
+# Code) is held, the text is fetched, then the same click goes through.
+LAZY='''/* ---- kit source: fetched on first use, not embedded (build.py, LAZY_KIT) ---- */
+/* functions only, no const: install() calls KIT() before this line runs */
+function kitS(){return kitS.s||(kitS.s={v:'@KV@',b:{css:@CSSB@,js:@JSB@},t:null,p:null})}
+function kitStub(k){const S=kitS();return (k==='js'?"var VERSION='"+S.v+"';":'').padEnd(S.b[k],' ')}
+function KIT(){const S=kitS();return {get css(){return S.t?S.t.css:kitStub('css')},get js(){return S.t?S.t.js:kitStub('js')}}}
+function kitLoad(){
+  const S=kitS();
+  if(!S.p)S.p=Promise.all(['css','js'].map(k=>fetch('kit/'+S.v+'/ascii-ui.'+k).then(r=>{if(!r.ok)throw new Error('kit '+r.status);return r.text()})))
+    .then(t=>{S.t={css:t[0],js:t[1]}},e=>{S.p=null;throw e});
+  return S.p;
+}
+/* a doc's Code tab (the second of its two), the arrow key that leaves Preview for it, and the two downloads */
+function kitAt(e){return e.target&&e.target.closest?e.target.closest('.doc-tabs [role="tab"],[data-dl]'):null}
+function kitWant(e){
+  const t=kitAt(e);if(!t)return null;
+  if(t.hasAttribute('data-dl'))return e.type==='click'?t:null;
+  const code=t.parentNode.lastElementChild===t;
+  if(e.type==='click')return code?t:null;
+  return !code&&(e.key==='ArrowRight'||e.key==='ArrowLeft')?t:null;
+}
+function kitGate(e){
+  if(kitS().t)return;
+  const t=kitWant(e);if(!t)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const key=e.type==='keydown'?e.key:null;
+  kitLoad().then(()=>{if(key)t.dispatchEvent(new KeyboardEvent('keydown',{key:key,bubbles:true,cancelable:true}));else t.click()},
+    ()=>A.say('The kit did not load, so there is no code to show yet. Check the connection and try again.',true));
+}
+/* on the way to one of them, start early: the text is usually here before the click */
+function kitSoon(e){const S=kitS();if(!S.t&&!S.p&&kitAt(e))kitLoad().catch(()=>{})}
+window.addEventListener('click',kitGate,true);window.addEventListener('keydown',kitGate,true);
+['pointerover','focusin','touchstart'].forEach(n=>window.addEventListener(n,kitSoon,{capture:true,passive:true}));
+'''
+KIT_START='/* ---- kit source:'
+KIT_END='/* ---- end of kit source ---- */'
+
+def lazy_kit(js,kv):
+    """js/40 with KIT() swapped for the fetching one above"""
+    if KIT_START not in js or KIT_END not in js: sys.exit('build: js/40 has no kit source markers (qa/kit.py sync)')
+    a=js.index(KIT_START);z=js.index(KIT_END)
+    kit=root/'kit'
+    size=lambda f:len((kit/f).read_bytes())
+    return js[:a]+LAZY.replace('@KV@',kv).replace('@CSSB@',str(size('ascii-ui.css'))).replace('@JSB@',str(size('ascii-ui.js')))+js[z:]
+
+# ---------------- the page ----------------
+def inline(src,kv=None):
+    """index.html with css/ and js/ inlined. kv: the kit version, when the
+    Code tab's kit text is fetched from kit/<kv>/ instead of embedded"""
+    def css(m):
+        t=(root/m.group(1)).read_text()
+        return '<style>\n'+(min_css(t) if MINIFY else t)+'</style>'
+    def js(m):
+        t=(root/m.group(1)).read_text()
+        if kv and m.group(1).startswith('js/40'): t=lazy_kit(t,kv)
+        if MINIFY: t=min_js(t)
+        return '<script>\n'+t.replace('</script>','<\\/script>')+'</script>'
     h=re.sub(r'<link rel="stylesheet" href="(css/[^"]+)">',css,src)
     h=re.sub(r'<script src="(js/[^"]+)"></script>',js,h)
     h=re.sub(r'</style>\n<style>\n','',h)   # merge adjacent style blocks
     left=re.findall(r'(?:href|src)="((?:css|js)/[^"]+)"',h)
     if left: sys.exit('build: not inlined: '+', '.join(left))
+    # the font, as a data: URL, so no copy of the page asks anyone for it
+    f=root/FONT
+    if 'url('+FONT+')' not in h: sys.exit('build: index.html does not load '+FONT)
+    if not f.exists(): sys.exit('build: missing '+FONT)
+    h=h.replace('url('+FONT+')','url(data:font/woff2;base64,'+base64.b64encode(f.read_bytes()).decode()+')')
     return h
 
-def links(h,dl,kit,icon):
-    """point the footer's Download and starter page links, and the touch icon,
-    at where they live next to this copy. kit=None drops the kit clause"""
+def links(h,dl,kit,icon,fav,og):
+    """point the footer's Download and starter page links, the icons and the
+    share picture at where they live next to this copy. kit=None drops the kit clause"""
     h=re.sub(r'(id="footDl" href=")[^"]*(")',lambda m:m.group(1)+dl+m.group(2),h)
     if kit is None:
         # no kit: the footer keeps only the download, as its own sentence
@@ -81,7 +266,49 @@ def links(h,dl,kit,icon):
     else:
         h=re.sub(r'(id="footKit" href=")[^"]*(")',lambda m:m.group(1)+kit+m.group(2),h)
     h=h.replace('<link rel="apple-touch-icon" href="assets/icon-180.png">','<link rel="apple-touch-icon" href="'+icon+'">')
-    return h
+    h=h.replace('<link rel="icon" href="assets/favicon.ico"','<link rel="icon" href="'+fav+'"')
+    return og_version(h,og)
+
+def og_version(h,og):
+    """apps keep a share picture by its address: a new picture gets a new one"""
+    return h.replace(SITE_URL+'/assets/og.png"',SITE_URL+'/assets/og.png?v='+og+'"') if og else h
+
+def sha(s): return "'sha256-"+base64.b64encode(hashlib.sha256(s.encode('utf-8')).digest()).decode()+"'"
+
+def csp(h):
+    """a Content-Security-Policy meta, first thing in the head, that allows the
+    inline scripts this copy has and nothing else. Hashed here, from the final
+    text, so a changed script needs a build and nothing else"""
+    tags=re.sub(r'(<script[^>]*>)[\s\S]*?</script>',r'\1</script>',h)   # the markup, without script bodies
+    heads=re.findall(r'<script([^>]*)>',tags)
+    odd=[a for a in heads if a.strip() and a.strip()!='type="application/ld+json"']
+    if odd: sys.exit('build: a <script> with attributes would need its own CSP rule: '+', '.join(odd))
+    hand=sorted(set(re.findall(r'<[a-z][^>]*\s(on[a-z]+)=',tags)))
+    if hand: sys.exit('build: inline event handlers are refused by the CSP ('+', '.join(hand)+'): use addEventListener')
+    hashes=[sha(m.group(1)) for m in re.finditer(r'<script>([\s\S]*?)</script>',h)]
+    pol=["default-src 'none'",
+         "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else ''),
+         "style-src 'unsafe-inline'",      # the engine writes style="" on titles, charts and colored text
+         "font-src data:","img-src 'self' data: blob:","connect-src 'self'",
+         "media-src 'none'","worker-src 'none'","frame-src 'none'","manifest-src 'none'",
+         "object-src 'none'","base-uri 'none'","form-action 'none'"]
+    meta='<meta http-equiv="Content-Security-Policy" content="'+'; '.join(pol)+'">'
+    if '<meta charset="utf-8">' not in h: sys.exit('build: no <meta charset="utf-8"> to put the CSP after')
+    return h.replace('<meta charset="utf-8">','<meta charset="utf-8">\n'+meta,1)
+
+# Vercel Web Analytics. Only on the real address: no request from file://,
+# localhost, a preview deploy or a saved copy, and none with Do Not Track or GPC.
+VA='''<script>
+/* visits are counted on https://ascii.fedekotek.design only (build.py, ANALYTICS) */
+(function(){
+  if(location.protocol!=='https:'||location.hostname!=='ascii.fedekotek.design')return;
+  if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl)return;
+  window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};
+  var s=document.createElement('script');s.defer=true;s.src='/_vercel/insights/script.js';
+  document.head.appendChild(s);
+})();
+</script>
+'''
 
 PAGE404="""<!doctype html>
 <html lang="en">
@@ -91,6 +318,7 @@ PAGE404="""<!doctype html>
 <title>Not found, ascii/ui</title>
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="FAVICON">
 <style>
 :root{--bg:#ecebe4;--ink:#111110;--muted:#5c5b55;--hot:#c91468;--cy:#0a7287;--r:21px;color-scheme:light}
@@ -124,6 +352,17 @@ a:focus-visible{background:var(--cy);color:var(--bg);text-decoration:none}
 
 ROBOTS="""User-agent: *
 Allow: /
+
+Sitemap: """+SITE_URL+"""/sitemap.xml
+"""
+
+# no lastmod: it would change every day, and --check with it. The hash routes
+# (#components) are one page to a crawler, so they are not listed
+SITEMAP="""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>"""+SITE_URL+"""/</loc></url>
+  <url><loc>"""+SITE_URL+"""/kit/starter.html</loc></url>
+</urlset>
 """
 
 def build(out,quiet=False):
@@ -135,43 +374,67 @@ def build(out,quiet=False):
     foot=re.search(r'<p class="foot" id="footLine">(.*?)</p>',src,re.S)
     if not foot or 'v'+ver not in foot.group(1): sys.exit('build: the footer does not say v'+ver)
     fav=re.search(r'<link rel="icon" type="image/svg\+xml" href="([^"]+)">',src)
-    one=inline(src)
     kit=root/'kit'
     has_kit=kit.is_dir() and any(kit.iterdir())
+    kv=kit_version(kit) if has_kit and (kit/'ascii-ui.js').exists() else None
+    ld=re.search(r'<script type="application/ld\+json">([\s\S]*?)</script>',src)
+    if ld:
+        try: data=json.loads(ld.group(1))
+        except ValueError as e: sys.exit('build: the JSON-LD in index.html is not valid JSON: '+str(e))
+        said=[g.get('version') for g in data.get('@graph',[]) if g.get('@type')=='SoftwareSourceCode']
+        if kv and said and said[0]!=kv: sys.exit('build: the JSON-LD in index.html says kit '+str(said[0])+', the kit is '+kv)
+    ogp=root/'assets'/'og.png'
+    og=hashlib.sha1(ogp.read_bytes()).hexdigest()[:8] if ogp.exists() else None
+    one=inline(src)
     say=(lambda *a:None) if quiet else print
+    starter='kit/starter.html' if has_kit and (kit/'starter.html').exists() else None
 
     # 1. dist/: the single file, next to the repo (Download is itself)
     (out/'dist').mkdir(exist_ok=True)
-    d=links(one,'ascii-ui.html','../kit/starter.html' if has_kit else None,'../assets/icon-180.png')
+    d=links(one,'ascii-ui.html','../kit/starter.html' if has_kit else None,'../assets/icon-180.png','../assets/favicon.ico',og)
     (out/'dist/ascii-ui.html').write_text(d)
-    say('dist/ascii-ui.html',len(d),'bytes')
+    say('dist/ascii-ui.html',len(d.encode()),'bytes')
 
     # 2. site/: rebuilt from nothing, so nothing stale is published
     site=out/'site'
     if site.exists(): shutil.rmtree(site)
     (site/'assets').mkdir(parents=True)
-    s=links(one,'ascii-ui.html','kit/starter.html' if has_kit and (kit/'starter.html').exists() else None,'assets/icon-180.png')
-    (site/'index.html').write_text(s)
+    # the download: everything embedded, it is meant to be opened from a disk
+    s=links(one,'ascii-ui.html',starter,'assets/icon-180.png','favicon.ico',og)
     (site/'ascii-ui.html').write_text(s)
+    # the page: kit text on demand, analytics when on, then the CSP over all of it
+    i=links(inline(src,kv) if LAZY_KIT and kv else one,'ascii-ui.html',starter,'assets/icon-180.png','favicon.ico',og)
+    if ANALYTICS: i=i.replace('</head>',VA+'</head>',1)
+    if CSP: i=csp(i)
+    (site/'index.html').write_text(i)
+    say('site/index.html',len(i.encode()),'bytes')
     (site/'404.html').write_text(PAGE404.replace('FAVICON',fav.group(1) if fav else ''))
     (site/'robots.txt').write_text(ROBOTS)
+    (site/'sitemap.xml').write_text(SITEMAP)
     for a in SITE_ASSETS:
         p=root/'assets'/a
         if p.exists(): shutil.copy2(p,site/'assets'/a)
         else: say('build: missing assets/'+a+' (run qa/shots.py)')
-    llms=root/'llms.txt'
-    if llms.exists(): shutil.copy2(llms,site/'llms.txt')
-    kv=None
+    if (root/'assets/favicon.ico').exists(): shutil.copy2(root/'assets/favicon.ico',site/'favicon.ico')
+    else: say('build: missing assets/favicon.ico')
+    lic=root/'LICENSE'
+    if lic.exists(): shutil.copy2(lic,site/'LICENSE.txt')
+    for f in ('llms.txt','llms-full.txt'):
+        if (root/f).exists(): shutil.copy2(root/f,site/f)
     if has_kit:
         # the latest kit, then every released one at its own address
         shutil.copytree(kit,site/'kit',ignore=shutil.ignore_patterns('.DS_Store','__pycache__','releases'))
-        kv=kit_version(kit)
+        st=site/'kit'/'starter.html'
+        if st.exists(): st.write_text(og_version(st.read_text(),og))
         rels=kit/'releases'
         for r in sorted(rels.iterdir()) if rels.is_dir() else []:
             if r.is_dir() and re.fullmatch(r'\d+\.\d+\.\d+',r.name):
                 shutil.copytree(r,site/'kit'/r.name,ignore=shutil.ignore_patterns('.DS_Store'))
+        if lic.exists():
+            for dd in [site/'kit']+[p for p in (site/'kit').iterdir() if p.is_dir() and re.fullmatch(r'\d+\.\d+\.\d+',p.name)]:
+                shutil.copy2(lic,dd/'LICENSE.txt')
     n=sum(1 for p in site.rglob('*') if p.is_file())
-    say('site/ v'+ver,n,'files','(with kit/ '+kv+')' if has_kit else '(no kit/ yet)')
+    say('site/ v'+ver,n,'files','(with kit/ '+kv+')' if kv else '(no kit/ yet)')
 
 def files(d):
     return {p.relative_to(d).as_posix() for p in d.rglob('*') if p.is_file()} if d.is_dir() else set()

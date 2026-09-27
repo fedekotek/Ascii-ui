@@ -1,4 +1,5 @@
-/* ascii/ui kit 1.1.1, ascii-ui.css
+/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */
+/* ascii-ui.css
    Components in an ASCII skin. Frames, fills and shadows are strings of
    characters; weight comes from how dense the character is.
 
@@ -11,11 +12,18 @@
    The site's Code tab reads those lines to print the block a component needs,
    so keep them if you edit this file.
 
-   MIT license. Copyright (c) 2026 Fede Kotek. The full text is in README.md. */
+   MIT license. Copyright (c) 2026 Fede Kotek. The full text is in LICENSE.txt
+   next to this file, and in README.md. */
 
-@import url("https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap");
-/* Faster: drop the @import and put this in your <head> instead.
-   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap"> */
+/* Geist Mono, a Latin-1 subset, from fonts/ next to this file: no request to
+   anyone else. An installed Geist Mono wins; without either, the system
+   monospace. Copy fonts/ along with this file, or drop this rule and bring
+   your own. Geist Mono is SIL OFL 1.1, Copyright 2024 The Geist Project
+   Authors; the license is fonts/OFL.txt. */
+@font-face{
+  font-family:"Geist Mono";font-style:normal;font-weight:100 900;font-display:swap;
+  src:local("Geist Mono"),url("fonts/geist-mono-latin.woff2") format("woff2");
+}
 
 /* ==== tokens: :root ==== */
 /* Ten colors. Magenta (--hot) acts, cyan (--cy) is focus and nothing else,

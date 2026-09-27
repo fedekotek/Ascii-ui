@@ -134,7 +134,7 @@ async def links(b,base,label,bad):
     t1=await pg.evaluate("document.title")
     await pg.evaluate("document.getElementById('brand').click()");await pg.wait_for_timeout(1200)
     t2=await pg.evaluate("document.title")
-    if not (t1.endswith(', Components, ascii/ui') and 'ooltip' in t1.lower() and t2=='ascii/ui'): fails.append(f'title {t1!r} {t2!r}')
+    if not (t1.endswith(', Components, ascii/ui') and 'ooltip' in t1.lower() and t2.startswith('ascii/ui: ')): fails.append(f'title {t1!r} {t2!r}')   # Home keeps the <title> of index.html
     await ctx.close()
     print('links',label,'ok' if not fails else fails)
     if fails: bad.append('links '+label)

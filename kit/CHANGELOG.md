@@ -2,6 +2,12 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.2.0, 2026-09-27
+
+Changed
+- Geist Mono comes from `fonts/` next to the CSS, not from Google Fonts. The `@import` is gone, so a page that links the kit makes no request to anyone but the kit's address, and nobody else sees its visitors. An installed Geist Mono is used first. Without the folder, the system monospace, as before.
+- Both files open with `/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */`, a line minifiers keep. `LICENSE.txt` is next to them on the site, and `fonts/OFL.txt` next to the font.
+
 ## 1.1.1, 2026-09-26
 
 Fixed
