@@ -299,6 +299,8 @@ A.codeExtra=function(sec,html){
   const head=css?'/* in ascii-ui.css already. Here to read, or to copy if you want only this part. */':'';
   return {note:note,css:head?head+'\n\n'+css:'',js:kitJS(tpl.content,id,block),siteOnly:extra};
 };
+/* the Usage tab (js/90) reads the same kit: its source, cut the same way, and the words above */
+A.KIT=KIT;A.kitSource=kitSource;A.kitWords={behave:BEHAVE,attrs:ATTRS};
 
 /* copy, and when the browser says no (file://, an old browser), select the
    text on screen so Ctrl C (or a long press, on a phone) still works, and say so. out, when given, is a

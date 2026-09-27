@@ -7,12 +7,68 @@ The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one
 ## The five views
 
 - [Home](https://ascii.fedekotek.design/#home): the ring (a glitching torus hero), where to start, questions, a game of invaders.
-- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 34 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview and Code tabs, then Rules.
+- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 34 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview, Code and Usage tabs (Usage: when to use it and when not, anatomy, states, keys, accessibility, do and don't), then Rules.
 - [Blocks](https://ascii.fedekotek.design/#blocks): 16 page-sized compositions (login, stats, table, pricing, settings, a portfolio).
 - [Charts](https://ascii.fedekotek.design/#charts): 5 character-grid charts (bars, line, regions, heatmap, donut).
 - [Themes](https://ascii.fedekotek.design/#themes): presets, color pickers, the ramp editor, tokens to paste, Labs.
 
 Every section has an address: `#components/button`, `#themes/tokens`.
+
+<!-- components: written by python3 qa/reference.py from js/90-usage.js and the kit. Do not edit by hand -->
+## Components
+
+One line each: what it is for, what it is not for, what runs it. The whole of each one, with its HTML, is in [llms-full.txt](https://ascii.fedekotek.design/llms-full.txt).
+
+Form:
+
+- [Button](https://ascii.fedekotek.design/#components/button) (Form, kit): One action a person takes on purpose: save, send, publish, open a dialog. Not for: going to another page. That is a link, &lt;a href&gt;, and the kit already styles it.
+- [Calendar](https://ascii.fedekotek.design/#components/calendar) (Form, kit): One day, picked from a month you can see: a delivery date, a booking, a deadline. Not for: a date a person already knows, like a birthday. Typing is faster: an Input with type="date". Runs on `data-aui="calendar"` and fires `aui:change`.
+- [Input](https://ascii.fedekotek.design/#components/input) (Form, kit): One line a person types: a name, a link, an email address. Not for: more than one line. That is a Textarea. Runs on `data-aui="validate"` and fires `aui:invalid`, `aui:valid`.
+- [Input OTP](https://ascii.fedekotek.design/#components/otp) (Form, kit): A one-time code sent by text or email: six digits, typed or pasted. Not for: a password or anything a person chose. That is an Input with type="password". Runs on `data-aui="otp"` and fires `aui:complete`.
+- [Select](https://ascii.fedekotek.design/#components/select) (Form, kit): One value from a list a person already knows, five to fifteen of them: a region, a country, a size. Not for: two to five options that fit on screen. That is a Toggle group: every choice in view, one tap.
+- [Slider](https://ascii.fedekotek.design/#components/slider) (Form, kit): An amount where about right is right: volume, zoom, the glitch on this page. Not for: an exact number. Type it: an Input with type="number". Runs on `data-aui="slider"`.
+- [Textarea](https://ascii.fedekotek.design/#components/textarea) (Form, kit): More than one line: a note, a description, a message. Not for: one line. That is an Input: Enter sends the form. Runs on `data-aui="counter"`.
+- [Toggle group](https://ascii.fedekotek.design/#components/togglegroup) (Form, kit): One of two to five short options, all in view: a view, a period, a size. Not for: swapping panels of content. That is Tabs.
+- [Toggles](https://ascii.fedekotek.design/#components/toggles) (Form, kit): Checkbox: a yes or no a person can change, alone or in a list. "Include archived projects". Not for: a choice that waits for a Save button. That is a checkbox, not a switch.
+
+Overlay:
+
+- [Alert dialog](https://ascii.fedekotek.design/#components/alertdialog) (Overlay, kit): A dialog that asks before something you cannot undo. A tap outside does not count as an answer. Runs on `data-aui="confirm"`, `data-aui-open`, `data-aui-close`, `data-aui-toast-err`.
+- [Combobox](https://ascii.fedekotek.design/#components/combobox) (Overlay, kit): Type and the list gets shorter. For when a Select would scroll forever. Runs on `data-aui="combobox"` and fires `aui:change`, `aui:change`.
+- [Command](https://ascii.fedekotek.design/#components/command) (Overlay, site only): Jumping anywhere on a big site or app by typing: a page, a setting, a command. Not for: the main navigation. Most people never press /. Keep the links on screen.
+- [Context menu](https://ascii.fedekotek.design/#components/contextmenu) (Overlay, kit): The menu under the right mouse button. Press and hold on a phone, Shift F10 on a keyboard. Runs on `data-aui="contextmenu"` and fires `aui:select`.
+- [Dropdown](https://ascii.fedekotek.design/#components/dropdown) (Overlay, kit): A handful of actions on one thing that do not need to be on screen all the time: duplicate, copy a link, archive. Not for: a value for a form. That is a Select: it is sent with the form and a phone shows its own picker. Runs on `data-aui="dropdown"`, `data-aui-toast`, `data-aui-toast-err` and fires `aui:select`.
+- [Popover](https://ascii.fedekotek.design/#components/popover) (Overlay, kit): A small panel next to its button, for things that do not deserve a dialog. Escape or a click outside puts it away. Runs on `data-aui="popover"`, `data-aui="validate"`, `data-aui-close`, `data-aui-toast` and fires `aui:toggle`, `aui:invalid`, `aui:valid`.
+- [Sheet](https://ascii.fedekotek.design/#components/sheet) (Overlay, kit): Filters, options or a short form on a phone, where a centered dialog would be cramped. Not for: a decision the page has to stop for. That is the dialog in Card and dialog: centered, one question. Runs on `data-aui-open`, `data-aui-close`, `data-aui-toast`, `data-aui-reset`.
+- [Tooltip](https://ascii.fedekotek.design/#components/tooltip) (Overlay, kit): A short hint on a control whose label is not the whole story: what "Ship it" does, and when. Not for: anything a person needs to finish the task. Put it on the page, near the field. Runs on `data-aui="tooltip"`.
+
+Display:
+
+- [Avatar](https://ascii.fedekotek.design/#components/avatar) (Display, kit): A person or a team, as two initials on a slab: next to a name, in a list, on a card. Not for: a status. That is a Badge.
+- [Badge](https://ascii.fedekotek.design/#components/badge) (Display, kit): A status on a thing, in one word: Operational, Degraded, Down. Not for: something that happened a moment ago. That is a Toast.
+- [Card and dialog](https://ascii.fedekotek.design/#components/card) (Display, kit): Card: one thing and its facts, under a title that says what it is. A project, a person, a plan. Not for: saying that something happened. That is a Toast, and it stops nobody. Runs on `data-aui-open`, `data-aui-close`, `data-aui-toast`.
+- [Details](https://ascii.fedekotek.design/#components/details) (Display, kit): Answers people look for one at a time: questions, fine print, the long version. Not for: anything most people need. Show it.
+- [Kbd](https://ascii.fedekotek.design/#components/kbd) (Display, kit): A shortcut, written the way the key looks: [/] search, [g] glitch. Not for: a button. A key hint does nothing when tapped.
+- [Picture](https://ascii.fedekotek.design/#components/picture) (Display, site only): A picture on this site: the four scenes, or your own photo, drawn as cells of three subpixels. Not for: a photo people need to see clearly. That is an &lt;img&gt;.
+- [Separator](https://ascii.fedekotek.design/#components/separator) (Display, kit): A break between groups inside one box: settings in a card, items in a menu. Not for: a box around things. That is a Card and dialog.
+- [Timeline](https://ascii.fedekotek.design/#components/timeline) (Display, kit): Things that happened, in order: a project log, a release history, a delivery. Not for: steps a person has yet to take. Number them in a plain list.
+
+Feedback:
+
+- [Alert](https://ascii.fedekotek.design/#components/alert) (Feedback, kit): Something on this page a person has to know before they carry on: an outage, a limit, a change. Not for: what happened after a click. That is a Toast.
+- [Empty](https://ascii.fedekotek.design/#components/empty) (Feedback, kit): A list, a table or a search with nothing in it yet. Say so, and offer the one next step. Not for: an error. Nothing loaded is not the same as nothing there: say what broke, in an Alert. Runs on `data-aui-toast`.
+- [Progress](https://ascii.fedekotek.design/#components/progress) (Feedback, kit): A task with a known end that takes more than a second: an export, an upload. Not for: a wait with no end you can measure. That is a Spinner. Runs on `data-aui="progress"`, `data-aui-fill`.
+- [Skeleton](https://ascii.fedekotek.design/#components/skeleton) (Feedback, kit): A card or a list that is loading, when you know its shape: a silhouette where it will be. Not for: a wait with a known end. That is Progress. Runs on `data-aui="skeleton"`.
+- [Spinner](https://ascii.fedekotek.design/#components/spinner) (Feedback, kit): A wait with no end you can measure, inside the thing that waits: a button, a row, a status line. Not for: a task with a known end. That is Progress. Runs on `data-aui="spinner"`.
+- [Toast](https://ascii.fedekotek.design/#components/toast) (Feedback, kit): Saying that something happened because of what a person did: saved, copied, sent. Not for: anything a person must read or act on. It is gone in 3.6 seconds. That is an Alert. Runs on `data-aui-toast`, `data-aui-toast-err`.
+
+Navigation:
+
+- [Breadcrumb](https://ascii.fedekotek.design/#components/breadcrumb) (Navigation, kit): Where this page sits in a tree of pages, and the way back up: Workspace / Projects / Signal. Not for: the steps of a task. Number them in a plain list.
+- [Pagination](https://ascii.fedekotek.design/#components/pagination) (Navigation, kit): Long lists split into pages a person moves through: results, orders, logs. Not for: a few items. Show them all. Runs on `data-aui="pagination"` and fires `aui:change`.
+- [Tabs](https://ascii.fedekotek.design/#components/tabs) (Navigation, kit): Two to six views of one thing, one at a time: a preview and its code, settings by topic. Not for: moving between pages. Tabs swap panels, links go places. For the trail back, Breadcrumb. Runs on `data-aui="tabs"` and fires `aui:change`.
+
+<!-- end of components -->
 
 ## Kit files
 

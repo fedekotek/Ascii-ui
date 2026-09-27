@@ -17,7 +17,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ascii/ui">
 <meta property="og:title" content="ascii/ui: a design system drawn in ASCII">
-<meta property="og:description" content="30 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
+<meta property="og:description" content="34 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta property="og:url" content="https://ascii.fedekotek.design/">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png">
@@ -27,12 +27,12 @@
 <meta property="og:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ascii/ui: a design system drawn in ASCII">
-<meta name="twitter:description" content="30 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
+<meta name="twitter:description" content="34 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta name="twitter:image" content="https://ascii.fedekotek.design/assets/og.png">
 <meta name="twitter:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 30 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
+ {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 34 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
  {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.2.0","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
  {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
 </script>
@@ -63,6 +63,7 @@
 <link rel="stylesheet" href="css/18-search.css">
 <link rel="stylesheet" href="css/19-foundations.css">
 <link rel="stylesheet" href="css/20-overlays.css">
+<link rel="stylesheet" href="css/21-usage.css">
 <script src="js/00-tones.js"></script>
 </head>
 <body>
@@ -119,7 +120,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
-  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>30 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Command, Dropdown, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
+  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>34 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
@@ -1166,5 +1167,6 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <script src="js/40-themes-ramp-code.js"></script>
 <script src="js/70-nav.js"></script>
 <script src="js/80-search.js"></script>
+<script src="js/90-usage.js"></script>
 </body>
 </html>

@@ -18,7 +18,7 @@
      LICENSE.txt       the MIT license, also in kit/ and every kit/<version>/
      assets/           og.png (the share picture), icon-180.png (the home screen icon)
      llms.txt          a copy of llms.txt at the repo root, when it exists
-     llms-full.txt     the same for llms-full.txt
+     llms-full.txt     every component in full, written by qa/reference.py
      kit/              a copy of kit/, when that folder exists: the latest kit
      kit/<version>/    every released kit, from kit/releases/<version>/, at an
                        address that never changes (pin it, and it stays put)
