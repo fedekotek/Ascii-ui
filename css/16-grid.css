@@ -71,6 +71,13 @@ main{max-width:calc(var(--maxcols)*1ch)}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));gap:var(--r) 2ch}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(27ch,100%),1fr));gap:var(--r) 2ch}
 .grid2 .lift,.grid3 .lift{max-width:none}
+/* the pricing cards fill their row, so the shadow sits under every card and
+   not two rows below the shorter ones; the feature list takes the slack and
+   the button stays at the foot */
+.pricing .lift{display:flex;flex-direction:column}
+.pricing .card{flex:1;display:flex;flex-direction:column}
+.pricing .body{flex:1;display:flex;flex-direction:column}
+.pricing .feat{flex:1}
 
 /* the progress bar is a fixed run of characters, let it scroll in a narrow box */
 .progress{max-width:100%;overflow-x:auto}

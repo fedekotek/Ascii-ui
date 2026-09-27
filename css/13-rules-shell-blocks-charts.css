@@ -76,6 +76,11 @@
 
 /* charts */
 .chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+/* a chart is drawn in 12px type on 14px lines, so its height is a number of
+   those. It rounds up to whole rows (21px) so everything after it stays on
+   the page grid. calc-size is Chromium only; elsewhere the chart keeps its
+   height and the page is a fraction of a row off, as before */
+.chart{height:calc-size(auto,round(up,size,var(--r)))}
 .status{min-height:var(--r)}
 
 /* invaders */
