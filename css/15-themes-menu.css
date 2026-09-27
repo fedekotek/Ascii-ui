@@ -14,13 +14,19 @@
    inside a chart the deepest step is the pink (--violet). The chart spans read
    var(--deep) inline, so redefining it on .chart is enough. */
 :root[data-preset="hotdog"] .chart{--deep:var(--violet)}
-.swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(23ch,1fr));max-width:76ch}   /* 23ch: a 6ch chip, a gap and "errors, degraded" on one line */
+.swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(25ch,1fr));max-width:79ch}   /* 25ch: brackets round a 6ch chip, a gap and "errors, degraded" on one line */
 .sw{display:flex;gap:1ch;align-items:center}
-.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer}
 .sw input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
 .sw input[type="color"]::-webkit-color-swatch{border:0;border-radius:0}
 .sw input[type="color"]::-moz-color-swatch{border:0;border-radius:0}
-.sw input[type="color"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* focus is a pair of brackets around the chip, in the focus colour: [######].
+   They hold their place at rest, hidden, so nothing moves when they show */
+.sw::before,.sw::after{content:"[";content:"[" / "";order:0;font-weight:700;color:var(--accent);visibility:hidden;margin-right:-1ch}
+.sw::after{content:"]";content:"]" / "";order:2;margin:0 0 0 -1ch}
+.sw input{order:1}.sw > span{order:3}
+.sw:has(input:focus-visible)::before,.sw:has(input:focus-visible)::after{visibility:visible}
+.sw input[type="color"]:focus-visible{outline:0}
 .sw span{display:block}.sw small{font:inherit;color:var(--muted);display:block}
 .rampcells{display:flex;gap:0 1ch;flex-wrap:wrap}
 .rampcells label{display:grid;justify-items:center;color:var(--muted)}

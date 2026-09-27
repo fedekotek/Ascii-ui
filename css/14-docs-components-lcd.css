@@ -9,7 +9,7 @@
 .chip[aria-pressed="true"]{color:var(--bg);background:var(--ink);background-clip:content-box;box-shadow:none}
 .chip:focus-visible,.chip[aria-pressed="true"]:focus-visible{background:var(--accent);background-clip:content-box;color:var(--bg)}
 /* a pressed chip is ink on paper already, hovering it must not turn the text into the paper */
-@media (hover:hover){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
+@media (hover:hover) and (pointer:fine){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
 .filters{display:flex;flex-wrap:wrap;gap:var(--r) 2ch}
 .doc{margin-top:var(--r)}
 .doc-tabs{padding-bottom:var(--r)}
@@ -26,8 +26,7 @@
 .doc-panel{padding-top:var(--r)}
 .doc-panel > .demo:first-child,.doc-panel > :first-child{margin-top:0}
 .code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 0 2ch;border-left:0;position:relative;
-  display:flex;flex-direction:column;
-  scrollbar-width:thin;scrollbar-color:var(--violet) color-mix(in srgb,var(--ink) 10%,transparent)}
+  display:flex;flex-direction:column}   /* its scrollbar is the one-character bar in css/02 */
 /* "more below": a row stuck to the bottom of the box while there is more code
    under it. At the end of the code a blank row (::before, moved last) covers it,
    so it only says so while it is true. Code that fits never shows it. */
@@ -37,25 +36,24 @@
   color:var(--violet);background:var(--bg);pointer-events:none;z-index:1;
 }
 .code::before{content:"";order:2;flex:none;height:var(--r);margin-top:calc(var(--r)*-1);background:var(--bg);position:relative;z-index:2}
-.code::-webkit-scrollbar{width:1ch;height:1ch}
-.code::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 10%,transparent)}
-.code::-webkit-scrollbar-thumb{background:var(--violet)}
 /* the copy and download messages under their buttons: blocked is yellow, it warns */
 .kit-out.err{color:var(--warn)}
-.code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
+/* strings are ink, not lime: lime only confirms */
+.code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ink)}
 .copyrow{margin-top:var(--r)}
 
 /* avatar */
-.avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);overflow:hidden;flex:none}
+.avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;overflow:hidden;flex:none}
 .avatar.sm{width:5ch;height:calc(var(--r)*2)}
-.avatar.hot{background:var(--hot)}.avatar.ok{background:var(--ok)}
+/* a team colour is a label: violet, not the lime that confirms */
+.avatar.hot{background:var(--hot)}.avatar.ok{background:var(--violet)}
 .avatar canvas{width:100%;height:100%;display:block}
 /* breadcrumb */
 .crumbs{list-style:none;display:flex;flex-wrap:wrap;padding:0;margin:0}
 .crumbs li + li::before{content:"/";content:"/" / "";color:var(--hot);font-weight:700;padding:0 1ch}
 .crumbs a{color:var(--muted);text-decoration:none;outline:0;padding:12px 0;margin:-12px 0;display:inline-block;background-clip:content-box}
 .crumbs a:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
+@media (hover:hover) and (pointer:fine){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
 .crumbs [aria-current] span{background:var(--ink);color:var(--bg);padding:0 1ch;font-weight:700}
 /* calendar */
 .cal{display:inline-block}
@@ -67,7 +65,7 @@
 .cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:calc(var(--r)/2) 0;cursor:pointer;outline:0;text-align:center;position:relative}
 .cal-grid button::after{content:"";position:absolute;inset:-1px 0}
 .cal-grid button.today{color:var(--hot);font-weight:700}
-.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
 .ibtn{font:inherit;font-weight:700;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;background-clip:content-box}
 .ibtn::before{content:"[";content:"[" / "";color:var(--muted)}.ibtn::after{content:"]";content:"]" / "";color:var(--muted)}
@@ -86,22 +84,30 @@
 .menu{position:absolute;left:0;top:calc(var(--r)*3);z-index:30;width:28ch;max-width:calc(100vw - 6ch);background:var(--bg)}
 .menu.open .lift{animation:glitchin .3s steps(1) both}
 .menu [role="menuitem"]{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:calc(var(--r)/2) 0;text-align:left;cursor:pointer;outline:0}   /* two whole rows, a thumb tall */
-.menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+.menu [role="menuitem"]:focus-visible{background:var(--ink);color:var(--bg)}
 .menu [role="menuitem"].danger{color:var(--warn)}
-.menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+.menu [role="menuitem"].danger:focus-visible{background:var(--warn);color:var(--bg)}
+/* hover only where there is a mouse: a tap leaves a sticky hover behind */
+@media (hover:hover) and (pointer:fine){
+  .menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+  .menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+}
 .menu .sepd{margin:0}
 .menu kbd{color:inherit;font-weight:300}   /* no opacity: at .7 the hints fell under 4.5:1 */
-.tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
-.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
-.pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
+.tip{position:absolute;left:0;bottom:calc(var(--r)*4);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
+/* the arrow has a row of its own, between the tip and the button */
+.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:var(--r)}
+.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 0 calc(var(--r)*-1) 0)}
+@media (hover:hover) and (pointer:fine){.pop:hover .tip{clip-path:inset(0 0 calc(var(--r)*-1) 0)}}
 /* On touch a tap leaves both hover and focus behind, so the tip stayed up for
    good, and it opened over the Preview and Code tabs. There it opens below the
    button and only the tap timer shows it. */
 @media (pointer:coarse){
-  .tip{bottom:auto;top:calc(var(--r)*3 + 6px)}
-  .tip::after{content:"^";content:"^" / "";top:-12px}
-  .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
-  .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
+  .tip{bottom:auto;top:calc(var(--r)*4)}
+  .tip::after{content:"^";content:"^" / "";top:calc(var(--r)*-1)}
+  .pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
+  /* a keyboard on a tablet: the trigger has visible focus, which a tap does not set */
+  .pop.on .tip,.pop:has(:focus-visible) .tip{clip-path:inset(calc(var(--r)*-1) 0 0 0)}
   #view-kit > section:has(.pop.on){z-index:6}
 }
 /* otp */
@@ -114,6 +120,9 @@
 /* a wrong code looks like an invalid field: brackets and digits in the warning colour */
 .otp.invalid span::before,.otp.invalid span::after,.otp.invalid input,
 .otp:has([aria-invalid="true"]) span::before,.otp:has([aria-invalid="true"]) span::after,.otp:has([aria-invalid="true"]) input{color:var(--danger)}
+/* and the brackets turn into the error wall, so it does not rest on colour alone */
+.otp.invalid span::before,.otp.invalid span::after,
+.otp:has([aria-invalid="true"]) span::before,.otp:has([aria-invalid="true"]) span::after{content:"!";content:"!" / ""}
 /* the digit itself inverts, brackets alone were too quiet to find */
 .otp input:focus{background:var(--accent);background-clip:content-box;color:var(--bg);caret-color:var(--bg)}
 .otp input:focus::placeholder{color:var(--bg)}
@@ -141,7 +150,7 @@
 .tgroup label{position:relative;cursor:pointer}
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:calc(var(--r)/2) 2ch;color:var(--muted);text-transform:uppercase}
-.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700}
 .tgroup input:focus-visible + span,.tgroup input:checked:focus-visible + span{background:var(--accent);color:var(--bg)}
 .tgroup label:has(input:disabled){cursor:not-allowed}
 .tgroup input:disabled + span{color:var(--muted);text-decoration:line-through}
@@ -166,11 +175,16 @@ dialog.sheet .card{padding-bottom:calc(var(--r) + env(safe-area-inset-bottom,0px
 dialog.sheet .body{max-width:80ch;margin:0 auto}
 /* LCD pictures */
 figure.pic{margin:0;max-width:480px}
-figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y;background:var(--lcd-bg,#05030a)}
-figure.pic .bezel{padding:6px;background:var(--lcd-bg,#05030a);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y pinch-zoom;background:var(--lcd-bg,#05030a)}
+figure.pic .bezel{padding:6px;background:var(--lcd-bg,#05030a)}
+/* the panel's height follows its width, so the bezel rounds it up: bezel and
+   the half row of air under it come to whole rows, and the caption and what
+   follows stay on the grid (calc-size, Chromium only). The glass fills the
+   extra at the bottom */
+figure.pic .bezel{height:calc-size(auto,round(up,size + var(--r)/2,var(--r)) - var(--r)/2)}
 figcaption{color:var(--muted);margin-top:calc(var(--r)/2)}
 figcaption b{color:var(--ink)}
-.thumb{margin:0 0 var(--r)}
+.thumb{margin:0 0 var(--r);height:calc-size(auto,round(up,size,var(--r)))}   /* a thumbnail rounds up to whole rows, like the pictures */
 /* blocks */
 .profile{display:grid;gap:var(--r) 3ch;grid-template-columns:1fr}
 @media (min-width:720px){.profile{grid-template-columns:28ch 1fr;align-items:start}}
@@ -180,12 +194,14 @@ figcaption b{color:var(--ink)}
 .wo .meta{color:var(--muted);padding-left:4ch;display:flex;flex-wrap:wrap;gap:0 1ch}
 .wo input:checked ~ .t{text-decoration:line-through;color:var(--muted)}
 .side{list-style:none;padding:0;margin:0;max-width:32ch}
-.side button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:12px 1ch;cursor:pointer;outline:0;text-align:left}
-.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+/* an entry is two whole rows, 42px, and reaches a pixel past each edge so the thumb still gets 44 */
+.side button{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--muted);padding:calc(var(--r)/2) 1ch;cursor:pointer;outline:0;text-align:left;position:relative}
+.side button::after{content:"";position:absolute;inset:-1px 0}
+.side button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700}
 .side button:focus-visible{background:var(--accent);color:var(--bg)}
 .side button::before{content:"  ";content:"  " / ""}.side button[aria-current="page"]::before{content:"> ";content:"> " / ""}
 .side button span{margin-left:auto;padding-left:2ch}
-.kv{display:grid;grid-template-columns:10ch 1fr;gap:0 1ch}
+.kv{display:grid;grid-template-columns:minmax(10ch,max-content) minmax(0,1fr);gap:0 1ch}
 .kv dt{color:var(--muted)}
 .qty{font-weight:700;color:var(--hot);white-space:nowrap}
 .ing{list-style:none;padding:0;margin:var(--r) 0 0}
@@ -205,8 +221,12 @@ figcaption b{color:var(--ink)}
    takes the kit's focus colour instead of the browser ring */
 #cases .lift{outline:0}
 #cases .lift[aria-pressed="true"] .bar-title{background:var(--ink);color:var(--bg)}
+/* the pick is also a > in its title, the way the sidebar marks where you are,
+   so it does not rest on colour alone */
+#cases .lift[aria-pressed="true"] .bar-title::before{content:"> ";content:"> " / ""}
 #cases .lift[aria-pressed="true"] .card{--frame-color:var(--hot)}
 #cases .lift:focus-visible .card{--frame-color:var(--accent)}
 #cases .lift:focus-visible .bar-title{background:var(--accent);color:var(--bg)}
 /* charts and pictures you can drive from the keyboard */
-.chart:focus-visible,figure.pic canvas:focus-visible{outline:0;box-shadow:0 0 0 2px var(--accent)}
+/* the ring is an outline so Windows High Contrast keeps it (it drops shadows) */
+.chart:focus-visible,figure.pic canvas:focus-visible{outline:2px solid var(--accent);outline-offset:0}

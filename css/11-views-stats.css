@@ -4,15 +4,15 @@
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}
 .lab-h{margin-top:calc(var(--r)*3);text-transform:uppercase}
 .lab-h::before{content:"## ";content:"## " / "";color:var(--hot);font-weight:700}
-pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y;cursor:crosshair}
+pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y pinch-zoom;cursor:crosshair}
 .frame-demo{display:inline-block}
 .frame-demo .mid{display:inline-flex}
 .frame-demo .label{padding:0 1ch}
 main.split{animation:split .6s steps(1)}
 @keyframes split{
-  0%,40%{text-shadow:-3px 0 var(--cy),3px 0 var(--hot)}
-  20%,60%{text-shadow:4px 0 var(--cy),-4px 0 var(--hot)}
-  80%{text-shadow:-1px 0 var(--cy),1px 0 var(--hot)}
+  0%,40%{text-shadow:-3px 0 var(--violet),3px 0 var(--hot)}
+  20%,60%{text-shadow:4px 0 var(--violet),-4px 0 var(--hot)}
+  80%{text-shadow:-1px 0 var(--violet),1px 0 var(--hot)}
   100%{text-shadow:none}
 }
 .acc{position:relative;padding-bottom:var(--r);display:flow-root}   /* the summary's negative margin stays inside */
@@ -23,7 +23,7 @@ main.split{animation:split .6s steps(1)}
 .acc summary{list-style:none;cursor:pointer;display:flex;gap:1ch;padding:12px 0;margin:-12px 0;outline:0;-webkit-tap-highlight-color:transparent}
 .acc summary::-webkit-details-marker{display:none}
 .acc summary::before{content:"[+]";content:"[+]" / "";flex:none;font-weight:700;color:var(--hot)}
-.acc[open] summary::before{content:"[-]";content:"[-]" / "";color:var(--ok)}
+.acc[open] summary::before{content:"[-]";content:"[-]" / "";color:var(--ink)}   /* open is not a confirmation, so not lime */
 .acc summary:focus-visible::before{background:var(--accent);color:var(--bg)}
 .acc p{padding-left:4ch;margin-top:var(--r);color:var(--muted)}
 .acc + .acc{margin-top:var(--r)}

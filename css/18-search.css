@@ -24,7 +24,7 @@
 .s-out b{color:var(--ink)}
 .s-list{
   position:relative;min-height:0;flex:1 1 auto;max-height:calc(var(--r)*16);
-  overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;
+  overflow-y:auto;overscroll-behavior:contain;
 }
 .s-head,.s-none,.s-more{margin:0;line-height:var(--r)}
 .s-head{color:var(--muted);text-transform:uppercase}

@@ -71,6 +71,13 @@ main{max-width:calc(var(--maxcols)*1ch)}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));gap:var(--r) 2ch}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(27ch,100%),1fr));gap:var(--r) 2ch}
 .grid2 .lift,.grid3 .lift{max-width:none}
+/* the pricing cards fill their row, so the shadow sits under every card and
+   not two rows below the shorter ones; the feature list takes the slack and
+   the button stays at the foot */
+.pricing .lift{display:flex;flex-direction:column}
+.pricing .card{flex:1;display:flex;flex-direction:column}
+.pricing .body{flex:1;display:flex;flex-direction:column}
+.pricing .feat{flex:1}
 
 /* the progress bar is a fixed run of characters, let it scroll in a narrow box */
 .progress{max-width:100%;overflow-x:auto}
@@ -80,7 +87,7 @@ main{max-width:calc(var(--maxcols)*1ch)}
 #view-kit > section,#view-blocks > section,#view-charts > section{position:relative}
 #view-kit > section:has(.menu.open),#view-blocks > section:has(.menu.open),
 #view-kit > section:has([aria-expanded="true"]),#view-blocks > section:has([aria-expanded="true"]),
-#view-kit > section:has(.tip:focus-within),#view-kit > section:has(.tip:hover){z-index:6}
+#view-kit > section:has(.pop:focus-within),#view-kit > section:has(.pop:hover){z-index:6}
 .menu{box-shadow:0 0 0 1ch var(--bg)}
 
 /* the footer game keeps its size, it just stops hugging the left edge */
@@ -122,7 +129,7 @@ main > header > #heroGo{margin-top:var(--r);flex-wrap:wrap;column-gap:2ch}
   font:inherit;line-height:var(--r);background:none;border:0;border-radius:0;color:var(--muted);
   padding:12px 0;margin:-12px 0;cursor:pointer;outline:0;text-decoration:underline;text-underline-offset:3px;background-clip:content-box;
 }
-@media (hover:hover){.linkbtn:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.linkbtn:hover{color:var(--hot)}}
 .linkbtn:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
 
 main > header > .hero-facts{margin:var(--r) 0 0}
@@ -141,7 +148,7 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 .tile-in{display:flex;flex-direction:column;flex:1;min-width:0;padding:0 1ch;min-height:calc(var(--r)*4)}
 .tile-in b{line-height:var(--r)}
 .tile-in .go{margin-top:auto;color:var(--hot);font-weight:700;align-self:flex-end}
-@media (hover:hover){.tile:hover{--h:var(--h-mid);--s:var(--s-mid);--frame-color:var(--hot)}.tile:hover b{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.tile:hover{--h:var(--h-mid);--s:var(--s-mid);--frame-color:var(--hot)}.tile:hover b{color:var(--hot)}}
 .tile:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
 .tile:focus-visible b{color:var(--accent)}
 
@@ -155,7 +162,7 @@ main > header > .hero-facts{margin:var(--r) 0 0}
 .dochead .lede{margin:var(--r) 0 0;max-width:72ch;color:var(--muted)}
 .dochead + *{margin-top:var(--r)!important}
 .inl{color:var(--ink);text-underline-offset:3px;outline:0;padding:12px 0;margin:-12px 0;background-clip:content-box}
-@media (hover:hover){.inl:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.inl:hover{color:var(--hot)}}
 .inl:focus-visible{background:var(--accent);color:var(--bg);text-decoration:none}
 /* the group a run of components belongs to, on the page as in the sidebar */
 .grouph{grid-column:1/-1;font-weight:700;color:var(--muted);text-transform:uppercase;line-height:var(--r);margin:calc(var(--r)*2) 0 0}

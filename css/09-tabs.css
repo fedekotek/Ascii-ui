@@ -9,11 +9,16 @@
   padding:var(--r) 2ch;cursor:pointer;text-transform:uppercase;
   outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
 }
-.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
 .tablist::after{color:var(--violet)}
-@media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
+@media (hover:hover) and (pointer:fine){.tab[aria-selected="false"]:hover{color:var(--ink)}}
 .tab:focus-visible{background:var(--accent);color:var(--bg)}
-.tabpanel{padding:var(--r) 0;outline:0}
-.tabpanel:focus-visible{box-shadow:inset 2ch 0 0 -1ch var(--accent)}
+.tabpanel{padding:var(--r) 0;outline:0;position:relative}
+/* a focused panel gets a wall of the heaviest character down its left edge,
+   in the focus colour, in the column its content leaves free */
+.tabpanel:focus-visible::before{
+  content:var(--v-heavy);content:var(--v-heavy) / "";position:absolute;left:0;top:var(--r);bottom:var(--r);width:1ch;
+  overflow:hidden;white-space:pre;font-weight:700;color:var(--accent);pointer-events:none;
+}
 .tabpanel pre{overflow-x:auto;white-space:pre;padding-left:2ch}
 .tabpanel .row{padding-left:2ch}

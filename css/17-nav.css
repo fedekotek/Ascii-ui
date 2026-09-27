@@ -32,7 +32,9 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 }
 .skip:focus{transform:none}
 
-.viewsbar{display:flex;align-items:flex-start;padding-bottom:var(--r)}
+/* when the words are longer than the bar (a translation, big text) the bar
+   wraps a row rather than letting the views run into Search */
+.viewsbar{display:flex;flex-wrap:wrap;align-items:flex-start;padding-bottom:var(--r)}
 .viewsbar > *{flex:none}
 
 /* one idiom for everything in the bar: ink text, a thumb tall. Magenta on
@@ -43,7 +45,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   white-space:nowrap;text-decoration:none;-webkit-tap-highlight-color:transparent;
 }
 .bbtn:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.bbtn:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.bbtn:hover{color:var(--hot)}}
 
 /* the name is Home, at every width */
 .brand{
@@ -54,12 +56,12 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .brand .slash{color:var(--hot)}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:focus-visible .slash{color:inherit}
-@media (hover:hover){.brand:hover .slash{color:var(--pink)}}
+@media (hover:hover) and (pointer:fine){.brand:hover .slash{color:var(--pink)}}
 #v-home{display:none!important}
 
 /* the views: muted, the one you are in ink and bold with a heavy run of
    characters under it on the rule row. No fill, no magenta: weight is density */
-#views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;display:flex;gap:0 1ch;overflow:visible}
+#views{position:static;margin-top:0;padding-bottom:0;flex:0 1 auto;min-width:0;display:flex;flex-wrap:wrap;gap:0 1ch;overflow:visible}
 #views::after{display:none}
 #views .tab{
   display:block;flex:none;white-space:nowrap;position:relative;
@@ -73,7 +75,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   height:var(--r);overflow:hidden;white-space:nowrap;color:var(--ink);background:var(--bg);z-index:1;
   font-weight:700;pointer-events:none;
 }
-@media (hover:hover){#views .tab:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){#views .tab:hover{color:var(--hot)}}
 #views .tab:focus-visible{background:var(--accent);color:var(--bg)}
 
 /* the settings, on the right edge. Search looks like a field from 1024px; the
@@ -96,12 +98,12 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar:has(#soundToggle:focus-visible){background:var(--accent);color:var(--bg)}
 #soundBar:has(#soundToggle:focus-visible) .lbl{color:inherit}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
-@media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){#soundBar:hover .lbl{color:var(--hot)}}
 
 .sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:400}
 .sfield b{font-weight:400}
 .sf-g{display:none}
-@media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.sfield:hover,.sfield:hover b{color:var(--hot)}}
 .sfield:focus-visible b{color:inherit}
 @media (min-width:1280px){.sfield{width:28ch}}
 
@@ -148,7 +150,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   #sidenav .side-in{
     position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));
     max-height:calc(100vh - var(--r)*4 - env(safe-area-inset-top,0px));overflow:auto;
-    scrollbar-width:thin;padding-bottom:var(--r);
+    padding-bottom:var(--r);
   }
   /* two rows between the hero and what comes after, so the sidebar title
      does not read as the last line of the hint */
@@ -183,7 +185,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* a link reached by Tab is not left under the sticky heading */
 #sidenav .side-in{scroll-padding-top:calc(var(--r)*2)}
 .navlink::before{content:"  ";white-space:pre}
-@media (hover:hover){.navlink:hover{color:var(--ink)}}
+@media (hover:hover) and (pointer:fine){.navlink:hover{color:var(--ink)}}
 .navlink:focus-visible{background:var(--accent);color:var(--bg)}
 .navlink[aria-current]{color:var(--ink);font-weight:700}
 .navlink[aria-current]::before{content:"> ";color:var(--hot)}
@@ -221,7 +223,7 @@ body:has(dialog[open]){overflow:hidden}
   cursor:pointer;outline:0;
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.sheet-x:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.sheet-x:hover{color:var(--hot)}}
 /* the Filters sheet closes the same way, from its own [x] or the page above it.
    Its body is 80 characters, so on a wide screen the [x] sits on that column's
    edge rather than the window's, and the body takes the whole 80 rather than
@@ -259,7 +261,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 .menu-slab{
   font:inherit;font-weight:700;line-height:var(--r);margin:calc(var(--r)/2) 0;padding:0 1ch;
   background:var(--hot);color:var(--bg);text-transform:uppercase;
-  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--warn);
 }
 .menu-x{padding:calc(var(--r)/2) 1ch;margin-right:-1ch}
 .menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
@@ -432,7 +433,7 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
    taller than the window and Close was out of reach. The dialog is capped a
    row short of each edge and scrolls, the picture gives up height first, and a
    tap on the page around it closes it (js/20). */
-#posterDlg{max-height:calc(100vh - 2*var(--r));max-height:calc(100dvh - 2*var(--r));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#posterDlg{max-height:calc(100vh - 2*var(--r));max-height:calc(100dvh - 2*var(--r));overflow-y:auto;overscroll-behavior:contain}
 #posterDlg #posterImg{width:auto;max-width:100%;max-height:max(calc(var(--r)*6),calc(100dvh - var(--r)*14));margin:0 auto}
 
 /* ---- tap targets ------------------------------------------------------------
@@ -474,3 +475,12 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
   content:" site only";color:var(--violet);font-weight:400;text-transform:none;
 }
 .navlink[aria-current]:focus-visible::after,.navlink:focus-visible::after{color:var(--bg)}
+
+/* ---- very short windows: the bar lets go ------------------------------------
+   At 400% zoom (320 by 256) the three row bar was a quarter of the screen and
+   the focused skip link sat under it. Under 400px of height it scrolls away
+   with the page; a jump still lands the title where the bar would be. */
+@media (max-height:400px){
+  .topbar{position:relative}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+}

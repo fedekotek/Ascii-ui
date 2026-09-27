@@ -14,7 +14,6 @@
 .bar-title{
   position:absolute;top:0;left:2ch;z-index:1;padding:0 1ch;
   background:var(--hot);color:var(--bg);text-transform:uppercase;
-  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep);
   max-width:calc(100% - 4ch);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .body{position:relative;padding:var(--r) 4ch}
@@ -24,7 +23,8 @@
 }
 .body::before{left:0}
 .body::after{right:0}
-.card dl{display:grid;grid-template-columns:9ch 1fr}
+/* the label column is at least 9 characters and grows with a longer word */
+.card dl{display:grid;grid-template-columns:minmax(9ch,max-content) minmax(0,1fr)}
 .card dt{color:var(--muted)}
 .body .row{margin-top:var(--r)}
 
@@ -33,16 +33,30 @@ dialog{
   width:calc(var(--dcols,36)*1ch);max-width:none;
 }
 dialog .lift{max-width:none}
-dialog::backdrop{
-  background-color:color-mix(in srgb,var(--bg,Canvas) 86%,transparent);
-  /* scanlines over the dots. The fallback is for browsers where ::backdrop does not inherit tokens */
-  background-image:var(--scanlines,repeating-linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)),
-    radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
-  background-size:auto,9.6px 12px;
+dialog::backdrop{background-color:color-mix(in srgb,var(--bg,Canvas) 92%,transparent)}
+/* The veil behind a dialog is characters on the grid, not a pattern: a period
+   every other column on every row, in faint magenta. One row string (160
+   periods, 2688px), doubled up to 128 rows, drawn from the window's corner
+   and clipped to it. The menu is opaque and needs none. */
+dialog{
+  --veil-r:". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \A ";
+  --veil-4:var(--veil-r) var(--veil-r) var(--veil-r) var(--veil-r);
+  --veil-16:var(--veil-4) var(--veil-4) var(--veil-4) var(--veil-4);
+  --veil-64:var(--veil-16) var(--veil-16) var(--veil-16) var(--veil-16);
 }
-/* a modal dialog lives in the top layer, above body::before, so it brings its own scanlines.
-   Fixed attachment keeps them in step with the backdrop's; z-index 5 clears .bar-title and .sheet-x */
-dialog::after{
+dialog:not(#menuDlg)[open]::before{
+  content:var(--veil-64) var(--veil-64);content:var(--veil-64) var(--veil-64) / "";
+  position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;
+  white-space:pre;font-weight:700;line-height:var(--r);
+  color:color-mix(in srgb,var(--hot) 45%,transparent);
+}
+/* the crt option brings the scanlines back, over the backdrop and, because a
+   modal dialog lives in the top layer above body::before, over the dialog.
+   Fixed attachment keeps them in step with the backdrop's; z-index 5 clears
+   .bar-title and .sheet-x. The fallback is for browsers where ::backdrop does
+   not inherit tokens */
+:root.crt dialog::backdrop{background-image:var(--scanlines,repeating-linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.12) 3px 4px))}
+:root.crt dialog::after{
   content:"";position:absolute;inset:0;z-index:5;pointer-events:none;
   background:var(--scanlines);background-attachment:fixed;
 }

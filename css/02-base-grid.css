@@ -14,8 +14,11 @@ body{
 #sidenav .navlink,.s-meta,.s-dots,.s-head,.foot,.sfield{font-weight:400}
 ::selection{background:var(--hot);color:var(--bg)}
 ::placeholder{color:var(--muted);opacity:1}
-/* above every in-page layer (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
-body::before{
+/* Scanlines are off by default: they striped every slab, printed as blank
+   pages and are not characters. They come back as an option, the crt class on
+   the root element (a typed command can set it). Above every in-page layer
+   (boot 200, curtain 100, mosh 90, toast 70); dialogs carry their own */
+:root.crt body::before{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:250;
   background:var(--scanlines);
 }
@@ -36,7 +39,8 @@ body::before{
   86%{opacity:1;transform:none}
   100%{opacity:1;clip-path:inset(0 0 0 0);transform:none;filter:none}
 }
-main.sv{text-shadow:calc(var(--sv,0)*-1px) 0 var(--cy),calc(var(--sv,0)*1px) 0 var(--hot)}
+/* the split is violet and magenta: cyan is focus and nothing else */
+main.sv{text-shadow:calc(var(--sv,0)*-1px) 0 var(--violet),calc(var(--sv,0)*1px) 0 var(--hot)}
 main.jolt{animation:jolt .26s steps(1)}
 @keyframes jolt{
   0%{transform:translateX(-8px) skewX(-3deg);filter:hue-rotate(70deg) saturate(1.6)}
@@ -68,4 +72,26 @@ section{margin-top:calc(var(--r)*3)}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
 .stack{display:grid;gap:var(--r);justify-items:start}
 .lede{max-width:60ch}
+/* ---- scrollbars: one character wide, on the grid -------------------------
+   A box that scrolls inside the page gets a 1ch bar: the track is a : on
+   every row (a . every column when it runs sideways), the thumb a violet
+   slab, a column of reverse video cells. Chromium and Safari draw these;
+   Firefox gets its thin bar in the same colour. The page's own bar stays
+   native. The list is every box here that scrolls. */
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar{width:1ch;height:1ch;background:transparent}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-track{
+  background:
+    radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px);
+  background-size:100% var(--r);
+}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-track:horizontal{
+  background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px);
+  background-size:1ch 100%;
+}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-thumb{background:var(--violet)}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-corner{background:transparent}
+@supports not selector(::-webkit-scrollbar){
+  .code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in{scrollbar-width:thin;scrollbar-color:var(--violet) transparent}
+}
 #probe{position:fixed;width:max-content;visibility:hidden;white-space:pre;left:0;top:0}

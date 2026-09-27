@@ -11,16 +11,16 @@
 
 [hidden]{display:none !important}
 /* badges, alerts, selects, skeletons */
-/* every slab badge has the slab edges: violet and magenta on ink, lime and amber,
-   violet and deep on magenta */
-.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+/* a badge is a slab, one row of reverse video. The 2px coloured edges it had
+   were not characters, and glitch is feedback, not decoration, so they went */
+.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap}
 .b-ok{background:var(--ok)}.b-warn{background:var(--warn)}
-.b-hot{background:var(--hot);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.b-hot{background:var(--hot)}
 .b-out{background:none;color:var(--ink);padding:0;box-shadow:none}
 .b-out::before{content:"[";content:"[" / "";color:var(--muted)}.b-out::after{content:"]";content:"]" / "";color:var(--muted)}
 .alert{--frame-color:var(--warn);max-width:50ch}
 .alert .card::before{content:var(--h);content:var(--h) / ""}
-.alert .bar-title{background:var(--warn);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.alert .bar-title{background:var(--warn)}
 /* info is violet: cyan is focus and nothing else */
 .alert.info{--frame-color:var(--violet)}
 .alert.info .bar-title{background:var(--violet)}
@@ -37,7 +37,7 @@
 .or{color:var(--muted);text-align:center;white-space:pre;overflow:hidden}
 .card .group + .group,.card .group + .row{margin-top:var(--r)}
 .card .row.full .btn{flex:1}
-.card .row.full .btn .mid{display:flex;justify-content:space-between}
+.card .row.full .btn .mid{display:flex;justify-content:center}
 .kpi{max-width:50ch}
 .kpis{display:grid;gap:var(--r)}
 .spark{font-weight:700;color:var(--hot);white-space:pre}
@@ -50,7 +50,10 @@
 /* the picked row is an ink slab, like a pressed Segment: magenta is for acting */
 .tbl tbody tr[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink);box-shadow:none}
-.tbl tbody tr:focus-visible{box-shadow:inset 1ch 0 0 var(--accent)}
+/* a focused row is marked the way the sidebar marks where you are: a > in the
+   first character, which the cell's padding keeps free */
+.tbl tbody td:first-child{position:relative}
+.tbl tbody tr:focus-visible > td:first-child::before{content:">";content:">" / "";position:absolute;left:0;top:calc(var(--r)/2);font-weight:700;color:var(--accent)}
 /* At 390px four columns needed 42 characters in a 36 character box and the
    last one showed a single digit. Under 480px the duration rides in the status
    cell, on the row under the badge, and its own column steps out, so the table
@@ -64,20 +67,27 @@
 .price small{font:inherit;font-weight:300;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}
 .feat li{position:relative;padding-left:2ch;color:var(--muted)}
-.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--ok);font-weight:700}
+.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--violet);font-weight:700}   /* a list mark, not a confirmation */
 .popular{position:absolute;top:0;right:2ch;z-index:1}
 /* lime confirms and yellow warns, so a tag that is only a label is violet or pink */
-.badge.popular{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
-#build .b-ok{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
-#build .b-warn{background:var(--pink);color:var(--on-pink);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.badge.popular{background:var(--violet)}
+#build .b-ok{background:var(--violet)}
+#build .b-warn{background:var(--pink);color:var(--on-pink)}
 
 /* charts */
-.chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
+/* a chart is drawn in 12px type on 14px lines, so its height is a number of
+   those. It rounds up to whole rows (21px) so everything after it stays on
+   the page grid. calc-size is Chromium only; elsewhere the chart keeps its
+   height and the page is a fraction of a row off, as before */
+.chart{height:calc-size(auto,round(up,size,var(--r)))}
 .status{min-height:var(--r)}
 
 /* invaders */
-#inv{display:block;width:100%;touch-action:pan-y;cursor:crosshair;outline:0}
-#inv:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+#inv{display:block;width:100%;touch-action:pan-y pinch-zoom;cursor:crosshair;outline:0}
+/* a canvas cannot carry characters around itself, so it keeps a ring. An
+   outline, not a box-shadow: Windows High Contrast keeps outlines */
+#inv:focus-visible{outline:2px solid var(--accent);outline-offset:0}
 
 
 /* overlays */
