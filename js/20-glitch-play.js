@@ -694,7 +694,9 @@ function drawBars(p){
     const h=Math.round(v/mx*H*barP),x0=lab+i*(bw+1);
     for(let yy=0;yy<h;yy++){const top=h-1-yy,ch=top===0?'*':(top===1?'#':(top===2?'%':'@'));
       for(let xx=0;xx<bw;xx++)g.set(x0+xx,H-1-yy,ch,i===selBar?'violet':(top<2?'pink':'hot'))}
-    g.text(x0+Math.max(0,Math.floor((bw-3)/2)),H,DAYS[i].slice(0,bw),i===selBar?'ink':'muted');
+    /* the pick is said in text too, [Thu], not only by colour */
+    const lx=x0+Math.max(0,Math.floor((bw-3)/2));
+    if(i===selBar)g.text(lx-1,H,'['+DAYS[i].slice(0,bw)+']','ink');else g.text(lx,H,DAYS[i].slice(0,bw),'muted');
   });
   el.innerHTML=g.html();
   $('st-bars').textContent=DAYS[selBar]+'  '+REQ[selBar].toLocaleString('en-US')+' requests';
@@ -782,7 +784,9 @@ keys($('ch-heat'),k=>{
 $('ch-heat')._anim=grow(drawHeat);
 
 /* donut */
-const SEG=[['direct',0.38,'hot'],['search',0.27,'deep'],['social',0.20,'warn'],['email',0.15,'violet']];let selD=-1,donP=1;
+/* each slice has its own glyph as well as its own colour, so it reads without
+   colour (and in grey); the legend swatch uses the same glyph. No yellow: it warns */
+const SEG=[['direct',0.38,'hot','@'],['search',0.27,'deep','#'],['social',0.20,'pink','%'],['email',0.15,'violet','+']];let selD=-1,donP=1;
 function segAt(a){let acc=0;for(let i=0;i<SEG.length;i++){acc+=SEG[i][1];if(a<acc)return i}return SEG.length-1}
 function drawDonut(p){
   if(p!=null)donP=p;const H=13,g=new Grid(Math.min(colsOf($('ch-donut')),48),H),cx=13,cy=6,ay=14/CCW;
@@ -790,9 +794,9 @@ function drawDonut(p){
     const dx=x-cx,dy=(y-cy)*ay,r=Math.hypot(dx,dy);if(r<5.6||r>12.6)continue;
     let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;if(a>donP)continue;
     const i=segAt(a),on=selD<0||selD===i;
-    g.set(x,y,on?(r>10.4?'@':(r>8?'#':'*')):(r>10.4?':':'.'),on?SEG[i][2]:'muted');
+    g.set(x,y,on?SEG[i][3]:(r>10.4?':':'.'),on?SEG[i][2]:'muted');
   }
-  SEG.forEach((s,i)=>{const on=selD<0||selD===i;g.set(29,3+i*2,'@',on?s[2]:'muted');g.set(30,3+i*2,'@',on?s[2]:'muted');g.text(32,3+i*2,s[0].padEnd(7,' ')+Math.round(s[1]*100)+'%',on?'ink':'muted')});
+  SEG.forEach((s,i)=>{const on=selD<0||selD===i;g.set(29,3+i*2,s[3],on?s[2]:'muted');g.set(30,3+i*2,s[3],on?s[2]:'muted');g.text(32,3+i*2,s[0].padEnd(7,' ')+Math.round(s[1]*100)+'%',on?'ink':'muted')});
   $('ch-donut').innerHTML=g.html();
 }
 A.onTap($('ch-donut'),e=>{

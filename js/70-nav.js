@@ -242,6 +242,14 @@
        section that is not there lands on its view, and the address loses it */
     const old=!/^#\/?(home|components|kit|blocks|charts|themes)(\/|$)/i.test(h);
     if(old&&!r.sec)said(GONE[h.replace(/^#\/?/,'').split('/')[0].toLowerCase()]||GONE.play);
+    /* a stale link (#components/datepicker) used to land on the view without a
+       word. It still lands there, and says what it did not find, in yellow */
+    else if(r.lost){
+      let name=h.replace(/^#\/?/,'').split('/')[1]||'';try{name=decodeURIComponent(name)}catch(e){}
+      name=name.replace(/[^\w .-]/g,'').slice(0,32);
+      const msg=(name?'No section called '+name:'No such section')+' in '+LABEL[r.v]+'. Search (/) has the list.';
+      if(A.say)A.say(msg,true);
+    }
     go(r.v,r.sec,{push:old||r.lost?false:(push?true:undefined),instant:instant});
     return true;
   }
