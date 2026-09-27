@@ -38,7 +38,24 @@
   --danger:var(--warn);  /* errors and destructive actions */
   --r:21px;              /* one row: 14px type on a 21px line */
   --font:"Geist Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --scan:rgba(17,17,16,.06);   /* the crt option's scanlines, one line in four */
   color-scheme:light;
+}
+/* Motion. Every animation in the kit takes its time and its steps from these.
+   Motion is steps, never eased: a step is a whole character or a whole row.
+   Set a duration to 0s to switch that motion off; reduced motion switches off
+   all of it. --aui-toast is the shortest a toast stays: longer words stay
+   longer (ascii-ui.js reads it) */
+:root{
+  --aui-quick:.16s;              /* a switch flips, a tooltip types in, a panel wipes open */
+  --aui-base:.24s;               /* a toast types in, an alert dialog nudges */
+  --aui-slow:.28s;               /* a sheet comes up */
+  --aui-toast:3.6s;              /* a toast of a few words stays this long */
+  --aui-ease-flip:steps(2);      /* the switch thumb, one character a step */
+  --aui-ease-type:steps(12);     /* the tooltip and the toast, typed in from the left */
+  --aui-ease-wipe:steps(4);      /* a panel, a row a step */
+  --aui-ease-rise:steps(7);      /* the sheet, from the bottom */
+  --aui-ease-jolt:steps(1,end);  /* the nudge: no in-betweens */
 }
 /* dark follows the system unless the page says data-theme="light" */
 @media (prefers-color-scheme:dark){
@@ -47,6 +64,7 @@
     --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
     --deep:#4a3dff; --violet:#9b7bea;
     --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+    --scan:rgba(0,0,0,.28);
     color-scheme:dark;
   }
 }
@@ -56,6 +74,7 @@
   --hot:#ff3d9a; --pink:#ffb3d9; --cy:#35e6f0; --ok:#c8f02c; --warn:#ffd23f;
   --deep:#4a3dff; --violet:#9b7bea;
   --t0:#f3eef7; --t1:#ffb3d9; --t2:#ff3d9a; --t3:#9b7bea;
+  --scan:rgba(0,0,0,.28);
   color-scheme:dark;
 }
 
@@ -131,6 +150,17 @@ legend{padding:0;margin-bottom:var(--r)}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none !important;transition:none !important}
 }
+/* Scanlines are off: they stripe every slab, print as grey and are not
+   characters. <html class="crt"> brings them back, over the page and over an
+   open dialog (the top layer is above the page's own layer) */
+:root.crt body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:250;
+  background:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan) 3px 4px);
+}
+:root.crt dialog[open]::after{
+  content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background-attachment:fixed;
+  background-image:repeating-linear-gradient(to bottom,transparent 0 3px,var(--scan,rgba(0,0,0,.12)) 3px 4px);
+}
 
 /* ==== frame: .frame .mid ==== */
 /* A frame is a string on top and bottom (--h) and a string on each side (--s).
@@ -164,10 +194,10 @@ legend{padding:0;margin-bottom:var(--r)}
 .btn .mid{display:inline-flex}
 .btn .label{padding:0 1ch}
 .btn-primary{--frame-color:var(--hot)}
-.btn-primary .label{background:var(--hot);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.btn-primary .label{background:var(--hot);color:var(--bg)}
 .btn-danger{--frame-color:var(--danger)}
 .btn-danger .label{color:var(--danger)}
-@media (hover:hover){
+@media (hover:hover) and (pointer:fine){
   .btn:not(:disabled):hover{--h:var(--h-mid);--s:var(--s-mid)}
   .btn-primary:not(:disabled):hover{--h:var(--h-dense);--s:var(--s-dense)}
   .btn-danger:not(:disabled):hover{--h:var(--h-danger);--s:var(--s-danger)}
@@ -177,8 +207,11 @@ legend{padding:0;margin-bottom:var(--r)}
 .btn:not(:disabled):active .label{background:var(--ink);color:var(--bg)}
 .btn-primary:not(:disabled):active .label{background:var(--bg);color:var(--ink)}
 .btn:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
+/* the primary rim is @ already, so a focus that only recolours it is a few
+   pixels: its slab takes the focus color too */
+.btn-primary:focus-visible .label{background:var(--accent);color:var(--bg)}
 .btn:disabled{--h:var(--h-faint);--s:var(--s-faint);--frame-color:var(--muted);color:var(--muted);cursor:not-allowed}
-.btn-primary:disabled .label{background:var(--muted);color:var(--bg);box-shadow:none}
+.btn-primary:disabled .label{background:var(--muted);color:var(--bg)}
 .btn-danger:disabled .label{color:var(--muted)}   /* a disabled danger button is gray too, not yellow */
 
 /* ==== field: .field .field-label .error .count ==== */
@@ -198,6 +231,8 @@ legend{padding:0;margin-bottom:var(--r)}
 .field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--v:var(--v-heavy);--frame-color:var(--accent)}
 .field.invalid{--h:var(--h-error);--s:var(--s-error);--v:var(--v-error);--frame-color:var(--danger)}
 .field.invalid .prompt{color:var(--danger)}
+/* wrong and focused: the wall of ! stays, in the focus color, so you can see where you are */
+.field.invalid:focus-within{--frame-color:var(--accent)}
 /* disabled reads the way a disabled button does: a faint rim, gray text */
 .field:has(:disabled){--h:var(--h-faint);--s:var(--s-faint);--v:var(--v-faint);--frame-color:var(--muted);cursor:not-allowed}
 .field:has(:disabled) :disabled,.field:has(:disabled) .prompt{color:var(--muted);cursor:not-allowed}
@@ -231,7 +266,7 @@ legend{padding:0;margin-bottom:var(--r)}
 .switch-track::after{content:var(--k1) var(--k1) var(--k1) var(--k1);position:absolute;left:0;top:0;color:var(--muted)}
 .switch-track::before{
   content:var(--k8) var(--k8);position:relative;z-index:1;display:inline-block;background:var(--bg);
-  transition:transform .16s steps(2);
+  transition:transform var(--aui-quick) var(--aui-ease-flip);
 }
 .check input:checked + .glyph .switch-track::before{transform:translateX(2ch)}
 .check input:focus-visible + .glyph .switch-track::before{background:var(--accent)}
@@ -267,11 +302,16 @@ legend{padding:0;margin-bottom:var(--r)}
   padding:12px 2ch;cursor:pointer;text-transform:uppercase;
   outline:2px solid transparent;outline-offset:-2px;-webkit-tap-highlight-color:transparent;
 }
-.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
-@media (hover:hover){.tab[aria-selected="false"]:hover{color:var(--ink)}}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.tab[aria-selected="false"]:hover{color:var(--ink)}}
 .tab:focus-visible{background:var(--accent);color:var(--bg)}
-.tabpanel{padding:var(--r) 0;outline:0}
-.tabpanel:focus-visible{box-shadow:inset 2ch 0 0 -1ch var(--accent)}
+.tabpanel{padding:var(--r) 0;outline:0;position:relative}
+/* a focused panel gets a wall of @ down its left edge, in the focus color, in
+   the column its content leaves free */
+.tabpanel:focus-visible::before{
+  content:var(--v-heavy);content:var(--v-heavy) / "";position:absolute;left:0;top:var(--r);bottom:var(--r);width:1ch;
+  overflow:hidden;white-space:pre;font-weight:700;color:var(--accent);pointer-events:none;
+}
 .tabpanel pre{overflow-x:auto;white-space:pre;padding-left:2ch}
 .tabpanel .row{padding-left:2ch}
 
@@ -294,7 +334,6 @@ legend{padding:0;margin-bottom:var(--r)}
 .bar-title{
   position:absolute;top:0;left:2ch;z-index:1;padding:0 1ch;margin:0;
   background:var(--hot);color:var(--bg);text-transform:uppercase;font:inherit;
-  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep);
   max-width:calc(100% - 4ch);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .body{position:relative;padding:var(--r) 4ch}
@@ -319,10 +358,24 @@ dialog{
 dialog .lift{max-width:none}
 dialog .row{justify-content:flex-end;column-gap:1ch}
 dialog::backdrop{
-  background-color:rgba(236,235,228,.86);
-  background-color:color-mix(in srgb,var(--bg) 86%,transparent);
-  background-image:radial-gradient(circle at center,var(--hot) 1.1px,transparent 1.6px);
-  background-size:9.6px 12px;
+  background-color:rgba(236,235,228,.9);
+  background-color:color-mix(in srgb,var(--bg,Canvas) 92%,transparent);
+}
+/* The veil behind a dialog is characters on the grid: a period every other
+   column on every row, in faint magenta. One row string (160 periods, about
+   2,700px), doubled up to 128 rows, drawn from the window's corner and
+   clipped to it. A modal dialog is in the top layer, so it draws its own */
+dialog{
+  --veil-r:". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . \A ";
+  --veil-4:var(--veil-r) var(--veil-r) var(--veil-r) var(--veil-r);
+  --veil-16:var(--veil-4) var(--veil-4) var(--veil-4) var(--veil-4);
+  --veil-64:var(--veil-16) var(--veil-16) var(--veil-16) var(--veil-16);
+}
+dialog[open]::before{
+  content:var(--veil-64) var(--veil-64);content:var(--veil-64) var(--veil-64) / "";
+  position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;
+  white-space:pre;font-weight:700;line-height:var(--r);
+  color:rgba(201,20,104,.45);color:color-mix(in srgb,var(--hot) 45%,transparent);
 }
 body:has(dialog[open]){overflow:hidden}   /* the page behind stays put */
 /* the way out, in the title row: [x] */
@@ -332,7 +385,7 @@ body:has(dialog[open]){overflow:hidden}   /* the page behind stays put */
   color:var(--ink);padding:12px 1ch;line-height:var(--r);cursor:pointer;outline:0;
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.sheet-x:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.sheet-x:hover{color:var(--hot)}}
 
 /* ==== sheet: .sheet ==== */
 /* A dialog that comes up from the bottom in seven steps. */
@@ -341,18 +394,30 @@ dialog.sheet[open]{display:flex}
 dialog.sheet > .lift,dialog.sheet .card{min-height:0;display:flex;flex-direction:column;flex:1}
 dialog.sheet .lift{padding:0;max-width:none}
 dialog.sheet .lift::before,dialog.sheet .lift::after{display:none}
-dialog.sheet[open] .lift{animation:aui-sheetin .28s steps(7) both}
+dialog.sheet[open] .lift{animation:aui-sheetin var(--aui-slow) var(--aui-ease-rise) both}
 @keyframes aui-sheetin{from{transform:translateY(100%)}to{transform:none}}
 dialog.sheet .card{padding-bottom:calc(var(--r) + env(safe-area-inset-bottom,0px))}
 dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 dialog.sheet .body{max-width:80ch;width:100%;margin:0 auto;min-height:0;flex:1;overflow-y:auto;overscroll-behavior:contain}
 dialog.sheet .sheet-x{right:max(2ch,calc(50% - 40ch))}
+/* On a touch screen a sheet goes down the way it came up: drag it by its
+   title, or from the top of what it holds, and let go past a quarter of its
+   height or with a flick. It follows the finger a row at a time. The grip is
+   the row of = above the title */
+@media (pointer:coarse){
+  dialog.sheet > .lift{touch-action:pan-x pinch-zoom}
+  dialog.sheet > .lift::before{
+    display:block;content:"========";content:"========" / "";position:absolute;left:2ch;right:auto;top:calc(var(--r)*-1);bottom:auto;
+    width:8ch;height:var(--r);overflow:hidden;white-space:pre;font-weight:700;color:var(--muted);background:var(--bg);
+  }
+  dialog.sheet .body{touch-action:pan-y pinch-zoom}
+}
 
 /* ==== alert: .alert ==== */
 /* A card with a hazard rim. .info is violet: cyan is focus and nothing else. */
 .alert{--frame-color:var(--warn);max-width:50ch}
 .alert .card::before{content:var(--h);content:var(--h) / ""}
-.alert .bar-title{background:var(--warn);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.alert .bar-title{background:var(--warn)}
 .alert.info{--frame-color:var(--violet)}
 .alert.info .bar-title{background:var(--violet)}
 
@@ -360,7 +425,7 @@ dialog.sheet .sheet-x{right:max(2ch,calc(50% - 40ch))}
 .badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap}
 .b-ok{background:var(--ok)}
 .b-warn{background:var(--warn)}
-.b-hot{background:var(--hot);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.b-hot{background:var(--hot)}
 .b-out{background:none;color:var(--ink);padding:0}
 .b-out::before{content:"[";color:var(--muted)}
 .b-out::after{content:"]";color:var(--muted)}
@@ -368,7 +433,7 @@ dialog.sheet .sheet-x{right:max(2ch,calc(50% - 40ch))}
 /* ==== avatar: .avatar ==== */
 .avatar{
   display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);flex:none;overflow:hidden;
-  background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);
+  background:var(--ink);color:var(--bg);font-weight:700;
 }
 .avatar.sm{width:5ch;height:calc(var(--r)*2)}
 .avatar.hot{background:var(--hot)}
@@ -405,7 +470,7 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
 .cal-grid button{font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:12px 0;cursor:pointer;outline:0;text-align:center}
 .cal-grid button.today{color:var(--hot);font-weight:700}
 .cal-grid button:disabled{color:var(--muted);font-weight:300;cursor:not-allowed}   /* outside data-min and data-max */
-.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.cal-grid button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .cal-grid button:focus-visible{background:var(--accent);color:var(--bg)}
 
 /* ==== pagination: [data-aui="pagination"] ==== */
@@ -423,9 +488,13 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
   color:var(--ink);padding:calc(var(--r)/2) 0;margin:0;text-align:left;cursor:pointer;outline:0;   /* two whole rows, a thumb tall */
 }
 .menu [role="menuitem"]:disabled,.menu [role="menuitem"][aria-disabled="true"]{color:var(--muted);cursor:not-allowed}
-.menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+.menu [role="menuitem"]:focus-visible{background:var(--ink);color:var(--bg)}
 .menu [role="menuitem"].danger{color:var(--warn)}
-.menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+.menu [role="menuitem"].danger:focus-visible{background:var(--warn);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){
+  .menu [role="menuitem"]:not(:disabled):not([aria-disabled="true"]):hover{background:var(--ink);color:var(--bg)}
+  .menu [role="menuitem"].danger:not(:disabled):not([aria-disabled="true"]):hover{background:var(--warn);color:var(--bg)}
+}
 .menu .sepd{margin:0}
 .menu kbd{color:inherit;font-weight:300}
 
@@ -435,18 +504,20 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
 .tip{
   position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;padding:0 1ch;
   max-width:calc(100vw - 4ch);white-space:nowrap;font-weight:700;pointer-events:none;
-  background:var(--ink);color:var(--bg);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot);
-  clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);
+  background:var(--ink);color:var(--bg);
+  clip-path:inset(0 100% 0 0);transition:clip-path var(--aui-quick) var(--aui-ease-type);
 }
 .tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
-.pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
-.pop.off .tip{clip-path:inset(0 100% 0 0)}   /* Escape */
-/* a tap leaves hover and focus behind, so on touch only the tap timer shows it, below the button */
+.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
+@media (hover:hover) and (pointer:fine){.pop:hover .tip{clip-path:inset(0 -4px -14px -4px)}}
+.pop.off .tip{clip-path:inset(0 100% 0 0) !important}   /* Escape */
+/* a tap leaves focus behind, so on touch the tap timer shows it, below the
+   button; a keyboard on a touch screen shows it too (a tap sets no :focus-visible) */
 @media (pointer:coarse){
   .tip{bottom:auto;top:calc(var(--r)*3 + 6px);white-space:normal}
   .tip::after{content:"^";content:"^" / "";top:-12px}
-  .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
-  .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
+  .pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
+  .pop.on .tip,.pop:has(:focus-visible) .tip{clip-path:inset(-14px -4px 0 -4px)}
 }
 
 /* ==== pane: .pane ==== */
@@ -459,7 +530,7 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
 .pane[popover]{inset:auto;margin:0;padding:0;border:0;overflow:visible;background:var(--bg);color:var(--ink)}
 .pane .lift{max-width:none}
 .pane .row{justify-content:flex-end;column-gap:1ch}
-.pane.open > .lift{animation:aui-wipe .16s steps(4) both}
+.pane.open > .lift{animation:aui-wipe var(--aui-quick) var(--aui-ease-wipe) both}
 .pane.open.up > .lift{animation-name:aui-wipe-up}
 @keyframes aui-wipe{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
 @keyframes aui-wipe-up{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
@@ -502,10 +573,10 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
    page around it is not an answer: it nudges one character each way and the
    focus goes back to the safe button. Inside an .alert rim, the backdrop dots
    turn yellow. */
-dialog[role="alertdialog"].nudge > .lift{animation:aui-nudge .24s steps(1,end) both}
+dialog[role="alertdialog"].nudge > .lift{animation:aui-nudge var(--aui-base) var(--aui-ease-jolt) both}
 @keyframes aui-nudge{0%{transform:translateX(-1ch)}33%{transform:translateX(1ch)}66%{transform:translateX(-1ch)}100%{transform:none}}
 dialog[role="alertdialog"] .body > p + .group{margin-top:var(--r)}
-dialog[role="alertdialog"]:has(> .alert)::backdrop{background-image:radial-gradient(circle at center,var(--warn) 1.1px,transparent 1.6px)}
+dialog[role="alertdialog"]:has(> .alert)[open]::before{color:rgba(138,90,0,.5);color:color-mix(in srgb,var(--warn) 50%,transparent)}
 
 /* ==== otp: .otp ==== */
 /* Six brackets. data-aui="otp" advances, goes back on Backspace and takes a paste. */
@@ -520,11 +591,16 @@ dialog[role="alertdialog"]:has(> .alert)::backdrop{background-image:radial-gradi
 .otp input::placeholder{color:var(--muted)}
 .otp span:focus-within::before,.otp span:focus-within::after{color:var(--accent)}
 .otp.good span::before,.otp.good span::after,.otp.good input{color:var(--ok)}
+/* a character that is not a digit: the brackets turn into the error wall, !
+   in the warning color, so it does not rest on color alone. The status line
+   says "Digits only." */
+.otp.invalid span::before,.otp.invalid span::after,.otp.invalid input{color:var(--danger)}
+.otp.invalid span::before,.otp.invalid span::after{content:"!";content:"!" / ""}
 
 /* ==== kbd: kbd .kbds ==== */
 kbd{font:inherit;font-weight:700;color:var(--ink)}
-kbd::before{content:"["}
-kbd::after{content:"]"}
+kbd::before{content:"[";content:"[" / ""}   /* paint: a screen reader says the key, not the brackets */
+kbd::after{content:"]";content:"]" / ""}
 .kbds{display:grid;gap:var(--r);grid-template-columns:repeat(auto-fill,minmax(16ch,1fr))}
 
 /* ==== divider: .sepd .sepl ==== */
@@ -548,7 +624,7 @@ kbd::after{content:"]"}
 .tgroup label{position:relative;cursor:pointer}
 .tgroup input{position:absolute;opacity:0;width:1px;height:1px}
 .tgroup span{display:block;padding:12px 2ch;color:var(--muted);text-transform:uppercase}
-.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.tgroup input:checked + span{background:var(--ink);color:var(--bg);font-weight:700}
 .tgroup input:focus-visible + span,.tgroup input:checked:focus-visible + span{background:var(--accent);color:var(--bg)}
 
 /* ==== timeline: .timeline ==== */
@@ -573,12 +649,19 @@ kbd::after{content:"]"}
   position:fixed;left:2ch;right:2ch;bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
   display:flex;pointer-events:none;z-index:70;
 }
-.toast span{
+.toast > span{
   background:var(--ok);color:var(--bg);padding:0 1ch;max-width:100%;font-weight:700;
-  clip-path:inset(0 100% 0 0);transition:clip-path .24s steps(12);
+  clip-path:inset(0 100% 0 0);transition:clip-path var(--aui-base) var(--aui-ease-type);
 }
-.toast.on span{clip-path:inset(0 0 0 0)}
-.toast.err span{background:var(--warn)}
+.toast.on > span{clip-path:inset(-12px 0 -12px 0);pointer-events:auto}   /* a tap on it does not reach the page under it */
+.toast.err > span{background:var(--warn)}
+/* the way out, [x], at the end of the line. It takes the tap a row above and below */
+.toast-x{
+  font:inherit;font-weight:700;color:inherit;background:none;border:0;border-radius:0;cursor:pointer;
+  padding:12px 0 12px 1ch;margin:-12px 0;outline:0;-webkit-tap-highlight-color:transparent;
+}
+.toast:not(.on) .toast-x{visibility:hidden}
+.toast-x:focus-visible{background:var(--accent);color:var(--bg);background-clip:content-box}
 /* on a phone the bottom row is where the thumb just was, so it drops in from the top */
 @media (max-width:1023px),(pointer:coarse){
   .toast{bottom:auto;top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
@@ -618,5 +701,76 @@ kbd::after{content:"]"}
 .tbl tbody tr:nth-child(even){background:rgba(128,128,128,.1);background:color-mix(in srgb,var(--ink) 7%,transparent)}
 .tbl tbody tr[tabindex]{cursor:pointer;outline:0}
 .tbl tbody tr[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
-.tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink);box-shadow:none}
-.tbl tbody tr:focus-visible{box-shadow:inset 1ch 0 0 var(--accent)}
+.tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink)}
+/* a focused row is a > in its first character, which the cell's padding keeps free */
+.tbl tbody td:first-child{position:relative}
+.tbl tbody tr:focus-visible > td:first-child::before{content:">";content:">" / "";position:absolute;left:0;top:calc(var(--r)/2);font-weight:700;color:var(--accent)}
+
+/* ==== media: @print @forced-colors @prefers-contrast ==== */
+/* The page on media it was not drawn for. Last on purpose, so these win.
+   All three keep the characters and change only what color they are.
+     print                  black characters on white paper
+     forced-colors:active   Windows High Contrast: the viewer's own colors
+     prefers-contrast:more  no dim text, no faded rules */
+@media print{
+  @page{margin:12mm 10mm}
+  /* three :root so it outranks the dark theme (two) */
+  :root:root:root{
+    --bg:#fff;--ink:#000;--muted:#3a3a3a;--hot:#000;--pink:#000;--cy:#000;--ok:#000;--warn:#000;
+    --deep:#555;--violet:#000;--t0:#000;--t1:#000;--t2:#000;--t3:#000;--scan:transparent;
+    color-scheme:light;print-color-adjust:exact;-webkit-print-color-adjust:exact;
+  }
+  html,body{background:#fff !important;color:#000}
+  body{font-weight:400}
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  /* what floats over the page is not on paper */
+  .toast,.tip,.pane,.menu,dialog,body::before{display:none !important}
+  body:has(dialog[open]){overflow:visible !important}
+  .tablewrap,.progress{overflow:visible !important}
+  .skel .f{opacity:1}
+  /* keep a thing together, and a title with what follows it */
+  .lift,.card,.frame,.acc,.cal,.otp,.field,.alert,.tbl tr,.timeline li{break-inside:avoid}
+  h1,h2,h3,legend,.field-label{break-after:avoid}
+  /* a link to another site says where it goes */
+  a[href^="http"]:not(.btn):not(.ibtn)::after{content:" (" attr(href) ")";overflow-wrap:anywhere;font-weight:400}
+}
+/* Forced colors take away background colors and box shadows. Frames and
+   markers made of characters survive (a button's = becomes @), slabs do not:
+   the picked tab, the current page, the picked day. Here they come back as
+   slabs in the system colors, CanvasText on Canvas for what is picked and
+   Highlight for where the focus is. Focus comes after the picks, so a
+   focused pick shows the focus */
+@media (forced-colors:active){
+  /* the transparent outline that waits for focus would be a box round every button and tab */
+  .btn,.tab{outline:0 !important}
+  :where(
+    .tab[aria-selected="true"],.ibtn[aria-current="page"],.cal-grid button[aria-pressed="true"],
+    .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
+    .crumbs [aria-current] span,.opts [role="option"][aria-selected="true"],
+    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast > span,.tip,.avatar,.tbl th
+  ){forced-color-adjust:none !important;background:CanvasText !important;color:Canvas !important}
+  :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
+  .tip::after{forced-color-adjust:none;color:CanvasText}
+  :where(
+    a:focus-visible,.tab:focus-visible,.crumbs a:focus-visible,.cal-grid button:focus-visible,.ibtn:focus-visible,
+    .btn-primary:focus-visible .label,.otp input:focus,.tgroup input:focus-visible + span,
+    .check input:focus-visible + .glyph,.sheet-x:focus-visible,.toast-x:focus-visible,
+    .menu [role="menuitem"]:focus-visible,.opts [role="option"][data-active]
+  ){forced-color-adjust:none !important;background:Highlight !important;color:HighlightText !important}
+  .acc summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
+  :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
+  :where(.check input:focus-visible + .glyph .switch-track)::after{forced-color-adjust:none;color:HighlightText !important}
+  .tabpanel:focus-visible::before,.tbl tbody tr:focus-visible > td:first-child::before{forced-color-adjust:none;color:Highlight}
+  /* the row a context menu acts on: its violet bar was a shadow */
+  .ctx [data-ctx]{outline:2px solid CanvasText;outline-offset:-2px}
+}
+/* More contrast: grey text moves two thirds of the way to ink, faded rules go
+   solid, body type gets heavier and the dark theme's deep blue is lifted */
+@media (prefers-contrast:more){
+  :root:root{--muted:#2b2b28}
+  @media (prefers-color-scheme:dark){:root:root:not([data-theme="light"]){--muted:#d8d2e0;--deep:#8f86ff}}
+  :root:root[data-theme="dark"]{--muted:#d8d2e0;--deep:#8f86ff}
+  body{font-weight:400}
+  .skel .f{opacity:1}
+  dialog[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}
+}

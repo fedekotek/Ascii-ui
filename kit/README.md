@@ -15,11 +15,11 @@ Latest, which follows every new version:
 <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
 ```
 
-Pinned, which never changes under you:
+Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css" integrity="sha384-UcdPVYqNVMmlHhnyIlkEy76hu6Wvz6B83tUk88YBXjNnq53yfQariBIHNP86RtTl" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js" integrity="sha384-LRINmTRNU36W+ff4sSbJPdve2Pa2rF8UdBC+QZipAyvgfCSTPTN4n3VIqhL+HMcd" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
@@ -51,16 +51,17 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="contextmenu"` | `.ctx` | a right-click inside it, a long press on a touch screen, or Shift F10 or the Menu key on something focused in it opens its `.menu.pane` (`role="menu"`) there. Arrows, Home, End and a first letter move; the letter in an item's `<kbd>` picks it; Escape and Tab close it and bring the focus back. Shift and right-click, links and text fields still get the browser's own menu |
 | `data-aui="confirm"` | an `<input>` in an alert dialog | `data-match="static-prod"`: the dialog's `.btn-danger` buttons stay disabled until the input holds exactly those words. Enter with them wrong says what to type (`data-error` for the words). It starts empty every time the dialog opens |
 | `data-aui="tooltip"` | `.pop` | hover and focus are CSS; this adds tap to show and Escape to put it away |
-| `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form |
-| `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
+| `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form. A letter is refused: `.invalid` on the group, `aria-invalid` on the box, its brackets turn into `!`, and the status line says "Digits only." (`data-error` for other words). The next digit puts it right. Add `.invalid` yourself for a code the server refused |
+| `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. A new month is said out loud, from a hidden live region inside it. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
 | `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. A page past the end is drawn as the last one and kept, so `data-page="12"` and then `data-pages="20"` lands on 12, in either order. `data-href="?page={n}"` draws links instead of buttons |
-| `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range as you type, when you leave the field and when the form is sent. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
+| `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range when you leave the field and when the form is sent. From then on it checks as you type too, so a fix clears the message at once; nobody is told a word is wrong before they finish it. A value wrong on load shows its message from the start. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
 | `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
-| `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill` |
+| `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
+| `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill`. The frames are hidden from screen readers: with an `aria-label` the spinner is `role="img"` and read as that word; without one it is `aria-hidden`, so put the wait in words next to it |
 | `data-aui="skeleton"` | a `<pre class="skel">` | a card silhouette with a wave through the ramp |
-| `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it. A `<dialog role="alertdialog">` waits for an answer: a tap around it nudges the card and puts the focus back on the safe button (`autofocus`), and Escape counts as that button |
+| `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it. On a touch screen a `.sheet` also closes on a drag down, by its title or from the top of what it holds: it follows the finger a row at a time and closes past a quarter of its height or on a flick. A `<dialog role="alertdialog">` waits for an answer: a tap around it nudges the card and puts the focus back on the safe button (`autofocus`), and Escape counts as that button |
 | `data-aui-close` | a button in a dialog or a popover | closes it. `data-aui-close="delete"` also sets the dialog's `returnValue`, so its `close` event knows the answer (it is empty after Escape). In a popover inside a dialog, only the popover closes |
-| `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
+| `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
 | `data-aui-reset` | a button in a form or a dialog | puts every field back to what the HTML says (a checkbox checked in the HTML comes back checked), then redraws the bars, outputs, counts and code boxes. Hidden inputs are left alone, and the calendar and the code boxes set their own again (a calendar without `data-value` goes back to nothing picked). Outside a form or a dialog it does nothing and says so in the console |
 | `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
 | `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
@@ -98,6 +99,7 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | OTP | `aui:complete` on the `.otp`, when every box holds a digit | `{ value }` |
 | Calendar | `aui:change` on the calendar | `{ date, value }` (`value` is `yyyy-mm-dd`) |
 | Pagination | `aui:change` on the `<nav>`, buttons only (a link just goes) | `{ page }` |
+| Segment | `aui:change` on the `.tgroup`, when a person picks | `{ value, label, input }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
 | Slider, counter | the input's own `input` and `change` | |
@@ -156,7 +158,8 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 
 | Component | Without the script |
 |---|---|
-| Button, badge, avatar, card, alert, kbd, separator, timeline, breadcrumb, details, table, segment, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
+| Button, badge, avatar, card, alert, kbd, separator, timeline, breadcrumb, details, table, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
+| Segment | the radios work; the status line stays as the HTML has it |
 | Tooltip | shows on hover and focus (that is CSS); no tap, no Escape |
 | Tabs | the panels show or hide as the HTML has them; the tabs do not switch |
 | Slider | the range input works, the bar and the number stay as the HTML has them |
@@ -188,6 +191,32 @@ Everything reads tokens on `:root`. Override them after the kit CSS:
 
 Dark follows the system. `<html data-theme="dark">` or `data-theme="light"` forces one. The kit sets its dark tokens under `@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and on `:root[data-theme="dark"]`, and a plain `:root` loses to both. The Themes view on the site prints the tokens of any preset under selectors that win in every case, ready to paste after the kit CSS.
 
+### Motion
+
+Motion is steps, never eased: a step is a whole character or a whole row. Every animation takes its time and its steps from tokens on `:root`, so you can slow the kit down, speed it up, or switch one motion off with `0s`:
+
+| Token | Default | Used by |
+|---|---|---|
+| `--aui-quick` | `.16s` | the switch, the tooltip, a panel opening (popover, combobox, context menu) |
+| `--aui-base` | `.24s` | the toast, the alert dialog's nudge |
+| `--aui-slow` | `.28s` | the sheet |
+| `--aui-toast` | `3.6s` | the shortest a toast stays (ascii-ui.js reads it) |
+| `--aui-ease-flip` | `steps(2)` | the switch thumb, a character a step |
+| `--aui-ease-type` | `steps(12)` | the tooltip and the toast, typed in |
+| `--aui-ease-wipe` | `steps(4)` | a panel, a row a step |
+| `--aui-ease-rise` | `steps(7)` | the sheet |
+| `--aui-ease-jolt` | `steps(1,end)` | the nudge |
+
+`prefers-reduced-motion` switches every one of them off, whatever the tokens say.
+
+### Scanlines, print, high contrast
+
+Scanlines are off. `<html class="crt">` brings them back, over the page and over an open dialog.
+
+The kit prints as black characters on white paper: the toast, tooltips, panels and dialogs stay off the paper, a link to another site prints its address, and cards and fields do not split across pages. In Windows High Contrast (`forced-colors`) the picked tab, day, page and option come back as slabs in the system colors, and the focus as `Highlight`. With `prefers-contrast: more`, grey text darkens and body type gets heavier.
+
+### Characters
+
 The frames are strings of characters. To draw them with others, after ascii-ui.js has run:
 
 ```html
@@ -202,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 The kit uses short, generic class names, so it can meet the same names in Bootstrap, Tailwind components or your own CSS. The classes it styles:
 
-`acc alert area avatar b-hot b-ok b-out b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check combo count crumbs ctx danger demo err error f faint field field-label frame full glyph good group heavy hot ibtn info invalid kbds label lift menu mid muted nudge off ok on open opts opts-none otp pane past pct pop progress prompt row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status switch-track tab tablewrap tablist tabpanel tbl tgroup timeline tip toast today tone-* up vh`
+`acc alert area avatar b-hot b-ok b-out b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check combo count crt crumbs ctx danger demo err error f faint field field-label frame full glyph good group heavy hot ibtn info invalid kbds label lift menu mid muted nudge off ok on open opts opts-none otp pane past pct pop progress prompt row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status switch-track tab tablewrap tablist tabpanel tbl tgroup timeline tip toast toast-x today tone-* up vh`
 
 The ones most likely to collide: `btn`, `card`, `alert`, `badge`, `row`, `field`, `label`, `body`, `tab`, `menu`, `progress`, `error`, `muted`, `pane`, and the state classes `on`, `off`, `open`, `up`, `good` and `invalid`. It also sets a few things on elements: `box-sizing` on everything, `body` (font, colors), the margins of headings, paragraphs and lists, `a`, `[hidden]`, `dialog`, `kbd`, `fieldset` and `legend`.
 
@@ -225,6 +254,7 @@ Current Chromium (Chrome, Edge, Opera, Samsung Internet), Firefox 121 and later,
 - A frame is 400 characters wide (about 3,400px at 14px type) and a wall 200 rows tall (about 4,200px). A box wider or taller than that shows its rim stopping short. `ASCIIUI.tones()` builds the same lengths.
 - Shadow DOM is not supported: components inside a shadow root are not found or wired, and the kit CSS does not reach in.
 - One toast at a time; a new one replaces the last.
+- The sheet drags down on a touch screen only. With a mouse: the `[x]`, Escape or a click on the veil.
 - The calendar picks one day, not a range.
 - Popovers, the combobox list and the context menu go to the top layer where the browser has the Popover API. Without it (Safari before 17, Firefox before 125) a panel inside a box that scrolls or clips is cut off at that box's edge, as the dropdown's menu is everywhere.
 - The combobox picks one option, not several.

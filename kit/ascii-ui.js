@@ -8,13 +8,15 @@
    Then any element with data-aui="NAME" gets that behavior, including
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
    popover, combobox, contextmenu, confirm, otp, calendar, pagination,
-   validate, counter, spinner, skeleton.
+   validate, counter, segment, spinner, skeleton.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
      data-aui-close             closes the dialog or the popover it sits in;
                                 data-aui-close="delete" also sets the dialog's
                                 returnValue, so its close event knows the answer
-     data-aui-toast="Saved."    shows a toast (data-aui-toast-err for a yellow one)
+     data-aui-toast="Saved."    shows a toast (data-aui-toast-err for a yellow one,
+                                read out at once). It has an [x], stays longer for
+                                longer words and holds while it is pointed at
      data-aui-reset             puts the fields of its form or dialog back to how the html has them
      data-aui-fill              runs the nearest progress bar from 0 to 100, for demos
    The nearest role="status" says what happened (the code, the page, the date).
@@ -39,7 +41,9 @@
 
    Everything that moves runs on requestAnimationFrame and stops when the
    element leaves the page. prefers-reduced-motion leaves every frame still,
-   and a change to that setting is followed while the page is open.
+   and a change to that setting is followed while the page is open. The
+   times and steps of the css animations are the --aui-* tokens in
+   ascii-ui.css. A .sheet can be dragged down to close on a touch screen.
 
    window.ASCIIUI: version, init(root), destroy(root), get(el), validate(form),
    toast(msg, err), progress(el, pct), tabs(el), pagination(el), calendar(el),
@@ -276,25 +280,56 @@ function tick(now){
 
 /* ---- toast. While a modal dialog is open the page behind it is inert, so
    the toast goes inside that dialog: on top, and read out ---- */
-var toastEl=null,toastTimer=0;
+/* a time token from the css, in ms: --aui-toast:3.6s is 3600 */
+function cssTime(name,def){
+  var v=getComputedStyle(doc.documentElement).getPropertyValue(name).trim(),n=parseFloat(v);
+  return isNaN(n)?def:/ms$/.test(v)?n:n*1000;
+}
+/* The line is a slab: the mark (@@ or !!, paint, so a screen reader skips
+   it), the words, and [x] to put it away. The words go into one of two live
+   regions: role="status" for good news, read when the reader is free, and
+   role="alert" for what went wrong, read at once. It stays longer for longer
+   words (--aui-toast at least, then 60ms a character), and holds while the
+   pointer or the focus is on it */
+var toastEl=null,toastTimer=0,toastSay=null,toastFrom=null,toastHold=0,toastIn=0;
 function modal(){
   var open=all('dialog[open]').filter(function(d){try{return d.matches(':modal')}catch(e){return true}});
   return open[open.length-1]||null;
 }
+function toastOff(){clearTimeout(toastTimer);if(toastEl)toastEl.classList.remove('on')}
+function toastLater(ms){clearTimeout(toastTimer);toastTimer=setTimeout(function(){if(!toastIn)toastOff()},ms)}
 function toast(msg,err){
+  msg=String(msg==null?'':msg);
   if(!toastEl){
     toastEl=doc.createElement('div');toastEl.className='toast';
-    toastEl.setAttribute('role','status');toastEl.setAttribute('aria-live','polite');
-    toastEl.innerHTML='<span></span>';
+    toastEl.innerHTML='<span><b aria-hidden="true"></b><span role="status" aria-live="polite" aria-atomic="true"></span><span role="alert" aria-atomic="true"></span><button class="toast-x" type="button" aria-label="Dismiss">[x]</button></span>';
+    var line=toastEl.firstChild,x=line.lastChild;
+    toastSay={mark:line.firstChild,ok:line.children[1],err:line.children[2]};
+    x.addEventListener('click',function(){
+      toastIn=0;toastOff();
+      /* the focus was on [x], which is going: back to where it came from */
+      if(toastFrom&&toastFrom.isConnected&&toastFrom!==doc.body)toastFrom.focus();
+    });
+    line.addEventListener('pointerenter',function(){toastIn|=1;clearTimeout(toastTimer)});
+    line.addEventListener('pointerleave',function(){toastIn&=~1;if(!toastIn)toastLater(toastHold/2)});
+    toastEl.addEventListener('focusin',function(){toastIn|=2;clearTimeout(toastTimer)});
+    toastEl.addEventListener('focusout',function(){toastIn&=~2;if(!toastIn)toastLater(toastHold/2)});
   }
   var host=modal()||doc.body;
   if(toastEl.parentNode!==host)host.appendChild(toastEl);
+  var a=doc.activeElement;if(a&&!toastEl.contains(a))toastFrom=a;
   clearTimeout(toastTimer);
-  var span=toastEl.firstChild;
   toastEl.classList.toggle('err',!!err);
-  /* a beat after the region exists, so a screen reader hears the change */
-  setTimeout(function(){span.textContent=(err?'!! ':'@@ ')+msg;toastEl.classList.add('on')},20);
-  toastTimer=setTimeout(function(){toastEl.classList.remove('on')},3600);
+  toastSay.ok.textContent='';toastSay.err.textContent='';
+  /* a beat after the region exists and is empty, so a screen reader hears the change */
+  setTimeout(function(){
+    toastSay.mark.textContent=err?'!! ':'@@ ';
+    (err?toastSay.err:toastSay.ok).textContent=msg+' ';
+    toastEl.classList.add('on');
+  },20);
+  toastHold=Math.min(15000,Math.max(cssTime('--aui-toast',3600),1200+60*msg.length));
+  toastIn=toastEl.contains(doc.activeElement)?2:0;
+  toastLater(toastHold);
 }
 
 /* ---- progress: draws from aria-valuenow, so setting the attribute is enough ---- */
@@ -578,23 +613,23 @@ var behaviors={
     cx.on(inp,'keydown',function(e){
       if(e.isComposing)return;
       var k=e.key,v=vis(),i=v.indexOf(act);
-      if(k==='ArrowDown'||k==='ArrowUp'){
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
         e.preventDefault();
         if(!f.isOpen){
           show(typed?inp.value.trim():'');v=vis();
           var at=sel&&!sel.hidden&&!off(sel)?sel:null;
-          mark(e.altKey?at:(at||(k==='ArrowDown'?v[0]:v[v.length-1])));
+          mark(e.altKey?at:(at||(e.key==='ArrowDown'?v[0]:v[v.length-1])));
           return;
         }
-        if(v.length)mark(k==='ArrowDown'?v[(i+1)%v.length]:v[i<0?v.length-1:(i-1+v.length)%v.length]);
+        if(v.length)mark(e.key==='ArrowDown'?v[(i+1)%v.length]:v[i<0?v.length-1:(i-1+v.length)%v.length]);
       }
-      else if((k==='PageDown'||k==='PageUp')&&f.isOpen&&v.length){e.preventDefault();mark(v[clamp((i<0?0:i)+(k==='PageDown'?5:-5),0,v.length-1)])}
-      else if(k==='Enter'){
+      else if((e.key==='PageDown'||e.key==='PageUp')&&f.isOpen&&v.length){e.preventDefault();mark(v[clamp((i<0?0:i)+(e.key==='PageDown'?5:-5),0,v.length-1)])}
+      else if(e.key==='Enter'){
         if(f.isOpen){e.preventDefault();var a=act;hide();if(a)pick(a,true);else commit()}
         else commit();   /* closed: settle the words first, so a form sends what the field says, or stops */
       }
-      else if(k==='Escape'&&f.isOpen){e.preventDefault();hide();if(sel){inp.value=text(sel);typed=false;if(mine)err('')}}
-      else if(k==='Tab')hide();
+      else if(e.key==='Escape'&&f.isOpen){e.preventDefault();hide();if(sel){inp.value=text(sel);typed=false;if(mine)err('')}}
+      else if(e.key==='Tab')hide();
     });
     /* the whole frame opens the list; the v in it closes it again */
     cx.on(field,'mousedown',function(e){if(e.target!==inp&&!inp.disabled)e.preventDefault()});
@@ -706,11 +741,11 @@ var behaviors={
     cx.on(box,'touchend',function(e){if(Date.now()<eat&&e.cancelable)e.preventDefault()});
     cx.on(menu,'keydown',function(e){
       var it=items(),i=it.indexOf(doc.activeElement),n=null,k=e.key;
-      if(k==='ArrowDown')n=it[(i+1)%it.length];
-      else if(k==='ArrowUp')n=it[(i-1+it.length)%it.length];
-      else if(k==='Home')n=it[0];
-      else if(k==='End')n=it[it.length-1];
-      else if(k==='Escape'||k==='Tab'){e.preventDefault();close(true);return}
+      if(e.key==='ArrowDown')n=it[(i+1)%it.length];
+      else if(e.key==='ArrowUp')n=it[(i-1+it.length)%it.length];
+      else if(e.key==='Home')n=it[0];
+      else if(e.key==='End')n=it[it.length-1];
+      else if(e.key==='Escape'||e.key==='Tab'){e.preventDefault();close(true);return}
       else if(k.length===1&&k!==' '&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
         var l=k.toLowerCase(),hit=it.filter(function(x){var b=x.querySelector('kbd');return b&&b.textContent.trim().toLowerCase()===l})[0];
         if(hit){e.preventDefault();hit.click();return}
@@ -774,11 +809,25 @@ var behaviors={
     function check(user){
       var v=val(),ok=new RegExp('^\\d{'+n+'}$').test(v);
       if(hid)hid.value=v;
+      right();
       box.classList.toggle('good',ok);
       say(box,ok?'Code '+v+' accepted.':v.length+' of '+n+'.');
       if(ok&&user&&!resetting)emit(box,'complete',{value:v});
     }
+    /* a letter typed or pasted: the brackets turn to !, the box is invalid
+       and the status line says so (data-error for other words). The next
+       digit, or Backspace, puts it right */
+    function wrong(inp){
+      box.classList.remove('good');box.classList.add('invalid');inp.setAttribute('aria-invalid','true');
+      say(box,box.getAttribute('data-error')||'Digits only.');
+    }
+    function right(){
+      if(!box.classList.contains('invalid'))return;
+      box.classList.remove('invalid');ins.forEach(function(i){i.removeAttribute('aria-invalid')});
+    }
+    cx.later(right);
     function fill(t,from){
+      if(!/\d/.test(t)){if(t.trim())wrong(ins[from]);return}
       t=t.replace(/\D/g,'').slice(0,n-from);
       t.split('').forEach(function(c,k){ins[from+k].value=c});
       (ins[Math.min(n-1,from+t.length)]).focus();check(true);
@@ -788,14 +837,17 @@ var behaviors={
       cx.on(inp,'beforeinput',function(e){
         if(!e.data)return;e.preventDefault();
         var d=e.data.replace(/\D/g,'');if(d.length>1){fill(d,i);return}
-        if(d)inp.value=d;inp.dispatchEvent(new Event('input',{bubbles:true}));
+        if(!d){if(e.data.trim())wrong(inp);return}
+        inp.value=d;inp.dispatchEvent(new Event('input',{bubbles:true}));
       });
       cx.on(inp,'focus',function(){inp.select()});
       cx.on(inp,'input',function(){
         if(resetting){check();return}
-        var d=inp.value.replace(/\D/g,'');
+        var raw=inp.value,d=raw.replace(/\D/g,'');
         if(d.length>1){fill(d,i);return}   /* the whole code, autofilled into one box */
-        inp.value=d;if(inp.value&&ins[i+1])ins[i+1].focus();check(true);
+        inp.value=d;
+        if(!d&&raw.trim()){wrong(inp);return}   /* a keyboard that sends no beforeinput */
+        if(inp.value&&ins[i+1])ins[i+1].focus();check(true);
       });
       cx.on(inp,'keydown',function(e){
         if(e.key==='Backspace'&&!inp.value&&ins[i-1]){e.preventDefault();ins[i-1].value='';ins[i-1].focus();check(true)}
@@ -839,6 +891,14 @@ var behaviors={
     var start=asked(),sel=start,
         view=(function(d){return new Date(d.getFullYear(),d.getMonth(),1)})(sel||home()),foc=sel||home();
     var same=function(a,b){return !!a&&!!b&&a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()};
+    /* a new month is said out loud: the arrows' buttons keep the focus, so
+       nothing else would tell a screen reader where it is now. The region
+       stays put while the month is redrawn around it */
+    var live=doc.createElement('span');live.className='vh';live.setAttribute('aria-live','polite');live.setAttribute('aria-atomic','true');
+    cx.later(function(){live.remove()});
+    function month(){return view.toLocaleDateString(c.loc,{month:'long',year:'numeric'})}
+    function moved(was){if(was!==view.getFullYear()*12+view.getMonth())live.textContent=month()+'.'}
+    function at(){return view.getFullYear()*12+view.getMonth()}
     /* one Tab stop for the month: only the focused day is in the tab order */
     function draw(){
       c=conf();
@@ -847,7 +907,7 @@ var behaviors={
       if(!ok(foc))foc=fit(foc);
       var prevOff=c.min&&new Date(y,m,0)<c.min,nextOff=c.max&&new Date(y,m+1,1)>c.max;
       var h='<div class="cal-head"><button class="ibtn" type="button" data-d="-1" aria-label="Previous month"'+(prevOff?' disabled':'')+'>&lt;</button><span>'+
-        esc(view.toLocaleDateString(c.loc,{month:'long',year:'numeric'}))+'</span><button class="ibtn" type="button" data-d="1" aria-label="Next month"'+(nextOff?' disabled':'')+'>&gt;</button></div><div class="cal-grid">';
+        esc(month())+'</span><button class="ibtn" type="button" data-d="1" aria-label="Next month"'+(nextOff?' disabled':'')+'>&gt;</button></div><div class="cal-grid">';
       for(k=0;k<7;k++)h+='<span aria-hidden="true">'+esc(new Date(2023,0,1+(c.ws+k)%7).toLocaleDateString(c.loc,{weekday:'narrow'}))+'</span>';
       for(d=0;d<lead;d++)h+='<span></span>';
       for(d=1;d<=n;d++){
@@ -855,7 +915,9 @@ var behaviors={
         h+='<button type="button" data-day="'+d+'" tabindex="'+(same(dt,foc)?0:-1)+'" class="'+(same(dt,today)?'today':'')+'" aria-pressed="'+(same(dt,sel)?'true':'false')+'"'+
           (ok(dt)?'':' disabled')+' aria-label="'+esc(dt.toLocaleDateString(c.loc,{weekday:'long',day:'numeric',month:'long'}))+'">'+d+'</button>';
       }
-      el.innerHTML=h+'</div>';
+      Array.prototype.slice.call(el.childNodes).forEach(function(x){if(x!==live)el.removeChild(x)});
+      el.insertAdjacentHTML('afterbegin',h+'</div>');
+      if(live.parentNode!==el)el.appendChild(live);
       if(hid){hid.value=iso(sel);el.appendChild(hid)}
       say(el,sel?sel.toLocaleDateString(c.loc,{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'No date picked.');
     }
@@ -866,7 +928,7 @@ var behaviors={
     cx.on(el,'click',function(e){
       var b=e.target.closest('button');if(!b||b.disabled)return;
       if(b.dataset.d){
-        view=new Date(view.getFullYear(),view.getMonth()+(+b.dataset.d),1);draw();
+        var was=at();view=new Date(view.getFullYear(),view.getMonth()+(+b.dataset.d),1);draw();moved(was);
         var nb=el.querySelector('[data-d="'+b.dataset.d+'"]');(nb&&!nb.disabled?nb:el.querySelector('[data-day][tabindex="0"]')||nb).focus();
       }else{
         sel=new Date(view.getFullYear(),view.getMonth(),+b.dataset.day);show(sel,true);
@@ -882,7 +944,7 @@ var behaviors={
       else if(e.key==='End')d=new Date(foc.getFullYear(),foc.getMonth(),foc.getDate()+6-wd);
       else if(e.key==='PageUp'||e.key==='PageDown'){t=foc.getMonth()+(e.key==='PageUp'?-1:1);d=new Date(foc.getFullYear(),t,Math.min(foc.getDate(),new Date(foc.getFullYear(),t+1,0).getDate()))}
       else return;
-      e.preventDefault();show(fit(d),true);
+      e.preventDefault();var was=at();show(fit(d),true);moved(was);
     });
     /* a reset of its form, or of the dialog it sits in, puts back data-value,
        or nothing picked when there is none */
@@ -950,8 +1012,10 @@ var behaviors={
     };
   },
 
-  /* an input with the native required/pattern/type rules. It checks as you
-     type, when you leave the field and when the form is sent. The message
+  /* an input with the native required/pattern/type rules. It checks when you
+     leave the field and when the form is sent; once it has, also as you
+     type, so a fix clears the message at once. A value that is wrong on
+     load shows its message from the start. The message
      goes to the element its aria-describedby names, or the nearest .error.
      Words: data-error-required, data-error-type, data-error-pattern,
      data-error-length, data-error-range, and data-error for anything else.
@@ -981,12 +1045,19 @@ var behaviors={
       var now=msg?'invalid':'valid';
       if(now!==last){last=now;if(user)emit(inp,now,{message:msg,validity:inp.validity})}
     }
-    function check(user){var m=message();show(m,user===true);return !m}
-    function heard(){return check(true)}
-    function clear(){if(field)field.classList.remove('invalid');inp.setAttribute('aria-invalid','false');if(out)out.textContent='';last=null}
-    cx.on(inp,'input',function(){if(resetting)clear();else heard()});
+    /* touched: the field has been left once, a submit has been tried, or it
+       shows a message already. Until then typing says nothing: nobody is
+       told a word is wrong before they have finished it. After that it
+       checks on every keystroke, so a fix clears the message at once */
+    var touched=false;
+    function check(user){var m=message();if(m)touched=true;show(m,user===true);return !m}
+    function heard(){touched=true;return check(true)}
+    function typed(){if(touched)check(true);else if(!message()&&last==='invalid')check(true)}
+    function clear(){if(field)field.classList.remove('invalid');inp.setAttribute('aria-invalid','false');if(out)out.textContent='';last=null;touched=false}
+    cx.on(inp,'input',function(){if(resetting)clear();else typed()});
+    /* change: a checkbox or a select is done the moment it changes; a text field when it is left */
     cx.on(inp,'change',function(){if(resetting)clear();else heard()});
-    cx.on(inp,'blur',heard);
+    cx.on(inp,'blur',function(){if(!resetting)heard()});
     /* a submit the browser stopped: our words instead of its bubble, and the
        first field that failed gets the focus */
     cx.on(inp,'invalid',function(e){e.preventDefault();heard();focusLater(inp)});
@@ -995,6 +1066,25 @@ var behaviors={
     if(form)cx.on(form,'submit',function(e){if(form.noValidate&&!heard()){e.preventDefault();focusLater(inp)}});
     if(inp.value)check();
     return {check:function(){return check()},clear:clear,get message(){return message()}};
+  },
+
+  /* a .tgroup of radios (role="radiogroup"). The nearest role="status" says
+     the pick: the words of its label, or data-say with {label} in it
+     (data-say="{label} view."). Fires aui:change with { value, label, input }
+     when a person picks */
+  segment:function(g,cx){
+    var rs=function(){return all('input[type="radio"]',g)};
+    function label(r){var l=r.closest('label');return (l?l.textContent:r.value).replace(/\s+/g,' ').trim()}
+    function tell(r){var t=g.getAttribute('data-say')||'{label}.';say(g,r?t.replace(/\{label\}/g,label(r)):'Nothing picked.')}
+    cx.on(g,'change',function(e){
+      var r=e.target;if(r.type!=='radio'||!r.checked||resetting)return;
+      tell(r);emit(g,'change',{value:r.value,label:label(r),input:r});
+    });
+    /* a reset puts the html's pick back, and the line with it */
+    cx.on(doc,'aui:reset',function(e){if(e.target.contains(g))tell(rs().filter(function(r){return r.checked})[0])});
+    cx.on(doc,'reset',function(e){if(e.target.contains&&e.target.contains(g))setTimeout(function(){if(g.isConnected)tell(rs().filter(function(r){return r.checked})[0])},0)});
+    var c=rs().filter(function(r){return r.checked})[0];if(c)tell(c);
+    return {get value(){var r=rs().filter(function(x){return x.checked})[0];return r?r.value:''}};
   },
 
   /* a textarea with maxlength; the nearest .count shows it */
@@ -1016,6 +1106,13 @@ var behaviors={
       fill:function(){return tr(bar((f*0.7)%9|0,8))}
     };
     var fn=K[kind]||K.classic;
+    /* the frames are paint: a screen reader would read "slash", "dash". With
+       an aria-label the spinner is an image of that name ("Loading"); with
+       none it is hidden, and the words next to it say the wait */
+    var named=el.hasAttribute('aria-label')||el.hasAttribute('aria-labelledby'),set=null;
+    if(named){if(!el.hasAttribute('role')){el.setAttribute('role','img');set='role'}}
+    else if(!el.hasAttribute('aria-hidden')){el.setAttribute('aria-hidden','true');set='aria-hidden'}
+    cx.later(function(){if(set)el.removeAttribute(set)});
     every(110,function(){f++;el.textContent=fn()},cx);
   },
 
@@ -1047,11 +1144,51 @@ function openDialog(d,from){
     d.addEventListener('pointerdown',function(e){down=e.target===d});
     d.addEventListener('click',function(e){if(down&&e.target===d){if(d.getAttribute('role')==='alertdialog')nudge(d);else close(d)}down=false});
     d.addEventListener('close',function(){if(d.__auiFrom&&d.__auiFrom.isConnected)d.__auiFrom.focus()});
+    if(d.classList.contains('sheet'))swipe(d);
   }
   d.__auiFrom=from;
   /* the answer starts empty every time: Escape and a plain data-aui-close leave it so */
   if(!d.open)d.returnValue='';
   if(d.showModal){if(!d.open)d.showModal()}else d.setAttribute('open','');
+}
+/* A sheet goes down the way it came up, on a touch screen: a finger that
+   drags it down by its title, or from the top of what it holds when that is
+   scrolled to the top, moves it a whole row at a time. Let go past a quarter
+   of its height, or with a flick, and it closes; short of that it goes back.
+   Sideways, or up, is a scroll, and a slider or a field keeps its finger */
+function swipe(d){
+  var st=null;
+  function part(){return d.querySelector(':scope > .lift')||d.firstElementChild}
+  function back(){var l=part();if(l)l.style.translate='';st=null}
+  d.addEventListener('touchstart',function(e){
+    st=null;
+    if(e.touches.length!==1||!d.open||!part())return;
+    var t=e.target;if(t.closest&&t.closest('input,textarea,select,[contenteditable],.slider'))return;
+    var p=e.touches[0];
+    st={x:p.clientX,y:p.clientY,dy:0,on:false,box:t.closest?t.closest('.body'):null,ly:p.clientY,lt:e.timeStamp,v:0};
+  },{passive:true});
+  d.addEventListener('touchmove',function(e){
+    if(!st)return;
+    var p=e.touches[0],dx=p.clientX-st.x,dy=p.clientY-st.y;
+    if(!st.on){
+      if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)){st=null;return}   /* sideways: not ours */
+      if(dy<10){if(dy<-10)st=null;return}                              /* up: a scroll */
+      if(st.box&&st.box.scrollTop>0){st=null;return}                  /* the list scrolls back first */
+      st.on=true;
+    }
+    if(e.cancelable)e.preventDefault();
+    var r=rowh(),dt=e.timeStamp-st.lt;
+    if(dt>0){st.v=(p.clientY-st.ly)/dt;st.ly=p.clientY;st.lt=e.timeStamp}
+    st.dy=Math.max(0,dy);
+    part().style.translate='0 '+Math.floor(st.dy/r)*r+'px';
+  },{passive:false});
+  d.addEventListener('touchend',function(){
+    if(!st||!st.on){st=null;return}
+    var h=part().getBoundingClientRect().height,go=st.dy>h/4||(st.v>0.5&&st.dy>rowh());
+    back();if(go)close(d);
+  });
+  d.addEventListener('touchcancel',back);
+  d.addEventListener('close',back);
 }
 /* a tap beside an alert dialog: one character each way, and the focus back on the safe answer */
 function nudge(d){
@@ -1059,7 +1196,7 @@ function nudge(d){
   if(safe&&!safe.disabled)safe.focus();
   if(reduce)return;
   clearTimeout(d.__auiNudge);d.classList.remove('nudge');void d.offsetWidth;d.classList.add('nudge');
-  d.__auiNudge=setTimeout(function(){d.classList.remove('nudge')},320);
+  d.__auiNudge=setTimeout(function(){d.classList.remove('nudge')},cssTime('--aui-base',240)+80);
 }
 function close(d,v){if(!d)return;if(d.close){if(v)d.close(String(v));else d.close()}else d.removeAttribute('open')}
 function runFill(target,btn){
@@ -1138,7 +1275,10 @@ doc.addEventListener('reset',function(e){
 doc.addEventListener('click',function(e){
   var f=e.target.closest&&e.target.closest('.field');
   if(!f||e.target.closest('input,select,textarea,button,a,label')||f.contains(doc.activeElement))return;
-  var i=f.querySelector('input,textarea');if(i&&!i.disabled)i.focus();
+  var i=f.querySelector('input:not([type="hidden"]),textarea,select');if(!i||i.disabled)return;
+  i.focus();
+  /* a select opens its list, as a tap on the select itself does */
+  if(i.localName==='select'&&i.showPicker)try{i.showPicker()}catch(x){}
 });
 
 /* ---- the ids aria needs, made for markup that has none ---- */

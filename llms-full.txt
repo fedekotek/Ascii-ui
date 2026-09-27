@@ -48,7 +48,7 @@ Anatomy:
 |---|---|---|
 | rest | `========` | The rim by tone: = here, @ on the primary, / on danger. |
 | hover | `########` | One step denser, # here and % on the primary. Danger fills its label yellow. Mouse only. |
-| focus | `@@@@@@@@` | Heavy rim in the focus color, from the keyboard. |
+| focus | `@@@@@@@@` | Heavy rim in the focus color, from the keyboard. The primary's slab takes the focus color too. |
 | pressed | ` PREVIEW` | An ink slab while it is held down. |
 | disabled | `- - - -` | Faint rim, gray label, out of the Tab order. |
 | no script | `========` | Still a button. The `data-aui-*` attributes need the script. |
@@ -136,14 +136,14 @@ Anatomy:
 2. **weekdays** `.cal-grid span`: One letter a day, in the language of the page. `aria-hidden`: every day says its own weekday.
 3. **day** `.cal-grid button`: A real button, 4 characters wide. Its `aria-label` is the whole date.
 4. **today** `.today`: Magenta and bold. The kit reads the date once, when it wires the calendar.
-5. **picked** `[aria-pressed="true"]`: An ink slab with the edge, and `aria-pressed="true"`.
+5. **picked** `[aria-pressed="true"]`: An ink slab, and `aria-pressed="true"`.
 6. **status** `[role="status"]`: The nearest one says the pick in full, or "No date picked."
 
 | State | Looks like | What it means |
 |---|---|---|
 | day | `  21` | A number in ink. |
 | today | `  24` | Magenta and bold. |
-| picked | `  26` | An ink slab with the edge. |
+| picked | `  26` | An ink slab. |
 | focus | `  25` | A slab in the focus color. Only this day is in the Tab order. |
 | disabled | `  19` | Outside `data-min` or `data-max`: gray, thin and `disabled`. |
 | no script | ` ` | Nothing is drawn. Put an `<input type="date">` inside as a fallback: the script replaces it. |
@@ -161,7 +161,7 @@ Accessibility:
 - **role**: Buttons in a grid of boxes. It is not a `role="grid"`: a screen reader hears a run of buttons, each with its full date.
 - **name**: Each day is named "Saturday, 26 September", in the language of the page. [&lt;] and [&gt;] are "Previous month" and "Next month".
 - **state**: `aria-pressed="true"` on the pick. Days outside the limits are `disabled`.
-- **live**: The status line is `role="status"`: it reads the pick when it changes. A new month is not announced; the day names carry it.
+- **live**: The status line is `role="status"`: it reads the pick when it changes. A new month is said too, "October 2026.", from a hidden live region inside the calendar that stays put while the month is redrawn.
 - **touch**: A day is 4 characters wide and 45px tall.
 
 | Do | Don't |
@@ -208,7 +208,7 @@ Limits:
   - `field`: `.field .field-label .error .count`
 - Use it for:
   - One line a person types: a name, a link, an email address.
-  - A value with rules. `data-aui="validate"` checks them as you type and says what is wrong, under the field.
+  - A value with rules. `data-aui="validate"` checks them when you leave the field and says what is wrong, under it. From then on it checks as you type.
 - Not for:
   - More than one line. That is a [Textarea](https://ascii.fedekotek.design/#components/textarea).
   - Picking from a list you already know. That is a [Select](https://ascii.fedekotek.design/#components/select).
@@ -238,8 +238,8 @@ Anatomy:
 | rest | `========` | = rim, :: sides. |
 | focus | `@@@@@@@@` | Heavy rim in the focus color. |
 | invalid | `!!!!!!!!` | A wall of ! in yellow and the message under it. `.invalid` on the frame, `aria-invalid` on the input. |
-| invalid, focused | `!!!!!!!!` | Stays yellow in kit 1.1.1: the caret is the only sign of focus. The site turns it blue. |
-| disabled | `========` | Looks like rest in the kit. It only stops taking the focus. |
+| invalid, focused | `!!!!!!!!` | The wall of ! in the focus color: where you are, and that it is wrong. The message stays. |
+| disabled | `- - - -` | A faint rim and gray text, the way a disabled button looks. Out of the Tab order. |
 | no script | `========` | A plain field. The browser checks it on send, with its own bubble. |
 
 | Keys | Does |
@@ -250,7 +250,7 @@ Anatomy:
 Accessibility:
 - **name**: The `<label>`. The kit links it with `for` when the label is not wrapped around the input.
 - **state**: `aria-invalid` is `true` or `false`. The kit sets it as the verdict changes.
-- **live**: The message is linked by `aria-describedby`. It is not announced as you type: it is read with the field, and a failed send moves the focus there.
+- **live**: The message is linked by `aria-describedby`. It is not announced: it is read with the field, and a failed send moves the focus there. Nothing is said while a person types the first time; the check waits for them to leave.
 - **paint**: The frame is paint. The prompt is `aria-hidden`.
 - **touch**: The whole frame takes the tap, all three rows. Give it the right `type` and `autocomplete`: the phone picks its keyboard from them.
 
@@ -265,7 +265,7 @@ Accessibility:
 | class | `.field .frame .tone-light` | The frame, around a `.mid` that holds the prompt and the input. |
 | class | `.field-label .error` | The label above it and the message under it. |
 | class | `.group` | Around label, field and message. 48 characters wide at most, a row between two. |
-| attr | `data-aui="validate"` | On the `<input>`. Checks as you type, when you leave and when the form is sent. Writes to the nearest `.error`, or to what `aria-describedby` names. |
+| attr | `data-aui="validate"` | On the `<input>`. Checks when you leave it and when the form is sent, then as you type, so a fix clears the message at once. A value wrong on load shows its message from the start. Writes to the nearest `.error`, or to what `aria-describedby` names. |
 | attr | `required pattern type` | The rules, native. `minlength`, `maxlength`, `min` and `max` too. |
 | attr | `data-error-required` | The words for a rule: also `data-error-type`, `data-error-pattern`, `data-error-length`, `data-error-range`, and `data-error` for the rest. A plain default when missing. |
 | event | `aui:invalid aui:valid` | On the input, when a person changes the verdict. `detail`: `{ message, validity }`. |
@@ -276,9 +276,8 @@ Accessibility:
 See also: [Select](https://ascii.fedekotek.design/#components/select), [Textarea](https://ascii.fedekotek.design/#components/textarea), [Input OTP](https://ascii.fedekotek.design/#components/otp), [Toggles](https://ascii.fedekotek.design/#components/toggles)
 
 Limits:
-- A wrong field that has the focus keeps its yellow rim in kit 1.1.1. Add `.field.invalid:focus-within{--frame-color:var(--accent)}` after the kit, as the site does.
-- The kit gives a disabled field no look of its own. The site uses `.field:has(:disabled)`: a faint rim and gray text.
 - On this site the rim ripples as you type and a wrong value buzzes. The kit is quiet.
+- The message is in English unless the `data-error` words say otherwise.
 
 ```html
 <div>
@@ -335,13 +334,14 @@ Anatomy:
 1. **group** `.otp`: `role="group"` with an `aria-label`, where `data-aui="otp"` goes. One box per digit, in order.
 2. **box** `.otp span`: A real `<input maxlength="1">` in a `<span>`. The brackets are the span's paint. They turn to the focus color around the box you are in.
 3. **empty** `input[placeholder]`: The placeholder, `_`, in muted.
-4. **status** `[role="status"]`: The nearest one says how many digits are in, then "Code 420123 accepted."
+4. **status** `[role="status"]`: The nearest one says how many digits are in, then "Code 420123 accepted.", and "Digits only." when a letter comes in.
 
 | State | Looks like | What it means |
 |---|---|---|
 | empty | `[_] [_]` | Brackets and underscores in muted. |
 | focus | `[_]` | The brackets of the box you are in, in the focus color. |
 | accepted | `[4] [2]` | Every box holds a digit: `.good` on the group, lime brackets and digits. |
+| invalid | `!_! !_!` | A letter typed or pasted: `.invalid` on the group, `aria-invalid` on the box, brackets turned into ! in yellow, and "Digits only." The next digit, or Backspace, puts it right. |
 | no script | `[_] [_]` | Six plain boxes. No advance, no paste across them, no hidden input. |
 
 | Keys | Does |
@@ -367,16 +367,17 @@ Accessibility:
 | attr | `data-aui="otp"` | On the `.otp`. Moves on after a digit, goes back on Backspace, spreads a paste over the boxes. |
 | attr | `data-name="code"` | Adds a hidden input with that name and the whole code, for the form. |
 | attr | `autocomplete="one-time-code"` | On the first box. The kit sets it when it is missing or `off`. |
-| class | `.otp .good` | The group, and `.good` once every box holds a digit. |
+| attr | `data-error="Digits only."` | On the `.otp`: what the status line says when a character is not a digit. |
+| class | `.otp .good .invalid` | The group, `.good` once every box holds a digit, `.invalid` after a letter. Add `.invalid` yourself for a code the server refused: the next digit takes it away. |
 | event | `aui:complete` | On the `.otp`, when a person fills the last box. `detail`: `{ value }`. Not on load, not for `value =`. |
 | call | `ASCIIUI.otp(el)` | `value` reads the code or sets it, `clear()` empties every box. |
 
 See also: [Input](https://ascii.fedekotek.design/#components/input), [Button](https://ascii.fedekotek.design/#components/button)
 
 Limits:
-- Digits only. Anything else is dropped as it is typed or pasted.
+- Digits only. A letter is refused and said; in a paste, only the digits are kept.
 - The length is the number of boxes. Four boxes, four digits.
-- No error look and no resend timer. Say a wrong code in the status line.
+- No resend timer. Say a refused code in the status line, with `.invalid` on the group.
 - On this site an accepted code plays a sound. The kit is quiet.
 
 ```html
@@ -432,7 +433,7 @@ Anatomy:
 | rest | `========` | = rim, :: sides. |
 | focus | `@@@@@@@@` | Heavy rim in the focus color. |
 | invalid | `!!!!!!!!` | A wall of ! when the frame has `.invalid`. Nothing sets it for a select: add it yourself. |
-| disabled | `========` | Looks like rest in the kit. The select stops taking the focus. |
+| disabled | `- - - -` | A faint rim and gray text. The select stops taking the focus. |
 | no script | `========` | Works as it is. It is native. |
 
 | Keys | Does |
@@ -445,7 +446,7 @@ Accessibility:
 - **role**: A native `<select>`. A screen reader says its name, its value and how many options there are.
 - **name**: The `<label>`. The kit links it with `for`.
 - **paint**: The frame is paint. The prompt is `aria-hidden`.
-- **touch**: The select fills the middle row. A tap on the rim above or below it does nothing: the kit focuses inputs and textareas from their frame, not selects.
+- **touch**: The whole frame takes the tap. A tap on the rim focuses the select and opens its list, where the browser lets a script do that (`showPicker()`).
 
 | Do | Don't |
 |---|---|
@@ -465,8 +466,7 @@ See also: [Input](https://ascii.fedekotek.design/#components/input), [Toggle gro
 
 Limits:
 - `multiple` is not styled. The frame is one row tall.
-- No search in the list. Past twenty options, people scroll.
-- The rim above and below does not take the tap.
+- No search in the list. Past twenty options, use a [Combobox](https://ascii.fedekotek.design/#components/combobox).
 
 ```html
 <div class="group">
@@ -605,6 +605,7 @@ Anatomy:
 | focus | `@@@@@@@@` | Heavy rim in the focus color. |
 | full | `280/280` | `.full` on the count at `maxlength`. The browser stops taking characters. |
 | invalid | `!!!!!!!!` | A wall of ! when the frame has `.invalid`. The counter never sets it. |
+| disabled | `- - - -` | A faint rim and gray text, out of the Tab order. |
 | no script | `========` | A plain textarea. The count stays at what the HTML says. |
 
 | Keys | Does |
@@ -658,7 +659,8 @@ Limits:
 - Group: Form
 - In the kit: yes, `kit/starter.html#togglegroup`
 - Caption: Pick one of a few options. Radios dressed as slabs.
-- Behaviors: none, HTML and CSS only
+- Behaviors:
+  - `data-aui="segment"`: says the pick in the status line
 - CSS blocks:
   - `segment`: `.tgroup`
 - Use it for:
@@ -679,12 +681,12 @@ Anatomy:
 
 1. **group** `.tgroup`: `role="radiogroup"` with an `aria-label`. One row; it wraps on a narrow screen.
 2. **option** `.tgroup span`: A `<label>` around an invisible radio and a `<span>`. The span is what you see, a muted word.
-3. **picked** `input:checked + span`: The checked radio's span: an ink slab with the edge.
+3. **picked** `input:checked + span`: The checked radio's span: an ink slab.
 
 | State | Looks like | What it means |
 |---|---|---|
 | rest | `  LIST` | A muted word. |
-| checked | ` BOARD` | An ink slab with the edge. |
+| checked | ` BOARD` | An ink slab. |
 | focus | `  LIST` | A slab in the focus color, from the keyboard. The arrows pick as they go. |
 | no script | `  LIST` | Works as it is. They are radios. |
 
@@ -698,7 +700,7 @@ Accessibility:
 - **role**: `role="radiogroup"` around native radios. A screen reader says "radio button, 2 of 3".
 - **name**: Give the radiogroup an `aria-label`, or put it in a `<fieldset>` with a `<legend>`.
 - **state**: Checked is the radio's own. Nothing to keep in step.
-- **live**: The status line after it is `role="status"`, and the kit does not write to it. Write the new value there from a `change` listener, or leave it out.
+- **live**: The status line after it is `role="status"`. With `data-aui="segment"` the kit writes the pick there, on load and on every pick: the label's words, or `data-say` around them.
 - **touch**: Each option is 45px tall with its padding.
 
 | Do | Don't |
@@ -711,18 +713,20 @@ Accessibility:
 | class | `.tgroup` | On the `role="radiogroup"`. Each option is a `<label>` with an `<input type="radio">` and a `<span>`. |
 | attr | `name` | One `name` per group. Pasted twice, the kit renames the second copy so the two do not fight. |
 | attr | `checked` | The option picked on load. |
-| event | `change` | The radio's own. The kit adds none. |
+| attr | `data-aui="segment"` | On the `.tgroup`. Writes the pick into the nearest `role="status"`. Without it the radios work and the line stays as the HTML has it. |
+| attr | `data-say="{label} view."` | What it writes. `{label}` is the picked option's words. "{label}." when missing. |
+| event | `aui:change` | On the `.tgroup`, when a person picks. `detail`: `{ value, label, input }`. The radio's own `change` fires too. |
+| call | `ASCIIUI.get(el)` | `value`: the picked radio's value. |
 
 See also: [Tabs](https://ascii.fedekotek.design/#components/tabs), [Toggles](https://ascii.fedekotek.design/#components/toggles), [Select](https://ascii.fedekotek.design/#components/select)
 
 Limits:
-- The kit does not write the status line. On this site a script does.
 - One pick. For several, use checkboxes: [Toggles](https://ascii.fedekotek.design/#components/toggles).
 
 ```html
 <div class="stack">
   <div>
-    <div class="tgroup" role="radiogroup" aria-label="View">
+    <div class="tgroup" role="radiogroup" aria-label="View" data-aui="segment" data-say="{label} view.">
       <label><input type="radio" name="viewmode" value="list"><span>List</span></label>
       <label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label>
       <label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label>
@@ -847,23 +851,84 @@ Limits:
   - `dialog`: `dialog`
   - `alert`: `.alert`
   - `alertdialog`: `[role="alertdialog"]`
-- Usage: not written yet. The rows below are read from the kit.
+- Use it for:
+  - A question before something that cannot be undone: delete a project, drop a workspace, revoke every key.
+  - The one time the page stops a person and makes them answer.
+- Not for:
+  - Anything that can be undone. Do it, say so in a [Toast](https://ascii.fedekotek.design/#components/toast), and offer a way back.
+  - A question that is not about losing something: publish, save. That is the dialog in [Card and dialog](https://ascii.fedekotek.design/#components/card).
+  - A warning that stays on the page. That is an [Alert](https://ascii.fedekotek.design/#components/alert).
+
+Anatomy:
+
+```text
+5 . . . . . . . . . . . . . . .
+1 . // DELETE PROJECT? /////  .
+  . //                    //  .
+2 . //  Reporting goes    //  .
+  . //  for good.         //  .
+  . //                    //  .
+  . //  KEEP IT  DELETE   //  .
+  . ////////////////////////  .
+  . . . . . . . . . . . . . . .
+        ^^^^^^^  ^^^^^^
+        3        4
+```
+
+1. **card** `.alert`: The [Alert](https://ascii.fedekotek.design/#components/alert) card in `tone-danger`: a rim of /, the title on a yellow slab.
+2. **question** `.body > p`: What goes, and that it does not come back. The kit describes the dialog by it.
+3. **safe** `[autofocus]`: Keep it, first, with `autofocus`. It has the focus when the dialog opens, and again after a tap outside.
+4. **action** `.btn-danger`: Delete, last, with `data-aui-close="delete"`: the dialog closes with that as its `returnValue`.
+5. **veil** `dialog`: A native `<dialog>` with `role="alertdialog"`, over a veil of periods. Inside an `.alert` they are yellow.
+
+| State | Looks like | What it means |
+|---|---|---|
+| closed | ` ` | Not drawn. The button is all there is. |
+| open | `. . . .` | Modal, over yellow periods. The page behind is inert and does not scroll. The safe button has the focus. |
+| nudged | `////////` | A tap outside: the card jolts one character left, right, left, and the focus goes back to the safe button. |
+| danger disabled | `- - - -` | With `data-aui="confirm"`: Delete stays `disabled` until the field holds the name. |
+| invalid | `!!!!!!!!` | Enter with the wrong name: a wall of ! and "Type static-prod exactly." under the field. |
+| reduced motion | `////////` | No jolt. The focus still goes back to the safe button. |
+| no script | `////////` | The button does nothing and the dialog stays closed. |
+
+| Keys | Does |
+|---|---|
+| `Enter`, `Space` | On the button: opens it. On a button in it: presses it. In the name field: with the right name it presses Delete, with the wrong one it says what to type. |
+| `Tab`, `Shift Tab` | Between the field and the buttons. The page behind is out of reach. |
+| `Esc` | Closes it, the same as the safe button. `returnValue` stays empty. |
 
 Accessibility:
-- **role**: `alertdialog`, in the markup. (from the kit)
-- **kit**: Sets `aria-describedby`, `aria-invalid` itself. (from the kit)
+- **role**: `role="alertdialog"` on a native `<dialog>`, opened with `showModal()`: modal, the page behind is inert.
+- **name**: The kit names it by its `.bar-title` and describes it by its first paragraph, so the question is read as it opens.
+- **focus**: The safe button has `autofocus`, so a stray Enter keeps the thing. On close, the focus goes back to the button that opened it.
+- **state**: A danger button held off by `data-aui="confirm"` is `disabled`: out of the Tab order, and said so.
+- **touch**: A tap outside does not close it. It nudges, so a thumb that missed deletes nothing.
+- **paint**: The veil, the rims and the walls are paint.
+
+| Do | Don't |
+|---|---|
+| Name what goes and say it does not come back: "Reporting redesign and its 14 comments go for good." | Ask "Are you sure?" |
+| Name the buttons for what they do: Keep it, Delete. | Offer Yes and No, or OK and Cancel. |
+| Ask for the name to be typed when a slip costs a lot: a workspace, not a comment. | Make people type a name to delete every small thing. |
 
 | Kind | Name | Does |
 |---|---|---|
-| attr | `data-aui="confirm"` | Keeps the danger button off until the name is typed. (from the kit) |
-| attr | `data-aui-open` | Opens the dialog next to it. (from the kit) |
-| attr | `data-aui-close` | Closes its dialog or popover. (from the kit) |
-| attr | `data-aui-toast-err` | Shows a yellow toast. (from the kit) |
-| attr | `data-error="Type "` | Type  when missing. (from the kit) |
-| attr | `data-match` | Read by the kit. (from the kit) |
-| call | `ASCIIUI.get(el)` | `check`, `ok`. (from the kit) |
+| attr | `role="alertdialog"` | On the `<dialog>`. A tap outside nudges it instead of closing it. |
+| class | `.alert .lift` | The [Alert](https://ascii.fedekotek.design/#components/alert) card inside, `tone-danger`, and its shadow. |
+| attr | `data-aui-open` | On a button. Opens the dialog after it, in the same element. |
+| attr | `data-aui-close="delete"` | On the danger button: closes it with `returnValue` "delete". A plain `data-aui-close` leaves it empty. |
+| attr | `autofocus` | On the safe button. The focus lands there on open and after a nudge. |
+| attr | `data-aui="confirm"` | On a field in it, with `data-match="static-prod"`: the danger buttons stay off until the field holds exactly those words. It is empty every time the dialog opens. |
+| attr | `data-error` | On that field: what it says when Enter comes with the wrong words. "Type static-prod exactly." when missing. |
+| attr | `data-aui-toast-err` | On the danger button: a yellow toast once it closes. |
+| event | `close` | The dialog's own. Read `returnValue` there: "delete", or empty. |
+| call | `ASCIIUI.get(input)` | On the confirm field: `check()` and `ok`. |
 
-See also: [Button](https://ascii.fedekotek.design/#components/button), [Card and dialog](https://ascii.fedekotek.design/#components/card), [Alert](https://ascii.fedekotek.design/#components/alert) (from the kit)
+See also: [Card and dialog](https://ascii.fedekotek.design/#components/card), [Alert](https://ascii.fedekotek.design/#components/alert), [Toast](https://ascii.fedekotek.design/#components/toast), [Popover](https://ascii.fedekotek.design/#components/popover)
+
+Limits:
+- The name check is exact: case and spaces inside count, only the ends are trimmed.
+- Escape counts as the safe answer, as for every dialog.
 
 ```html
 <div class="row">
@@ -932,29 +997,92 @@ See also: [Button](https://ascii.fedekotek.design/#components/button), [Card and
   - `card`: `.card .lift .bar-title .body`
   - `pane`: `.pane`
   - `combobox`: `.combo .opts`
-- Usage: not written yet. The rows below are read from the kit.
+- Use it for:
+  - One value from a long list people search by name: a region, a city, a person, a project.
+  - A list too long for a [Select](https://ascii.fedekotek.design/#components/select) to scroll through, where people know how the thing they want starts.
+- Not for:
+  - Five to fifteen options people read through. That is a [Select](https://ascii.fedekotek.design/#components/select): native, and a phone shows its own picker.
+  - Two to five options. That is a [Toggle group](https://ascii.fedekotek.design/#components/togglegroup): every choice in view, one tap.
+  - A search box. It takes only what is on the list, unless it has `data-free`. For a search, use an [Input](https://ascii.fedekotek.design/#components/input).
+  - Several values. It picks one.
+
+Anatomy:
+
+```text
+1 Probe region
+2 ============================
+3 :: v f                    ::
+  ============================
+4 @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+5 @@  fra-1, Frankfurt      @@
+  @@  sfo-1, San Francisco  @@
+  @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+6 Pick a region from the list.
+```
+
+1. **label** `.field-label`: A real `<label>`. It names the field, and the kit names the list by it too.
+2. **frame** `.field`: The frame of the [Input](https://ascii.fedekotek.design/#components/input). A tap anywhere on it opens the list; a tap on the v closes it again.
+3. **field** `input[role="combobox"]`: The real input. What you type narrows the list: every word you type starts a word of the option, case and accents aside.
+4. **list** `.pane`: A `.pane` with a card and a `role="listbox"`, as wide as the field. Six options in view, then it scrolls.
+5. **option** `[role="option"]`: Two rows each. The one the arrows are on is a slab in the focus color, the pick is an ink slab.
+6. **error** `.error`: Empty until you leave the field with words that are no option. Then `data-error-list` says so.
 
 | State | Looks like | What it means |
 |---|---|---|
-| focus | ` ` | `.field:focus-within` (from the kit) |
-| disabled | ` ` | `.field:has(:disabled)` (from the kit) |
-| invalid | ` ` | `.field.invalid` (from the kit) |
-| selected | ` ` | `.opts [role="option"][aria-selected="true"]` (from the kit) |
+| closed | `========` | The list is `hidden`, `aria-expanded="false"` on the field. |
+| focus | `@@@@@@@@` | The field has the focus: the heavy rim in the focus color. |
+| open | `@@@@@@@@` | The list under the field, or above it, label and all, when there is no room below. It wipes in. |
+| active option | ` fra-1` | The option the arrows are on, `data-active`: a slab in the focus color. The caret stays in the field. |
+| selected | ` iad-1` | The pick, `aria-selected="true"`: an ink slab. |
+| option disabled | ` mcm-1` | `aria-disabled="true"`: gray. The arrows skip it and a click does nothing. |
+| nothing matches | `No regi` | The list says `data-empty`, or "Nothing matches.", and a screen reader hears it. |
+| invalid | `!!!!!!!!` | Left with words that are no option: a wall of ! and `data-error-list` under it. |
+| no script | `========` | A plain text field. The list stays closed. |
+
+| Keys | Does |
+|---|---|
+| `Down`, `Up` | Opens the list on the pick, or on the first or the last option. Open: the next or the previous one, and it wraps. Gray options are skipped. |
+| `Alt Down` | Opens the list on the pick, if there is one, and moves to no other option. |
+| `Page Down`, `Page Up` | Five options on, or five back. |
+| `Enter` | Picks the option the arrows are on and closes the list. With the list closed it settles the words first, so a form sends the pick or stops. |
+| `Esc` | Closes the list and puts the pick back in the field. |
+| `Tab` | Closes the list. Leaving settles the words: an option, nothing, or the error. |
 
 Accessibility:
-- **role**: `combobox`, `listbox`, `option`, `status`, in the markup. (from the kit)
-- **kit**: Sets `aria-describedby`, `aria-live`, `aria-controls`, `aria-autocomplete`, `aria-expanded`, `aria-labelledby`, `aria-activedescendant`, `aria-invalid`, `aria-selected` itself. (from the kit)
+- **role**: `role="combobox"` on the input and a `role="listbox"` of `role="option"`. The kit adds `aria-controls`, `aria-autocomplete="list"`, `aria-expanded` and `autocomplete="off"`.
+- **focus**: The focus stays in the field. The option the arrows are on is its `aria-activedescendant`, so a screen reader reads it as you move.
+- **name**: The `<label>` names the field and the list.
+- **live**: Half a second after you stop typing, a hidden live region says how many match, "3 matches.", or the `data-empty` words. The status line says the pick.
+- **state**: `aria-selected="true"` on the pick. `aria-invalid` on the field when its words are no option.
+- **touch**: Options are two rows, 42px. A tap on the frame opens the list.
+
+| Do | Don't |
+|---|---|
+| Write options the way people search for them: "fra-1, Frankfurt", code and city. | List bare codes nobody would type. |
+| Say what went wrong in `data-error-list`: "Pick a region from the list." | Let the field keep words that match nothing, and send nothing. |
+| Gray out an option that exists but cannot be picked now, and say why in it: "(full)". | Take it off the list, so people think they typed it wrong. |
 
 | Kind | Name | Does |
 |---|---|---|
-| attr | `data-aui="combobox"` | Narrows the list as you type, arrows and Enter pick, says when nothing matches. (from the kit) |
-| attr | `data-empty="Nothing matches."` | Nothing matches. when missing. (from the kit) |
-| attr | `data-error-list="Pick one from the list."` | Pick one from the list. when missing. (from the kit) |
-| attr | `data-name data-label data-value data-active data-free` | Read by the kit. (from the kit) |
-| event | `aui:change` | On the combobox element. `detail`: `{ value, label, option }`. (from the kit) |
-| call | `ASCIIUI.combobox(el)` | `open`, `close`, `set`, `value`, `label`, `option`, `isOpen`. (from the kit) |
+| attr | `data-aui="combobox"` | On the `.combo`, around the `.field` and the `.pane`. |
+| class | `.combo .opts .opts-none` | The box, the list that scrolls, and the line that says nothing matches. |
+| attr | `data-value` | On an option: what it sends. On the `.combo`: the option picked on load. Followed live. |
+| attr | `data-name="region"` | Adds a hidden input with that name and the pick's `data-value`, for the form. |
+| attr | `data-label` | On an option: the words it is matched by and shows in the field, when its text says more. |
+| attr | `data-empty` | What the list says when nothing matches. "Nothing matches." when missing. |
+| attr | `data-error-list` | What it says when the field is left with words that are no option. "Pick one from the list." when missing. |
+| attr | `data-free` | Takes any words, not only an option. `aui:change` then has no `option`. |
+| attr | `aria-disabled="true"` | On an option: gray, skipped, never picked. |
+| attr | `data-active` | Set by the kit on the option the arrows are on. Style it, do not set it. |
+| event | `aui:change` | On the `.combo`, when a person picks or clears it. `detail`: `{ value, label, option }`. |
+| call | `ASCIIUI.combobox(el)` | `open()`, `close()`, `set(value)` (`null` clears it; `false` when no option has that value), `value`, `label`, `option`, `isOpen`. |
 
-See also: [Card and dialog](https://ascii.fedekotek.design/#components/card) (from the kit)
+See also: [Select](https://ascii.fedekotek.design/#components/select), [Input](https://ascii.fedekotek.design/#components/input), [Dropdown](https://ascii.fedekotek.design/#components/dropdown), [Popover](https://ascii.fedekotek.design/#components/popover)
+
+Limits:
+- One pick, not several.
+- It matches the start of words, case and accents aside: "sao" finds São Paulo, "aulo" finds nothing.
+- The options are in the HTML. To fetch them as people type, replace the options from your script: the kit reads them again on the next key.
 
 ```html
 <div class="stack">
@@ -1090,29 +1218,85 @@ Limits:
   - `kbd`: `kbd .kbds`
   - `divider`: `.sepd .sepl`
   - `table`: `.tablewrap .tbl`
-- Usage: not written yet. The rows below are read from the kit.
+- Use it for:
+  - Actions on a row or an item, where people look for them with the right mouse button: open, copy, assign, delete.
+  - A shortcut to actions that are also somewhere else on the page. Nobody finds a context menu by looking.
+- Not for:
+  - The only way to do something. Put it in a [Dropdown](https://ascii.fedekotek.design/#components/dropdown) or on a [Button](https://ascii.fedekotek.design/#components/button) too: a right-click cannot be seen.
+  - A value to pick. That is a [Select](https://ascii.fedekotek.design/#components/select) or a [Combobox](https://ascii.fedekotek.design/#components/combobox).
+  - Text people want to copy. Links and fields keep the browser's own menu; keep it on prose too.
+
+Anatomy:
+
+```text
+1 ID       SERVICE      STATUS
+2 INC-481  api-gateway  DOWN
+  INC-480 @@@@@@@@@@@@@@@@@@@@@@
+3         @@  Open        [o] @@
+4         @@  Copy ID     [c] @@
+5         @@  Undo            @@
+          @@  - - - - - - -   @@
+6         @@  Delete          @@
+          @@@@@@@@@@@@@@@@@@@@@@
+```
+
+1. **area** `.ctx`: Where `data-aui="contextmenu"` goes: around what the menu acts on, a table, a list, a board.
+2. **row** `tr[tabindex]`: A row that takes the focus, so Shift F10 has something to open on. While the menu is open it wears `data-ctx`: a violet bar down its first character.
+3. **menu** `.menu`: A `.menu.pane`, `role="menu"` with an `aria-label`, `hidden`. It opens where you pressed, on the grid, and to the left of the pointer when there is no room on the right.
+4. **item** `[role="menuitem"]`: A button with `tabindex="-1"`. The one with the focus is an ink slab. The letter in its `<kbd>` picks it.
+5. **off** `[disabled]`: `disabled`: gray, and the arrows and the letters skip it.
+6. **danger** `.danger`: Yellow, a yellow slab under the focus. Last, after a rule.
 
 | State | Looks like | What it means |
 |---|---|---|
-| focus | ` ` | `.tbl tbody tr:focus-visible` (from the kit) |
-| selected | ` ` | `.tbl tbody tr[aria-selected="true"]` (from the kit) |
+| closed | ` ` | The menu is `hidden`. The rows look like any rows. |
+| open | `@@@@@@@@` | Where you pressed, over the page. The first item has the focus. |
+| on a row | `I` | The row it acts on wears `data-ctx`: a violet bar in its first character. |
+| row selected | ` INC-48` | A row your script marks `aria-selected="true"`: an ink slab. The kit does not pick rows. |
+| item focus, hover | `  Open` | An ink slab, from the keyboard or a mouse. |
+| disabled | `  Undo` | `disabled`: gray, skipped. |
+| danger focus | ` Delete` | A yellow slab. |
+| no script | ` ` | The browser's own menu, as if the kit were not there. |
 
 | Keys | Does |
 |---|---|
-| `ContextMenu`, `F10` | Handled by ascii-ui.js. (from the kit) |
+| `Shift F10`, `ContextMenu` | On a row, or anything focused in the area: opens the menu under it, two characters in. |
+| `Down`, `Up` | The next or the previous item, and it wraps. Gray items are skipped. A letter moves to the next item that starts with it. |
+| `Home`, `End` | The first or the last item. |
+| `Enter`, `Space` | Picks the item and closes the menu. The letter in an item's `<kbd>` does the same from anywhere in the menu. |
+| `Esc`, `Tab` | Closes the menu and puts the focus back where it was. |
+| `F10` | Handled by ascii-ui.js. (from the kit) |
 
 Accessibility:
-- **role**: `menu`, `menuitem`, `separator`, `status`, in the markup. (from the kit)
-- **kit**: Sets `aria-hidden`, `aria-keyshortcuts` itself. (from the kit)
+- **role**: `role="menu"` of `role="menuitem"` buttons. The kit hides each `<kbd>` and says its letter as `aria-keyshortcuts`, so the item reads "Open", not "Open o".
+- **name**: Give the menu an `aria-label` for what it acts on: "Incident".
+- **focus**: Opening moves the focus to the first item; Escape, Tab and a pick bring it back. Give the rows `tabindex="0"`, or a keyboard cannot reach them.
+- **live**: The nearest `role="status"` says what was picked, on what: "Copy ID: INC-481."
+- **touch**: Press and hold half a second without moving. The menu that opens is this one, not the browser's, and the text under the finger is not selected. The finger lifting picks nothing.
+- **paint**: The rims, the walls and the shadow are paint. The violet bar on the row is a shadow; in Windows High Contrast it is an outline.
+
+| Do | Don't |
+|---|---|
+| Offer the same actions where people can see them: a row menu, a toolbar. | Hide the only Delete behind a right-click. |
+| Give every row `tabindex="0"`, so Shift F10 works on it. | Make it a menu for the mouse only. |
+| Keep it short: a few items, a rule, the one you cannot take back last. | Copy the browser's own menu into yours: Back, Reload, Print. |
 
 | Kind | Name | Does |
 |---|---|---|
-| attr | `data-aui="contextmenu"` | Opens on right-click, a long press or Shift F10, arrows and letters move, Escape closes. (from the kit) |
-| attr | `data-ctx` | Read by the kit. (from the kit) |
-| event | `aui:select` | On the contextmenu element. `detail`: `{ item, text, target }`. (from the kit) |
-| call | `ASCIIUI.contextmenu(el)` | `open`, `close`, `isOpen`, `target`. (from the kit) |
+| attr | `data-aui="contextmenu"` | On the `.ctx`. The `role="menu"` inside opens on a right-click, a long press, Shift F10 or the ContextMenu key. |
+| class | `.ctx .menu .pane` | The area, and the menu, which is a pane. |
+| attr | `data-ctx` | Set by the kit on the row the open menu acts on. Style it, do not set it. |
+| attr | `tabindex="0"` | On the rows, so a keyboard reaches them. |
+| attr | `disabled aria-disabled="true"` | On an item: gray, skipped. |
+| event | `aui:select` | On the `.ctx`, when an item is picked. `detail`: `{ item, text, target }`. `text` leaves out the kbd letter; `target` is the row. |
+| call | `ASCIIUI.contextmenu(el)` | `open(target)`, on an element inside or at `{ x, y }` in the window; `close()`, `isOpen`, `target`. |
 
-See also: [Card and dialog](https://ascii.fedekotek.design/#components/card), [Badge](https://ascii.fedekotek.design/#components/badge), [Dropdown](https://ascii.fedekotek.design/#components/dropdown), [Kbd](https://ascii.fedekotek.design/#components/kbd), [Separator](https://ascii.fedekotek.design/#components/separator) (from the kit)
+See also: [Dropdown](https://ascii.fedekotek.design/#components/dropdown), [Kbd](https://ascii.fedekotek.design/#components/kbd), [Popover](https://ascii.fedekotek.design/#components/popover)
+
+Limits:
+- Shift and a right-click still get the browser's own menu, and so do links and text fields in the area.
+- One level. No submenus, no items that check on and off.
+- It closes when the page scrolls or the window changes size.
 
 ```html
 <div class="stack">
@@ -1212,7 +1396,8 @@ Anatomy:
 |---|---|---|
 | closed | `========` | The menu is `hidden` and the trigger says `aria-expanded="false"`. |
 | open | `@@@@@@@@` | The card, under the trigger and over whatever is below it. |
-| item focus, hover | `  Copy` | An ink slab, from the keyboard or the pointer. In a menu they are the same thing. |
+| item focus, hover | `  Copy` | An ink slab, from the keyboard or a mouse. In a menu they are the same thing. |
+| disabled | `  Undo` | `disabled` on an item: gray, and the arrows skip it. |
 | danger focus | ` Delete` | A yellow slab. |
 | no script | `========` | The trigger does nothing and the menu stays closed. |
 
@@ -1240,7 +1425,7 @@ Accessibility:
 |---|---|---|
 | attr | `data-aui="dropdown"` | On the `.pop`. The `[aria-haspopup]` button inside opens the `role="menu"` inside. |
 | class | `.pop .menu` | The box around both, and the menu. `.danger` on an item makes it yellow. |
-| attr | `disabled` | On an item: the arrows skip it. The kit gives it no look of its own. |
+| attr | `disabled` | On an item: gray, and the arrows skip it. |
 | attr | `data-aui-toast data-aui-toast-err` | On an item: a lime or a yellow toast when it is picked. |
 | event | `aui:select` | On the `.pop`, when an item is picked. `detail`: `{ item, text }`. `text` is all of it, key hint included: "Duplicate d". |
 | call | `ASCIIUI.dropdown(el)` | `open()`, `close()`, `toggle()`, `isOpen`. `open()` leaves the focus where it is. |
@@ -1292,30 +1477,85 @@ Limits:
   - `pane`: `.pane`
   - `popover`: `[data-aui="popover"]`
   - `toast`: `.toast [data-aui-toast]`
-- Usage: not written yet. The rows below are read from the kit.
+- Use it for:
+  - A few controls that belong to one button and do not deserve a dialog: snooze for how long, rename in place, a short filter.
+  - Something the page can go on without while it is open. It is not modal: the page around it stays live.
+- Not for:
+  - A decision the page has to stop for. That is the dialog in [Card and dialog](https://ascii.fedekotek.design/#components/card), or an [Alert dialog](https://ascii.fedekotek.design/#components/alertdialog) when it cannot be undone.
+  - A list of actions. That is a [Dropdown](https://ascii.fedekotek.design/#components/dropdown): a menu, arrows, one Tab stop.
+  - A hint. That is a [Tooltip](https://ascii.fedekotek.design/#components/tooltip): it takes no focus and holds no controls.
+  - A form of more than a few fields, or anything that needs the whole width of a phone. That is a [Sheet](https://ascii.fedekotek.design/#components/sheet).
+
+Anatomy:
+
+```text
+1 ==============
+  :: SNOOZE v ::
+  ==============
+2 @@ SNOOZE API-GATEWAY @@@@
+  @@                      @@::
+3 @@  ( ) 15 minutes      @@::
+  @@  (@) 1 hour          @@::
+  @@                      @@::
+4 @@   CANCEL   SNOOZE    @@::
+  @@@@@@@@@@@@@@@@@@@@@@@@@@::
+    ::::::::::::::::::::::::::
+```
+
+1. **trigger** `[aria-haspopup]`: A [Button](https://ascii.fedekotek.design/#components/button) with `aria-haspopup="dialog"`. While the panel is open its rim is # and the kit keeps `aria-expanded` true.
+2. **title** `.bar-title`: The card's title. The kit names the panel by it, with `aria-labelledby`.
+3. **panel** `.pane`: A `.pane`, `hidden` until it opens. Where the browser has the Popover API the kit lifts it into the top layer, so no box that scrolls or clips cuts it off. It sits on the grid under the trigger, or above it when there is no room.
+4. **way out** `[data-aui-close]`: Cancel and Snooze put it away and bring the focus back to the trigger.
+
+| State | Looks like | What it means |
+|---|---|---|
+| closed | `========` | The panel is `hidden`, the trigger says `aria-expanded="false"`. |
+| open | `########` | The trigger's rim turns #, held open. The panel wipes in from the trigger's side, a row a step. |
+| open, above | `@@@@@@@@` | `.up` on the panel when there is no room under the trigger: it opens above and wipes in upwards. |
+| focus | `@@@@@@@@` | The trigger with the focus: the heavy rim in the focus color, open or not. |
+| reduced motion | `@@@@@@@@` | There at once, no wipe. |
+| no script | `========` | The trigger does nothing and the panel stays hidden. |
 
 | Keys | Does |
 |---|---|
-| `Esc` | Handled by ascii-ui.js. (from the kit) |
+| `Enter`, `Space` | On the trigger: opens it, and the focus goes in, to `[autofocus]`, the first control, or the checked radio. Again: closes it. |
+| `Esc` | Closes it and puts the focus back on the trigger. A list inside that takes the Escape first keeps it open. |
+| `Tab`, `Shift Tab` | Through the controls in it. Past the last one, or back before the first, it closes and the focus moves on. |
+| `Up`, `Down` | Between the radios in it, the browser way. |
 
 Accessibility:
-- **kit**: Sets `aria-controls`, `aria-expanded`, `aria-labelledby`, `aria-describedby`, `aria-invalid` itself. (from the kit)
+- **role**: `role="dialog"` on the panel, set by the kit when it has none. Not modal: the page is not inert and the focus is not trapped.
+- **name**: The `.bar-title`, by `aria-labelledby`. A panel without a title needs an `aria-label`.
+- **state**: `aria-expanded` and `aria-controls` on the trigger, kept by the kit.
+- **focus**: Opening moves the focus in; Escape and a `data-aui-close` bring it back to the trigger. A click outside leaves it where the click put it.
+- **touch**: A tap outside puts it away. The controls in it keep their 45px.
+- **paint**: The rims, the walls and the shadow are paint. The v after the label is `aria-hidden`.
+
+| Do | Don't |
+|---|---|
+| Keep it to one small task with a way out: Cancel and the action. | Fit a whole settings page into a popover. |
+| Put its fields in a `<form method="dialog">`: a wrong field keeps it open, a good one closes it. | Save on every keystroke, before anyone pressed Save. |
+| Name the trigger for what the panel does: "Snooze", "Rename". | Hide the only way to do something important behind it. |
 
 | Kind | Name | Does |
 |---|---|---|
-| attr | `data-aui="popover"` | Opens the panel next to its button, Escape and a click outside close it, the focus comes back. (from the kit) |
-| attr | `data-aui="validate"` | Checks as you type, on leaving the field and on submit, writes the error. (from the kit) |
-| attr | `data-aui-close` | Closes its dialog or popover. (from the kit) |
-| attr | `data-aui-toast` | Shows a toast. (from the kit) |
-| attr | `data-error-required data-error-type data-error-pattern data-error-length data-error-range data-error` | Read by the kit. (from the kit) |
-| event | `aui:toggle` | On the popover element. `detail`: `{ open }`. (from the kit) |
-| event | `aui:invalid` | On the validate element. `detail`: `{ message, validity }`. (from the kit) |
-| event | `aui:valid` | On the validate element. `detail`: `{ message, validity }`. (from the kit) |
-| call | `ASCIIUI.popover(el)` | `open`, `close`, `toggle`, `isOpen`. (from the kit) |
-| call | `ASCIIUI.validate(el, ...)` | A call of its own on `window.ASCIIUI`. (from the kit) |
-| call | `ASCIIUI.get(el)` | `check`, `clear`, `message`. (from the kit) |
+| attr | `data-aui="popover"` | On the `.pop`. The `[aria-haspopup]` button inside opens the `.pane` inside. |
+| class | `.pop .pane` | The box around trigger and panel, and the panel. A card in `tone-heavy` inside it. |
+| class | `.open .up` | Set by the kit on the panel: open, and opened above its trigger. |
+| attr | `data-aui-close` | On a button in the panel: puts it away and brings the focus back. With `data-aui-toast` it also says what happened. |
+| attr | `method="dialog"` | On a `<form>` in the panel: a send that passes the browser's checks closes it and brings the focus back. |
+| attr | `data-aui="validate"` | On a field in it, as in [Input](https://ascii.fedekotek.design/#components/input): the words go under the field and the panel stays open. With `data-error-required`, `data-error-type`, `data-error-pattern`, `data-error-length`, `data-error-range` and `data-error` for the words. |
+| event | `aui:toggle` | On the `.pop`, when a person opens or closes it. `detail`: `{ open }`. Not for `open()` and `close()`. |
+| event | `aui:invalid aui:valid` | From a field inside that has `data-aui="validate"`, as in [Input](https://ascii.fedekotek.design/#components/input). |
+| call | `ASCIIUI.popover(el)` | `open()`, `close()`, `toggle()`, `isOpen`. `open()` leaves the focus where it is. |
+| call | `ASCIIUI.validate(form) ASCIIUI.get(input)` | For the fields inside, as in [Input](https://ascii.fedekotek.design/#components/input). |
+| css | `--pcols` | The width of the panel, in characters. 36 when missing. |
 
-See also: [Button](https://ascii.fedekotek.design/#components/button), [Toggles](https://ascii.fedekotek.design/#components/toggles), [Card and dialog](https://ascii.fedekotek.design/#components/card) (from the kit)
+See also: [Dropdown](https://ascii.fedekotek.design/#components/dropdown), [Card and dialog](https://ascii.fedekotek.design/#components/card), [Alert dialog](https://ascii.fedekotek.design/#components/alertdialog), [Tooltip](https://ascii.fedekotek.design/#components/tooltip), [Sheet](https://ascii.fedekotek.design/#components/sheet)
+
+Limits:
+- It opens under its trigger or above it, never to the side.
+- Without the Popover API (Safari before 17, Firefox before 125) the panel stays in the page, and a box that scrolls or clips cuts it off.
 
 ```html
 <div class="row">
@@ -1421,8 +1661,9 @@ Anatomy:
 | State | Looks like | What it means |
 |---|---|---|
 | closed | ` ` | Not drawn. The button is all there is. |
-| open | `. . . .` | Up from the bottom in seven steps, over magenta dots. The page behind is inert and does not scroll. |
-| reduced motion | `@@@@@@@@` | Up at once, no steps. |
+| open | `. . . .` | Up from the bottom in seven steps, over a veil of magenta periods. The page behind is inert and does not scroll. |
+| dragged | `@@@@@@@@` | On a touch screen a finger pulls it down by its title, a row at a time. Past a quarter of its height, or with a flick, it closes; short of that it goes back. |
+| reduced motion | `@@@@@@@@` | Up at once, no steps. It still follows a finger. |
 | no script | `========` | The button does nothing and the sheet stays closed. |
 
 | Keys | Does |
@@ -1436,7 +1677,7 @@ Accessibility:
 - **name**: The kit names it by its `.bar-title` with `aria-labelledby`.
 - **focus**: On open, the `autofocus` field takes the focus: here the first checkbox. On close, the focus goes back to the opener.
 - **live**: Apply closes the sheet first, then the toast shows on the page and is read out.
-- **touch**: A tap on the dots closes it. The [x] is 45px tall.
+- **touch**: A tap on the veil closes it, and so does a drag down: by its title and the grip of = above it, or from the top of what it holds when that is scrolled to the top. The [x] is 45px tall.
 
 | Do | Don't |
 |---|---|
@@ -1456,7 +1697,7 @@ Accessibility:
 See also: [Card and dialog](https://ascii.fedekotek.design/#components/card), [Toggles](https://ascii.fedekotek.design/#components/toggles), [Button](https://ascii.fedekotek.design/#components/button), [Dropdown](https://ascii.fedekotek.design/#components/dropdown)
 
 Limits:
-- It does not drag. No handle and no swipe down: the [x], Escape or a tap on the dots.
+- With a mouse it does not drag: the [x], Escape or a click on the veil.
 - Reset puts back what the HTML says, not what was there when the sheet opened.
 
 ```html
@@ -1524,8 +1765,8 @@ Anatomy:
 | State | Looks like | What it means |
 |---|---|---|
 | hidden | ` ` | Clipped to nothing. It is on the page, not drawn. |
-| hover | ` Deploys` | The pointer on the trigger: it types in, in 8 steps. |
-| focus | ` Deploys` | The trigger has the focus: the same. |
+| hover | ` Deploys` | A mouse on the trigger: it types in, in 12 steps. Not for a finger or a stylus. |
+| focus | ` Deploys` | The trigger has the focus: the same. On a touch screen, only a keyboard's focus shows it. |
 | on, after a tap | ` Deploys` | `.on`: shown below the trigger for 1.8 seconds. |
 | off, after Escape | ` ` | `.off`: put away until the pointer or the focus comes back. |
 | no script | ` Deploys` | Hover and focus still show it. That part is CSS. No tap, no Escape. |
@@ -1597,7 +1838,7 @@ Anatomy:
   1         2
 ```
 
-1. **avatar** `.avatar`: An ink slab 8 characters wide and 3 rows tall, with the edge. `role="img"` and an `aria-label` with the full name.
+1. **avatar** `.avatar`: An ink slab 8 characters wide and 3 rows tall. `role="img"` and an `aria-label` with the full name.
 2. **small** `.avatar.sm`: 5 by 2. `.hot` and `.ok` color it.
 
 | State | Looks like | What it means |
@@ -1613,7 +1854,7 @@ Anatomy:
 Accessibility:
 - **role**: `role="img"` and an `aria-label`: read as "Ana Ruiz, image". Initials alone are read as letters.
 - **name**: Next to the name in text, it says the name twice. Give it `aria-hidden="true"` there instead of a label.
-- **paint**: The edge is a shadow. Color never carries meaning here: `.hot` and `.ok` are only a tint.
+- **paint**: Color never carries meaning here: `.hot` and `.ok` are only a tint.
 
 | Do | Don't |
 |---|---|
@@ -1668,7 +1909,7 @@ Anatomy:
 ```
 
 1. **slab** `.badge`: Uppercase on a color, bold, one line. `b-ok` lime, `b-warn` yellow.
-2. **loud** `.b-hot`: Magenta with the edge. For the one thing that is broken.
+2. **loud** `.b-hot`: Magenta. For the one thing that is broken.
 3. **tag** `.b-out`: No slab: the word in brackets. For what is not a status.
 
 | State | Looks like | What it means |
@@ -1696,7 +1937,7 @@ Accessibility:
 | Kind | Name | Does |
 |---|---|---|
 | class | `.badge` | The slab. Ink when it has no color class. |
-| class | `.b-ok .b-warn .b-hot` | Lime, yellow, magenta with the edge. |
+| class | `.b-ok .b-warn .b-hot` | Lime, yellow, magenta. |
 | class | `.b-out` | The word in brackets, no slab. |
 
 See also: [Alert](https://ascii.fedekotek.design/#components/alert), [Toast](https://ascii.fedekotek.design/#components/toast), [Avatar](https://ascii.fedekotek.design/#components/avatar)
@@ -1758,13 +1999,13 @@ Anatomy:
 2. **frame** `.card`: With `.frame` and a tone. The top rim is always @; the walls and the bottom come from the tone.
 3. **body** `.body`: The walls, and four characters of air on each side. A `.row` inside gets a row above it.
 4. **shadow** `.lift`: The wrapper. Colons in `--deep`, a row down and two characters right. 50 characters wide at most.
-5. **dialog** `dialog`: A native `<dialog>` around the same card, in `tone-heavy`. It opens modal, over a screen of magenta dots, drawn here as dots.
+5. **dialog** `dialog`: A native `<dialog>` around the same card, in `tone-heavy`. It opens modal, over a veil of magenta periods, one every other character on every row.
 
 | State | Looks like | What it means |
 |---|---|---|
 | card | `########` | A card has no states of its own. The buttons in it do. |
 | closed | ` ` | The dialog is not drawn. |
-| open | `. . . .` | Modal. The page behind is inert, under magenta dots, and does not scroll. |
+| open | `. . . .` | Modal. The page behind is inert, under a veil of magenta periods, and does not scroll. |
 | no script | `########` | The card is plain HTML. Its button opens nothing. |
 
 | Keys | Does |
@@ -1961,7 +2202,7 @@ Anatomy:
 
 Accessibility:
 - **name**: Write the key out, `<kbd>space</kbd>`, not a glyph only a sighted person decodes. For &lt; and &gt; a screen reader says "less than" and "greater than".
-- **paint**: The brackets are CSS content without an empty alt, so some screen readers read "left bracket" too.
+- **paint**: The brackets are CSS content with empty alt text: a screen reader says the key, not "left bracket".
 - **state**: Put `aria-keyshortcuts` on the control the shortcut runs. Then a screen reader says it there.
 
 | Do | Don't |
@@ -1978,7 +2219,6 @@ See also: [Command](https://ascii.fedekotek.design/#components/command), [Toolti
 
 Limits:
 - It shows a key. It does not bind one: the shortcut is your script.
-- Its brackets can be read out. The rims of the other components cannot.
 
 ```html
 <div class="kbds">
@@ -2625,7 +2865,7 @@ Anatomy:
 
 Accessibility:
 - **role**: The demo is `role="img"` with an `aria-label`. A spinner of yours sits next to words that say what is waiting.
-- **paint**: The frames are text: a screen reader that lands on one reads "slash". Give a spinner `aria-hidden="true"` and say the wait in words.
+- **paint**: The frames are text, so the kit hides them: without an `aria-label` a spinner is `aria-hidden`, with one it is `role="img"` and read as that word, once, not "slash".
 
 | Do | Don't |
 |---|---|
@@ -2636,6 +2876,7 @@ Accessibility:
 |---|---|---|
 | attr | `data-aui="spinner"` | On a `<b>` or a `<span>`. Runs the frames. |
 | attr | `data-kind="classic"` | `classic`, `ramp`, `bounce`, `dots` or `fill`. Classic when missing. Followed live. |
+| attr | `aria-label="Loading"` | Names the wait: the spinner is read as that word. Without one the spinner is hidden from screen readers, and the words next to it say what is waiting. |
 | class | `.spins` | A grid of them, for a page like this one. |
 
 See also: [Progress](https://ascii.fedekotek.design/#components/progress), [Skeleton](https://ascii.fedekotek.design/#components/skeleton), [Button](https://ascii.fedekotek.design/#components/button)
@@ -2670,7 +2911,7 @@ Limits:
   - Saying that something happened because of what a person did: saved, copied, sent.
   - Yellow, `data-aui-toast-err`, for what did not work, when the person can try again.
 - Not for:
-  - Anything a person must read or act on. It is gone in 3.6 seconds. That is an [Alert](https://ascii.fedekotek.design/#components/alert).
+  - Anything a person must read or act on. It is gone in seconds. That is an [Alert](https://ascii.fedekotek.design/#components/alert).
   - A question. That is the dialog in [Card and dialog](https://ascii.fedekotek.design/#components/card).
   - Errors on a form. They go under the field, in an [Input](https://ascii.fedekotek.design/#components/input).
 
@@ -2684,14 +2925,15 @@ Anatomy:
   ==================
 ```
 
-1. **good** `.toast`: Lime, marked @@. One line, typed in from the left.
+1. **good** `.toast`: Lime, marked @@, with [x] at the end. One line, typed in from the left.
 2. **bad** `.toast.err`: `.err`: yellow, marked !!.
 3. **button** `[data-aui-toast]`: Any button with `data-aui-toast="Saved."`: the words are the value.
 
 | State | Looks like | What it means |
 |---|---|---|
 | hidden | ` ` | Clipped to nothing, until the next one. |
-| on | ` @@ Save` | Types in, in 12 steps, and stays 3.6 seconds. On a desktop it sits at the bottom; on a phone, at the top. |
+| on | ` @@ Save` | Types in, in 12 steps. It stays 3.6 seconds, longer for longer words (60ms a character, 15 seconds at most), and holds while a pointer or the focus is on it. On a desktop it sits at the bottom; on a phone, at the top. |
+| dismissed | ` ` | [x] puts it away at once, and the focus goes back to where it was. |
 | error | ` !! Nope` | `.err`: yellow. |
 | in a dialog | ` @@ Save` | While a modal dialog is open it goes inside it, so it sits on top and is read out. |
 | no script | ` ` | Nothing shows. |
@@ -2699,12 +2941,12 @@ Anatomy:
 | Keys | Does |
 |---|---|
 | `Enter`, `Space` | On the button: shows it. |
-| `Tab` | Never lands on the toast. Nothing in it takes the focus. |
+| `Tab` | The [x] is at the end of the page, or of the open dialog, so Tab reaches it last. While it has the focus the toast stays. |
 
 Accessibility:
-- **live**: `role="status"` with `aria-live="polite"`: read after whatever is being said, and the focus stays put.
-- **state**: The kit makes the region first and writes the words a beat later, so the change is heard.
-- **name**: @@ and !! are part of the text, so a screen reader reads them before the words.
+- **live**: Good news goes into a `role="status"` region: read after whatever is being said. An error goes into a `role="alert"` one: read at once. The focus stays put.
+- **state**: The kit makes the regions first and writes the words a beat later, so the change is heard.
+- **name**: @@ and !! are paint, `aria-hidden`. A screen reader hears the words and nothing else. The [x] is "Dismiss".
 - **touch**: On a phone it drops in from the top, away from the thumb that tapped.
 
 | Do | Don't |
@@ -2717,13 +2959,14 @@ Accessibility:
 | attr | `data-aui-toast` | On a button: a lime toast on click. The words are the value: `data-aui-toast="Saved."`. |
 | attr | `data-aui-toast-err` | On a button: a yellow one. |
 | call | `ASCIIUI.toast(msg, err)` | Shows one from a script. `err` makes it yellow. |
-| class | `.toast .err .on` | Made by the kit, once, at the end of the page. |
+| class | `.toast .err .on .toast-x` | Made by the kit, once, at the end of the page, and its [x]. |
+| css | `--aui-toast` | The shortest a toast stays: 3.6s. Longer words stay longer. |
 
 See also: [Alert](https://ascii.fedekotek.design/#components/alert), [Button](https://ascii.fedekotek.design/#components/button), [Card and dialog](https://ascii.fedekotek.design/#components/card)
 
 Limits:
 - One at a time. A new one replaces the last.
-- No close button, no action in it, no pause on hover.
+- No action in it and no swipe to put it away. The [x] does that.
 
 ```html
 <div class="row">
@@ -2925,7 +3168,7 @@ Anatomy:
 ```
 
 1. **strip** `.tablist`: `role="tablist"`, where `data-aui="tabs"` goes. Its rule is violet.
-2. **picked** `.tab[aria-selected="true"]`: An ink slab with a violet and magenta edge. The only tab in the Tab order.
+2. **picked** `.tab[aria-selected="true"]`: An ink slab. The only tab in the Tab order.
 3. **tab** `.tab`: A real `<button>`, a muted word until it is picked.
 4. **panel** `.tabpanel`: `role="tabpanel"`, one per tab, after the strip and in the same order. The others are `hidden`.
 
@@ -2934,7 +3177,7 @@ Anatomy:
 | rest | `  HTML` | A muted word. |
 | hover | `  HTML` | Ink. Mouse only. |
 | focus | `  HTML` | A slab in the focus color. |
-| picked | ` BUTTON` | An ink slab with the edge. |
+| picked | ` BUTTON` | An ink slab. |
 | no script | `  HTML` | The panels show or hide as the HTML has them. The tabs do nothing. |
 
 | Keys | Does |

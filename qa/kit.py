@@ -32,6 +32,13 @@ Checks:
 7. Themes > Copy tokens: the Amber export pasted after the kit wins in a
    light and a dark system setting and with data-theme, and the ramp script
    runs after the kit
+8. 1.2.0 polish: toasts (the mark is paint, errors are alerts, [x], longer
+   words stay longer), the OTP says Digits only., the calendar says a new
+   month, validation waits for the first blur, a select's frame takes the
+   tap, spinners and kbd brackets are not read, the sheet closes on a drag
+   down, motion tokens, scanlines only with .crt, the veil is characters,
+   and print, forced colors and more contrast
+9. README: the integrity hashes of the pinned files match the served bytes
 The Google Fonts request fails in some sandboxes (proxy certificates); that one
 is reported as a note, not a failure.
 """
@@ -279,6 +286,7 @@ ALIVE={
  'combobox':"(()=>{const i=el.querySelector('input[role=combobox]');return i.getAttribute('aria-expanded')==='false'&&document.getElementById(i.getAttribute('aria-controls'))===el.querySelector('[role=listbox]')&&!!i.labels.length})()",
  'contextmenu':"(()=>{const m=el.querySelector('[role=menu]'),o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden);el.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));const ok=o(m);ASCIIUI.contextmenu(el).close();return ok&&!o(m)})()",
  'confirm':"el.closest('dialog').querySelector('.btn-danger').disabled",
+ 'segment':"(()=>{const s=(el.closest('.stack')||document.body).querySelector('[role=status]'),c=el.querySelector('input:checked');return !c||(s&&s.textContent.includes(c.closest('label').textContent.trim()))})()",
 }
 
 async def harvest(b):
@@ -395,7 +403,7 @@ TWICE_JS="""(name)=>{
     otp:()=>{const i=b.querySelector('input');i.value='5';fire(i,'input');return /^1 of/.test(st(1))&&!/^1 of/.test(st(0))},
     calendar:()=>{const d=new Date().getDate()===15?16:15;b.querySelector('[data-day="'+d+'"]').click();return st(1)!==st(0)&&st(1).includes(String(d))},
     pagination:()=>{b.querySelector('[aria-label="Next page"]').click();return st(1)==='Page 4 of 9.'&&st(0)==='Page 3 of 9.'},
-    validate:()=>{b.value='';fire(b,'input');const ea=document.getElementById(a.getAttribute('aria-describedby')),eb=document.getElementById(b.getAttribute('aria-describedby'));
+    validate:()=>{b.value='';fire(b,'input');fire(b,'blur');const ea=document.getElementById(a.getAttribute('aria-describedby')),eb=document.getElementById(b.getAttribute('aria-describedby'));
       return eb&&ea&&eb!==ea&&eb.textContent.startsWith('Enter')&&!ea.textContent.startsWith('Enter')&&own(1,'.error')===eb},
     counter:()=>{b.value='hi';fire(b,'input');return own(1,'.count').textContent==='2/280'&&own(0,'.count').textContent==='0/280'},
     dropdown:()=>{const mb=b.querySelector('[role=menu]'),bt=b.querySelector('[aria-haspopup]');
@@ -411,6 +419,8 @@ TWICE_JS="""(name)=>{
     contextmenu:()=>{const o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden),mb=b.querySelector('[role=menu]'),ma=a.querySelector('[role=menu]'),r=b.querySelector('tbody tr')||b;
       r.focus();r.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));
       const ok=o(mb)&&!o(ma)&&mb.contains(document.activeElement);const s0=st(0);document.activeElement.click();return ok&&!o(mb)&&st(0)===s0&&st(1)!==s0},
+    segment:()=>{const L=x=>x.closest('label').textContent.trim(),r=[...b.querySelectorAll('input[type=radio]')].filter(x=>!x.checked&&!st(0).includes(L(x)))[0];r.click();
+      const w=r.closest('label').textContent.trim();return st(1).includes(w)&&!st(0).includes(w)},
     confirm:()=>{const w=b.getAttribute('data-match');b.value=w;fire(b,'input');
       return !b.closest('dialog').querySelector('.btn-danger').disabled&&a.closest('dialog').querySelector('.btn-danger').disabled}
   };
@@ -868,10 +878,174 @@ async def paste(b,sid,html,notes):
     finally:
         await pg.close();os.remove(path)
 
+# 1.2.0 polish: toasts, the OTP's wrong character, the calendar's month, the
+# timing of validation, the select's frame, spinners and kbd for screen
+# readers, the sheet's swipe, motion tokens, scanlines, the veil, and the
+# page in print, forced colors and more contrast
+POLISH_HTML=('<div><div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><p role="status" id="os"></p></div>'
+  '<div><div class="cal" id="c" data-aui="calendar" data-value="2026-03-10"></div><p role="status"></p></div>'
+  '<form id="f" action="javascript:void 0">'+FIELD('v','required pattern="[a-z]+" data-error-pattern="Lowercase only."')+'</form>'
+  '<div class="group"><label class="field-label">Region</label><div class="field frame tone-light" id="sf"><div class="mid"><span class="prompt" aria-hidden="true">v</span><select id="sel"><option>a</option><option>b</option></select></div></div></div>'
+  '<p><b id="sp1" data-aui="spinner"></b><b id="sp2" data-aui="spinner" aria-label="Loading"></b> <kbd id="k">/</kbd></p>'
+  '<div class="tablist" role="tablist" data-aui="tabs"><button class="tab" role="tab" aria-selected="true">A</button><button class="tab" role="tab" aria-selected="false">B</button></div><div class="tabpanel" role="tabpanel">a</div><div class="tabpanel" role="tabpanel">b</div>'
+  '<button class="btn btn-primary frame tone-heavy" id="pb" type="button"><span class="mid"><span class="label">Go</span></span></button>'
+  '<div class="pop" data-aui="tooltip"><button type="button">Tip</button><span class="tip" role="tooltip">Hi</span></div>'
+  '<div><button id="so" type="button" data-aui-open>Sheet</button><dialog class="sheet" id="sh"><div class="lift"><div class="card frame tone-heavy"><h2 class="bar-title">Filters</h2><button class="sheet-x" type="button" data-aui-close>[x]</button><div class="body" id="shb"><p>One</p><p>Two</p></div></div></div></dialog></div>')
+POLISH_JS="""(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],cs=(e,p)=>getComputedStyle(e,p);
+  /* toast: the mark is paint, good news is a status and bad news an alert, [x] puts it away */
+  ASCIIUI.toast('Saved.');await w(60);let t=document.querySelector('.toast');
+  const mark=t&&t.querySelector('[aria-hidden=true]'),st=t&&t.querySelector('[role=status]'),al=t&&t.querySelector('[role=alert]'),x=t&&t.querySelector('.toast-x');
+  if(!t||!t.classList.contains('on'))bad.push('toast did not show');
+  else{
+    if(!mark||mark.textContent.trim()!=='@@')bad.push('toast mark is not aria-hidden @@');
+    if(!st||st.textContent.trim()!=='Saved.'||al.textContent)bad.push('good news is not in the status region: '+(st&&st.textContent));
+    if(!x||x.getAttribute('aria-label')!=='Dismiss')bad.push('toast has no Dismiss button');
+    if(t.getAttribute('role')||t.hasAttribute('aria-live'))bad.push('the toast line is a live region as a whole: the mark and [x] would be read');
+    ASCIIUI.toast('It broke.',true);await w(60);
+    if(al.textContent.trim()!=='It broke.'||st.textContent||mark.textContent.trim()!=='!!'||!t.classList.contains('err'))bad.push('an error is not an alert with !!: '+al.textContent);
+    x.click();if(t.classList.contains('on'))bad.push('[x] did not put the toast away');
+    if(cs(x).visibility!=='hidden')bad.push('[x] can still be tabbed to while the toast is away');
+  }
+  /* otp: a letter says Digits only. and marks the box, the next digit puts it right */
+  const oi=$('o').querySelectorAll('input');oi[0].focus();
+  oi[0].dispatchEvent(new InputEvent('beforeinput',{data:'a',inputType:'insertText',bubbles:true,cancelable:true}));
+  if(!$('o').classList.contains('invalid')||$('os').textContent!=='Digits only.'||oi[0].getAttribute('aria-invalid')!=='true')bad.push('otp: a letter did not say Digits only.: '+$('os').textContent);
+  if(!cs(oi[0].parentNode,'::before').content.includes('!'))bad.push('otp: the brackets of a wrong box are not !');
+  oi[0].dispatchEvent(new InputEvent('beforeinput',{data:'4',inputType:'insertText',bubbles:true,cancelable:true}));
+  if($('o').classList.contains('invalid')||oi[0].hasAttribute('aria-invalid')||$('os').textContent!=='1 of 2.')bad.push('otp: a digit did not put it right: '+$('os').textContent);
+  /* calendar: a new month is said in a region that stays put */
+  const lv=$('c').querySelector('[aria-live]');
+  $('c').querySelector('[data-d="1"]').click();
+  const lv2=$('c').querySelector('[aria-live]');
+  if(!lv||lv!==lv2||!/April 2026/.test(lv2.textContent))bad.push('calendar: the month change was not said: '+(lv2&&lv2.textContent));
+  $('c').querySelector('[data-day][tabindex="0"]').focus();
+  $('c').querySelector('[data-day][tabindex="0"]').dispatchEvent(new KeyboardEvent('keydown',{key:'PageUp',bubbles:true,cancelable:true}));
+  if(!/March 2026/.test(lv2.textContent)||!lv2.isConnected)bad.push('calendar: Page Up did not say the month: '+lv2.textContent);
+  /* validation: typing says nothing before the field is left, then every key counts */
+  const v=$('v'),ve=()=>document.getElementById(v.getAttribute('aria-describedby')).textContent,type=s=>{v.value=s;v.dispatchEvent(new Event('input',{bubbles:true}))};
+  v.focus();type('X');
+  if(ve()!==''||v.getAttribute('aria-invalid')==='true')bad.push('validate: an error before the field was left: '+ve());
+  v.blur();
+  if(ve()!=='Lowercase only.')bad.push('validate: leaving the field did not check: '+ve());
+  v.focus();type('x');
+  if(ve()!=='')bad.push('validate: a fix did not clear at once');
+  type('xY');
+  if(ve()!=='Lowercase only.')bad.push('validate: after the first blur a wrong key did not say so');
+  /* select: a tap on the frame focuses it */
+  const r=$('sf').getBoundingClientRect();
+  $('sf').dispatchEvent(new MouseEvent('click',{bubbles:true,clientX:r.left+30,clientY:r.top+4}));
+  if(document.activeElement!==$('sel'))bad.push('select: a tap on the frame did not focus it');
+  /* spinner and kbd: paint is not read */
+  if($('sp1').getAttribute('aria-hidden')!=='true')bad.push('spinner without a label is not aria-hidden');
+  if($('sp2').getAttribute('role')!=='img'||$('sp2').hasAttribute('aria-hidden'))bad.push('spinner with a label is not an image of it');
+  if(!/\\/\\s*""/.test(cs($('k'),'::before').content))bad.push('kbd brackets have alt text: '+cs($('k'),'::before').content);
+  /* motion tokens drive the animations; slabs have no edge; scanlines only with .crt */
+  const root=cs(document.documentElement);
+  if(root.getPropertyValue('--aui-quick').trim()!=='.16s'||root.getPropertyValue('--aui-slow').trim()!=='.28s')bad.push('motion tokens missing');
+  if(cs(document.querySelector('.tip')).transitionDuration!=='0.16s')bad.push('tooltip does not use --aui-quick: '+cs(document.querySelector('.tip')).transitionDuration);
+  document.documentElement.style.setProperty('--aui-quick','0s');
+  if(cs(document.querySelector('.tip')).transitionDuration!=='0s')bad.push('--aui-quick:0s does not switch the tooltip motion off');
+  document.documentElement.style.removeProperty('--aui-quick');
+  if(cs($('pb').querySelector('.label')).boxShadow!=='none')bad.push('the primary slab still has an edge');
+  if(cs(document.querySelector('.tab[aria-selected=true]')).boxShadow!=='none')bad.push('the picked tab still has an edge');
+  if(cs(document.body,'::before').content!=='none')bad.push('scanlines are on without .crt');
+  document.documentElement.classList.add('crt');
+  if(!cs(document.body,'::before').backgroundImage.includes('gradient'))bad.push('.crt does not bring the scanlines');
+  document.documentElement.classList.remove('crt');
+  /* the veil behind a dialog is periods on the grid */
+  $('so').click();await w(30);
+  if(!$('sh').open)bad.push('sheet did not open');
+  else if(!cs($('sh'),'::before').content.includes('. . .'))bad.push('the veil is not characters');
+  return bad.length?bad.join(', '):true})()"""
+# the sheet goes down with a finger: a long drag closes it, a short one does not
+SWIPE_JS="""(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
+  const d=$('sh'),title=d.querySelector('.bar-title'),lift=d.querySelector('.lift');
+  const touch=(type,el,x,y)=>{const t=new Touch({identifier:1,target:el,clientX:x,clientY:y});
+    el.dispatchEvent(new TouchEvent(type,{touches:type==='touchend'?[]:[t],targetTouches:type==='touchend'?[]:[t],changedTouches:[t],bubbles:true,cancelable:true}))};
+  const drag=async(dy)=>{const r=title.getBoundingClientRect(),x=r.left+4,y=r.top+4;touch('touchstart',title,x,y);
+    for(let i=1;i<=6;i++){touch('touchmove',title,x,y+dy*i/6);await w(40)}
+    const mid=lift.style.translate;touch('touchend',title,x,y+dy);return mid};
+  $('so').click();await w(30);
+  const m=await drag(30);
+  if(!d.open)bad.push('a short drag closed the sheet');
+  if(lift.style.translate)bad.push('a short drag left the sheet moved');
+  const row=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r'));
+  if(m&&parseFloat(m.split(' ')[1])%row)bad.push('the sheet did not move in whole rows: '+m);
+  const m2=await drag(Math.round(lift.getBoundingClientRect().height*0.6));
+  if(!m2||!parseFloat(m2.split(' ')[1]))bad.push('the sheet did not follow the finger');
+  await w(30);if(d.open)bad.push('a long drag did not close the sheet');
+  if(lift.style.translate)bad.push('the sheet stayed moved after it closed');
+  return bad.length?bad.join(', '):true})()"""
+# print, forced colors and more contrast
+MEDIA_JS="""(()=>{const bad=[],cs=(e,p)=>getComputedStyle(e,p),tab=document.querySelector('.tab[aria-selected=true]');
+  const m=matchMedia('print').matches,f=matchMedia('(forced-colors: active)').matches,c=matchMedia('(prefers-contrast: more)').matches;
+  if(m){if(cs(document.body).backgroundColor!=='rgb(255, 255, 255)')bad.push('print: the paper is not white');
+    ASCIIUI.toast('x');if(cs(document.querySelector('.toast')).display!=='none')bad.push('print: the toast prints')}
+  if(f){if(cs(tab).backgroundColor==='rgba(0, 0, 0, 0)')bad.push('forced colors: the picked tab lost its slab');
+    if(cs(document.querySelector('.btn')).outlineStyle!=='none'&&cs(document.querySelector('.btn')).outlineWidth!=='0px')bad.push('forced colors: a box round every button')}
+  if(c){if(cs(document.documentElement).getPropertyValue('--muted').trim()!=='#2b2b28')bad.push('more contrast: grey did not darken')}
+  return bad.length?bad.join(', '):true})()"""
+
+async def polish(b):
+    fails=[];notes=set()
+    path=blank_page(POLISH_HTML)
+    try:
+        pg=await b.new_page(viewport={'width':390,'height':844},color_scheme='light')
+        errs=[];watch(pg,errs,notes)
+        await pg.goto('file://'+path); await pg.wait_for_timeout(300)
+        r=await pg.evaluate(POLISH_JS)
+        if r is not True: fails.append('polish: '+r)
+        # a toast of a few words goes after --aui-toast; a long one stays longer
+        await pg.evaluate("ASCIIUI.toast('Saved.')"); await pg.wait_for_timeout(3800)
+        if await pg.evaluate("document.querySelector('.toast').classList.contains('on')"): fails.append('polish: a short toast outstayed 3.6s')
+        await pg.evaluate("ASCIIUI.toast('Report sent to 14 people. Three of them will open it, and one of them will reply by Friday.')"); await pg.wait_for_timeout(4200)
+        if not await pg.evaluate("document.querySelector('.toast').classList.contains('on')"): fails.append('polish: a long toast went as fast as a short one')
+        fails+=['polish: '+e for e in errs]
+        await pg.close()
+        pg=await b.new_page(viewport={'width':390,'height':844},has_touch=True,is_mobile=True)
+        errs=[];watch(pg,errs,notes)
+        await pg.goto('file://'+path); await pg.wait_for_timeout(300)
+        r=await pg.evaluate(SWIPE_JS)
+        if r is not True: fails.append('sheet swipe: '+r)
+        fails+=['sheet swipe: '+e for e in errs]
+        await pg.close()
+        for name,opt in (('print',{'media':'print'}),('forced colors',{'forced_colors':'active'}),('more contrast',{'contrast':'more'})):
+            pg=await b.new_page(viewport={'width':390,'height':844},color_scheme='light')
+            errs=[];watch(pg,errs,notes)
+            await pg.emulate_media(**opt)
+            await pg.goto('file://'+path); await pg.wait_for_timeout(250)
+            r=await pg.evaluate(MEDIA_JS)
+            if r is not True: fails.append(name+': '+r)
+            fails+=[name+': '+e for e in errs]
+            await pg.close()
+    finally:
+        os.remove(path)
+    return fails,notes
+
+# README: the integrity attributes for the pinned files are the sha384 of
+# the bytes /kit/VERSION/ serves: build.py copies kit/ as it is, and
+# kit/releases/VERSION/ is what that version shipped as
+def sri():
+    import base64,hashlib
+    fails=[]
+    js=open(os.path.join(KIT,'ascii-ui.js'),encoding='utf-8').read()
+    v=re.search(r"var VERSION='([^']+)'",js).group(1)
+    readme=open(os.path.join(KIT,'README.md'),encoding='utf-8').read()
+    for f in ('ascii-ui.css','ascii-ui.js'):
+        src=os.path.join(KIT,'releases',v,f)
+        if not os.path.exists(src): src=os.path.join(KIT,f)
+        want='sha384-'+base64.b64encode(hashlib.sha384(open(src,'rb').read()).digest()).decode()
+        m=re.search(r'/kit/'+re.escape(v)+'/'+re.escape(f)+r'"[^>]*integrity="([^"]+)"',readme)
+        if not m: fails.append('README: no integrity attribute for /kit/%s/%s'%(v,f))
+        elif m.group(1)!=want: fails.append('README: the integrity of /kit/%s/%s is %s, the file is %s'%(v,f,m.group(1),want))
+        elif 'crossorigin="anonymous"' not in readme: fails.append('README: integrity without crossorigin="anonymous" fails on another site')
+    return fails
+
 async def main():
     fails=[];notes=set()
     s,i,j=embedded()
     if s[i:j]!=kit_block(): fails.append('js/40 KIT() is not the kit files: run python3 qa/kit.py sync')
+    fails+=sri()
     async with async_playwright() as p:
         b=await p.chromium.launch()
         f,n=await starter(b);fails+=f;notes|=n
@@ -879,6 +1053,7 @@ async def main():
         f,n=await lifecycle(b);fails+=f;notes|=n
         f,n=await reduced_release(b);fails+=f;notes|=n
         f,n=await tokens(b);fails+=f;notes|=n
+        f,n=await polish(b);fails+=f;notes|=n
         comps,blocks,stirred,lost,errs,n=await harvest(b);notes|=n
         fails+=['index.html: '+e for e in errs]
         fails+=['Code tab: %s changed after the demo was hovered and clicked'%s for s in stirred]

@@ -48,6 +48,7 @@
     <label><input type="radio" name="theme" value="light"><span>Light</span></label>
     <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
   </div>
+  <label class="check"><input type="checkbox" id="crt"><span class="glyph" aria-hidden="true"></span>Scanlines</label>
 </header>
 <main id="top">
   <h1>Starter page</h1>
@@ -89,13 +90,19 @@
       <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="text" value="Reporting redesign" autocomplete="off" autocapitalize="off" spellcheck="false" data-aui="validate" required pattern="[a-z0-9\-]+" data-error-required="Enter a link for this project." data-error-pattern="Use lowercase letters, numbers and hyphens."></div></div>
       <p class="error"></p>
     </div>
+    <div class="group">
+      <label class="field-label">Email for the report</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="email" autocomplete="email" data-aui="validate" required data-error-required="Enter an email for the report." data-error-type="That is not an email address."></div></div>
+      <p class="error"></p>
+    </div>
+    <p class="muted">The email waits until you leave it, then checks as you type.</p>
   </section>
 
   <section class="part" id="otp">
     <h3>Input OTP</h3>
     <div class="stack">
       <div class="otp" role="group" aria-label="One-time code" data-aui="otp"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="one-time-code"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
-      <p class="muted status" role="status">Type any six digits.</p>
+      <p class="muted status" role="status">Type any six digits. A letter says no.</p>
     </div>
   </section>
 
@@ -143,7 +150,10 @@
 
   <section class="part" id="togglegroup">
     <h3>Toggle group</h3>
-    <div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div>
+    <div class="stack">
+      <div class="tgroup" role="radiogroup" aria-label="View" data-aui="segment" data-say="{label} view."><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div>
+      <p class="muted status" role="status">Board view.</p>
+    </div>
   </section>
 
   <!-- ================= Overlay ================= -->
@@ -365,6 +375,7 @@
   <section class="part" id="sheet">
     <h3>Sheet</h3>
     <div class="row"><button class="btn frame tone-light" type="button" data-aui-open><span class="mid"><span class="label">Open filters</span></span></button></div>
+    <p class="muted">On a touch screen, drag it down by its title to close it.</p>
     <dialog class="sheet">
       <div class="lift"><div class="card frame tone-heavy">
         <h2 class="bar-title">Filters</h2>
@@ -477,12 +488,14 @@
 
   <section class="part" id="spinner">
     <h3>Spinner</h3>
+    <p class="row"><b data-aui="spinner" aria-label="Loading"></b><span class="muted">A spinner with an aria-label is read as that word.</span></p>
     <div class="spins" role="img" aria-label="Loading indicators"><span><b data-aui="spinner" data-kind="classic"></b>classic</span><span><b data-aui="spinner" data-kind="ramp"></b>ramp</span><span><b data-aui="spinner" data-kind="bounce"></b>bounce</span><span><b data-aui="spinner" data-kind="dots"></b>dots</span><span><b data-aui="spinner" data-kind="fill"></b>fill</span></div>
   </section>
 
   <section class="part" id="toast">
     <h3>Toast</h3>
-    <div class="row"><button class="btn frame tone-light" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button></div>
+    <div class="row"><button class="btn frame tone-light" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button><button class="btn frame tone-light" type="button" data-aui-toast="Report sent to 14 people. Three of them will open it, one will reply."><span class="mid"><span class="label">Send report</span></span></button></div>
+    <p class="muted">Longer words stay longer. [x] puts it away, and it holds while you point at it.</p>
   </section>
 
   <!-- ================= Navigation ================= -->
@@ -523,6 +536,10 @@
     if (e.target.name !== 'theme') return;
     if (e.target.value) document.documentElement.setAttribute('data-theme', e.target.value);
     else document.documentElement.removeAttribute('data-theme');
+  });
+  /* and the scanlines, off unless asked for: the crt class on <html> */
+  document.getElementById('crt').addEventListener('change', function (e) {
+    document.documentElement.classList.toggle('crt', e.target.checked);
   });
 </script>
 </body>

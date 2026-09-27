@@ -10,7 +10,7 @@ does (AUI.usageModel: the words from AUI_DOCS in js/90, and what the kit says
 about itself, read from KIT() in js/40), and checks:
   1. coverage: every component has an entry with all of use, avoid, anatomy,
      states, keys, a11y, dos (do and don't) and see. A component with no entry
-     at all fails when it is one of the thirty below (COMPONENTS), and is a
+     at all fails when it is one of the thirty-four below (COMPONENTS), and is a
      note when it is new: its tab says "not written yet" and shows what the
      kit says about it, so nothing is broken while its words are written
   2. every entry belongs to a component on the page, and every {s-id} it names
@@ -46,11 +46,11 @@ from playwright.sync_api import sync_playwright
 
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
 SKIP=('s-install','s-rules','s-foundations')
-# the thirty components with words. A new component starts as a note, not a failure
+# the thirty-four components with words. A new component starts as a note, not a failure
 COMPONENTS=('s-button','s-input','s-toggles','s-slider','s-tabs','s-card','s-progress','s-details','s-badge','s-alert',
             's-select','s-skeleton','s-avatar','s-breadcrumb','s-calendar','s-command','s-dropdown','s-empty','s-otp',
             's-kbd','s-pagination','s-picture','s-separator','s-sheet','s-spinner','s-textarea','s-timeline','s-toast',
-            's-togglegroup','s-tooltip')
+            's-togglegroup','s-tooltip','s-popover','s-combobox','s-alertdialog','s-contextmenu')
 REQUIRED=('use','avoid','anatomy','states','keys','a11y','dos','see')
 SITE_ONLY=('s-command','s-picture')
 
@@ -106,7 +106,7 @@ def check(data):
     for i in data['ids']:
         if i not in ids: fails.append('%s: an entry for a component that is not on the page'%i)
     for c in COMPONENTS:
-        if c not in ids: fails.append('%s: one of the thirty is not on the page'%c)
+        if c not in ids: fails.append('%s: one of the thirty-four is not on the page'%c)
     for r in rows:
         raw=r.get('raw');i=r['id']
         # 1 coverage
@@ -139,14 +139,16 @@ def check(data):
             for n in range(1,len(a['parts'])+1):
                 if str(n) not in re.sub(r'[A-Za-z]','',text): fails.append('%s: the drawing has no callout %d'%(i,n))
         # 4 keys
+        # a chord (Shift+F10, Alt+ArrowDown) is its last key with a modifier: it covers that key, and is allowed when that key is
         wrote=set(k for ks in (x[0] for x in raw.get('keys',[])) for k in ks)
+        last=lambda k:k if k in ('Shift+Tab',) else k.split('+')[-1]
         handled=set(r['kit']['keys'])
-        for k in sorted(handled-wrote): fails.append('%s: the kit handles %r and the keys table does not say so'%(i,k))
+        for k in sorted(handled-{last(w) for w in wrote}-wrote): fails.append('%s: the kit handles %r and the keys table does not say so'%(i,k))
         if i not in SITE_ONLY:
             allowed=set(handled)|NATIVE['any']
             for kind,on in r['markup'].items():
                 if on: allowed|=NATIVE[kind]
-            for k in sorted(wrote-allowed): fails.append('%s: the keys table has %r, which neither the kit nor the browser handles here'%(i,k))
+            for k in sorted(w for w in wrote if w not in allowed and last(w) not in allowed): fails.append('%s: the keys table has %r, which neither the kit nor the browser handles here'%(i,k))
         # 5 api
         for row in r['api']:
             if row[3]: fails.append('%s: api %s is only read from the kit, write it down'%(i,row[1]))

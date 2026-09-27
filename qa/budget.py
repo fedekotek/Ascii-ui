@@ -19,16 +19,16 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
-    'index.html':        155*KB,     # 145 KB at 11.2 with Usage and 34 components: minified, kit text fetched on first use, font inlined
-    'ascii-ui.html':     185*KB,     # 175 KB: the download, everything embedded
-    'kit/ascii-ui.css':   11*KB,     # 9 KB
-    'kit/ascii-ui.js':    25*KB,     # 23 KB with the four overlays
+    'index.html':        160*KB,     # 155 KB with Usage words for all 34 (the four overlays added): minified, kit text fetched on first use, font inlined
+    'ascii-ui.html':     195*KB,     # 192 KB: the download, everything embedded
+    'kit/ascii-ui.css':   13*KB,     # 12 KB with print, forced colors, more contrast, the veil and the motion tokens
+    'kit/ascii-ui.js':    27*KB,     # 25.5 KB with the toast [x], the sheet swipe, segment and the OTP and calendar words
     'kit/starter.html':    7*KB,     # 6 KB
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it
     'favicon.ico':         4*KB,
 }
-TOTAL=2000*KB                        # every file in site/, raw: 1.85 MB at 11.2
+TOTAL=2100*KB                        # every file in site/, raw: 2.02 MB with kit 1.2.0
 
 bad=[]
 for f,cap in WEIGHT.items():
