@@ -11,16 +11,16 @@
 
 [hidden]{display:none !important}
 /* badges, alerts, selects, skeletons */
-/* every slab badge has the slab edges: violet and magenta on ink, lime and amber,
-   violet and deep on magenta */
-.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+/* a badge is a slab, one row of reverse video. The 2px coloured edges it had
+   were not characters, and glitch is feedback, not decoration, so they went */
+.badge{padding:0 1ch;text-transform:uppercase;font-weight:700;background:var(--ink);color:var(--bg);white-space:nowrap}
 .b-ok{background:var(--ok)}.b-warn{background:var(--warn)}
-.b-hot{background:var(--hot);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.b-hot{background:var(--hot)}
 .b-out{background:none;color:var(--ink);padding:0;box-shadow:none}
 .b-out::before{content:"[";content:"[" / "";color:var(--muted)}.b-out::after{content:"]";content:"]" / "";color:var(--muted)}
 .alert{--frame-color:var(--warn);max-width:50ch}
 .alert .card::before{content:var(--h);content:var(--h) / ""}
-.alert .bar-title{background:var(--warn);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.alert .bar-title{background:var(--warn)}
 /* info is violet: cyan is focus and nothing else */
 .alert.info{--frame-color:var(--violet)}
 .alert.info .bar-title{background:var(--violet)}
@@ -67,9 +67,9 @@
 .feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--ok);font-weight:700}
 .popular{position:absolute;top:0;right:2ch;z-index:1}
 /* lime confirms and yellow warns, so a tag that is only a label is violet or pink */
-.badge.popular{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
-#build .b-ok{background:var(--violet);box-shadow:-2px 0 0 var(--deep),2px 0 0 var(--hot)}
-#build .b-warn{background:var(--pink);color:var(--on-pink);box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--deep)}
+.badge.popular{background:var(--violet)}
+#build .b-ok{background:var(--violet)}
+#build .b-warn{background:var(--pink);color:var(--on-pink)}
 
 /* charts */
 .chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}

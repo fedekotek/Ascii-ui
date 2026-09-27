@@ -16,7 +16,7 @@
 :root[data-preset="hotdog"] .chart{--deep:var(--violet)}
 .swatches{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fill,minmax(23ch,1fr));max-width:76ch}   /* 23ch: a 6ch chip, a gap and "errors, degraded" on one line */
 .sw{display:flex;gap:1ch;align-items:center}
-.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer;box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--hot)}
+.sw input[type="color"]{appearance:none;-webkit-appearance:none;width:6ch;height:calc(var(--r)*3);padding:0;border:0;border-radius:0;background:none;cursor:pointer}
 .sw input[type="color"]::-webkit-color-swatch-wrapper{padding:0}
 .sw input[type="color"]::-webkit-color-swatch{border:0;border-radius:0}
 .sw input[type="color"]::-moz-color-swatch{border:0;border-radius:0}

@@ -259,7 +259,6 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 .menu-slab{
   font:inherit;font-weight:700;line-height:var(--r);margin:calc(var(--r)/2) 0;padding:0 1ch;
   background:var(--hot);color:var(--bg);text-transform:uppercase;
-  box-shadow:-2px 0 0 var(--violet),2px 0 0 var(--warn);
 }
 .menu-x{padding:calc(var(--r)/2) 1ch;margin-right:-1ch}
 .menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
