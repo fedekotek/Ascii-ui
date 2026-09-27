@@ -78,4 +78,26 @@ section{margin-top:calc(var(--r)*3)}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
 .stack{display:grid;gap:var(--r);justify-items:start}
 .lede{max-width:60ch}
+/* ---- scrollbars: one character wide, on the grid -------------------------
+   A box that scrolls inside the page gets a 1ch bar: the track is a : on
+   every row (a . every column when it runs sideways), the thumb a violet
+   slab, a column of reverse video cells. Chromium and Safari draw these;
+   Firefox gets its thin bar in the same colour. The page's own bar stays
+   native. The list is every box here that scrolls. */
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar{width:1ch;height:1ch;background:transparent}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-track{
+  background:
+    radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px),
+    radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px);
+  background-size:100% var(--r);
+}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-track:horizontal{
+  background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--muted) 70%,transparent) 0 1px,transparent 1.6px);
+  background-size:1ch 100%;
+}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-thumb{background:var(--violet)}
+:is(.code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in)::-webkit-scrollbar-corner{background:transparent}
+@supports not selector(::-webkit-scrollbar){
+  .code,#sidenav .side-in,.s-list,#posterDlg,.tablewrap,dialog.sheet .body,.menu-body,.progress,.menu-in{scrollbar-width:thin;scrollbar-color:var(--violet) transparent}
+}
 #probe{position:fixed;width:max-content;visibility:hidden;white-space:pre;left:0;top:0}

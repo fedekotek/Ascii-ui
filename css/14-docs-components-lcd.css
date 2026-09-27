@@ -26,8 +26,7 @@
 .doc-panel{padding-top:var(--r)}
 .doc-panel > .demo:first-child,.doc-panel > :first-child{margin-top:0}
 .code{white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;max-height:calc(var(--r)*14);color:var(--muted);padding:0 0 0 2ch;border-left:0;position:relative;
-  display:flex;flex-direction:column;
-  scrollbar-width:thin;scrollbar-color:var(--violet) color-mix(in srgb,var(--ink) 10%,transparent)}
+  display:flex;flex-direction:column}   /* its scrollbar is the one-character bar in css/02 */
 /* "more below": a row stuck to the bottom of the box while there is more code
    under it. At the end of the code a blank row (::before, moved last) covers it,
    so it only says so while it is true. Code that fits never shows it. */
@@ -37,9 +36,6 @@
   color:var(--violet);background:var(--bg);pointer-events:none;z-index:1;
 }
 .code::before{content:"";order:2;flex:none;height:var(--r);margin-top:calc(var(--r)*-1);background:var(--bg);position:relative;z-index:2}
-.code::-webkit-scrollbar{width:1ch;height:1ch}
-.code::-webkit-scrollbar-track{background:color-mix(in srgb,var(--ink) 10%,transparent)}
-.code::-webkit-scrollbar-thumb{background:var(--violet)}
 /* the copy and download messages under their buttons: blocked is yellow, it warns */
 .kit-out.err{color:var(--warn)}
 /* strings are ink, not lime: lime only confirms */

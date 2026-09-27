@@ -150,7 +150,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   #sidenav .side-in{
     position:sticky;top:calc(var(--r)*3 + env(safe-area-inset-top,0px));
     max-height:calc(100vh - var(--r)*4 - env(safe-area-inset-top,0px));overflow:auto;
-    scrollbar-width:thin;padding-bottom:var(--r);
+    padding-bottom:var(--r);
   }
   /* two rows between the hero and what comes after, so the sidebar title
      does not read as the last line of the hint */
@@ -433,7 +433,7 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
    taller than the window and Close was out of reach. The dialog is capped a
    row short of each edge and scrolls, the picture gives up height first, and a
    tap on the page around it closes it (js/20). */
-#posterDlg{max-height:calc(100vh - 2*var(--r));max-height:calc(100dvh - 2*var(--r));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+#posterDlg{max-height:calc(100vh - 2*var(--r));max-height:calc(100dvh - 2*var(--r));overflow-y:auto;overscroll-behavior:contain}
 #posterDlg #posterImg{width:auto;max-width:100%;max-height:max(calc(var(--r)*6),calc(100dvh - var(--r)*14));margin:0 auto}
 
 /* ---- tap targets ------------------------------------------------------------
