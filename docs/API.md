@@ -50,7 +50,7 @@ The kit is separate: `window.ASCIIUI` exists only on a page that links `kit/asci
 | `TR(str)` | translate canonical ramp characters to the active ramp |
 | `setRamp(str8)`, `rampString()` | set / read the active ramp |
 | `bindSlider(input, onChange)` | wire a `.slider` range to its halftone bar |
-| `every(ms, fn, opt)` | repeat `fn` on the clock. `opt`: `gate` (run only when it returns true), `el` (run only while the node is on screen), `times` (stop after n), `end` (called when the count runs out), `delay` (wait before the first run). Returns a handle with `.stop()` and `.running()` |
+| `every(ms, fn, opt)` | repeat `fn` on the clock. `opt`: `gate` (run only when it returns true), `el` (run only while the node is on screen), `times` (stop after n), `end` (called when the count runs out), `delay` (wait before the first run), `sleep` (how long a gated-off task waits before it asks its gate again, 1000ms; `Infinity` when whatever opens the gate calls `.wake()`). Returns a handle with `.stop()`, `.running()` and `.wake(ms)` |
 | `times(ms, n, fn, end)` | `every` with a count, for finite animations |
 | `clock` | `{pause(), resume(), paused(), count(), every, times, onScreen}` |
 | `onScreen(el)` | laid out and inside the viewport |

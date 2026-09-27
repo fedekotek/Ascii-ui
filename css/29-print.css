@@ -55,6 +55,16 @@
   main a[href^="http"]:not(.frame):not(.btn)::after{content:" (" attr(href) ")";overflow-wrap:anywhere;font-weight:400}
   /* paper has no thumbs: the 44px reach round links would spill a page */
   .inl,.linkbtn{padding:0 !important;margin:0 !important}
+  /* a popover, a combobox's list or a context menu left open is a moment, not
+     the page: it would print on top of what is under it */
+  .pane{display:none !important}
+  /* the Usage tab prints whole: every section open, no [+] to press, no
+     teaser line, the drawings at full width */
+  .u-sec::details-content{content-visibility:visible !important;display:contents}
+  .u-sec > summary::before,.u-tz{display:none !important}
+  .u-sec > summary{padding:0 !important;margin:0 !important}
+  .u-draw{overflow:visible !important}
+  .u-sec,.u-parts li,.u-kv{break-inside:avoid}
 }
 
 /* ---- Windows High Contrast (forced colors) -----------------------------------
@@ -75,8 +85,13 @@
     .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
     .crumbs [aria-current] span,.side button[aria-current="page"],
     .badge:not(.b-out),.bar-title,.btn-primary .label,.toast span,.tip,.avatar,.menu-slab,
-    .tbl th,.ftbl thead th
+    .tbl th,.ftbl thead th,
+    .opts [role="option"][aria-selected="true"],.ctx tr[data-ctx] td,.ctx [data-ctx]:not(tr),.u-slab
   ){forced-color-adjust:none !important;background:CanvasText !important;color:Canvas !important}
+  :where(.ctx tr[data-ctx] .badge){background:Canvas !important;color:CanvasText !important}
+  .u-slab{box-shadow:none !important}   /* the drawing's two colour edges would be the only colour left */
+  /* an option or an item that cannot be picked says so in the system's own gray */
+  :where(.opts [role="option"][aria-disabled="true"],.menu [role="menuitem"][aria-disabled="true"],.menu [role="menuitem"]:disabled,.opts-none){color:GrayText !important}
   :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
   .tip::after{forced-color-adjust:none;color:CanvasText}
   /* where the focus is */
@@ -87,8 +102,10 @@
     .linkbtn:focus-visible,.inl:focus-visible,.skip:focus,.bbtn:focus-visible,.brand:focus-visible,
     #soundBar:has(#soundToggle:focus-visible),.navlink:focus-visible,.sheet-x:focus-visible,
     .menu [role="menuitem"]:focus-visible,#cases .lift:focus-visible .bar-title,
-    .rampcells span:focus-within input,.otp span:focus-within input
+    .rampcells span:focus-within input,.otp span:focus-within input,
+    .opts [role="option"][data-active]
   ){forced-color-adjust:none !important;background:Highlight !important;color:HighlightText !important}
+  .u-sec > summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
   .acc summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
   :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
   :where(.check input:focus-visible + .glyph .switch-track)::after{forced-color-adjust:none;color:HighlightText !important}
@@ -123,4 +140,6 @@
   [role="tabpanel"] > section[aria-labelledby]::before,
   [role="tabpanel"] > section[aria-labelledby] ~ section[aria-labelledby]::before{opacity:1 !important}
   dialog:not(#menuDlg)[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}
+  /* the key hints in a menu were a light weight on purpose; here they read as text */
+  .menu kbd{font-weight:400}
 }

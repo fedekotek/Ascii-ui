@@ -33,7 +33,7 @@ Everything that matches `RV` (js/10, search `var RV=`) gets `data-rv`, and `js-r
 Every 650ms, scaled by the glitch amount, a few runs of `=` in magenta or pink appear on the character grid and vanish after 80..300ms. They only land in the gutters either side of the column (when a gutter is at least 2ch) and over the hero, never over body text. Tap shards and the cursor trail are still blocks, since they answer your pointer.
 
 ## Tear (`js/20` "fx helpers")
-`tear(n)`: n horizontal strips in `#fx` with a `backdrop-filter: hue-rotate(-45..-75deg) saturate(1.6)` and a small translateX, removed after 80..220ms. The small backward turn keeps the band in the pink, violet and cyan family; bigger turns made oranges and browns. Fast scroll calls it (velocity > 1300 px/s).
+`tear(n)`: n strips in `#fx`, each one or two grid rows of light ramp characters (about half the cells) in magenta or violet at .55 opacity, knocked one character sideways, removed after 80..220ms. No filter: it used to be a `backdrop-filter` hue turn. Fast scroll calls it (velocity > 1300 px/s).
 
 ## Jolt (`css/02` `@keyframes jolt`, `A.jolt`)
 260ms `steps(1)` keyframe on `main`: translateX, skewX, hue-rotate, saturate. Fires on errors, shatter, hits in invaders, and the explicit glitch buttons. Success uses `A.flash(el)` instead: the nearest card or frame goes lime for 120ms (`.okflash`) and the hero bursts; nothing under reduced motion.
@@ -57,13 +57,13 @@ See CHARTS.md.
 `SEED` per visit (or `fnv(name)` via `sign NAME`). `makePoster()` renders a 1080x1350 PNG with a seeded PRNG: streaks, blocks, color bars, the split bitmap title, the signal code, scanlines. `picDialog(src, kind)` shows it in `#posterDlg`; a `'snap'` kind (a hero snapshot) is still supported but nothing asks for it since Play went.
 
 ## VHS layer (`js/20` "VHS layer", `css/13`)
-`#hud`: REC blinking, timecode from page load, SIG percent (100 minus glitch), SND when audio is on. `#track`: a translucent band with a backdrop filter that rolls down every 9s. Both hidden in `.calm`.
+`#hud`: REC blinking, timecode from page load, SIG percent (100 minus glitch), SND when audio is on. `#track`: three rows of `- =` characters that step down the screen a row at a time every 9s, moved by the `aui-track` CSS animation in `steps(rows)` (css/13), so a pass costs a few DOM changes, not one per row. Both hidden in `.calm`.
 
 ## Tilt (`js/20` "tilt")
 `deviceorientation` feeds `A.spin()`. iOS needs `DeviceOrientationEvent.requestPermission()`, exposed as the `tilt` command in Search.
 
 ## Boot (`js/20` "boot")
-Once per session. `#boot` is static markup at the top of `index.html`, so it is the first paint; an inline script under it removes it at once on a return visit or with reduced motion. `boot()` fills it: the section-poster bitmap title developing (fitted to an 80ch column), a color strip one row tall, five log lines at 60ms with sounds, a halftone progress bar, magenta streaks, then a 150ms clip-path exit as soon as the bar hits 100% (about 1.3s from navigation). A tap or any key skips. While it is up, `aui-booting` on `:root` holds the page's entrances, so the header decodes once, after it leaves. The `boot` command (or Boot under Tricks in Search) replays. `body::before` (the scanlines) sits above it at z-index 250, and every `dialog` carries its own scanlines in `::after` and `::backdrop`, since the top layer is out of any z-index's reach.
+Once per session. `#boot` is static markup at the top of `index.html`, so it is the first paint; an inline script under it removes it at once on a return visit or with reduced motion. `boot()` fills it: a glow of the ramp's three lightest steps in magenta behind everything (characters, not a gradient), the section-poster bitmap title developing (fitted to an 80ch column), a color strip one row tall, five log lines at 60ms with sounds, a halftone progress bar, magenta streaks, then a 150ms clip-path exit as soon as the bar hits 100% (about 1.3s from navigation). A tap or any key skips. While it is up, `aui-booting` on `:root` holds the page's entrances, so the header decodes once, after it leaves. The `boot` command (or Boot under Tricks in Search) replays. `body::before` (the scanlines) sits above it at z-index 250, and every `dialog` carries its own scanlines in `::after` and `::backdrop`, since the top layer is out of any z-index's reach.
 
 ## Ramp editor (`js/40` "the ramp editor")
 Presets and eight single-character inputs. `setRamp` validates (8 distinct, no space/quote/backslash/angle bracket), then `A.setRamp()` sets `AUI_MAP`, rebuilds tones, re-renders titles, sliders, charts, invaders (via `layout()`), and everything that goes through `A.TR()` or the patched `fillText`. Known gap: the progress bar and the ramp lab in Themes > Labs keep old characters until they next redraw.

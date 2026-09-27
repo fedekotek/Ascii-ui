@@ -200,7 +200,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
    narrower than 40 characters. It used to wrap everywhere, to three lines,
    with the arrow sitting on the second one. The arrow hangs off the bottom
    edge, whatever the height. Escape puts it away (js/30 adds .off) */
-.tip{width:max-content;max-width:min(40ch,calc(100vw - 4ch));white-space:normal}
+.tip{width:max-content;max-width:min(40ch,calc(100vw - 6ch));white-space:normal}
 @media not (pointer:coarse){.tip::after{top:100%}}
 .pop.off .tip{clip-path:inset(0 100% 0 0)!important}
 
@@ -408,6 +408,12 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
 .topbar.tight .gw{display:none}
 .topbar.tight .gbtn{width:5ch;display:block;margin-left:-.5ch;margin-right:-.5ch}
 .topbar.wrap .viewsbar{flex-wrap:wrap}
+/* wrapped, the rows touch: the pixel each target reached past its row would
+   land on the target under it, so the brand and views keep the top one and the
+   settings the bottom one. Each is still 43px, nobody shares a pixel */
+.topbar.wrap .brand,.topbar.wrap #views .tab{padding-bottom:calc(var(--r)/2);margin-bottom:0}
+.topbar.wrap .barctl > *{padding-top:calc(var(--r)/2);margin-top:0}
+.topbar.wrap #views .tab[aria-selected="true"]::after{top:100%}
 
 /* ---- phones: no zoom on focus ---------------------------------------------
    iOS zooms into any field under 16px and leaves the page zoomed. On a touch

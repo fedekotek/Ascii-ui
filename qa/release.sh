@@ -37,5 +37,5 @@ step python3 qa/reduced.py --site
 step python3 qa/nav.py quick
 step python3 qa/reference.py --check
 step python3 build.py --check
-step python3 qa/budget.py
+step python3 qa/budget.py --idle
 echo "release: ok, $n of $n steps passed. Commit, push to main, Vercel ships it."

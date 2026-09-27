@@ -31,6 +31,9 @@
        times:n    stop after n runs
        end:fn     called when the count runs out (not when you stop it)
        delay:ms   wait this long instead of one cadence before the first run
+       sleep:ms   how long a gated-off task waits before it asks again (1000).
+                  Infinity when whatever opens the gate calls wake(): then
+                  it costs nothing at all until then
      The loop sleeps until the next task is due, and a task whose gate says no
      looks again in a second. handle.wake() runs it at the next frame.  */
   var CK={tasks:[],raf:0,timer:0,due:0,paused:false};
@@ -52,7 +55,7 @@
         t.at=now+t.ms;
         /* gated off: look again in a second, not every cadence */
         /* snapped to a half second, so the sleepers wake together, once, not each on its own frame */
-        if(t.gate&&!t.gate()){t.at=Math.ceil((now+Math.max(t.ms,1000))/500)*500;continue}
+        if(t.gate&&!t.gate()){t.at=t.sleep===Infinity?Infinity:Math.ceil((now+Math.max(t.ms,t.sleep))/500)*500;continue}
         t.n++;
         /* a task that throws loses its place, not the whole loop; the error is
            rethrown out of band so it still reaches the console and QA */
@@ -70,6 +73,7 @@
     if(CK.raf||CK.paused||!CK.tasks.length)return;
     var now=window.performance?performance.now():Date.now(),next=Infinity,i,t;
     for(i=0;i<CK.tasks.length;i++){t=CK.tasks[i];if(!t.dead&&t.at<next)next=t.at}
+    if(next===Infinity)return;   /* everything asleep until a wake() */
     if(CK.timer){if(next>=CK.due)return;clearTimeout(CK.timer);CK.timer=0}
     var wait=next-now-8;
     if(wait>12){CK.due=next;CK.timer=setTimeout(function(){CK.timer=0;CK.raf=requestAnimationFrame(clockFrame)},wait)}
@@ -78,7 +82,7 @@
   function every(ms,fn,opt){
     opt=opt||{};
     var gate=opt.gate||null,el=opt.el||null;
-    var t={ms:Math.max(8,ms),fn:fn,n:0,left:opt.times||0,end:opt.end||null,dead:false,
+    var t={ms:Math.max(8,ms),fn:fn,n:0,left:opt.times||0,end:opt.end||null,dead:false,sleep:opt.sleep||1000,
       gate:el?function(){return onScreen(el)&&(!gate||gate())}:gate};
     t.at=(window.performance?performance.now():Date.now())+(opt.delay===undefined?t.ms:opt.delay);
     t.stop=function(){t.dead=true};
@@ -296,8 +300,9 @@
     pre.innerHTML=html;pre._painted=1;
   }
   function makeBars(cols){
-    /* tbar is ink in dark and magenta on paper, see css/01 */
-    var rows=[],y,k,cs=['pink','warn','ok','deep','tbar'].sort(function(){return Math.random()-0.5});
+    /* tbar is ink in dark and magenta on paper, see css/01. The bars are
+       decoration, so no lime (confirms), no yellow (warns), no cyan (focus) */
+    var rows=[],y,k,cs=['pink','violet','hot','deep','tbar'].sort(function(){return Math.random()-0.5});
     var seg=[];for(k=0;k<5;k++)seg.push([Math.floor(Math.random()*6),8+Math.floor(Math.random()*6)]);
     for(y=0;y<14;y++){
       var r='';
@@ -348,10 +353,10 @@
 
   /* ---- layout: snap the page to a whole number of columns ---- */
   var probe=$('probe'),hero=$('hero'),ctx=hero.getContext('2d');
-  var HC=60,HR=58,mask=null,wbox=[],t=0,CH=9.6,CW=6,LH=7,FS=10,DPR=1,A=1.1,B=0.4,spinX=0,spinY=0,PAL=null;
+  var FADEPX=0,HC=60,HR=58,mask=null,wbox=[],t=0,CH=9.6,CW=6,LH=7,FS=10,DPR=1,A=1.1,B=0.4,spinX=0,spinY=0,PAL=null;
   var G={on:!reduce,amt:0.5,burst:0,next:0,scroll:0};
   var HP={t1:'COPY IT',t2:'OWN IT',speed:1,rad:1,split:1,tear:1,streaks:12,blocks:3,map:0};
-  var MAPS=[null,['deep','deep','cy','cy','ok','ok','ink'],['deep','warn','warn','hot','hot','pink','ink'],['muted','muted','muted','ink','ink','ink','ink']];
+  var MAPS=[null,['deep','deep','violet','violet','pink','pink','ink'],['deep','violet','violet','hot','hot','pink','ink'],['muted','muted','muted','ink','ink','ink','ink']];
   function glitch(){return (G.on&&G.amt>0)?Math.min(1,G.amt+G.scroll*0.6):0}
   function currentTheme(){
     return root.getAttribute('data-theme')||
@@ -372,6 +377,7 @@
        the first letter is never half gone. A line that would not fit between
        the two fades at double size drops to single. */
     var fade=(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*CH;
+    FADEPX=fade;
     var x0=Math.ceil(fade/CW)+1;
     /* from 1600px the hero is taller and the words go to double size as soon
        as two lines of it fit (35 rows), not at 44 */
@@ -396,12 +402,19 @@
     for(var i=0;i<wbox.length;i++){var w=wbox[i];if(x>=w[0]&&x<=w[2]&&y>=w[1]&&y<=w[3])return true}
     return false;
   }
+  /* measured once per size: fitTitles asks every 1.5s, and each measure was
+     four changes to the page. A resize or a font arriving measures again */
+  var CWC={};
   function charWidth(fs){
+    if(CWC[fs])return CWC[fs];
     probe.style.fontSize=fs+'px';probe.style.fontWeight='700';
     var w=probe.getBoundingClientRect().width/50;
     probe.style.fontSize='';probe.style.fontWeight='';
+    if(w>0)CWC[fs]=w;
     return w;
   }
+  window.addEventListener('resize',function(){CWC={}});
+  if(document.fonts&&document.fonts.addEventListener)document.fonts.addEventListener('loadingdone',function(){CWC={}});
   function fit(cols,W,maxFs){
     var fs=Math.min(maxFs,W/(cols*0.55)),cw=charWidth(fs),n=0;
     while(cw*cols>W&&fs>3&&n++<80){fs-=0.2;cw=charWidth(fs)}
@@ -453,7 +466,9 @@
       var tb=bar.parentNode,vb=bar.querySelector('.viewsbar'),bc=vb&&vb.querySelector('.barctl');
       /* the settings sit flush right; past the bar's edge means it does not fit
          (the glyphs' bleed is inside the settings' box, so it does not count) */
-      var over=function(){return bc.getBoundingClientRect().right>vb.getBoundingClientRect().right+1};
+      /* or it has already wrapped under the views (long words): that counts too,
+         so the wrapped rows can give up the pixel of bleed they would share */
+      var over=function(){var a=bc.getBoundingClientRect(),v=vb.getBoundingClientRect();return a.right>v.right+1||a.top>v.top+1};
       if(bc){
         tb.classList.remove('tight','wrap');
         if(over()){tb.classList.add('tight');if(over())tb.classList.add('wrap')}
@@ -689,6 +704,26 @@
       }
       G.burst=Math.max(0,burst-0.3);
     }
+    fadeEdges();
+  }
+  /* The edges dissolve in characters: in the side fade (--fade, css/16) and
+     the two rows top and bottom, a cell is dropped the more often the nearer
+     it is to the edge, so streaks and bars thin out and leave instead of
+     stopping mid character. It used to be a gradient mask on the canvas. The
+     pattern is fixed per cell, so it does not crawl. The name keeps every
+     cell: the words start inside the fade already */
+  function fadeEdges(){
+    var fx=FADEPX/CW,fy=2*ROW/LH,x,y,j,ey,f,xs;
+    if(!(fx>0)||!(fy>0))return;
+    var a=Math.ceil(fx),b=Math.floor(HC-fx);
+    for(y=0;y<HR;y++){
+      ey=Math.min(y+0.5,HR-y-0.5)/fy;
+      for(j=0;j<HC;j++){
+        if(ey>=1&&j===a&&b>a){j=b-1;continue}
+        x=j;if(mask[y][x])continue;f=Math.min(ey,Math.min(x+0.5,HC-x-0.5)/fx);if(f>=1)continue;
+        if(((((x*73856093)^(y*19349663))>>>0)%100)/100>=f)ctx.clearRect(x*CW-0.5,y*LH,CW+1,LH);
+      }
+    }
   }
   function kick(){if(glitch()>0)G.burst=1}
   function point(e){
@@ -886,7 +921,8 @@
     b.style.setProperty('--h',q(top));b.style.setProperty('--hb',q(bot));
     b.style.setProperty('--s',q(l));b.style.setProperty('--sr',q(r));
   }
-  var RIMC=['hot','pink','warn','ok','deep','violet'];
+  /* the rim runs through the acting and decoration colours only */
+  var RIMC=['hot','pink','violet','deep','pink','violet'];
   function rimClear(b){['--h','--hb','--s','--sr','--frame-color'].forEach(function(p){b.style.removeProperty(p)})}
   function march(b){
     if(reduce||b.disabled||b._m)return;
@@ -986,7 +1022,7 @@
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
     /* the bands are rows of @ in the band colours, three rows each, on the
        page's own row; the paper behind them only hides the swap */
-    var bc=['pink','warn','violet','deep','ink','hot','violet'];
+    var bc=['pink','hot','violet','deep','ink','hot','violet'];
     solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:'+PAL.bg;
     pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:'+ROW+'px;white-space:pre;color:'+ink;
     wrap.appendChild(solid);wrap.appendChild(pre);document.body.appendChild(wrap);
@@ -1132,7 +1168,9 @@
   /* one row, like every other halftone bar in the kit (tape, work orders,
      regions). It was two rows here, so the kit had bars in two heights. */
   function barText(k,jit){return barRow(k,jit)}
-  var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'warn','=':'warn',':':'ink','.':'muted'};
+  /* density in colour: magenta, pink, violet, ink, then gray. Yellow and lime
+     stay for warnings and confirmations */
+  var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'violet','=':'violet',':':'ink','.':'muted'};
   function colorize(txt){
     var out='',cur='',run='',i,c,k;
     function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run+'</span>';run=''}
