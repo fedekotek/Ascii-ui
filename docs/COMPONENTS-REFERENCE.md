@@ -692,7 +692,7 @@ Limits:
 - Id: `s-togglegroup`, address `#components/togglegroup`
 - Group: Form
 - In the kit: yes, `kit/starter.html#togglegroup`
-- Caption: Pick one of a few options. Radios dressed as slabs.
+- Caption: Pick one of a few options. Radios dressed as slabs. Arrow keys move the pick, Tab leaves the group.
 - Behaviors:
   - `data-aui="segment"`: says the pick in the status line
 - CSS blocks:

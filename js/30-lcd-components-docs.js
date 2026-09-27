@@ -322,7 +322,11 @@ $('tt').addEventListener('keydown',e=>{if(e.key==='Escape'){const p=$('tt');if(!
 ['focusout','pointerenter'].forEach(t=>$('tt').addEventListener(t,()=>$('tt').classList.remove('off')));
 
 /* ================= blocks ================= */
-$('sayHi').addEventListener('click',()=>A.say('Hi. No inbox is wired in this prototype.'));
+/* Say hi goes where the person is: the portfolio, in a new tab */
+$('sayHi').addEventListener('click',()=>{
+  const a=document.createElement('a');a.href='https://fedekotek.design';a.target='_blank';a.rel='noopener';
+  document.body.appendChild(a);a.click();a.remove();A.say('Opening fedekotek.design in a new tab.');
+});
 (function(){
   const st=$('caseStatus'),D={Reporting:'Reporting: led at MaintainX. Dashboards for plant managers, built mobile first.',Search:'Search: global search across work orders, assets and parts.',Automations:'Automations: triggers and actions for maintenance teams, no code.',Chat:'Chat: messaging for frontline teams, tied to the work order.'};
   document.querySelectorAll('#cases [data-case]').forEach(c=>{
@@ -505,10 +509,10 @@ function spanSections(panel){
     if(!s.hasAttribute('data-span')&&s.querySelector(WIDE))s.setAttribute('data-span','full');
   });
 }
-/* skip: sections that stay out of the index and close the view (Rules,
-   Foundations; Get the kit joins them from js/40). They get no Preview and
-   Code tabs. The header links to them, the sidebar lists
-   them first as Getting started, and the page opens on a component.
+/* skip: sections that stay out of the index and open the view (Rules,
+   Foundations; Get the kit goes ahead of them from js/40). They get no
+   Preview and Code tabs. The header links to them, and the sidebar lists
+   them first as Getting started, in the same order as the page.
    pin: sections that open the index, in that order, ahead of the alphabet: a
    404 page is a strange first block. */
 function buildView(panel,label,skip,pin,group){
@@ -519,7 +523,9 @@ function buildView(panel,label,skip,pin,group){
   /* grouped views sort by group first; the group rides on the section for the sidebar */
   const G=group?s=>{const g=group(id(s));s.dataset.group=g[1];return g[0]}:()=>0;
   secs.sort((a,b)=>G(a)-G(b)||rank(a)-rank(b)||name(a).localeCompare(name(b)));
-  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.appendChild(s));
+  /* the skipped ones (Rules, Foundations) open the view, ahead of the index:
+     the sidebar lists them first, so the page does too */
+  secs.forEach(s=>panel.appendChild(s));tail.forEach(s=>panel.insertBefore(s,secs[0]||null));
   /* Tabs too: its demo is a tablist of its own, and docify only wires the doc's */
   secs.forEach(docify);
   /* a grouped view says where each group starts, on the page as in the sidebar */
