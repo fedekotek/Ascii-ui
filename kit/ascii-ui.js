@@ -1,4 +1,4 @@
-/* ascii/ui kit 1.1.1, ascii-ui.js
+/* ascii/ui kit 1.2.0, ascii-ui.js
    The behaviors for the components that need a script, wired by data
    attributes. No dependencies. Link it after ascii-ui.css:
 
@@ -6,10 +6,13 @@
 
    Then any element with data-aui="NAME" gets that behavior, including
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
-   otp, calendar, pagination, validate, counter, spinner, skeleton.
+   popover, combobox, contextmenu, confirm, otp, calendar, pagination,
+   validate, counter, spinner, skeleton.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
-     data-aui-close             closes the dialog it sits in
+     data-aui-close             closes the dialog or the popover it sits in;
+                                data-aui-close="delete" also sets the dialog's
+                                returnValue, so its close event knows the answer
      data-aui-toast="Saved."    shows a toast (data-aui-toast-err for a yellow one)
      data-aui-reset             puts the fields of its form or dialog back to how the html has them
      data-aui-fill              runs the nearest progress bar from 0 to 100, for demos
@@ -39,14 +42,15 @@
 
    window.ASCIIUI: version, init(root), destroy(root), get(el), validate(form),
    toast(msg, err), progress(el, pct), tabs(el), pagination(el), calendar(el),
-   dropdown(el), otp(el), bar(k, n), colorize(str), tones(map), reduce,
-   behaviors. The README has the events and the calls for each component.
+   dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
+   bar(k, n), colorize(str), tones(map), reduce, behaviors. The README has
+   the events and the calls for each component.
 
    MIT license. Copyright (c) 2026 Fede Kotek. The full text is in README.md. */
 (function(){
 'use strict';
 if(window.ASCIIUI)return;   /* linked twice: keep the first */
-var VERSION='1.1.1';
+var VERSION='1.2.0';
 var doc=document;
 
 /* ---- reduced motion, followed live ---- */
@@ -115,6 +119,73 @@ function hiddenIn(box,name){
   if(!name)return h;
   if(!h){h=doc.createElement('input');h.type='hidden';box.appendChild(h)}
   h.name=name;return h;
+}
+
+/* ---- panels that float next to what opened them: the popover, the
+   combobox list and the context menu. Where the browser has the Popover API
+   the panel goes to the top layer (popover="manual"): no box that scrolls or
+   clips holds it back and nothing is drawn over it. Without it the panel
+   stays where it is in the page, over its neighbours. Either way it is
+   placed on the grid, whole characters and rows from what opened it: under
+   it, or above it when there is no room below, and inside the window ---- */
+var TOP=!!(window.HTMLElement&&HTMLElement.prototype.hasOwnProperty('popover'));
+var CW=0;
+/* one character, in px, measured in the panel's own font */
+function chw(box){
+  var p=doc.createElement('span');p.textContent='MMMMMMMMMM';
+  p.style.cssText='position:absolute;left:0;top:0;visibility:hidden;white-space:pre';
+  (box||doc.body).appendChild(p);var w=p.getBoundingClientRect().width/10;p.remove();
+  return w||CW||8.4;
+}
+function rowh(){return parseFloat(getComputedStyle(doc.documentElement).getPropertyValue('--r'))||21}
+/* a child of box that matches sel, or else the first one inside it */
+function kid(box,sel){
+  for(var i=0;i<box.children.length;i++)if(box.children[i].matches(sel))return box.children[i];
+  return box.querySelector(sel);
+}
+/* where Tab lands first inside box: [autofocus], else the first control, and
+   for a radio group the radio that is checked */
+var TABBABLE='a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+function firstStop(box){
+  var a=box.querySelector('[autofocus]');if(a&&a.getClientRects().length)return a;
+  var e=all(TABBABLE,box).filter(function(x){return x.getClientRects().length})[0];
+  if(e&&e.type==='radio'&&e.name){var c=all('input[type="radio"]',box).filter(function(x){return x.name===e.name&&x.checked})[0];if(c)e=c}
+  if(!e){if(!box.hasAttribute('tabindex'))box.tabIndex=-1;e=box}
+  return e;
+}
+function float(panel,cx){
+  var side='down';
+  if(TOP){panel.hidden=false;panel.setAttribute('popover','manual')}
+  /* torn down: closed, and the html back to how it came */
+  cx.later(function(){
+    if(TOP){try{panel.hidePopover()}catch(e){}panel.removeAttribute('popover')}
+    panel.hidden=true;panel.classList.remove('open','up');panel.style.left='';panel.style.top='';
+  });
+  var F={
+    get isOpen(){return TOP?panel.matches(':popover-open'):!panel.hidden},
+    show:function(){if(F.isOpen)return;if(TOP)panel.showPopover();else panel.hidden=false;panel.classList.add('open');CW=chw(panel);side='down'},
+    hide:function(){if(!F.isOpen)return;panel.classList.remove('open','up');if(TOP)panel.hidePopover();else panel.hidden=true},
+    /* a is the box it hangs from. point: a context menu, which opens at the
+       pointer (a is the character cell under it) and goes to its left when
+       there is no room on the right.
+       keep: stay on the side it took when it opened, while there is room */
+    place:function(a,point,keep){
+      var cw=CW||chw(panel),de=doc.documentElement,vw=de.clientWidth,vh=de.clientHeight;
+      panel.style.left='0px';panel.style.top='0px';
+      var o=panel.getBoundingClientRect(),w=o.width,h=o.height,x=a.left,y=a.bottom;
+      var below=vh-a.bottom,above=a.top;
+      var s=keep&&side==='up'&&above>=h?'up':(below>=h||below>=above)?'down':'up';
+      if(s==='up')y=a.top-h;
+      if(x+w>vw-cw){
+        if(point&&a.left-w>=cw)x=a.left-w;
+        else x-=Math.ceil((x+w-(vw-cw))/cw)*cw;
+      }
+      if(x<cw)x+=Math.ceil((cw-x)/cw)*cw;
+      side=s;panel.classList.toggle('up',s==='up');
+      panel.style.left=Math.round(x-o.left)+'px';panel.style.top=Math.round(y-o.top)+'px';
+    }
+  };
+  return F;
 }
 
 /* ---- one instance per wired element. Its listeners share one
@@ -365,6 +436,326 @@ var behaviors={
     cx.on(pop,'pointerenter',function(){pop.classList.remove('off')});
     cx.on(pop,'focusin',function(){pop.classList.remove('off')});
     return {show:show,hide:hide};
+  },
+
+  /* .pop holding a button and a .pane: the button opens the pane next to
+     it, a panel for a few controls. Not modal, the page stays live. The
+     focus goes in; Escape and a data-aui-close inside put it away and bring
+     the focus back; a click outside or Tab past the end just put it away. A
+     form with method="dialog" inside closes it once it is sent, so a bad
+     field keeps it open. Fires aui:toggle with { open } */
+  popover:function(pop,cx){
+    var btn=kid(pop,'[aria-haspopup]'),pane=kid(pop,'.pane');
+    if(!btn||!pane)return;
+    var f=float(pane,cx);
+    btn.setAttribute('aria-controls',uid(pane,'pane'));btn.setAttribute('aria-expanded','false');
+    if(!pane.hasAttribute('role'))pane.setAttribute('role','dialog');
+    var t=pane.querySelector('.bar-title');
+    if(t&&!pane.hasAttribute('aria-label')&&!pane.hasAttribute('aria-labelledby'))pane.setAttribute('aria-labelledby',uid(t,'title'));
+    function where(){f.place(btn.getBoundingClientRect(),false,true)}
+    /* o.user: a person did it, so it fires. o.focus: the focus goes in.
+       o.back: the focus comes back to the button */
+    function set(on,o){
+      o=o||{};if(on===f.isOpen)return;
+      if(on){f.show();f.place(btn.getBoundingClientRect());if(o.focus)firstStop(pane).focus()}
+      else{f.hide();if(o.back)btn.focus()}
+      btn.setAttribute('aria-expanded',on?'true':'false');
+      if(o.user)emit(pop,'toggle',{open:on});
+    }
+    cx.on(btn,'click',function(){set(!f.isOpen,{user:true,focus:true})});
+    /* a list or a menu inside that took the Escape keeps the pane open */
+    cx.on(pop,'keydown',function(e){if(e.key==='Escape'&&f.isOpen&&!e.defaultPrevented){e.preventDefault();set(false,{user:true,back:true})}});
+    cx.on(doc,'pointerdown',function(e){if(f.isOpen&&!pop.contains(e.target))set(false,{user:true})});
+    cx.on(pop,'focusout',function(e){if(f.isOpen&&e.relatedTarget&&!pop.contains(e.relatedTarget))set(false,{user:true})});
+    cx.on(pane,'click',function(e){var c=e.target.closest('[data-aui-close]');if(c&&!c.disabled&&c.closest('.pane')===pane)set(false,{user:true,back:true})});
+    cx.on(pane,'submit',function(e){if((e.target.getAttribute('method')||'').toLowerCase()==='dialog'&&e.target.closest('.pane')===pane){e.preventDefault();set(false,{user:true,back:true})}});
+    cx.on(window,'resize',function(){if(f.isOpen)where()});
+    cx.on(doc,'scroll',function(e){if(f.isOpen&&!(e.target.nodeType===1&&pane.contains(e.target)))where()},true);
+    return {open:function(){set(true)},close:function(){set(false)},toggle:function(){set(!f.isOpen)},get isOpen(){return f.isOpen}};
+  },
+
+  /* .combo holding a .field with an input[role=combobox], and a .pane with a
+     [role=listbox] of [role=option]. Typing narrows the list (every word you
+     type starts a word of the option, accents and case aside), arrows move,
+     Enter or a click picks. It takes what is on the list: leave it with
+     words that match nothing and nothing picked, and it says so (data-free
+     takes any text). A pick is aria-selected="true" or data-value on the
+     .combo; data-name="x" adds a hidden input with the pick's data-value.
+     data-empty is what it says when nothing matches. Fires aui:change with
+     { value, label, option } */
+  combobox:function(box,cx){
+    var inp=box.querySelector('input[role="combobox"]'),pane=kid(box,'.pane'),list=pane&&pane.querySelector('[role="listbox"]');
+    if(!inp||!list)return;
+    var field=inp.closest('.field')||inp,f=float(pane,cx),hid=hiddenIn(box,box.getAttribute('data-name'));
+    var act=null,sel=null,typed=false,none=null,tellT=0,mine=false;
+    var out=byId((inp.getAttribute('aria-describedby')||'').split(' ')[0])||near(inp,null,'.error');
+    if(out&&!inp.hasAttribute('aria-describedby'))inp.setAttribute('aria-describedby',uid(out,'error'));
+    /* the count, read out once typing stops; the list itself shows it */
+    var live=doc.createElement('span');live.className='vh';live.setAttribute('aria-live','polite');box.appendChild(live);
+    cx.later(function(){clearTimeout(tellT);live.remove();if(none)none.remove()});
+    var opts=function(){return all('[role="option"]',list)};
+    var off=function(o){return o.getAttribute('aria-disabled')==='true'};
+    var text=function(o){return (o.getAttribute('data-label')||o.textContent).replace(/\s+/g,' ').trim()};
+    var val=function(o){return o.hasAttribute('data-value')?o.getAttribute('data-value'):text(o)};
+    var fold=function(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')};
+    var WORD=/[^\p{L}\p{N}]+/u;
+    /* how well o answers q: -1 not at all, else the word the first typed word
+       starts, so fra puts fra-1, Frankfurt before sfo-1, San Francisco */
+    function rank(o,q){
+      var ws=fold(text(o)).split(WORD).filter(Boolean),ts=fold(q).split(WORD).filter(Boolean),i;
+      if(!ts.length)return 0;
+      if(!ts.every(function(t){return ws.some(function(w){return w.indexOf(t)===0})}))return -1;
+      for(i=0;i<ws.length;i++)if(ws[i].indexOf(ts[0])===0)return i;
+      return ws.length;
+    }
+    var seq=0;function at(o){if(o.__auiI===undefined)o.__auiI=seq++;return o.__auiI}
+    inp.setAttribute('aria-controls',uid(list,'list'));inp.setAttribute('aria-autocomplete','list');inp.setAttribute('aria-expanded','false');
+    if(!inp.hasAttribute('autocomplete'))inp.setAttribute('autocomplete','off');
+    var lab=inp.labels&&inp.labels[0];
+    if(lab&&!list.hasAttribute('aria-label')&&!list.hasAttribute('aria-labelledby'))list.setAttribute('aria-labelledby',uid(lab,'label'));
+    opts().forEach(function(o){uid(o,'opt');at(o)});
+    /* the matches, best first, then the rest hidden; the html order when q is empty */
+    function draw(q){
+      var n=0,first=null,os=opts(),rs=new Map();
+      os.forEach(function(o){uid(o,'opt');at(o);var r=rank(o,q);rs.set(o,r);o.hidden=r<0;if(r>=0)n++});
+      var want=os.slice().sort(function(a,b){var x=rs.get(a),y=rs.get(b);x=x<0?1e9:x;y=y<0?1e9:y;return x-y||at(a)-at(b)});
+      if(want.some(function(o,i){return o!==os[i]}))want.forEach(function(o){list.appendChild(o)});
+      want.forEach(function(o){if(!first&&!o.hidden&&!off(o))first=o});
+      if(!none){none=doc.createElement('p');none.className='opts-none';list.parentNode.insertBefore(none,list.nextSibling)}
+      none.textContent=box.getAttribute('data-empty')||'Nothing matches.';none.hidden=n>0;
+      return {n:n,first:first};
+    }
+    function into(o){var t=o.offsetTop,h=o.offsetHeight,s=list.scrollTop,c=list.clientHeight;if(t<s)list.scrollTop=t;else if(t+h>s+c)list.scrollTop=t+h-c}
+    /* the option the arrows are on: the focus, though the caret stays in the field */
+    function mark(o,scroll){
+      if(act)act.removeAttribute('data-active');act=o||null;
+      if(act){act.setAttribute('data-active','');inp.setAttribute('aria-activedescendant',act.id);if(scroll!==false)into(act)}
+      else inp.removeAttribute('aria-activedescendant');
+    }
+    function err(msg){mine=!!msg;field.classList.toggle('invalid',!!msg);inp.setAttribute('aria-invalid',msg?'true':'false');if(out)out.textContent=msg||''}
+    /* the list hangs from the field; above it, it clears the label too, so the name stays in view */
+    function anchor(){
+      var r=field.getBoundingClientRect(),a={left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+      if(lab){var l=lab.getBoundingClientRect();if(l.height&&l.bottom<=r.top+1&&r.top-l.bottom<rowh())a.top=l.top}
+      return a;
+    }
+    function show(q){
+      var fresh=!f.isOpen,r=draw(q);
+      if(fresh){f.show();inp.setAttribute('aria-expanded','true')}
+      pane.style.width=Math.round(field.getBoundingClientRect().width+2*CW)+'px';
+      f.place(anchor(),false,!fresh);
+      return r;
+    }
+    function hide(){if(!f.isOpen)return;f.hide();inp.setAttribute('aria-expanded','false');mark(null)}
+    function tell(n){clearTimeout(tellT);tellT=setTimeout(function(){live.textContent=n?(n===1?'1 match.':n+' matches.'):none.textContent},500)}
+    function pick(o,user){
+      sel=o||null;typed=false;
+      opts().forEach(function(x){if(x===sel)x.setAttribute('aria-selected','true');else x.removeAttribute('aria-selected')});
+      inp.value=sel?text(sel):'';inp.setCustomValidity('');if(mine)err('');
+      if(hid)hid.value=sel?val(sel):'';
+      say(box,sel?'Picked '+text(sel)+'.':'Nothing picked.');
+      if(user){inp.dispatchEvent(new Event('change',{bubbles:true}));emit(box,'change',{value:sel?val(sel):'',label:sel?text(sel):'',option:sel})}
+    }
+    /* leaving the field: the words must be an option, or nothing */
+    function commit(){
+      var t=inp.value.replace(/\s+/g,' ').trim();
+      if(sel&&t===text(sel)){typed=false;return}
+      if(!t){if(sel)pick(null,true);typed=false;return}
+      var ex=opts().filter(function(o){return !off(o)&&fold(text(o))===fold(t)})[0];
+      if(ex){pick(ex,true);return}
+      if(box.hasAttribute('data-free')){sel=null;opts().forEach(function(x){x.removeAttribute('aria-selected')});if(hid)hid.value=t;typed=false;emit(box,'change',{value:t,label:t,option:null});return}
+      if(sel){inp.value=text(sel);typed=false;return}   /* typed over a pick: the pick stays */
+      var m=box.getAttribute('data-error-list')||'Pick one from the list.';inp.setCustomValidity(m);err(m);
+    }
+    var vis=function(){return opts().filter(function(o){return !o.hidden&&!off(o)})};
+    cx.on(inp,'input',function(){
+      if(resetting)return;
+      typed=true;inp.setCustomValidity('');if(mine)err('');
+      var q=inp.value.trim(),r=show(q);mark(q?r.first:null);tell(r.n);
+    });
+    cx.on(inp,'keydown',function(e){
+      if(e.isComposing)return;
+      var k=e.key,v=vis(),i=v.indexOf(act);
+      if(k==='ArrowDown'||k==='ArrowUp'){
+        e.preventDefault();
+        if(!f.isOpen){
+          show(typed?inp.value.trim():'');v=vis();
+          var at=sel&&!sel.hidden&&!off(sel)?sel:null;
+          mark(e.altKey?at:(at||(k==='ArrowDown'?v[0]:v[v.length-1])));
+          return;
+        }
+        if(v.length)mark(k==='ArrowDown'?v[(i+1)%v.length]:v[i<0?v.length-1:(i-1+v.length)%v.length]);
+      }
+      else if((k==='PageDown'||k==='PageUp')&&f.isOpen&&v.length){e.preventDefault();mark(v[clamp((i<0?0:i)+(k==='PageDown'?5:-5),0,v.length-1)])}
+      else if(k==='Enter'){
+        if(f.isOpen){e.preventDefault();var a=act;hide();if(a)pick(a,true);else commit()}
+        else commit();   /* closed: settle the words first, so a form sends what the field says, or stops */
+      }
+      else if(k==='Escape'&&f.isOpen){e.preventDefault();hide();if(sel){inp.value=text(sel);typed=false;if(mine)err('')}}
+      else if(k==='Tab')hide();
+    });
+    /* the whole frame opens the list; the v in it closes it again */
+    cx.on(field,'mousedown',function(e){if(e.target!==inp&&!inp.disabled)e.preventDefault()});
+    cx.on(field,'click',function(e){
+      if(inp.disabled)return;
+      if(f.isOpen&&e.target.closest('.prompt')){hide();return}
+      if(!f.isOpen){show(typed?inp.value.trim():'');mark(sel&&!sel.hidden?sel:null)}
+      if(doc.activeElement!==inp)inp.focus();
+    });
+    cx.on(pane,'mousedown',function(e){e.preventDefault()});   /* the caret stays in the field */
+    cx.on(list,'pointermove',function(e){var o=e.target.closest('[role="option"]');if(o&&o!==act&&!off(o))mark(o,false)});
+    cx.on(list,'click',function(e){var o=e.target.closest('[role="option"]');if(!o||off(o))return;hide();pick(o,true);if(doc.activeElement!==inp)inp.focus()});
+    cx.on(inp,'blur',function(){hide();if(!resetting)commit()});
+    cx.on(window,'resize',function(){if(f.isOpen)f.place(anchor(),false,true)});
+    cx.on(doc,'scroll',function(e){if(f.isOpen&&!(e.target.nodeType===1&&pane.contains(e.target)))f.place(anchor(),false,true)},true);
+    /* what the html picks: data-value on the .combo, an option with
+       aria-selected="true", or words in the field that are an option */
+    function asked(){
+      var v=box.getAttribute('data-value'),o=null;
+      if(v!==null)o=opts().filter(function(x){return val(x)===v})[0]||null;
+      if(!o)o=opts().filter(function(x){return x.getAttribute('aria-selected')==='true'})[0]||null;
+      if(!o&&inp.defaultValue)o=opts().filter(function(x){return fold(text(x))===fold(inp.defaultValue.trim())})[0]||null;
+      return o;
+    }
+    function back(){setTimeout(function(){if(box.isConnected){hide();pick(asked(),false);err('')}},0)}
+    cx.on(doc,'reset',function(e){if(e.target.contains&&e.target.contains(box))back()});
+    cx.on(doc,'aui:reset',function(e){if(e.target.contains(box))back()});
+    cx.attr=function(name){
+      if(name==='data-name'){hid=hiddenIn(box,box.getAttribute('data-name'));if(hid)hid.value=sel?val(sel):''}
+      else if(name==='data-value')pick(asked(),false);
+    };
+    var start=asked();
+    if(start||!inp.value)pick(start,false);
+    return {
+      open:function(){show(typed?inp.value.trim():'');mark(sel&&!sel.hidden?sel:null)},
+      close:hide,
+      set:function(v){
+        if(v===null||v===undefined||v===''){pick(null,false);return true}
+        var o=opts().filter(function(x){return val(x)===String(v)})[0];if(!o)return false;pick(o,false);return true;
+      },
+      get value(){return sel?val(sel):(box.hasAttribute('data-free')?inp.value.trim():'')},
+      get label(){return sel?text(sel):''},
+      get option(){return sel},
+      get isOpen(){return f.isOpen}
+    };
+  },
+
+  /* .ctx holding anything and a [role=menu] (a .menu .pane). A right-click
+     inside it, a long press on a touch screen, or Shift F10 or the Menu key
+     on something focused in it open the menu there. Arrows, Home, End and a
+     first letter move; the letter in an item's <kbd> picks it; Escape and Tab
+     close it and bring the focus back. Shift and right-click still gets the
+     browser's own menu, and so do links and text fields. The row it acts on
+     wears data-ctx while it is open. The nearest role="status" says what was
+     picked, on what. Fires aui:select with { item, text, target }, target
+     being the row, list item or focusable element it opened on */
+  contextmenu:function(box,cx){
+    var menu=kid(box,'[role="menu"]');if(!menu)return;
+    var f=float(menu,cx),target=null,from=null,quiet=0,eat=0,lp=null;
+    var items=function(){return all('[role="menuitem"]',menu).filter(function(x){return !x.disabled&&x.getAttribute('aria-disabled')!=='true'&&!x.hidden})};
+    var words=function(it){var c=it.cloneNode(true);all('kbd',c).forEach(function(k){k.remove()});return c.textContent.replace(/\s+/g,' ').trim()};
+    /* the letter in a <kbd> is a shortcut, not part of the name: "Open", shortcut O, not "Open [o]" */
+    all('[role="menuitem"]',menu).forEach(function(it){var k=it.querySelector('kbd');if(!k)return;k.setAttribute('aria-hidden','true');if(!it.hasAttribute('aria-keyshortcuts'))it.setAttribute('aria-keyshortcuts',k.textContent.trim())});
+    function on(el){var t=el&&el.closest?el.closest('tr,li,[tabindex],a,button'):null;return t&&t!==box&&box.contains(t)&&!menu.contains(t)?t:box}
+    function name(t){if(!t||t===box)return '';var c=t.cells&&t.cells[0];return (t.getAttribute('aria-label')||(c?c.textContent:t.textContent)).replace(/\s+/g,' ').trim().slice(0,40)}
+    /* x, y: where, in the window. Without them it opens under t, two characters in */
+    function openAt(x,y,t){
+      if(!items().length)return false;   /* nothing to offer: the browser's own menu */
+      if(!f.isOpen)from=doc.activeElement;
+      if(target&&target!==t)target.removeAttribute('data-ctx');
+      target=t;if(t!==box)t.setAttribute('data-ctx','');
+      f.show();
+      var cw=CW,rh=rowh(),o=box.getBoundingClientRect(),snap=function(v,o0,u,up){return o0+(up?Math.ceil:Math.floor)((v-o0)/u)*u};
+      if(x===null){var r=t.getBoundingClientRect(),kx=snap(r.left+2*cw,o.left,cw);f.place({left:kx,right:kx,top:r.top,bottom:r.bottom},false)}
+      else{var px=snap(x,o.left,cw);f.place({left:px,right:px,top:snap(y,o.top,rh),bottom:snap(y,o.top,rh,true)},true)}
+      items()[0].focus();
+      return true;
+    }
+    function close(back){
+      if(!f.isOpen)return;f.hide();
+      if(target)target.removeAttribute('data-ctx');
+      if(back){var b=from&&from!==doc.body&&from.isConnected&&!menu.contains(from)?from:(target&&target!==box&&target.matches(TABBABLE)?target:null);if(b)b.focus()}
+      from=null;
+    }
+    cx.on(box,'contextmenu',function(e){
+      if(menu.contains(e.target)||Date.now()<quiet){e.preventDefault();return}   /* the keyboard or a long press opened it a moment ago */
+      if(e.shiftKey||e.target.closest('input,textarea,select,[contenteditable],a[href]'))return;
+      var kb=!e.clientX&&!e.clientY;   /* a menu key on a browser that sends one */
+      if(openAt(kb?null:e.clientX,kb?null:e.clientY,on(e.target)))e.preventDefault();
+    });
+    cx.on(box,'keydown',function(e){
+      if(menu.contains(e.target))return;
+      if(e.key==='ContextMenu'||(e.key==='F10'&&e.shiftKey)){if(openAt(null,null,on(e.target))){e.preventDefault();quiet=Date.now()+400}}
+    });
+    /* touch: press and hold half a second, without moving */
+    cx.on(box,'pointerdown',function(e){
+      if(e.pointerType!=='touch'||!e.isPrimary||menu.contains(e.target)||e.target.closest('input,textarea,select,a[href]'))return;
+      if(lp)clearTimeout(lp.id);
+      var x=e.clientX,y=e.clientY,t=on(e.target);
+      lp={x:x,y:y,id:setTimeout(function(){lp=null;if(openAt(x,y,t)){quiet=Date.now()+800;eat=Date.now()+800}},500)};
+    });
+    function drop(e){if(!lp)return;if(e.type==='pointermove'&&Math.abs(e.clientX-lp.x)<10&&Math.abs(e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null}
+    ['pointerup','pointercancel','pointermove'].forEach(function(t){cx.on(box,t,drop)});
+    cx.later(function(){if(lp)clearTimeout(lp.id)});
+    /* the finger that held it lifts: that click is not a pick */
+    cx.on(doc,'pointerdown',function(e){eat=0;if(e.pointerType!=='touch')quiet=0;if(f.isOpen&&!menu.contains(e.target))close(false)},true);
+    cx.on(box,'click',function(e){if(Date.now()<eat){e.preventDefault();e.stopPropagation();eat=0}},true);
+    /* and the mouse events a browser makes up after it would move the focus out of the menu */
+    cx.on(box,'touchend',function(e){if(Date.now()<eat&&e.cancelable)e.preventDefault()});
+    cx.on(menu,'keydown',function(e){
+      var it=items(),i=it.indexOf(doc.activeElement),n=null,k=e.key;
+      if(k==='ArrowDown')n=it[(i+1)%it.length];
+      else if(k==='ArrowUp')n=it[(i-1+it.length)%it.length];
+      else if(k==='Home')n=it[0];
+      else if(k==='End')n=it[it.length-1];
+      else if(k==='Escape'||k==='Tab'){e.preventDefault();close(true);return}
+      else if(k.length===1&&k!==' '&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+        var l=k.toLowerCase(),hit=it.filter(function(x){var b=x.querySelector('kbd');return b&&b.textContent.trim().toLowerCase()===l})[0];
+        if(hit){e.preventDefault();hit.click();return}
+        for(var j=1;j<=it.length&&!n;j++){var c=it[(i+j+it.length)%it.length];if(words(c).toLowerCase().indexOf(l)===0)n=c}
+      }
+      if(n){e.preventDefault();n.focus()}
+    });
+    cx.on(menu,'click',function(e){
+      var it=e.target.closest('[role="menuitem"]');if(!it||it.disabled||it.getAttribute('aria-disabled')==='true')return;
+      var t=target,w=words(it),nm=name(t);close(true);target=null;
+      say(box,w+(nm?': '+nm:'')+'.');
+      emit(box,'select',{item:it,text:w,target:t});
+    });
+    cx.on(menu,'focusout',function(e){if(f.isOpen&&e.relatedTarget&&!menu.contains(e.relatedTarget))close(false)});
+    cx.on(doc,'scroll',function(e){drop(e);if(f.isOpen&&!(e.target.nodeType===1&&menu.contains(e.target)))close(false)},true);
+    cx.on(window,'resize',function(){if(f.isOpen)close(false)});
+    return {
+      open:function(at){if(at&&at.nodeType===1)openAt(null,null,on(at));else if(at)openAt(at.x,at.y,box);else openAt(null,null,box)},
+      close:function(){close(false)},
+      get isOpen(){return f.isOpen},
+      get target(){return f.isOpen?target:null}
+    };
+  },
+
+  /* an input in an alert dialog, data-match="the words to type": the
+     dialog's danger buttons stay disabled until the input holds exactly
+     those words. Enter with them wrong says what to type. Every time the
+     dialog opens it starts empty */
+  confirm:function(inp,cx){
+    var want=(inp.getAttribute('data-match')||'').trim(),box=inp.closest('dialog')||inp.form||inp.parentElement;
+    var field=inp.closest('.field'),out=byId((inp.getAttribute('aria-describedby')||'').split(' ')[0])||near(inp,null,'.error');
+    if(out&&!inp.hasAttribute('aria-describedby'))inp.setAttribute('aria-describedby',uid(out,'error'));
+    var btns=function(){return all('.btn-danger',box)};
+    function mark(msg){if(field)field.classList.toggle('invalid',!!msg);inp.setAttribute('aria-invalid',msg?'true':'false');if(out)out.textContent=msg||''}
+    function check(){var ok=!!want&&inp.value.trim()===want;btns().forEach(function(b){b.disabled=!ok});return ok}
+    cx.on(inp,'input',function(){mark('');check()});
+    cx.on(inp,'keydown',function(e){
+      if(e.key!=='Enter')return;e.preventDefault();
+      if(check()){var b=btns()[0];if(b)b.click()}
+      else mark(inp.getAttribute('data-error')||'Type '+want+' exactly.');
+    });
+    if(box.localName==='dialog'){
+      var mo=new MutationObserver(function(){if(box.open){inp.value='';mark('');check()}});
+      mo.observe(box,{attributes:true,attributeFilter:['open']});cx.later(function(){mo.disconnect()});
+    }
+    check();
+    return {check:check,get ok(){return !!want&&inp.value.trim()===want}};
   },
 
   /* .otp holding one <input maxlength="1"> per digit. data-name="code" adds a
@@ -648,16 +1039,27 @@ function openDialog(d,from){
   if(!d)return;
   if(!d.__auiDlg){
     d.__auiDlg=true;
-    /* the page around it closes it, on click, and only when the press started there too */
+    /* the page around it closes it, on click, and only when the press started
+       there too. An alert dialog waits for an answer: it nudges instead */
     var down=false;
     d.addEventListener('pointerdown',function(e){down=e.target===d});
-    d.addEventListener('click',function(e){if(down&&e.target===d)close(d);down=false});
+    d.addEventListener('click',function(e){if(down&&e.target===d){if(d.getAttribute('role')==='alertdialog')nudge(d);else close(d)}down=false});
     d.addEventListener('close',function(){if(d.__auiFrom&&d.__auiFrom.isConnected)d.__auiFrom.focus()});
   }
   d.__auiFrom=from;
+  /* the answer starts empty every time: Escape and a plain data-aui-close leave it so */
+  if(!d.open)d.returnValue='';
   if(d.showModal){if(!d.open)d.showModal()}else d.setAttribute('open','');
 }
-function close(d){if(!d)return;if(d.close)d.close();else d.removeAttribute('open')}
+/* a tap beside an alert dialog: one character each way, and the focus back on the safe answer */
+function nudge(d){
+  var safe=d.querySelector('[autofocus]')||d.querySelector('[data-aui-close]:not(.btn-danger)');
+  if(safe&&!safe.disabled)safe.focus();
+  if(reduce)return;
+  clearTimeout(d.__auiNudge);d.classList.remove('nudge');void d.offsetWidth;d.classList.add('nudge');
+  d.__auiNudge=setTimeout(function(){d.classList.remove('nudge')},320);
+}
+function close(d,v){if(!d)return;if(d.close){if(v)d.close(String(v));else d.close()}else d.removeAttribute('open')}
 function runFill(target,btn){
   if(!target||btn.disabled)return;
   var label=btn.querySelector('.label')||btn,text=label.textContent,p=0,f=0;
@@ -716,7 +1118,9 @@ doc.addEventListener('click',function(e){
   var t=e.target.closest&&e.target.closest('[data-aui-open],[data-aui-close],[data-aui-toast],[data-aui-toast-err],[data-aui-reset],[data-aui-fill]');
   if(!t||t.disabled)return;
   if(t.hasAttribute('data-aui-reset')){if(t.form)e.preventDefault();resetBox(t)}
-  if(t.hasAttribute('data-aui-close'))close(t.closest('dialog'));
+  /* the nearest of a dialog and a popover pane: in a pane inside a dialog,
+     only the pane goes (the popover closes its own) */
+  if(t.hasAttribute('data-aui-close')){var bx=t.closest('dialog,.pane');if(bx&&bx.localName==='dialog')close(bx,t.getAttribute('data-aui-close'))}
   if(t.hasAttribute('data-aui-open'))openDialog(dialogOf(t),t);
   if(t.hasAttribute('data-aui-fill'))runFill(near(t,'data-aui-fill','[role="progressbar"]',true),t);
   if(t.hasAttribute('data-aui-toast-err'))toast(t.getAttribute('data-aui-toast-err'),true);
@@ -862,6 +1266,7 @@ window.ASCIIUI={
   version:VERSION,init:init,destroy:destroy,get:get,validate:validate,
   toast:toast,progress:setProgress,bar:bar,colorize:colorize,tones:tones,behaviors:behaviors,
   tabs:typed('tabs'),pagination:typed('pagination'),calendar:typed('calendar'),dropdown:typed('dropdown'),otp:typed('otp'),
+  popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),
   get reduce(){return reduce}
 };
 })();

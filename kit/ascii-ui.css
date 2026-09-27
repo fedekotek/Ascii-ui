@@ -1,4 +1,4 @@
-/* ascii/ui kit 1.1.1, ascii-ui.css
+/* ascii/ui kit 1.2.0, ascii-ui.css
    Components in an ASCII skin. Frames, fills and shadows are strings of
    characters; weight comes from how dense the character is.
 
@@ -171,6 +171,7 @@ legend{padding:0;margin-bottom:var(--r)}
 .btn:focus-visible{--h:var(--h-heavy);--s:var(--s-heavy);--frame-color:var(--accent)}
 .btn:disabled{--h:var(--h-faint);--s:var(--s-faint);--frame-color:var(--muted);color:var(--muted);cursor:not-allowed}
 .btn-primary:disabled .label{background:var(--muted);color:var(--bg);box-shadow:none}
+.btn-danger:disabled .label{color:var(--muted)}   /* a disabled danger button is gray too, not yellow */
 
 /* ==== field: .field .field-label .error .count ==== */
 /* Input, select and textarea share one frame. Focus turns it heavy and cyan,
@@ -189,6 +190,9 @@ legend{padding:0;margin-bottom:var(--r)}
 .field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--v:var(--v-heavy);--frame-color:var(--accent)}
 .field.invalid{--h:var(--h-error);--s:var(--s-error);--v:var(--v-error);--frame-color:var(--danger)}
 .field.invalid .prompt{color:var(--danger)}
+/* disabled reads the way a disabled button does: a faint rim, gray text */
+.field:has(:disabled){--h:var(--h-faint);--s:var(--s-faint);--v:var(--v-faint);--frame-color:var(--muted);cursor:not-allowed}
+.field:has(:disabled) :disabled,.field:has(:disabled) .prompt{color:var(--muted);cursor:not-allowed}
 .error{color:var(--danger)}
 .error:empty{display:none}
 /* textarea: the same frame, walls instead of sides */
@@ -408,8 +412,9 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
 .menu{position:absolute;left:0;top:calc(var(--r)*3);z-index:30;width:28ch;max-width:calc(100vw - 6ch);background:var(--bg)}
 .menu [role="menuitem"]{
   display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;
-  color:var(--ink);padding:12px 0;margin:-6px 0;text-align:left;cursor:pointer;outline:0;
+  color:var(--ink);padding:calc(var(--r)/2) 0;margin:0;text-align:left;cursor:pointer;outline:0;   /* two whole rows, a thumb tall */
 }
+.menu [role="menuitem"]:disabled,.menu [role="menuitem"][aria-disabled="true"]{color:var(--muted);cursor:not-allowed}
 .menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
 .menu [role="menuitem"].danger{color:var(--warn)}
 .menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
@@ -435,6 +440,64 @@ a.ibtn{display:inline-block;text-decoration:none}   /* data-href pagination draw
   .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
   .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
 }
+
+/* ==== pane: .pane ==== */
+/* A panel that floats next to what opened it: the popover, the combobox list
+   and the context menu. ascii-ui.js lifts it into the top layer where the
+   browser has the Popover API, so no box that scrolls or clips holds it back,
+   and places it on the grid: under its button, or above it when there is no
+   room below. It comes in with a wipe in four steps, from its button's side. */
+.pane{position:absolute;left:0;top:0;z-index:30;width:calc(var(--pcols,36)*1ch);max-width:calc(100vw - 2ch);background:var(--bg);color:var(--ink);text-align:left}
+.pane[popover]{inset:auto;margin:0;padding:0;border:0;overflow:visible;background:var(--bg);color:var(--ink)}
+.pane .lift{max-width:none}
+.pane .row{justify-content:flex-end;column-gap:1ch}
+.pane.open > .lift{animation:aui-wipe .16s steps(4) both}
+.pane.open.up > .lift{animation-name:aui-wipe-up}
+@keyframes aui-wipe{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+@keyframes aui-wipe-up{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0)}}
+
+/* ==== popover: [data-aui="popover"] ==== */
+/* data-aui="popover" on a .pop: the button opens the .pane next to it. While
+   it is open the button's rim is # (held open), unless the focus is on it. */
+[data-aui="popover"] > .btn[aria-expanded="true"]:not(:focus-visible){--h:var(--h-mid);--s:var(--s-mid)}
+
+/* ==== combobox: .combo .opts ==== */
+/* data-aui="combobox": a field that narrows a list as you type. The list is a
+   .pane as wide as the field. The pick is an ink slab, the option the arrows
+   are on is the focus color, a disabled one is gray. Two rows each, a thumb
+   tall, six in view before it scrolls. */
+.combo{position:relative}
+.combo .prompt{cursor:pointer}
+.combo .pane .body{padding:var(--r) 3ch}
+.opts{position:relative;max-height:calc(var(--r)*12);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.opts [role="option"]{
+  display:flex;justify-content:space-between;gap:2ch;padding:calc(var(--r)/2) 1ch;white-space:nowrap;overflow:hidden;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+}
+.opts [role="option"][aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.opts [role="option"][data-active]{background:var(--accent);color:var(--bg)}
+.opts [role="option"][aria-disabled="true"]{color:var(--muted);cursor:not-allowed}
+.opts-none{color:var(--muted);padding:calc(var(--r)/2) 1ch}
+
+/* ==== contextmenu: .ctx ==== */
+/* data-aui="contextmenu" on .ctx: a right-click, a long press or Shift F10
+   inside it opens its .menu where you are. The row it acts on wears a violet
+   bar while the menu is open. On touch the press is the menu's, not the
+   browser's, so it does not select the text under the finger. */
+.ctx{position:relative}
+.ctx > .menu{top:0;width:28ch;max-width:calc(100vw - 2ch)}
+.ctx [data-ctx]{box-shadow:inset 1ch 0 0 var(--violet)}
+@media (pointer:coarse){.ctx{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
+
+/* ==== alertdialog: [role="alertdialog"] ==== */
+/* A dialog that asks before something that cannot be undone. A tap on the
+   page around it is not an answer: it nudges one character each way and the
+   focus goes back to the safe button. Inside an .alert rim, the backdrop dots
+   turn yellow. */
+dialog[role="alertdialog"].nudge > .lift{animation:aui-nudge .24s steps(1,end) both}
+@keyframes aui-nudge{0%{transform:translateX(-1ch)}33%{transform:translateX(1ch)}66%{transform:translateX(-1ch)}100%{transform:none}}
+dialog[role="alertdialog"] .body > p + .group{margin-top:var(--r)}
+dialog[role="alertdialog"]:has(> .alert)::backdrop{background-image:radial-gradient(circle at center,var(--warn) 1.1px,transparent 1.6px)}
 
 /* ==== otp: .otp ==== */
 /* Six brackets. data-aui="otp" advances, goes back on Backspace and takes a paste. */

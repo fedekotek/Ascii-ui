@@ -50,10 +50,11 @@
      they rank under a match on the name itself */
   const ALIAS={
     's-button':'btn cta submit','s-card':'modal dialog popup panel','s-details':'accordion collapsible faq disclosure',
-    's-sheet':'drawer bottom panel','s-dropdown':'menu dropdown-menu context actions','s-togglegroup':'toggle segmented',
-    's-toggles':'toggle checkbox radio switch','s-command':'palette cmdk search','s-select':'dropdown picker combobox',
+    's-sheet':'drawer bottom panel','s-dropdown':'menu dropdown-menu actions','s-togglegroup':'toggle segmented',
+    's-toggles':'toggle checkbox radio switch','s-command':'palette cmdk search','s-select':'dropdown picker',
     's-separator':'divider rule hr','s-pagination':'pager pages','s-breadcrumb':'crumbs path','s-otp':'otp pin code',
-    's-textarea':'multiline','s-tooltip':'hint popover','s-toast':'notification snackbar sonner','s-progress':'loading bar',
+    's-textarea':'multiline','s-tooltip':'hint','s-toast':'notification snackbar sonner','s-popover':'popup flyout popover',
+    's-combobox':'autocomplete typeahead select search combo','s-alertdialog':'confirm are you sure alert-dialog','s-contextmenu':'right click right-click context menu','s-progress':'loading bar',
     's-skeleton':'loading placeholder','s-spinner':'loading loader','s-kbd':'keyboard key shortcut',
     's-install':'install copy code kit download starter css js cdn license mit version single one file offline html',
     's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors',

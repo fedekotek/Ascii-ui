@@ -33,8 +33,8 @@ with sync_playwright() as p:
                         cdp.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
                 pg.wait_for_timeout(300);a=pg.evaluate(AE);n+=1
                 if bad(a): fails.append(f'{view} {i} {mode} -> {a}')
-        # scroll that starts on a text field frame
-        fr=pg.evaluate("v=>[...document.querySelectorAll('#view-'+({components:'kit'}[v]||v)+' .field')].filter(f=>f.querySelector('input[type=text],input:not([type]),textarea')).slice(0,4).map(f=>f.querySelector('input,textarea').id)",view)
+        # scroll that starts on a text field frame (one on the page: a field in a closed dialog or popover is not)
+        fr=pg.evaluate("v=>[...document.querySelectorAll('#view-'+({components:'kit'}[v]||v)+' .field')].filter(f=>f.getClientRects().length&&f.querySelector('input[type=text],input:not([type]),textarea')).slice(0,4).map(f=>f.querySelector('input,textarea').id)",view)
         for fid in fr:
             pg.evaluate("id=>{document.activeElement&&document.activeElement.blur();document.getElementById(id).closest('.field').scrollIntoView({block:'center'})}",fid);pg.wait_for_timeout(250)
             r=pg.evaluate("id=>{const b=document.getElementById(id).closest('.field').getBoundingClientRect();return [b.x+6,b.y+4]}",fid)

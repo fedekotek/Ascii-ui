@@ -134,6 +134,151 @@
   <!-- ================= Overlay ================= -->
   <h2 id="overlay">Overlay</h2>
 
+  <section class="part" id="alertdialog">
+    <h3>Alert dialog</h3>
+    <div class="row">
+      <div>
+        <div class="row">
+          <button class="btn btn-danger frame tone-danger" type="button" data-aui-open><span class="mid"><span class="label">Delete project</span></span></button>
+        </div>
+        <dialog role="alertdialog">
+          <div class="alert lift">
+            <div class="card frame tone-danger">
+              <h2 class="bar-title">Delete project?</h2>
+              <div class="body">
+                <p>Reporting redesign and its 14 comments go for good. There is no undo.</p>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" autofocus data-aui-close><span class="mid"><span class="label">Keep it</span></span></button>
+                  <button class="btn btn-danger frame tone-danger" type="button" data-aui-close="delete" data-aui-toast-err="Deleted. It is gone."><span class="mid"><span class="label">Delete</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      </div>
+      <div>
+        <div class="row">
+          <button class="btn btn-danger frame tone-danger" type="button" data-aui-open><span class="mid"><span class="label">Delete workspace</span></span></button>
+        </div>
+        <dialog role="alertdialog">
+          <div class="alert lift">
+            <div class="card frame tone-danger">
+              <h2 class="bar-title">Delete static-prod?</h2>
+              <div class="body">
+                <p>Every monitor, status page and incident in static-prod goes. Type its name to confirm.</p>
+                <div class="group">
+                  <label class="field-label">Workspace name</label>
+                  <div class="field frame tone-light">
+                    <div class="mid">
+                      <span class="prompt" aria-hidden="true">&gt;</span>
+                      <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-match="static-prod" autofocus data-aui="confirm">
+                    </div>
+                  </div>
+                  <p class="error"></p>
+                </div>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Keep it</span></span></button>
+                  <button class="btn btn-danger frame tone-danger" type="button" disabled data-aui-close="delete" data-aui-toast-err="Workspace deleted. Nothing to watch now."><span class="mid"><span class="label">Delete</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </section>
+
+  <section class="part" id="combobox">
+    <h3>Combobox</h3>
+    <div class="stack">
+      <div class="group">
+        <label class="field-label">Probe region</label>
+        <div class="combo" data-empty="No region by that name. Yet." data-error-list="Pick a region from the list." data-aui="combobox" data-name="region">
+          <div class="field frame tone-light">
+            <div class="mid">
+              <span class="prompt" aria-hidden="true">v</span>
+              <input type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type a city or a code">
+            </div>
+          </div>
+          <div class="pane" hidden>
+            <div class="lift">
+              <div class="card frame tone-heavy">
+                <div class="body">
+                  <div class="opts" role="listbox">
+                    <div role="option" data-value="iad-1">iad-1, Washington</div>
+                    <div role="option" data-value="ord-1">ord-1, Chicago</div>
+                    <div role="option" data-value="sfo-1">sfo-1, San Francisco</div>
+                    <div role="option" data-value="gru-1">gru-1, São Paulo</div>
+                    <div role="option" data-value="eze-1">eze-1, Buenos Aires</div>
+                    <div role="option" data-value="lhr-1">lhr-1, London</div>
+                    <div role="option" data-value="fra-1">fra-1, Frankfurt</div>
+                    <div role="option" data-value="arn-1">arn-1, Stockholm</div>
+                    <div role="option" data-value="jnb-1">jnb-1, Johannesburg</div>
+                    <div role="option" data-value="bom-1">bom-1, Mumbai</div>
+                    <div role="option" data-value="sin-1">sin-1, Singapore</div>
+                    <div role="option" data-value="hnd-1">hnd-1, Tokyo</div>
+                    <div role="option" data-value="syd-1">syd-1, Sydney</div>
+                    <div role="option" data-value="mcm-1" aria-disabled="true">mcm-1, McMurdo (full)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="error"></p>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="contextmenu">
+    <h3>Context menu</h3>
+    <div class="stack">
+      <div class="ctx" data-aui="contextmenu">
+        <div class="tablewrap">
+          <table class="tbl">
+            <caption class="vh">Incidents. Right-click a row, or press Shift F10 on it, for what you can do with it.</caption>
+            <thead>
+              <tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th></tr>
+            </thead>
+            <tbody>
+              <tr tabindex="0">
+                <td>INC-481</td>
+                <td>api-gateway</td>
+                <td><span class="badge b-hot">Down</span></td>
+              </tr>
+              <tr tabindex="0">
+                <td>INC-480</td>
+                <td>checkout</td>
+                <td><span class="badge b-warn">Degraded</span></td>
+              </tr>
+              <tr tabindex="0">
+                <td>INC-479</td>
+                <td>search</td>
+                <td><span class="badge b-ok">Resolved</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="menu pane" role="menu" aria-label="Incident" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <div class="body">
+                <button role="menuitem" type="button" tabindex="-1">Open <kbd>o</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1">Copy ID <kbd>c</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1">Assign to me <kbd>a</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1" disabled>Undo</button>
+                <div class="sepd faint" role="separator"></div>
+                <button role="menuitem" type="button" tabindex="-1" class="danger">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="muted status" role="status">Right-click a row, or press and hold it.</p>
+    </div>
+  </section>
+
   <section class="part" id="dropdown">
     <h3>Dropdown</h3>
     <div class="pop" data-aui="dropdown"><button class="btn frame tone-light" type="button" aria-haspopup="menu" aria-expanded="false"><span class="mid"><span class="label">Actions <span aria-hidden="true">v</span></span></span></button>
@@ -143,6 +288,62 @@
         <div class="sepd faint" role="separator"></div>
         <button role="menuitem" type="button" tabindex="-1" class="danger" data-aui-toast-err="Deleted forever. It is gone.">Delete forever</button>
       </div></div></div></div>
+    </div>
+  </section>
+
+  <section class="part" id="popover">
+    <h3>Popover</h3>
+    <div class="row">
+      <div class="pop" data-aui="popover">
+        <button class="btn frame tone-light" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="mid"><span class="label">Snooze <span aria-hidden="true">v</span></span></span></button>
+        <div class="pane" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <h3 class="bar-title">Snooze api-gateway</h3>
+              <div class="body">
+                <fieldset>
+                  <legend class="vh">Snooze for</legend>
+                  <div class="stack">
+                    <label class="check"><input type="radio" name="snooze" value="15m"><span class="glyph" aria-hidden="true"></span>15 minutes</label>
+                    <label class="check"><input type="radio" name="snooze" value="1h" checked><span class="glyph" aria-hidden="true"></span>1 hour</label>
+                    <label class="check"><input type="radio" name="snooze" value="tomorrow"><span class="glyph" aria-hidden="true"></span>Until tomorrow, 09:00</label>
+                  </div>
+                </fieldset>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
+                  <button class="btn btn-primary frame tone-heavy" type="button" data-aui-close data-aui-toast="Snoozed. It will be back."><span class="mid"><span class="label">Snooze</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pop" data-aui="popover">
+        <button class="btn frame tone-light" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="mid"><span class="label">Rename</span></span></button>
+        <div class="pane" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <h3 class="bar-title">Rename probe</h3>
+              <form class="body" method="dialog">
+                <div class="group">
+                  <label class="field-label">Name</label>
+                  <div class="field frame tone-light">
+                    <div class="mid">
+                      <span class="prompt" aria-hidden="true">&gt;</span>
+                      <input type="text" value="iad-1 checkout" autocomplete="off" required data-aui="validate" data-error-required="Enter a name for the probe.">
+                    </div>
+                  </div>
+                  <p class="error"></p>
+                </div>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
+                  <button class="btn btn-primary frame tone-heavy" type="submit"><span class="mid"><span class="label">Save</span></span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

@@ -138,6 +138,46 @@ async def starter(b):
     ok('dropdown: Enter opens',await ev("!%s.hidden"%menu))
     await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
     ok('dropdown: Enter picks and closes',await ev("%s.hidden&&document.querySelector('.toast.on span').textContent.includes('Duplicated')"%menu))
+    # popover: Enter opens with the focus inside, Escape closes and brings it back
+    OPEN="(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden)"
+    pane="%s(document.querySelector('#popover .pop .pane'))"%OPEN
+    await pg.focus('#popover .pop [aria-haspopup]'); await pg.keyboard.press('Enter')
+    ok('popover: Enter opens, focus on the checked radio',await ev("%s&&document.activeElement.matches('#popover input[type=radio]:checked')&&document.querySelector('#popover [aria-haspopup]').getAttribute('aria-expanded')==='true'"%pane))
+    await pg.keyboard.press('Escape')
+    ok('popover: Escape closes, focus back',await ev("!%s&&document.activeElement.matches('#popover .pop [aria-haspopup]')"%pane))
+    # combobox: type, the best match is active, Enter picks, nothing matches says so
+    await pg.focus('#combobox input'); await pg.keyboard.type('fra')
+    ok('combobox: typing opens it on the best match',await ev("(()=>{const i=document.querySelector('#combobox input');return i.getAttribute('aria-expanded')==='true'&&document.getElementById(i.getAttribute('aria-activedescendant')).textContent.startsWith('fra-1')})()"))
+    await pg.keyboard.press('Enter')
+    ok('combobox: Enter picks',await ev("document.querySelector('#combobox input').value==='fra-1, Frankfurt'&&document.querySelector('#combobox [role=status]').textContent.includes('Frankfurt')"))
+    await pg.keyboard.press('Control+A'); await pg.keyboard.type('zzz')
+    ok('combobox: nothing matches says so',await ev("(()=>{const n=document.querySelector('#combobox .opts-none');return n&&!n.hidden&&n.textContent.length>3})()"))
+    await pg.keyboard.press('Escape')
+    ok('combobox: Escape puts the pick back',await ev("document.querySelector('#combobox input').value==='fra-1, Frankfurt'"))
+    # alert dialog: the safe answer has the focus, a tap outside does not close it
+    await pg.click('#alertdialog [data-aui-open]')
+    ad="document.querySelector('#alertdialog dialog')"
+    ok('alert dialog: opens on Keep it',await ev("%s.open&&document.activeElement.textContent.trim()==='Keep it'"%ad))
+    await pg.mouse.click(5,5); await pg.wait_for_timeout(100)
+    ok('alert dialog: a tap outside does not close it',await ev("%s.open"%ad))
+    await pg.keyboard.press('Escape')
+    ok('alert dialog: Escape closes, focus back',await ev("!%s.open&&document.activeElement.matches('#alertdialog [data-aui-open]')"%ad))
+    await pg.click('#alertdialog > div > div:nth-child(2) [data-aui-open]')
+    await pg.keyboard.type('static'); await pg.keyboard.press('Enter')
+    ok('alert dialog: the wrong name says what to type',await ev("(()=>{const d=document.querySelectorAll('#alertdialog dialog')[1];return d.open&&d.querySelector('.btn-danger').disabled&&d.querySelector('.error').textContent.includes('static-prod')})()"))
+    await pg.keyboard.type('-prod')
+    ok('alert dialog: the right name turns Delete on',await ev("!document.querySelectorAll('#alertdialog dialog')[1].querySelector('.btn-danger').disabled"))
+    await pg.keyboard.press('Escape')
+    # context menu: Shift F10 on a row, arrows, Escape back to the row
+    cm="%s(document.querySelector('#contextmenu [role=menu]'))"%OPEN
+    await pg.focus('#contextmenu tbody tr'); await pg.keyboard.press('Shift+F10')
+    ok('context menu: Shift F10 opens on the row',await ev("%s&&document.activeElement.getAttribute('role')==='menuitem'&&document.querySelector('#contextmenu tbody tr').hasAttribute('data-ctx')"%cm))
+    await pg.keyboard.press('ArrowDown')
+    ok('context menu: arrows move',await ev("document.activeElement.textContent.startsWith('Copy ID')"))
+    await pg.keyboard.press('Escape')
+    ok('context menu: Escape closes, focus back',await ev("!%s&&document.activeElement===document.querySelector('#contextmenu tbody tr')"%cm))
+    await pg.keyboard.press('Shift+F10'); await pg.keyboard.press('c')
+    ok('context menu: the kbd letter picks',await ev("!%s&&document.querySelector('#contextmenu [role=status]').textContent==='Copy ID: INC-481.'"%cm))
     # tooltip: tap shows, Escape hides
     tt="document.querySelector('#tooltip .pop')"
     await pg.click('#tooltip button')
@@ -235,6 +275,10 @@ ALIVE={
  'counter':"el.closest('.group').querySelector('.count').textContent.includes('/')",
  'spinner':"el.textContent.length>0",
  'skeleton':"el.textContent.trim().length>20",
+ 'popover':"(()=>{const b=el.querySelector('[aria-haspopup]');return b.getAttribute('aria-expanded')==='false'&&document.getElementById(b.getAttribute('aria-controls'))===el.querySelector('.pane')})()",
+ 'combobox':"(()=>{const i=el.querySelector('input[role=combobox]');return i.getAttribute('aria-expanded')==='false'&&document.getElementById(i.getAttribute('aria-controls'))===el.querySelector('[role=listbox]')&&!!i.labels.length})()",
+ 'contextmenu':"(()=>{const m=el.querySelector('[role=menu]'),o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden);el.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));const ok=o(m);ASCIIUI.contextmenu(el).close();return ok&&!o(m)})()",
+ 'confirm':"el.closest('dialog').querySelector('.btn-danger').disabled",
 }
 
 async def harvest(b):
@@ -358,7 +402,17 @@ TWICE_JS="""(name)=>{
       bt.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));
       const ok=!mb.hidden&&a.querySelector('[role=menu]').hidden&&document.getElementById(bt.getAttribute('aria-controls'))===mb;
       mb.dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}));return ok},
-    tooltip:()=>{const t=b.querySelector('button');return document.getElementById(t.getAttribute('aria-describedby'))===b.querySelector('.tip')}
+    tooltip:()=>{const t=b.querySelector('button');return document.getElementById(t.getAttribute('aria-describedby'))===b.querySelector('.tip')},
+    popover:()=>{const o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden),bt=b.querySelector('[aria-haspopup]'),pb=b.querySelector('.pane'),pa=a.querySelector('.pane');bt.click();
+      const ok=o(pb)&&!o(pa)&&document.getElementById(bt.getAttribute('aria-controls'))===pb&&bt.getAttribute('aria-controls')!==a.querySelector('[aria-haspopup]').getAttribute('aria-controls');
+      ASCIIUI.popover(b).close();return ok&&!o(pb)},
+    combobox:()=>{const ca=ASCIIUI.combobox(a),cb=ASCIIUI.combobox(b),v=b.querySelector('[role=option]:not([aria-disabled=true])').getAttribute('data-value');cb.set(v);
+      return cb.value===v&&ca.value===''&&st(1)!==st(0)&&a.querySelector('input').getAttribute('aria-controls')!==b.querySelector('input').getAttribute('aria-controls')},
+    contextmenu:()=>{const o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden),mb=b.querySelector('[role=menu]'),ma=a.querySelector('[role=menu]'),r=b.querySelector('tbody tr')||b;
+      r.focus();r.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));
+      const ok=o(mb)&&!o(ma)&&mb.contains(document.activeElement);const s0=st(0);document.activeElement.click();return ok&&!o(mb)&&st(0)===s0&&st(1)!==s0},
+    confirm:()=>{const w=b.getAttribute('data-match');b.value=w;fire(b,'input');
+      return !b.closest('dialog').querySelector('.btn-danger').disabled&&a.closest('dialog').querySelector('.btn-danger').disabled}
   };
   return T[name]?(T[name]()?true:'the second copy did not work on its own'):true;
 }"""
@@ -507,7 +561,7 @@ EDGES=[
   '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
   '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
   """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
-    if(ASCIIUI.version!=='1.1.1')bad.push('version '+ASCIIUI.version);
+    if(ASCIIUI.version!=='1.2.0')bad.push('version '+ASCIIUI.version);
     if(__ev.length)bad.push('aui:change fired on load: '+__ev);
     const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
     if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');
@@ -604,6 +658,39 @@ EDGES=[
     const [t2,box2]=await time(h);
     if([...box2.querySelectorAll('input')].some(x=>!/^g\\d+$/.test(x.name)))bad.push('1000 different groups were renamed');
     if(t2>100)bad.push('1000 different groups took '+Math.round(t2)+'ms');
+    return bad.length?bad.join(', '):true})()"""),
+ # 1.2.0
+ ('an alert dialog waits for an answer; returnValue starts empty',
+  '<div><button id="o" data-aui-open>Open</button><dialog role="alertdialog"><div class="alert lift"><div class="card frame tone-danger"><h2 class="bar-title">Delete?</h2><div class="body"><p>Gone for good.</p><div class="row"><button id="k" data-aui-close autofocus>Keep it</button><button id="x" class="btn-danger" data-aui-close="delete">Delete</button></div></div></div></div></dialog></div>',
+  """(async()=>{const $=id=>document.getElementById(id),d=document.querySelector('dialog'),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
+    $('o').click();if(!d.open||document.activeElement!==$('k'))bad.push('open, focus on '+document.activeElement.id);
+    $('x').focus();d.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true}));d.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+    if(!d.open)bad.push('a tap outside closed it');if(document.activeElement!==$('k'))bad.push('a tap outside left the focus on '+document.activeElement.id);
+    $('x').click();if(d.open||d.returnValue!=='delete')bad.push('delete gave '+d.returnValue);
+    $('o').click();if(d.returnValue!=='')bad.push('returnValue kept '+d.returnValue);
+    d.dispatchEvent(new Event('cancel'));d.close();if(d.returnValue!=='')bad.push('Escape answered '+d.returnValue);
+    if(document.getElementById(d.getAttribute('aria-labelledby')).textContent!=='Delete?')bad.push('not named by its title');
+    return bad.length?bad.join(', '):true})()"""),
+ ('a popover in a dialog: data-aui-close and Escape close the popover first',
+  '<div><button id="o" data-aui-open>Open</button><dialog><div class="body"><div class="pop" id="p" data-aui="popover"><button id="pb" aria-haspopup="dialog">P</button><div class="pane" hidden><div class="body"><button id="in">In</button><button id="c" data-aui-close>Close</button></div></div></div></div></dialog></div>',
+  """(async()=>{const $=id=>document.getElementById(id),d=document.querySelector('dialog'),bad=[],pane=$('p').querySelector('.pane'),o=x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden;
+    $('o').click();$('pb').click();if(!o(pane)||document.activeElement!==$('in'))bad.push('popover did not open with the focus in');
+    $('c').click();if(o(pane)||!d.open)bad.push('data-aui-close closed '+(d.open?'':'the dialog'));
+    if(document.activeElement!==$('pb'))bad.push('focus not back on the popover button');
+    $('pb').click();$('in').dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+    if(o(pane))bad.push('Escape left the popover open');
+    return bad.length?bad.join(', '):true})()"""),
+ ('combobox: filter, empty, pick, error, free text',
+  '<form id="f"><div class="group"><label class="field-label">Region</label><div class="combo" id="c" data-aui="combobox" data-name="region" data-empty="None." data-error-list="Pick one."><div class="field frame tone-light"><div class="mid"><input id="i" role="combobox"></div></div><div class="pane" hidden><div class="opts" role="listbox"><div role="option" data-value="sfo">sfo-1, San Francisco</div><div role="option" data-value="fra">fra-1, Frankfurt</div><div role="option" data-value="gru">gru-1, S\u00e3o Paulo</div><div role="option" data-value="x" aria-disabled="true">x-1, Nowhere</div></div></div></div><p class="error"></p></div></form><button id="away">away</button>',
+  """(async()=>{const $=id=>document.getElementById(id),i=$('i'),bad=[],type=v=>{i.value=v;i.dispatchEvent(new Event('input',{bubbles:true}))},key=(k,o)=>i.dispatchEvent(new KeyboardEvent('keydown',Object.assign({key:k,bubbles:true,cancelable:true},o||{}))),act=()=>{const a=i.getAttribute('aria-activedescendant');return a?document.getElementById(a).textContent:null},shown=()=>[...document.querySelectorAll('[role=option]')].filter(o=>!o.hidden).map(o=>o.dataset.value).join();
+    i.focus();type('fra');if(act()!=='fra-1, Frankfurt'||shown()!=='fra,sfo')bad.push('fra: '+act()+' / '+shown());
+    type('sao');if(shown()!=='gru')bad.push('accents: '+shown());
+    type('zzz');const none=document.querySelector('.opts-none');if(!none||none.hidden||none.textContent!=='None.')bad.push('no empty state');
+    type('fra');key('Enter');if(new FormData($('f')).get('region')!=='fra'||i.value!=='fra-1, Frankfurt'||i.getAttribute('aria-expanded')!=='false')bad.push('Enter pick '+new FormData($('f')).get('region'));
+    key('ArrowDown');const all=shown();if(all!=='sfo,fra,gru,x')bad.push('reopened list is not whole: '+all);key('Escape');
+    ASCIIUI.combobox($('c')).set(null);type('atlantis');i.blur();$('away').focus();
+    if(document.querySelector('.error').textContent!=='Pick one.'||i.getAttribute('aria-invalid')!=='true')bad.push('no error for words that are not an option');
+    if(!i.labels.length||i.getAttribute('role')!=='combobox')bad.push('label or role');
     return bad.length?bad.join(', '):true})()"""),
 ]
 
@@ -766,7 +853,7 @@ async def paste(b,sid,html,notes):
             if t is not True: why.append(n+': '+t)
         if await pg.evaluate("!!document.querySelector('[data-aui-open]')"):
             # the second copy's button opens the second copy's dialog
-            r=await pg.evaluate("(()=>{const o=document.querySelectorAll('[data-aui-open]'),d=document.querySelectorAll('dialog');if(o.length!==2||d.length!==2)return 'expected two of each';o[1].click();const ok=d[1].open&&!d[0].open;d[1].close();o[0].click();const ok0=d[0].open&&!d[1].open;d[0].close();return ok&&ok0?true:'each button did not open its own dialog'})()")
+            r=await pg.evaluate("(()=>{const o=[...document.querySelectorAll('[data-aui-open]')],d=[...document.querySelectorAll('dialog')];if(o.length!==d.length||o.length%2)return 'expected a dialog for each button, in two copies';for(let i=o.length-1;i>=0;i--){o[i].click();const ok=d.every((x,j)=>x.open===(j===i));d[i].close();if(!ok)return 'button '+i+' did not open its own dialog'}return true})()")
             if r is not True: why.append('dialog: '+r)
         if await pg.evaluate("!!document.querySelector('[data-aui-fill]')"):
             await pg.evaluate("document.querySelectorAll('[data-aui-fill]')[1].click()"); await pg.wait_for_timeout(400)

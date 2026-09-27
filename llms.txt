@@ -2,12 +2,12 @@
 
 > shadcn-style UI components in a brutalist ASCII skin: frames, fills and shadows are strings of characters, weight is character density, underneath it is plain accessible HTML. Two kit files (CSS and JS, no dependencies, no build step) you link, then paste a component's HTML. Live at https://ascii.fedekotek.design. MIT license.
 
-The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one HTML file by `build.py`) documents and demos the components. The kit (`kit/`) is what people link from their own pages. The site does not load the kit; its Code tab prints the kit's HTML, CSS and JS for each component. 30 components, 28 in the kit (Command and Picture are site only).
+The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one HTML file by `build.py`) documents and demos the components. The kit (`kit/`) is what people link from their own pages. The site does not load the kit; its Code tab prints the kit's HTML, CSS and JS for each component. 34 components, 32 in the kit (Command and Picture are site only).
 
 ## The five views
 
 - [Home](https://ascii.fedekotek.design/#home): the ring (a glitching torus hero), where to start, questions, a game of invaders.
-- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 30 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview and Code tabs, then Rules.
+- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 34 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview and Code tabs, then Rules.
 - [Blocks](https://ascii.fedekotek.design/#blocks): 16 page-sized compositions (login, stats, table, pricing, settings, a portfolio).
 - [Charts](https://ascii.fedekotek.design/#charts): 5 character-grid charts (bars, line, regions, heatmap, donut).
 - [Themes](https://ascii.fedekotek.design/#themes): presets, color pickers, the ramp editor, tokens to paste, Labs.
@@ -18,7 +18,7 @@ Every section has an address: `#components/button`, `#themes/tokens`.
 
 - [ascii-ui.css](https://ascii.fedekotek.design/kit/ascii-ui.css): tokens, frame strings, one block per part. Latest.
 - [ascii-ui.js](https://ascii.fedekotek.design/kit/ascii-ui.js): the behaviors, wired by `data-aui` attributes; `window.ASCIIUI`. Latest.
-- Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.1.1/ascii-ui.js`. 1.0.0, 1.1.0 and 1.1.1 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
+- Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js`. 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
 - [starter.html](https://ascii.fedekotek.design/kit/starter.html): a page that links the two files and nothing else, with every kit component on it.
 - [kit README](https://ascii.fedekotek.design/kit/README.md): the reference for the kit: install, attributes, `window.ASCIIUI` API, events, lifecycle, theming, versions, changelog.
 - [Single file](https://ascii.fedekotek.design/ascii-ui.html): the whole site as one HTML file.

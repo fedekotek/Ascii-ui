@@ -301,7 +301,7 @@ let lp=null,swallow=false;
 document.addEventListener('pointerdown',e=>{
   if(reduce||e.button)return;
   const t=e.target.closest&&e.target.closest(e.pointerType==='mouse'?DEST:DEST_TOUCH);
-  if(!t||t.closest('dialog,#rebuild,.copyrow,.code')||e.target.closest('input,select,textarea'))return;
+  if(!t||t.closest('dialog,#rebuild,.copyrow,.code,.ctx,.pane')||e.target.closest('input,select,textarea'))return;
   const x=e.clientX,y=e.clientY;
   lp={t,x,y,id:setTimeout(()=>{if(lp&&lp.t===t){swallow=true;shatter(t);lp=null;setTimeout(()=>{swallow=false},700)}},560)};
 });

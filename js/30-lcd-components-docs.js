@@ -528,11 +528,11 @@ function buildView(panel,label,skip,pin,group){
   return secs;
 }
 spanSections($('view-charts'));
-/* the thirty on the page, by what they do, the way a docs site groups them.
-   28 of them are in the kit; Command and Picture are site only */
+/* the thirty-four on the page, by what they do, the way a docs site groups them.
+   32 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[
   ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
-  ['Overlay',['s-command','s-dropdown','s-sheet','s-tooltip']],
+  ['Overlay',['s-alertdialog','s-combobox','s-command','s-contextmenu','s-dropdown','s-popover','s-sheet','s-tooltip']],
   ['Display',['s-avatar','s-badge','s-card','s-details','s-kbd','s-picture','s-separator','s-timeline']],
   ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
   ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
@@ -579,4 +579,270 @@ if('MutationObserver' in window){
 markWide();window.AUI_WIDE=markWide;
 window.addEventListener('resize',markWide);
 setTimeout(markWide,1200);
+
+/* ================= overlays: popover, combobox, context menu, alert dialog =================
+   The site's own wiring for the four, with the page's sounds. The kit does
+   the same job for people's pages (kit/ascii-ui.js: popover, combobox,
+   contextmenu, confirm and the alert dialog in openDialog); this copy runs
+   after the docs builder, so the Code tab's snapshot is the html as written. */
+(function(){
+  const TOP=!!(window.HTMLElement&&HTMLElement.prototype.hasOwnProperty('popover'));
+  let seq=0;const uid=(el,p)=>el.id||(el.id='ov-'+p+'-'+(++seq));
+  const settle=box=>box.querySelectorAll('[data-rv]').forEach(e=>e.classList.add('in','done'));
+  const TABBABLE='a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+  /* where Tab lands first: [autofocus], the first control, the checked radio of a group */
+  function firstStop(box){
+    const a=box.querySelector('[autofocus]');if(a&&a.getClientRects().length)return a;
+    let e=[...box.querySelectorAll(TABBABLE)].find(x=>x.getClientRects().length);
+    if(e&&e.type==='radio'&&e.name){const c=[...box.querySelectorAll('input[type="radio"]')].find(x=>x.name===e.name&&x.checked);if(c)e=c}
+    if(!e){box.tabIndex=-1;e=box}
+    return e;
+  }
+  /* a panel next to what opened it: in the top layer where there is one, on
+     the grid, below its anchor or above when there is no room, and moved in
+     whole characters to stay inside the window */
+  function float(panel){
+    let side='down';
+    if(TOP){panel.hidden=false;panel.setAttribute('popover','manual')}
+    const F={
+      get isOpen(){return TOP?panel.matches(':popover-open'):!panel.hidden},
+      show(){if(F.isOpen)return;if(TOP)panel.showPopover();else panel.hidden=false;panel.classList.add('open');settle(panel);side='down'},
+      hide(){if(!F.isOpen)return;panel.classList.remove('open','up');if(TOP)panel.hidePopover();else panel.hidden=true},
+      place(a,point,keep){
+        const cw=A.CH()||9.6,de=document.documentElement,vw=de.clientWidth,vh=de.clientHeight;
+        panel.style.left='0px';panel.style.top='0px';
+        const o=panel.getBoundingClientRect(),w=o.width,h=o.height;let x=a.left,y=a.bottom;
+        const below=vh-a.bottom,above=a.top,s=keep&&side==='up'&&above>=h?'up':(below>=h||below>=above)?'down':'up';
+        if(s==='up')y=a.top-h;
+        if(x+w>vw-cw){if(point&&a.left-w>=cw)x=a.left-w;else x-=Math.ceil((x+w-(vw-cw))/cw)*cw}
+        if(x<cw)x+=Math.ceil((cw-x)/cw)*cw;
+        side=s;panel.classList.toggle('up',s==='up');
+        panel.style.left=Math.round(x-o.left)+'px';panel.style.top=Math.round(y-o.top)+'px';
+      }
+    };
+    return F;
+  }
+  const err=(field,inp,out,msg)=>{field.classList.toggle('invalid',!!msg);inp.setAttribute('aria-invalid',msg?'true':'false');out.textContent=msg||''};
+
+  /* ---- popover: a button and a small panel, not modal ---- */
+  function popover(pop,onClose){
+    const btn=pop.querySelector(':scope > [aria-haspopup]'),pane=pop.querySelector(':scope > .pane'),f=float(pane),t=pane.querySelector('.bar-title');
+    btn.setAttribute('aria-controls',uid(pane,'pane'));pane.setAttribute('role','dialog');if(t)pane.setAttribute('aria-labelledby',uid(t,'title'));
+    function set(on,o){
+      o=o||{};if(on===f.isOpen)return;
+      if(on){f.show();f.place(btn.getBoundingClientRect());if(o.focus)firstStop(pane).focus();if(live())sfx.open()}
+      else{f.hide();if(o.back)btn.focus()}
+      btn.setAttribute('aria-expanded',on?'true':'false');
+    }
+    btn.addEventListener('click',()=>set(!f.isOpen,{focus:true}));
+    pop.addEventListener('keydown',e=>{if(e.key==='Escape'&&f.isOpen&&!e.defaultPrevented){e.preventDefault();set(false,{back:true})}});
+    document.addEventListener('pointerdown',e=>{if(f.isOpen&&!pop.contains(e.target))set(false)});
+    pop.addEventListener('focusout',e=>{if(f.isOpen&&e.relatedTarget&&!pop.contains(e.relatedTarget))set(false)});
+    pane.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(!c||c.disabled)return;set(false,{back:true});if(onClose)onClose(c.getAttribute('data-close'))});
+    pane.addEventListener('submit',e=>{e.preventDefault();set(false,{back:true});if(onClose)onClose('submit')});
+    const where=()=>{if(f.isOpen)f.place(btn.getBoundingClientRect(),false,true)};
+    window.addEventListener('resize',where);document.addEventListener('scroll',e=>{if(!(e.target.nodeType===1&&pane.contains(e.target)))where()},true);
+  }
+  popover($('popSnooze'),v=>{if(v!=='snooze')return;const r=$('popSnooze').querySelector('input:checked');A.say('Snoozed for '+r.parentNode.textContent.trim().toLowerCase()+'. It will be back.');ping(660)});
+  const rn=$('renameIn'),rnField=rn.closest('.field'),rnOut=$('renameErr');
+  rn.addEventListener('invalid',e=>{e.preventDefault();err(rnField,rn,rnOut,'Enter a name for the probe.');rn.focus();A.jolt();if(live())sfx.err()});
+  rn.addEventListener('input',()=>{if(rn.value.trim())err(rnField,rn,rnOut,'')});
+  popover($('popRename'),v=>{if(v!=='submit')return;A.say('Renamed to '+rn.value.trim()+'.');if(live())sfx.ok()});
+
+  /* ---- combobox: type and the list narrows ---- */
+  (function(){
+    const box=$('combo'),inp=$('comboIn'),field=inp.closest('.field'),pane=box.querySelector(':scope > .pane'),list=pane.querySelector('[role="listbox"]'),out=$('comboErr'),st=$('comboStatus'),f=float(pane);
+    const opts=()=>[...list.querySelectorAll('[role="option"]')],off=o=>o.getAttribute('aria-disabled')==='true';
+    const text=o=>o.textContent.replace(/\s+/g,' ').trim(),fold=s=>String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,''),WORD=/[^\p{L}\p{N}]+/u;
+    let act=null,sel=null,typed=false,tellT=0;
+    const none=document.createElement('p');none.className='opts-none';none.hidden=true;list.after(none);
+    const tell=document.createElement('span');tell.className='vh';tell.setAttribute('aria-live','polite');box.appendChild(tell);
+    inp.setAttribute('aria-controls',uid(list,'list'));list.setAttribute('aria-labelledby',uid(document.querySelector('label[for="comboIn"]'),'label'));
+    opts().forEach((o,i)=>{uid(o,'opt');o._i=i});
+    /* -1 no match; else the word the first typed word starts, so fra puts Frankfurt before San Francisco */
+    function rank(o,q){
+      const ws=fold(text(o)).split(WORD).filter(Boolean),ts=fold(q).split(WORD).filter(Boolean);
+      if(!ts.length)return 0;
+      if(!ts.every(t=>ws.some(w=>w.startsWith(t))))return -1;
+      const i=ws.findIndex(w=>w.startsWith(ts[0]));return i<0?ws.length:i;
+    }
+    function draw(q){
+      const os=opts(),rs=new Map();let n=0;
+      os.forEach(o=>{const r=rank(o,q);rs.set(o,r);o.hidden=r<0;if(r>=0)n++});
+      const want=os.slice().sort((a,b)=>{let x=rs.get(a),y=rs.get(b);x=x<0?1e9:x;y=y<0?1e9:y;return x-y||a._i-b._i});
+      if(want.some((o,i)=>o!==os[i]))want.forEach(o=>list.appendChild(o));
+      none.textContent=box.dataset.empty;none.hidden=n>0;
+      return {n,first:want.find(o=>!o.hidden&&!off(o))||null};
+    }
+    function into(o){const t=o.offsetTop,h=o.offsetHeight,s=list.scrollTop,c=list.clientHeight;if(t<s)list.scrollTop=t;else if(t+h>s+c)list.scrollTop=t+h-c}
+    function mark(o,scroll){
+      if(act)act.removeAttribute('data-active');act=o||null;
+      if(act){act.setAttribute('data-active','');inp.setAttribute('aria-activedescendant',act.id);if(scroll!==false)into(act)}
+      else inp.removeAttribute('aria-activedescendant');
+    }
+    /* the list hangs from the field; opened above, it clears the label too */
+    function anchor(){
+      const r=field.getBoundingClientRect(),a={left:r.left,right:r.right,top:r.top,bottom:r.bottom},l=document.querySelector('label[for="comboIn"]').getBoundingClientRect();
+      if(l.height&&l.bottom<=r.top+1&&r.top-l.bottom<A.ROW)a.top=l.top;
+      return a;
+    }
+    function show(q){
+      const fresh=!f.isOpen,r=draw(q);
+      if(fresh){f.show();inp.setAttribute('aria-expanded','true');if(live())sfx.open()}
+      pane.style.width=Math.round(field.getBoundingClientRect().width+2*(A.CH()||9.6))+'px';
+      f.place(anchor(),false,!fresh);
+      return r;
+    }
+    function hide(){if(!f.isOpen)return;f.hide();inp.setAttribute('aria-expanded','false');mark(null)}
+    function pick(o){
+      sel=o||null;typed=false;
+      opts().forEach(x=>{if(x===sel)x.setAttribute('aria-selected','true');else x.removeAttribute('aria-selected')});
+      inp.value=sel?text(sel):'';err(field,inp,out,'');
+      st.textContent=sel?'Picked '+text(sel)+'.':'Nothing picked.';
+      if(sel)ping(660);
+    }
+    /* leaving the field: the words are an option, or nothing, or it says so */
+    function commit(){
+      const t=inp.value.replace(/\s+/g,' ').trim();
+      if(sel&&t===text(sel)){typed=false;return}
+      if(!t){if(sel)pick(null);typed=false;return}
+      const ex=opts().find(o=>!off(o)&&fold(text(o))===fold(t));
+      if(ex){pick(ex);return}
+      if(sel){inp.value=text(sel);typed=false;return}
+      err(field,inp,out,box.dataset.errorList);if(live())sfx.err();
+    }
+    const vis=()=>opts().filter(o=>!o.hidden&&!off(o));
+    inp.addEventListener('input',()=>{
+      typed=true;err(field,inp,out,'');
+      const q=inp.value.trim(),r=show(q);mark(q?r.first:null);
+      clearTimeout(tellT);tellT=setTimeout(()=>{tell.textContent=r.n?(r.n===1?'1 match.':r.n+' matches.'):none.textContent},500);
+    });
+    inp.addEventListener('keydown',e=>{
+      if(e.isComposing)return;
+      const k=e.key;let v=vis();const i=v.indexOf(act);
+      if(k==='ArrowDown'||k==='ArrowUp'){
+        e.preventDefault();
+        if(!f.isOpen){show(typed?inp.value.trim():'');v=vis();const at=sel&&!sel.hidden&&!off(sel)?sel:null;mark(e.altKey?at:(at||(k==='ArrowDown'?v[0]:v[v.length-1])));return}
+        if(v.length){mark(k==='ArrowDown'?v[(i+1)%v.length]:v[i<0?v.length-1:(i-1+v.length)%v.length]);if(live())sfx.tick()}
+      }
+      else if((k==='PageDown'||k==='PageUp')&&f.isOpen&&v.length){e.preventDefault();mark(v[clamp((i<0?0:i)+(k==='PageDown'?5:-5),0,v.length-1)])}
+      else if(k==='Enter'){if(f.isOpen){e.preventDefault();const a=act;hide();if(a)pick(a);else commit()}else commit()}
+      else if(k==='Escape'&&f.isOpen){e.preventDefault();e.stopPropagation();hide();if(sel){inp.value=text(sel);typed=false;err(field,inp,out,'')}}
+      else if(k==='Tab')hide();
+    });
+    /* the whole frame opens the list, the v closes it again */
+    field.addEventListener('mousedown',e=>{if(e.target!==inp)e.preventDefault()});
+    field.addEventListener('click',e=>{
+      if(f.isOpen&&e.target.closest('.prompt')){hide();return}
+      if(!f.isOpen){show(typed?inp.value.trim():'');mark(sel&&!sel.hidden?sel:null)}
+      if(document.activeElement!==inp)inp.focus();
+    });
+    pane.addEventListener('mousedown',e=>e.preventDefault());
+    list.addEventListener('pointermove',e=>{const o=e.target.closest('[role="option"]');if(o&&o!==act&&!off(o))mark(o,false)});
+    list.addEventListener('click',e=>{const o=e.target.closest('[role="option"]');if(!o||off(o))return;hide();pick(o);if(document.activeElement!==inp)inp.focus()});
+    inp.addEventListener('blur',()=>{hide();commit()});
+    window.addEventListener('resize',()=>{if(f.isOpen)f.place(anchor(),false,true)});
+    document.addEventListener('scroll',e=>{if(f.isOpen&&!(e.target.nodeType===1&&pane.contains(e.target)))f.place(anchor(),false,true)},true);
+  })();
+
+  /* ---- context menu: right-click, a long press or Shift F10 on a row ---- */
+  (function(){
+    const box=$('ctx'),menu=box.querySelector(':scope > [role="menu"]'),st=$('ctxStatus'),f=float(menu);
+    let target=null,from=null,quiet=0,eat=0,lp=null;
+    const items=()=>[...menu.querySelectorAll('[role="menuitem"]')].filter(x=>!x.disabled&&x.getAttribute('aria-disabled')!=='true');
+    const words=it=>{const c=it.cloneNode(true);c.querySelectorAll('kbd').forEach(k=>k.remove());return c.textContent.replace(/\s+/g,' ').trim()};
+    menu.querySelectorAll('[role="menuitem"]').forEach(it=>{const k=it.querySelector('kbd');if(!k)return;k.setAttribute('aria-hidden','true');it.setAttribute('aria-keyshortcuts',k.textContent.trim())});
+    const on=el=>{const t=el&&el.closest?el.closest('tr,li,[tabindex],a,button'):null;return t&&t!==box&&box.contains(t)&&!menu.contains(t)?t:box};
+    const name=t=>{if(!t||t===box)return '';const c=t.cells&&t.cells[0];return (c?c.textContent:t.textContent).replace(/\s+/g,' ').trim()};
+    function openAt(x,y,t){
+      if(!f.isOpen)from=document.activeElement;
+      if(target&&target!==t)target.removeAttribute('data-ctx');
+      target=t;if(t!==box)t.setAttribute('data-ctx','');
+      f.show();
+      const cw=A.CH()||9.6,rh=A.ROW,o=box.getBoundingClientRect(),snap=(v,o0,u,up)=>o0+(up?Math.ceil:Math.floor)((v-o0)/u)*u;
+      if(x===null){const r=t.getBoundingClientRect(),kx=snap(r.left+2*cw,o.left,cw);f.place({left:kx,right:kx,top:r.top,bottom:r.bottom},false)}
+      else{const px=snap(x,o.left,cw);f.place({left:px,right:px,top:snap(y,o.top,rh),bottom:snap(y,o.top,rh,true)},true)}
+      items()[0].focus();if(live())sfx.open();
+    }
+    function close(back){
+      if(!f.isOpen)return;f.hide();
+      if(target)target.removeAttribute('data-ctx');
+      if(back){const b=from&&from!==document.body&&from.isConnected&&!menu.contains(from)?from:(target&&target!==box&&target.matches(TABBABLE)?target:null);if(b)b.focus()}
+      from=null;
+    }
+    box.addEventListener('contextmenu',e=>{
+      if(menu.contains(e.target)||Date.now()<quiet){e.preventDefault();return}
+      if(e.shiftKey||e.target.closest('input,textarea,select,a[href]'))return;
+      e.preventDefault();const kb=!e.clientX&&!e.clientY;openAt(kb?null:e.clientX,kb?null:e.clientY,on(e.target));
+    });
+    box.addEventListener('keydown',e=>{
+      if(menu.contains(e.target))return;
+      if(e.key==='ContextMenu'||(e.key==='F10'&&e.shiftKey)){e.preventDefault();quiet=Date.now()+400;openAt(null,null,on(e.target))}
+    });
+    /* touch: press and hold half a second, without moving */
+    box.addEventListener('pointerdown',e=>{
+      if(e.pointerType!=='touch'||!e.isPrimary||menu.contains(e.target))return;
+      if(lp)clearTimeout(lp.id);
+      const x=e.clientX,y=e.clientY,t=on(e.target);
+      lp={x,y,id:setTimeout(()=>{lp=null;openAt(x,y,t);quiet=eat=Date.now()+800},500)};
+    });
+    const drop=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.abs(e.clientX-lp.x)<10&&Math.abs(e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null};
+    ['pointerup','pointercancel','pointermove'].forEach(t=>box.addEventListener(t,drop));
+    /* the finger that held it lifts: that click is not a pick */
+    document.addEventListener('pointerdown',e=>{eat=0;if(e.pointerType!=='touch')quiet=0;if(f.isOpen&&!menu.contains(e.target))close(false)},true);
+    box.addEventListener('click',e=>{if(Date.now()<eat){e.preventDefault();e.stopPropagation();eat=0}},true);
+    /* and the mouse events a browser makes up after it would move the focus out of the menu */
+    box.addEventListener('touchend',e=>{if(Date.now()<eat&&e.cancelable)e.preventDefault()},{passive:false});
+    menu.addEventListener('keydown',e=>{
+      const it=items(),i=it.indexOf(document.activeElement),k=e.key;let n=null;
+      if(k==='ArrowDown')n=it[(i+1)%it.length];
+      else if(k==='ArrowUp')n=it[(i-1+it.length)%it.length];
+      else if(k==='Home')n=it[0];
+      else if(k==='End')n=it[it.length-1];
+      else if(k==='Escape'||k==='Tab'){e.preventDefault();close(true);return}
+      else if(k.length===1&&k!==' '&&!e.ctrlKey&&!e.metaKey&&!e.altKey){
+        const l=k.toLowerCase(),hit=it.find(x=>{const b=x.querySelector('kbd');return b&&b.textContent.trim().toLowerCase()===l});
+        if(hit){e.preventDefault();hit.click();return}
+        for(let j=1;j<=it.length&&!n;j++){const c=it[(i+j+it.length)%it.length];if(words(c).toLowerCase().startsWith(l))n=c}
+      }
+      if(n){e.preventDefault();n.focus();if(live())sfx.tick()}
+    });
+    menu.addEventListener('click',e=>{
+      const it=e.target.closest('[role="menuitem"]');if(!it||it.disabled)return;
+      const w=words(it),nm=name(target);close(true);target=null;
+      st.textContent=w+(nm?': '+nm:'')+'.';
+      if(it.classList.contains('danger')){A.say(nm+' deleted. It is gone.',true);A.jolt();if(live())sfx.err()}else ping(520);
+    });
+    menu.addEventListener('focusout',e=>{if(f.isOpen&&e.relatedTarget&&!menu.contains(e.relatedTarget))close(false)});
+    document.addEventListener('scroll',e=>{drop(e);if(f.isOpen&&!(e.target.nodeType===1&&menu.contains(e.target)))close(false)},true);
+    window.addEventListener('resize',()=>close(false));
+  })();
+
+  /* ---- alert dialog: asks before something you cannot undo ---- */
+  function alertDialog(btn,d,done){
+    let down=false;
+    btn.addEventListener('click',()=>{if(d.open||!d.showModal)return;d.returnValue='';d.showModal();settle(d);if(live())sfx.open()});
+    d.addEventListener('pointerdown',e=>{down=e.target===d});
+    /* a tap around it is not an answer: it nudges, and the focus goes back to the safe choice */
+    d.addEventListener('click',e=>{
+      if(down&&e.target===d){
+        const safe=d.querySelector('[autofocus]')||d.querySelector('[data-close]:not(.btn-danger)');if(safe&&!safe.disabled)safe.focus();
+        if(live())sfx.err();
+        if(!reduce){clearTimeout(d._nudge);d.classList.remove('nudge');void d.offsetWidth;d.classList.add('nudge');d._nudge=setTimeout(()=>d.classList.remove('nudge'),320)}
+      }
+      down=false;
+      const c=e.target.closest('[data-close]');if(c&&!c.disabled)d.close(c.getAttribute('data-close')||'');
+    });
+    d.addEventListener('close',()=>{if(btn.isConnected)btn.focus();if(d.returnValue)done()});
+  }
+  const gone=(msg)=>()=>{A.say(msg,true);A.jolt();if(live())sfx.err()};
+  alertDialog($('adOpen'),$('adDlg'),gone('Deleted. It is gone.'));
+  alertDialog($('adOpen2'),$('adDlg2'),gone('Workspace deleted. Nothing to watch now.'));
+  /* the typed kind: Delete stays off until the name is exactly right */
+  const ai=$('adIn'),aiField=ai.closest('.field'),aiOut=$('adErr'),want=ai.dataset.match,aiDel=$('adDlg2').querySelector('.btn-danger');
+  const aiCheck=()=>{const ok=ai.value.trim()===want;aiDel.disabled=!ok;return ok};
+  ai.addEventListener('input',()=>{err(aiField,ai,aiOut,'');aiCheck()});
+  ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(aiCheck())aiDel.click();else{err(aiField,ai,aiOut,'Type '+want+' exactly.');A.jolt();if(live())sfx.err()}});
+  $('adOpen2').addEventListener('click',()=>{ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
+})();
 })();

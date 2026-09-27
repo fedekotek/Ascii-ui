@@ -2,6 +2,23 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.2.0, 2026-09-27
+
+Added
+- Popover, `data-aui="popover"` on a `.pop`: a button and a small panel next to it, not modal. The focus goes in and comes back on Escape or a `data-aui-close`; a click outside or Tab past the end put it away. A `<form method="dialog">` inside closes it once the form is valid. `aui:toggle`, `ASCIIUI.popover(el)`.
+- Combobox, `data-aui="combobox"` on a `.combo`: a field that narrows a list as you type, with `role="combobox"`, a listbox and `aria-activedescendant`. Case and accents do not count, the best match comes first, `data-empty` says when nothing matches and `data-error-list` when the words are not an option. `data-name`, `data-value`, `data-free`. `aui:change`, `ASCIIUI.combobox(el)`.
+- Context menu, `data-aui="contextmenu"` on a `.ctx`: opens on a right-click, a long press or Shift F10 where you are, arrows and letters move, the `<kbd>` letter picks. `aui:select`, `ASCIIUI.contextmenu(el)`.
+- Alert dialog, `<dialog role="alertdialog">`: a tap around it is not an answer, it nudges and puts the focus back on the safe button. `data-aui="confirm"` with `data-match` keeps the danger button off until the name is typed.
+- `pane`: the floating panel under the three above. It goes to the top layer where the browser has the Popover API and sits on the grid, below its button or above it when there is no room.
+- `data-aui-close="value"` sets the dialog's `returnValue`.
+
+Fixed
+- Dropdown items are two whole rows tall, on the grid. They sat off it.
+- A disabled field has a faint rim and gray text, the way a disabled button does.
+- A disabled danger button has a gray label, not a yellow one.
+- A dialog's `returnValue` starts empty every time it opens.
+- A `data-aui-close` in a popover inside a dialog closes the popover, not the dialog.
+
 ## 1.1.1, 2026-09-26
 
 Fixed

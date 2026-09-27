@@ -1,8 +1,8 @@
 # Components
 
-30 components in `#view-kit`, sorted by the docs builder at runtime (source order in `index.html` is historical): first by group, then alphabetically inside each group. The groups are `KIT_GROUPS` in js/30: Form, Overlay, Display, Feedback, Navigation. A section missing from that list lands in an Other group at the end. The builder puts a `.grouph` label on the page where each group starts, and the sidebar and menu list the parts under the same groups.
+34 components in `#view-kit`, sorted by the docs builder at runtime (source order in `index.html` is historical): first by group, then alphabetically inside each group. The groups are `KIT_GROUPS` in js/30: Form, Overlay, Display, Feedback, Navigation. A section missing from that list lands in an Other group at the end. The builder puts a `.grouph` label on the page where each group starts, and the sidebar and menu list the parts under the same groups.
 
-28 of the 30 are in the kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`, every one of them on `kit/starter.html`). Command and Picture are site only: Command is this site's Search and Picture is the site's LCD engine. Avatar is in the kit without its picture variant.
+32 of the 34 are in the kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`, every one of them on `kit/starter.html`). Command and Picture are site only: Command is this site's Search and Picture is the site's LCD engine. Avatar is in the kit without its picture variant.
 
 The view opens with a `.dochead` (the COMPONENTS bitmap title, `data-nobars`, and one lede). Get the kit (`s-install`, built by `install()` in js/40) comes right after the lede, then the chip index, then the groups. Rules (`s-rules`) closes the page. The sidebar lists Get the kit and Rules first, as Getting started. Inside the view the section posters are hidden by CSS and each section's `h2` shows as a bold uppercase word instead.
 
@@ -21,13 +21,16 @@ The kit text the Code tab reads is embedded at the end of js/40, in `KIT()`, so 
 | Component | Group | Section id | Summary | Kit behavior | Kit CSS block | Site code |
 |---|---|---|---|---|---|---|
 | Alert | Feedback | `s-alert` | A card with a hazard rim. | none | `alert` | css/13 `.alert` |
+| Alert dialog | Overlay | `s-alertdialog` | Asks before what cannot be undone; a tap outside nudges it. | `data-aui-open`, `data-aui-close`, `confirm` | `alertdialog`, `alert`, `dialog` | css/20, js/30 "overlays" |
 | Avatar | Display | `s-avatar` | Initials on a slab, or a picture pushed through the LCD. | none (the LCD picture is site only) | `avatar` | css/14 `.avatar`, js/30 LCD |
 | Badge | Display | `s-badge` | Inverse slabs for status, brackets for everything else. | none | `badge` | css/13 `.badge` |
 | Breadcrumb | Navigation | `s-breadcrumb` | Slashes separate, current page is a slab. | none | `crumbs` | css/14 `.crumbs` |
 | Button | Form | `s-button` | Rim says how loud: @ primary, = default, / danger. | none | `button` | css/05, js/10 "button labels", "button rims" |
 | Calendar | Form | `s-calendar` | Month of buttons, today in the action color, pick is a slab. | `calendar` | `calendar` | css/14 `.cal`, js/30 `AUI_JS.calendar` |
 | Card and dialog | Display | `s-card` | Title bar of @, walls of #, colon shadow. | `data-aui-open`, `data-aui-close`, `data-aui-toast` | `card`, `dialog` | css/10, js/10 "card and dialog" |
+| Combobox | Overlay | `s-combobox` | A field that narrows a list as you type. | `combobox` | `combobox`, `pane` | css/20 `.combo .opts`, js/30 "overlays" |
 | Command | Overlay | `s-command` | The command menu; on this site it is Search. | site only | `kbd` | js/80, commands in js/20 "command palette" |
+| Context menu | Overlay | `s-contextmenu` | Right-click, long press or Shift F10 opens a menu where you are. | `contextmenu` | `contextmenu`, `pane`, `dropdown` | css/20 `.ctx`, js/30 "overlays" |
 | Details | Display | `s-details` | Native details, [+]/[-] marker, answer decodes. | none | `details` | css/11 `.acc`, js/10 |
 | Dropdown | Overlay | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `dropdown` | `dropdown` | css/14 `.pop .menu`, js/30 `AUI_JS.dropdown` |
 | Empty | Feedback | `s-empty` | Nothing here, plus the next step. | `data-aui-toast` | `card` | css/04 tone-faint |
@@ -36,6 +39,7 @@ The kit text the Code tab reads is embedded at the end of js/40, in `KIT()`, so 
 | Kbd | Display | `s-kbd` | Keys in brackets. | none | `kbd` | css/13 `kbd` |
 | Pagination | Navigation | `s-pagination` | Brackets on every page, slab on current. | `pagination` | `pagination` | css/14 `.ibtn`, js/30 `AUI_JS.pagination` |
 | Picture | Display | `s-picture` | Sectorized LCD, tap a sector. | site only | `segment` | css/14 `figure.pic .lcd`, js/30 LCD |
+| Popover | Overlay | `s-popover` | A small panel next to its button, not modal. | `popover`, `validate`, `data-aui-close` | `popover`, `pane` | css/20 `.pane`, js/30 "overlays" |
 | Progress | Feedback | `s-progress` | How far along a task is, halftone bar, spinner in the button. | `progress`, `data-aui-fill` | `bar` | css/08, js/10 "progress" |
 | Select | Form | `s-select` | Native select in the input frame. | none | `field` | css/13 `.field select` |
 | Separator | Display | `s-separator` | Four weights of nothing. | none | `divider` | css/14 `.sepd .sepl` |
@@ -73,7 +77,7 @@ Not in the kit view but built as components on the site: Menu (`#menuDlg`, full 
 
 A checklist. Do every step, in order. `thing` is the new component's name, `s-thing` its section id. Steps 1 to 4 are the site, 5 to 10 the kit, 11 to 13 the docs and the release.
 
-1. **Section in `index.html`.** Inside `#view-kit`, anywhere before `s-rules` (the builder sorts it), with the anatomy above. The poster title is 8 characters or fewer. The caption is one sentence that names the trick; read the other captions first. Use the tokens only; never `--cy` for anything but focus. If the section holds a table, a chart, a picture or a wide stat row, put `data-span="full"` on it (`spanSections()` in js/30 sets it for `WIDE` matches; the attribute wins either way). Then update the count strings: `index.html` has "30 components" in `.hero-facts` and "Thirty parts" and "30" in the Components tile; `README.md` says "Components (30, in five groups)". Grep for `30` and `Thirty`.
+1. **Section in `index.html`.** Inside `#view-kit`, anywhere before `s-rules` (the builder sorts it), with the anatomy above. The poster title is 8 characters or fewer. The caption is one sentence that names the trick; read the other captions first. Use the tokens only; never `--cy` for anything but focus. If the section holds a table, a chart, a picture or a wide stat row, put `data-span="full"` on it (`spanSections()` in js/30 sets it for `WIDE` matches; the attribute wins either way). Then update the count strings: `index.html` has "34 components" in the meta description, `.hero-facts`, the hero line ("Thirty-four"), the Components tile and the lede, and "Thirty-two" in the Details demo; `README.md` says "Components (34, in five groups)"; `llms.txt` has the counts too. Search for `34`, `32` and `Thirty`.
 2. **Group.** Add `'s-thing'` to its group in `KIT_GROUPS` (js/30), or it lands in Other.
 3. **Site wiring.** CSS for the site goes at the end of `css/14-docs-components-lcd.css` if it is small, or in a new file numbered after `css/18-search.css` (and linked in `index.html` in that order). Hit areas are 44px (`padding:12px 0;margin:-12px 0`), focus is `:focus-visible{background:var(--accent);color:var(--bg)}`, and motion is `steps()`. JS for the site goes in js/30, in its own `(function(){...})();` block next to the other components. Repeat with `A.every`, never `setInterval`; check `A.reduce` before any timer; sound through `ping()` or `A.sfx`; characters drawn into `.bar`, `.chart`, `.ptitle` or a canvas go through `A.TR()` or `A.colorize(A.barRow(...))`. To glitch its parts in on scroll, add their classes to `RV` in js/10 (search `var RV=`).
 4. **KITIFY.** If the demo is wired by the site's engine, add an `'s-thing'` entry to `KITIFY` in js/40 that sets the kit's attributes on the clone (`set(q1(c,'#thingEl'),{'data-aui':'thing'})`), and brings in any dialog that lives outside the section (`dialogOf()`). Ids are removed afterwards by `neutral()`, so select by id here freely. If the kit cannot run it at all, add a one-line `SITEONLY` note instead and stop after step 11: it stays site only.

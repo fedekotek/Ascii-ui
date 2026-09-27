@@ -16,11 +16,11 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 2. Open https://ascii.fedekotek.design/#components, pick the Code tab on any component and copy its HTML into your page. It works as pasted, twice on one page too.
 3. Or start from the starter page, which already links both and has every kit component on it: https://ascii.fedekotek.design/kit/starter.html
 
-The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 28 of the 30 components are in the kit; Command and Picture need the site's engine.
+The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 32 of the 34 components are in the kit; Command and Picture need the site's engine.
 
 There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
 
-Five views: Home (the ring, where to start, questions, invaders), Components (30, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
+Five views: Home (the ring, where to start, questions, invaders), Components (34, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
 
 ```
 index.html          the page, linking css/ and js/ (develop here)
