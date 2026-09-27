@@ -45,17 +45,10 @@ main.jolt{animation:jolt .26s steps(1)}
   75%{transform:translateX(2px);filter:none}
   100%{transform:none}
 }
-/* the hero's glow used to live on header, which is only as wide as the content
-   column, so on a wide screen it ended in a hard vertical line with flat
-   background either side. It belongs to the window, not to the column. --heroh
-   is the height of the header, written by layout(). */
+/* the hero has no gradient glow: its glow is a halo of characters drawn
+   around the ring (drawHero, js/10) */
 header{background:none}
-body{
-  background:
-    radial-gradient(64% 46% at 62% 44%,color-mix(in srgb,var(--hot) 16%,transparent),transparent)
-      no-repeat top center / 100% var(--heroh,640px),
-    var(--bg);
-}
+body{background:var(--bg)}
 main{max-width:80ch;margin:0 auto;padding:var(--r) 2ch calc(var(--r)*5)}
 main.show-grid{
   background-image:

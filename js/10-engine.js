@@ -373,7 +373,9 @@
        the two fades at double size drops to single. */
     var fade=(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*CH;
     var x0=Math.ceil(fade/CW)+1;
-    var half=HR<44,sc=function(t){t=t||' ';return t.length>5||half||x0*2+t.length*12-2>HC?1:2};
+    /* from 1600px the hero is taller and the words go to double size as soon
+       as two lines of it fit (35 rows), not at 44 */
+    var half=HR<(wideHero()?36:44),sc=function(t){t=t||' ';return t.length>5||half||x0*2+t.length*12-2>HC?1:2};
     var m=[],y,x,l1=bitmap(HP.t1||' ',sc(HP.t1)),l2=bitmap(HP.t2||' ',sc(HP.t2));
     for(y=0;y<HR;y++){m.push([]);for(x=0;x<HC;x++)m[y].push(0)}
     wbox=[];
@@ -389,6 +391,7 @@
     put(l2,HC<70?Math.min(HR-l2.length,Math.round(HR*0.724)):Math.min(HR-l2.length,y1+l1.length+Math.ceil(l1.length*0.4)));
     mask=m;
   }
+  function wideHero(){return window.innerWidth>=1600}
   function inWord(x,y){
     for(var i=0;i<wbox.length;i++){var w=wbox[i];if(x>=w[0]&&x<=w[2]&&y>=w[1]&&y<=w[3])return true}
     return false;
@@ -481,11 +484,14 @@
          whatever the copy costs */
       /* and a hard cap in rows: sixteen on a screen, twelve on a phone. The ring
          is the proof, not the page (Home, 2026) */
-      var cap=ROW*(window.innerWidth<720?12:16);
+      var cap=ROW*(window.innerWidth<720?12:(wideHero()?22:16));
       var lid=Math.min(cap,Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW)));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     hero.style.height=Hpx+'px';
+    /* from 1600px the canvas reaches into the margin by its fade, so the
+       headline starts on the paragraph's left edge instead of 7ch in */
+    hero.style.marginLeft=wideHero()?(-(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*ch)+'px':'';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
     /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a
        token so the size is a design decision, not a number buried in here. */
@@ -506,7 +512,8 @@
 
   /* ---- hero: a torus on a bad signal. streaks, colour bars, RGB split, tearing ---- */
   var streaks=[],blocks=[],zb=null,lu=null;
-  var BAR=['pink','warn','ok','deep','ink','hot','violet'];   /* no cyan: blue is focus */
+  /* no cyan (focus), no lime (confirms), no yellow (warns): decoration stays in magenta, pink, violet, deep and ink */
+  var BAR=['pink','violet','deep','ink','hot','violet'];
   /* the ring shades through violet and magenta, never blue: blue is focus */
   var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
   var TOR_L=['ink','ink','violet','violet','hot','hot','pink'];   /* one step more ink than dark: pale on paper otherwise */
@@ -514,7 +521,7 @@
   function mkBlock(){
     var bars=Math.random()<0.4;
     return {x:Math.random()*HC,y:rnd(HR-4),w:bars?2*(4+rnd(4)):2+rnd(5),h:bars?3+rnd(3):1+rnd(3),
-            v:(Math.random()-0.5)*0.5,bars:bars,c:['ink','ok','deep','hot','violet','pink'][rnd(6)]};
+            v:(Math.random()-0.5)*0.5,bars:bars,c:['ink','deep','hot','violet','pink'][rnd(5)]};
   }
   function seedScene(){
     var i;streaks=[];blocks=[];
@@ -560,6 +567,12 @@
        sits in the gap between the two lines instead of on top of them */
     var narrow=HC<70;
     var rr=narrow?Math.min(HC*0.2,HR*0.26):Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*(narrow?0.5:0.64));
+    /* From 1600px the ring left 600px of nothing between itself and the words.
+       It grows and moves in next to them, four cells after the last letter */
+    if(!narrow&&wideHero()){
+      var wr=0;for(i=0;i<wbox.length;i++)wr=Math.max(wr,wbox[i][2]);
+      rr=Math.min(HC*0.36,HR*0.5,34);rad=rr*HP.rad;cx=Math.min(HC-rr-2,Math.round(wr+4+rad*1.05));cy=Math.round(HR*0.55);
+    }
     /* A colour bar laid over the ring or through a letter read as a smudge on a
        phone, where everything is close. Bars now run up to the words and the
        ring and stop, a row at a time. With a photo there is no ring to avoid. */
@@ -569,15 +582,11 @@
       if(ext)return true;
       var dx=(x-cx)/rx2,dy=(y-cy)/ry2;return dx*dx+dy*dy>1;
     }
-    function runs(x0,y0,w,h,x1){
+    /* blocks and bars are runs of characters, not slabs: @@ for a bar, %% for a block */
+    function runs(x0,y0,w,h,x1,chr){
       for(var yy=y0;yy<y0+h&&yy<HR;yy++){
         if(yy<0)continue;
-        var s=-1;
-        for(var xx=x0;xx<=x0+w;xx++){
-          var ok=xx<x0+w&&xx>=0&&xx<HC&&open(xx,yy);
-          if(ok&&s<0)s=xx;
-          if(!ok&&s>=0){ctx.fillRect((s+x1)*CW,yy*LH,(xx-s)*CW+0.5,LH);s=-1}
-        }
+        for(var xx=x0;xx<x0+w;xx++)if(xx>=0&&xx<HC&&open(xx,yy))ctx.fillText(chr,(xx+x1)*CW,yy*LH);
       }
     }
     /* blocks and colour bars */
@@ -589,11 +598,11 @@
       if(b.bars){
         for(k=0;k<b.w/2;k++){
           ctx.fillStyle=PAL[BAR[k%BAR.length]];
-          runs(bx+k*2,b.y,2,b.h,shift[b.y]);
+          runs(bx+k*2,b.y,2,b.h,shift[b.y],'@');
         }
       }else{
         ctx.fillStyle=PAL[b.c];
-        runs(bx,b.y,b.w,b.h,shift[b.y]);
+        runs(bx,b.y,b.w,b.h,shift[b.y],'%');
       }
     }
     ctx.globalAlpha=1;
@@ -640,14 +649,26 @@
         ctx.fillText(RAMP.charAt(dark?2+q:8-q),x*CW+oxp,y*LH);
       }
     }
+    /* the glow is characters too: a speckled halo of : and . just outside the
+       ring, thinning out as it leaves, and it shimmers a little with the ring */
+    var rxo=rad*0.9,ryo=rxo/1.25,hx0=Math.max(0,Math.floor(cx-rxo*1.5)),hx1=Math.min(HC-1,Math.ceil(cx+rxo*1.5)),
+        hy0=Math.max(0,Math.floor(cy-ryo*1.5)),hy1=Math.min(HR-1,Math.ceil(cy+ryo*1.5)),tk=Math.floor(t*3);
+    ctx.fillStyle=PAL.hot;ctx.globalAlpha=0.55;
+    for(y=hy0;y<=hy1;y++)for(x=hx0;x<=hx1;x++){
+      if(lu[y*HC+x]>-9||mask[y][x]||inWord(x,y))continue;
+      var hdx=(x-cx)/rxo,hdy=(y-cy)/ryo,hq=Math.sqrt(hdx*hdx+hdy*hdy);if(hq<1.02||hq>1.45)continue;
+      var hh=(((x*73856093)^(y*19349663)^(tk*83492791))>>>0)%100;
+      if(hh<(1.45-hq)/0.43*30)ctx.fillText(hq<1.2?':':'.',(x+shift[y])*CW,y*LH);
+    }
+    ctx.globalAlpha=1;
     }
 
-    /* the name: backed, then cyan and magenta ghosts, then ink */
+    /* the name: backed, then violet and magenta ghosts, then ink */
     var split=((g>0?1+g*2.5:0)+burst*12)*HP.split;
     for(y=0;y<HR;y++)for(x=0;x<HC;x++)if(mask[y][x]){
       ctx.fillStyle=PAL.bg;ctx.fillRect((x+shift[y])*CW-0.5,y*LH,CW+1,LH);
     }
-    var pass=[[-split,'cy'],[split,'hot'],[0,'ink']];
+    var pass=[[-split,'violet'],[split,'hot'],[0,'ink']];
     for(k=0;k<3;k++){
       if(k<2&&split<=0)continue;
       ctx.fillStyle=PAL[pass[k][1]];
@@ -660,10 +681,11 @@
     if(burst>0){
       for(i=0;i<Math.ceil(3*burst);i++){
         var rw=4+rnd(14),rh=1+rnd(3),rx=rnd(HC-rw),ry=rnd(HR-rh);
-        ctx.globalAlpha=0.9;ctx.fillStyle=PAL[BAR[rnd(BAR.length)]];
-        ctx.fillRect(rx*CW,ry*LH,rw*CW,rh*LH);
-        ctx.fillStyle=PAL.bg;ctx.globalAlpha=1;
-        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++)ctx.fillText(RAMP.charAt(3+rnd(6)),x*CW,y*LH);
+        /* a patch of heavy characters in one bar colour, over paper, not a slab */
+        ctx.globalAlpha=1;
+        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++){ctx.fillStyle=PAL.bg;ctx.fillRect(x*CW,y*LH,CW+0.5,LH)}
+        ctx.fillStyle=PAL[BAR[rnd(BAR.length)]];
+        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++)ctx.fillText(RAMP.charAt(5+rnd(4)),x*CW,y*LH);
       }
       G.burst=Math.max(0,burst-0.3);
     }
@@ -693,10 +715,26 @@
 
   /* ---- fx layer: ambient streaks, shards where you touch, page jolts ---- */
   var fx=$('fx');
-  function spark(x,y,w,h,c,op,life){
-    var d=document.createElement('div');
-    d.style.cssText='left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;opacity:'+op+';background:var(--'+c+')';
-    fx.appendChild(d);setTimeout(function(){d.remove()},life);
+  /* sparks are characters on the grid that fade down the ramp, 40ms a step,
+     never boxes. Cyan is focus, so a spark asked for in cyan comes out violet */
+  var FADE='@%#*+=:.';
+  function fadeRun(x,y,n,c,op,life){
+    var d=document.createElement('div'),steps=Math.max(2,Math.min(FADE.length,Math.round(life/40)));
+    d.setAttribute('aria-hidden','true');
+    d.style.cssText='left:'+(Math.round(x/CH)*CH)+'px;top:'+(Math.round(y/ROW)*ROW)+'px;line-height:'+ROW+'px;font-weight:700;white-space:pre;opacity:'+op+';color:var(--'+(c==='cy'?'violet':c)+')';
+    d.textContent=TR(rep(FADE.charAt(0),n));fx.appendChild(d);
+    times(40,steps,function(f){if(f<steps)d.textContent=TR(rep(FADE.charAt(Math.round(f*(FADE.length-1)/(steps-1))),n))},function(){d.remove()});
+  }
+  function spark(x,y,w,h,c,op,life){fadeRun(x,y,Math.max(1,Math.round(w/CH)),c,op,life)}
+  /* a tap answers with a burst drawn in characters, four frames, 40ms each */
+  var TAPF=[['  @  '],[' %#% ','%#@#%',' %#% '],['+ * +','*   *','+ * +'],['.   .','     ','.   .']];
+  function tapBurst(x,y,c){
+    var d=document.createElement('div'),cx=Math.round(x/CH)*CH-2*CH,cy=Math.round(y/ROW)*ROW-ROW;
+    d.setAttribute('aria-hidden','true');
+    d.style.cssText='left:'+cx+'px;top:'+cy+'px;line-height:'+ROW+'px;font-weight:700;white-space:pre;color:var(--'+c+')';
+    var paint=function(f){var r=TAPF[f];d.textContent=TR(r.length===1?'\n'+r[0]+'\n':r.join('\n'))};
+    paint(0);fx.appendChild(d);
+    times(40,TAPF.length,function(f){if(f<TAPF.length)paint(f)},function(){d.remove()});
   }
   /* ambient sparks are runs of = on the character grid, and they only land
      where there is no text: the gutters either side of the column and the
@@ -727,15 +765,13 @@
       run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
   },{gate:function(){return glitch()>0}});
-  var SH=['hot','pink','cy','warn','ok','deep','violet','ink'];
+  /* taps and the trail are magenta and pink only: the other colours mean something */
+  var SH=['hot','pink'];
   document.addEventListener('pointerdown',function(e){
     var g=glitch();if(g<=0||reduce)return;
-    var n=3+Math.round(g*8);
-    while(n--){
-      var w=CH*(1+rnd(5)),h=6*(1+rnd(3));
-      spark(e.clientX+(Math.random()-0.5)*150-w/2,Math.round((e.clientY+(Math.random()-0.5)*60)/6)*6,
-            w,h,SH[rnd(SH.length)],0.95,90+Math.random()*240);
-    }
+    tapBurst(e.clientX,e.clientY,SH[rnd(2)]);
+    var n=Math.round(g*3);
+    while(n--)fadeRun(e.clientX+(Math.random()-0.5)*150,e.clientY+(Math.random()-0.5)*60,1+rnd(4),SH[rnd(2)],0.8,160+Math.random()*160);
   });
   function jolt(){
     if(reduce||glitch()<=0)return;
@@ -791,7 +827,8 @@
   document.addEventListener('pointermove',function(e){
     if(e.pointerType!=='mouse'||reduce)return;
     var g=glitch(),n=Date.now();if(g<=0||n-trailAt<42)return;trailAt=n;
-    spark(e.clientX+10,Math.round((e.clientY+12)/6)*6,CH*(1+rnd(2)),6,SH[rnd(4)],0.85,150+Math.random()*120);
+    /* each cell the pointer passes goes @ % # * + = : . and is gone */
+    fadeRun(e.clientX+CH,e.clientY+ROW*0.6,1,SH[rnd(2)],0.85,320);
   });
   var lastY=window.scrollY,svNow=0,svTimer=null;
   function setSv(v){
@@ -947,23 +984,24 @@
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
     wrap.setAttribute('aria-hidden','true');hold(wrap);
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
-    var bc=['pink','warn','violet','deep','ink','hot','violet'],grad=[],bi;
-    for(bi=0;bi<bc.length;bi++)grad.push(PAL[bc[bi]]+' '+(bi*72)+'px '+((bi+1)*72)+'px');
-    solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(to bottom,'+grad.join(',')+')';
-    pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:24px;white-space:pre;color:'+ink;
+    /* the bands are rows of @ in the band colours, three rows each, on the
+       page's own row; the paper behind them only hides the swap */
+    var bc=['pink','warn','violet','deep','ink','hot','violet'];
+    solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:'+PAL.bg;
+    pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:'+ROW+'px;white-space:pre;color:'+ink;
     wrap.appendChild(solid);wrap.appendChild(pre);document.body.appendChild(wrap);
     var p=0,end=cols+8+skew,out=false,step=Math.max(8,Math.round(end/6.5));
     function frame(){
-      var txt='',x,y;
+      var html='',x,y;
       for(y=0;y<rows;y++){
-        var front=p-Math.floor(y*0.5);
+        var front=p-Math.floor(y*0.5),row='';
         for(x=0;x<cols;x++){
           var d=out?x-front+8:front-x;
-          txt+=d<0?' ':TR(EDGE.charAt(Math.min(7,d)));
+          row+=d<0?' ':TR(EDGE.charAt(Math.min(7,d)));
         }
-        txt+='\n';
+        html+='<span style="color:'+PAL[bc[Math.floor(y/3)%bc.length]]+'">'+row.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>\n';
       }
-      pre.textContent=txt;
+      pre.innerHTML=html;
       if(!out){solid.style.left='0';solid.style.right='auto';solid.style.width=Math.max(0,(p-skew-7)*CH)+'px'}
       else{solid.style.left=Math.max(0,(p+1)*CH)+'px';solid.style.right='0';solid.style.width='auto'}
     }

@@ -76,9 +76,10 @@ function show(name){const t=$('v-'+name);if(t){t.click();return true}return fals
 /* index.html paints #boot before anything else and drops it for a return visit or
    reduced motion; this fills it, or builds it again for the palette's `boot`.
    Keep BOOTSKEL in step with the markup in index.html. About 0.6s, then out. */
+/* the strip is glyphs, not slabs, and it has no cyan (cyan is focus) */
 const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
-  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="background:var(--'+k+');color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
-  '</div><div class="log">ASCII/UI BIOS v0.9  (c) nobody\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
+  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
+  '</div><div class="log">ASCII/UI BIOS v0.9  (c) 2026 FEDE KOTEK\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
 let booting=false;
 function boot(force,done){
   if(booting)return;
@@ -102,7 +103,10 @@ function boot(force,done){
   title._b=bm;title._n=bm.map(r=>r.map(()=>rnd(6)));title._scale=scale;title._bars=[];
   A.titleFrame(title,0);
   let i=0,over=false,titled=false,logged=false;
-  const streak=()=>{if(Math.random()>=0.35)return;const st=document.createElement('div');st.className='strk';st.style.top=(Math.random()*100)+'%';st.style.width=(20+Math.random()*60)+'%';st.style.left=(Math.random()*40)+'%';el.appendChild(st);setTimeout(()=>st.remove(),90+rnd(160))};
+  /* a streak is a row of = on the grid, not a 2px line */
+  const streak=()=>{if(Math.random()>=0.35)return;const st=document.createElement('div'),cols=Math.floor(window.innerWidth/A.CH()),n=Math.max(4,Math.round(cols*(0.2+Math.random()*0.6)));
+    st.className='strk';st.style.cssText='top:'+(rnd(Math.max(1,Math.floor(window.innerHeight/A.ROW)))*A.ROW)+'px;left:'+(rnd(Math.max(1,Math.floor(cols*0.4)))*A.CH())+'px;right:auto;height:'+A.ROW+'px;line-height:'+A.ROW+'px;background:none;color:var(--hot);white-space:pre';
+    st.textContent=A.TR(rep('=',n));el.appendChild(st);setTimeout(()=>st.remove(),90+rnd(160))};
   /* the title develops (14 frames) while the log types (5 lines); the bar hits 100% and it leaves */
   const tiv=times(30,14,f=>{A.titleFrame(title,f);streak()},()=>{A.titleFrame(title,99);titled=true;if(logged)end()});
   const iv=times(60,L.length,()=>{
@@ -396,7 +400,20 @@ if(!reduce){
     const h=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
     if(h!==hudWas){hudWas=h;hud.innerHTML=h}
   },{gate:()=>A.glitch()>0&&hud.getClientRects().length>0});
-  every(9000,()=>{if(A.glitch()<=0)return;const t=$('track');t.classList.remove('run');void t.offsetWidth;t.classList.add('run')});
+  /* the tracking band is three rows of characters that step down the screen
+     a row per frame. It moves by transform, so nothing is laid out again as
+     it passes (it used to animate top, a layout shift every frame, and it
+     filtered what was under it) */
+  const trk=$('track');let trkRun=null;
+  trk.style.cssText='top:0;height:auto;-webkit-backdrop-filter:none;backdrop-filter:none;background:none;animation:none;opacity:.2;color:var(--ink);font-weight:700;white-space:pre;overflow:hidden;line-height:'+A.ROW+'px;visibility:hidden';
+  every(9000,()=>{
+    if(trkRun)return;
+    const cols=Math.ceil(window.innerWidth/A.CH())+1,rows=Math.ceil(window.innerHeight/A.ROW)+3,dash=rep('- ',cols).slice(0,cols);
+    trk.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
+    const at=f=>{trk.style.transform='translateY('+((f-3)*A.ROW)+'px)'};
+    at(0);trk.style.visibility='visible';
+    trkRun=times(Math.max(40,Math.round(2600/rows)),rows,at,()=>{trk.style.visibility='hidden';trkRun=null});
+  },{gate:()=>A.glitch()>0});
 }
 
 /* ================= tilt ================= */
