@@ -30,7 +30,9 @@
 .opts [role="option"][aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .opts [role="option"][data-active]{background:var(--accent);color:var(--bg)}
 .opts [role="option"][aria-disabled="true"]{color:var(--muted);cursor:not-allowed}
-.opts-none{color:var(--muted);padding:calc(var(--r)/2) 1ch}
+.opts-none{color:var(--muted);padding:0 1ch}
+/* nothing matches: the pane shrinks to the message, half a row each side */
+.combo .pane .body:has(> .opts-none:not([hidden])){padding-block:calc(var(--r)/2)}
 
 /* context menu: opens where you are. The row it acts on wears a violet bar
    while the menu is open. On touch the press is the menu's, not the browser's */
@@ -40,6 +42,8 @@
 .stack > .ctx{justify-self:stretch;min-width:0}
 .ctx > .menu{top:0;width:28ch;max-width:calc(100vw - 2ch)}
 .ctx [data-ctx]{box-shadow:inset 1ch 0 0 var(--violet)}
+/* while the menu is open only its row is marked: the zebra steps back */
+.ctx:has(> .menu.open) tbody tr:not([data-ctx]){background:none}
 @media (pointer:coarse){.ctx{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}
 .menu [role="menuitem"]:disabled,.menu [role="menuitem"][aria-disabled="true"]{color:var(--muted);cursor:not-allowed}
 .menu [role="menuitem"]:disabled:hover{background:none;color:var(--muted)}
@@ -51,3 +55,9 @@ dialog[role="alertdialog"].nudge > .lift{animation:aui-nudge .24s steps(1,end) b
 dialog[role="alertdialog"] .body > p + .group{margin-top:var(--r)}
 dialog[role="alertdialog"]:has(> .alert)::backdrop{background-image:var(--scanlines,repeating-linear-gradient(to bottom,transparent 0 3px,rgba(0,0,0,.12) 3px 4px)),radial-gradient(circle at center,var(--warn) 1.1px,transparent 1.6px)}
 .btn-danger:disabled .label{color:var(--muted)}
+/* on a phone the dialog filled the width and its shadow took the last two
+   characters, so the card sat off to the left. Two characters narrower and
+   one to the right: the card is centered, the shadow hangs in the margin */
+@media (max-width:479px){
+  dialog[role="alertdialog"]{width:calc((var(--dcols,36) - 2)*1ch);translate:1ch 0}
+}

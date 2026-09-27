@@ -284,6 +284,11 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 }
 .menu-foot .check{padding:12px 0;margin:0}
 .menu-foot .bbtn{padding:12px 0}
+/* the two buttons wear brackets, like the switches beside them wear glyphs,
+   so they read as things to press and not as labels next to the credit line */
+.menu-foot .bbtn::before{content:"[ ";content:"[ " / "";color:var(--muted)}
+.menu-foot .bbtn::after{content:" ]";content:" ]" / "";color:var(--muted)}
+.menu-foot .bbtn:focus-visible::before,.menu-foot .bbtn:focus-visible::after{color:inherit}
 
 /* A jump lands the section's title in the first row under the bar: the
    landing is measured in js/70-nav.js from the title itself, so the rule and

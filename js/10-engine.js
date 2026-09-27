@@ -908,8 +908,10 @@
       var n=Date.now();if(b._sAt&&n-b._sAt<2000)return;b._sAt=n;scramble(b);
     });
   });
+  /* data-still: a button whose label is what you check after pressing it
+     (Download tokens.css) keeps it readable on the press; hover still scrambles */
   document.addEventListener('click',function(e){
-    var b=e.target.closest&&e.target.closest('.btn');if(b)scramble(b);
+    var b=e.target.closest&&e.target.closest('.btn');if(b&&!b.hasAttribute('data-still'))scramble(b);
   });
 
   /* ---- button rims: march on hover, burst on press ---- */
@@ -1290,11 +1292,13 @@
     /* emptied first and filled a beat later, so the same words twice are read twice */
     n._t=setTimeout(function(){n.textContent=msg},40);
   }
-  /* say(msg) is good news in lime, say(msg,true) is a failure in yellow */
-  function say(msg,err){
+  /* say(msg) is good news in lime, say(msg,true) is a failure in yellow.
+     say(msg,err,true) keeps it on the bottom row on a phone too: for news
+     nobody tapped for (a stale link), where the top would hide the title */
+  function say(msg,err,low){
     announce(msg,err);
     clearTimeout(toastTimer);toastText.textContent=(err?'!! ':'@@ ')+msg;
-    toast.classList.toggle('err',!!err);
+    toast.classList.toggle('err',!!err);toast.classList.toggle('low',!!low);
     toast.classList.add('on');
     toastTimer=setTimeout(function(){toast.classList.remove('on')},3600);
   }

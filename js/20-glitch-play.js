@@ -17,9 +17,11 @@ const fx=$('fx');
 /* A tear is a row or two of light characters across the screen, magenta or
    violet, knocked a character sideways, gone in a fifth of a second. It used
    to be a band that turned the hues under it, a filter; it is made of the
-   same stuff as everything else now, and it sits on the grid */
+   same stuff as everything else now, and it sits on the grid. High contrast
+   (forced colors) gets none, like reduced motion: it was turned on to read */
+const FORCED=window.matchMedia?matchMedia('(forced-colors:active)'):{matches:false};
 function tear(n){
-  if(A.glitch()<=0||reduce)return;
+  if(A.glitch()<=0||reduce||FORCED.matches)return;
   n=n||2;const R=A.ROW,CW=A.CH(),rows=Math.max(1,Math.floor(window.innerHeight/R)),cols=Math.ceil(window.innerWidth/CW)+2;
   while(n--){
     const d=document.createElement('div'),h=1+rnd(2),lite=RAMP.slice(1,5);let s='';
@@ -423,7 +425,7 @@ if(!reduce){
     trk.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
     trk.style.setProperty('--rows',rows);trk.style.visibility='visible';trkRun=true;
     trk.style.animation='aui-track '+(Math.max(40,Math.round(2600/rows))*rows)+'ms steps('+rows+',end) 1 both';
-  },{gate:()=>A.glitch()>0});
+  },{gate:()=>A.glitch()>0&&!(window.matchMedia&&matchMedia('(forced-colors:active)').matches)});   /* none in high contrast: it was turned on to read */
 }
 
 /* ================= tilt ================= */

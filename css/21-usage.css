@@ -29,7 +29,8 @@
 .u-sec[open] > summary::before{content:"[-]";content:"[-]" / "";color:var(--ok)}
 .u-sec > summary:focus-visible::before{background:var(--accent);color:var(--bg)}
 .u-sn{flex:none;width:13ch;font-weight:700;color:var(--ink);text-transform:uppercase}
-.u-tz{flex:1;min-width:0;color:var(--muted);font-weight:400;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* a count (6 states), so it fits; were it ever longer it would wrap, never end in ... */
+.u-tz{flex:1;min-width:0;color:var(--muted);font-weight:400}
 .u-sec[open] .u-tz{visibility:hidden}
 @media (hover:hover){.u-sec > summary:hover .u-sn{color:var(--hot)}}
 .u-body{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--r);padding:var(--r) 0 0 4ch}
@@ -63,8 +64,10 @@
 /* ~ marks what the kit said about itself, where nobody has written it yet */
 .u-auto{color:var(--violet);font-weight:700;margin-right:1ch}
 .u-empty .u-auto{margin:0}
-.u-see{display:flex;flex-wrap:wrap;gap:var(--r) 2ch}
-.u-see .chip{text-decoration:none;display:inline-block}
+/* chips that wrap sit on the next row, not a row further down: the gap is
+   the columns only, and the 44px reach overlaps the row above and below */
+.u-see{display:flex;flex-wrap:wrap;gap:0 2ch;line-height:var(--r)}
+.u-see .chip{text-decoration:none;display:inline-block;line-height:var(--r);padding-block:11.5px;margin-block:-11.5px}
 /* do and don't: pairs, the toast's marks again, a row between two pairs */
 .u-dd .u-do::before{content:var(--k8,"@") var(--k8,"@");content:var(--k8,"@") var(--k8,"@") / "";color:var(--ok)}
 .u-dd .u-dont::before{content:"!!";content:"!!" / "";color:var(--warn)}

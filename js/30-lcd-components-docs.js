@@ -648,9 +648,20 @@ setTimeout(markWide,1200);
   function popover(pop,onClose){
     const btn=pop.querySelector(':scope > [aria-haspopup]'),pane=pop.querySelector(':scope > .pane'),f=float(pane),t=pane.querySelector('.bar-title');
     btn.setAttribute('aria-controls',uid(pane,'pane'));pane.setAttribute('role','dialog');if(t)pane.setAttribute('aria-labelledby',uid(t,'title'));
+    /* under 480px the pane hangs from the column's left edge, not the
+       button's: pushed in from the right, it left the section beside it
+       peeking out on its left, like a broken column */
+    const at=()=>{
+      const r=btn.getBoundingClientRect();
+      if(window.innerWidth>=480){pane.style.width='';return r}
+      /* and as wide as the column, so nothing of the page shows beside it */
+      const c=(pop.closest('section')||pop.parentNode).getBoundingClientRect(),cw=A.CH()||9.6;
+      pane.style.width=Math.floor(c.width/cw)*cw+'px';
+      return {left:c.left,right:c.left,top:r.top,bottom:r.bottom};
+    };
     function set(on,o){
       o=o||{};if(on===f.isOpen)return;
-      if(on){f.show();f.place(btn.getBoundingClientRect());if(o.focus)firstStop(pane).focus();if(live())sfx.open()}
+      if(on){f.show();f.place(at());if(o.focus)firstStop(pane).focus();if(live())sfx.open()}
       else{f.hide();if(o.back)btn.focus()}
       btn.setAttribute('aria-expanded',on?'true':'false');
     }
@@ -660,7 +671,7 @@ setTimeout(markWide,1200);
     pop.addEventListener('focusout',e=>{if(f.isOpen&&e.relatedTarget&&!pop.contains(e.relatedTarget))set(false)});
     pane.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(!c||c.disabled)return;set(false,{back:true});if(onClose)onClose(c.getAttribute('data-close'))});
     pane.addEventListener('submit',e=>{e.preventDefault();set(false,{back:true});if(onClose)onClose('submit')});
-    const where=()=>{if(f.isOpen)f.place(btn.getBoundingClientRect(),false,true)};
+    const where=()=>{if(f.isOpen)f.place(at(),false,true)};
     window.addEventListener('resize',where);document.addEventListener('scroll',e=>{if(!(e.target.nodeType===1&&pane.contains(e.target)))where()},true);
   }
   popover($('popSnooze'),v=>{if(v!=='snooze')return;const r=$('popSnooze').querySelector('input:checked');A.say('Snoozed for '+r.parentNode.textContent.trim().toLowerCase()+'. It will be back.');ping(660)});
@@ -790,10 +801,13 @@ setTimeout(markWide,1200);
       if(back){const b=from&&from!==document.body&&from.isConnected&&!menu.contains(from)?from:(target&&target!==box&&target.matches(TABBABLE)?target:null);if(b)b.focus()}
       from=null;
     }
+    /* a finger opens it under its row, like the keyboard does: where the
+       finger was, the menu would cover the row it belongs to */
+    let touch=false;
     box.addEventListener('contextmenu',e=>{
       if(menu.contains(e.target)||Date.now()<quiet){e.preventDefault();return}
       if(e.shiftKey||e.target.closest('input,textarea,select,a[href]'))return;
-      e.preventDefault();const kb=!e.clientX&&!e.clientY;openAt(kb?null:e.clientX,kb?null:e.clientY,on(e.target));
+      e.preventDefault();const t=on(e.target),kb=(!e.clientX&&!e.clientY)||((touch||e.pointerType==='touch')&&t!==box);openAt(kb?null:e.clientX,kb?null:e.clientY,t);
     });
     box.addEventListener('keydown',e=>{
       if(menu.contains(e.target))return;
@@ -801,10 +815,11 @@ setTimeout(markWide,1200);
     });
     /* touch: press and hold half a second, without moving */
     box.addEventListener('pointerdown',e=>{
-      if(e.pointerType!=='touch'||!e.isPrimary||menu.contains(e.target))return;
+      touch=e.pointerType==='touch';
+      if(!touch||!e.isPrimary||menu.contains(e.target))return;
       if(lp)clearTimeout(lp.id);
-      const x=e.clientX,y=e.clientY,t=on(e.target);
-      lp={x,y,id:setTimeout(()=>{lp=null;openAt(x,y,t);quiet=eat=Date.now()+800},500)};
+      const x=e.clientX,y=e.clientY,t=on(e.target),row=t!==box;
+      lp={x,y,id:setTimeout(()=>{lp=null;openAt(row?null:x,row?null:y,t);quiet=eat=Date.now()+800},500)};
     });
     const drop=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.abs(e.clientX-lp.x)<10&&Math.abs(e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null};
     ['pointerup','pointercancel','pointermove'].forEach(t=>box.addEventListener(t,drop));
@@ -861,8 +876,14 @@ setTimeout(markWide,1200);
   /* the typed kind: Delete stays off until the name is exactly right */
   const ai=$('adIn'),aiField=ai.closest('.field'),aiOut=$('adErr'),want=ai.dataset.match,aiDel=$('adDlg2').querySelector('.btn-danger');
   const aiCheck=()=>{const ok=ai.value.trim()===want;aiDel.disabled=!ok;return ok};
-  ai.addEventListener('input',()=>{err(aiField,ai,aiOut,'');aiCheck()});
-  ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();if(aiCheck())aiDel.click();else{err(aiField,ai,aiOut,'Type '+want+' exactly.');A.jolt();if(live())sfx.err()}});
-  $('adOpen2').addEventListener('click',()=>{ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
+  /* wrong words get said: on Enter, on a pause once they cannot become the
+     name any more (static-prd, not static-pr), and on leaving the field */
+  let aiT=null;
+  const aiWrong=all=>{const v=ai.value.trim();return !!v&&v!==want&&(all||want.indexOf(v)!==0)};
+  const aiSay=()=>err(aiField,ai,aiOut,'Type '+want+' exactly.');
+  ai.addEventListener('input',()=>{err(aiField,ai,aiOut,'');aiCheck();clearTimeout(aiT);aiT=setTimeout(()=>{if(aiWrong(false))aiSay()},900)});
+  ai.addEventListener('blur',()=>{clearTimeout(aiT);if($('adDlg2').open&&aiWrong(true))aiSay()});
+  ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();clearTimeout(aiT);if(aiCheck())aiDel.click();else{aiSay();A.jolt();if(live())sfx.err()}});
+  $('adOpen2').addEventListener('click',()=>{clearTimeout(aiT);ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
 })();
 })();
