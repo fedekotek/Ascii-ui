@@ -58,7 +58,7 @@ CSP=True         # site/index.html only: a Content-Security-Policy meta with the
                  # every inline script. vercel.json adds the rules a meta cannot carry
 ANALYTICS=True   # site/index.html only: Vercel Web Analytics, loaded only on
                  # https://ascii.fedekotek.design. Never in dist/ or the download.
-                 # Turning it on: update the privacy words (ARCHITECTURE says no analytics)
+                 # Respects Do Not Track and Global Privacy Control.
 
 # ---------------- minify: standard library, keeps every line break ----------------
 # JS: drops comments (keeps /*! ... */), leading and trailing whitespace, blank
