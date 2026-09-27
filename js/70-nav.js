@@ -235,13 +235,30 @@
   /* No signal: what an address that is neither a view nor anything on the
      page gets. It is a block at the top of Home, drawn in characters, with
      the way back; the address bar goes bare. noSignal(null) puts it away */
+  /* the snow under the title is the dead channel: it moves, a frame every
+     160ms, while it is on screen and the glitch is on. Reduced motion or
+     Glitch off leaves the still frame in the html */
+  let snowT=null;
+  const SNOW=' .:=+-*#@';
+  function snow(box){
+    const pre=box.querySelector('.nosig-snow');if(!pre||A.reduce||snowT)return;
+    const cols=Math.max(8,Math.floor(pre.clientWidth/(A.CH()||9.6)));
+    snowT=A.every(160,()=>{
+      let o='';
+      for(let y=0;y<3;y++){for(let x=0;x<cols;x++)o+=SNOW.charAt(Math.random()<0.35?0:Math.floor(Math.random()*SNOW.length));if(y<2)o+='\n'}
+      pre.textContent=A.TR(o);
+    },{el:pre,gate:()=>A.G.on&&A.G.amt>0});
+  }
   function noSignal(h){
     const box=$('noSig');if(!box)return null;
-    if(h==null){if(!box.hidden)box.hidden=true;return null}
+    if(h==null){if(snowT){snowT.stop();snowT=null}if(!box.hidden)box.hidden=true;document.body.classList.remove('nosig-on');return null}
     let at=h;try{at=decodeURIComponent(h)}catch(e){}
     $('noSigAt').textContent=at.replace(/[\u0000-\u001f]/g,'').slice(0,48);
     box.hidden=false;
+    /* the hero is not drawn under No signal, so its photo button goes too */
+    document.body.classList.add('nosig-on');
     if(A.layout)A.layout();
+    snow(box);
     return box;
   }
   if($('noSigHome'))$('noSigHome').addEventListener('click',()=>{go('home',null,{push:false,top0:true});tick()});
@@ -264,8 +281,10 @@
     else if(r.lost){
       let name=h.replace(/^#\/?/,'').split('/')[1]||'';try{name=decodeURIComponent(name)}catch(e){}
       name=name.replace(/[^\w .-]/g,'').slice(0,32);
-      const msg=(name?'No section called '+name:'No such section')+' in '+LABEL[r.v]+'. Search (/) has the list.';
-      if(A.say)A.say(msg,true);
+      /* the / key is only named where there is a keyboard to press it on */
+      const keys=!(window.matchMedia&&matchMedia('(hover:none) and (pointer:coarse)').matches);
+      const msg=(name?'No section called '+name:'No such section')+' in '+LABEL[r.v]+'. Search '+(keys?'(/) ':'')+'has the list.';
+      if(A.say)A.say(msg,true,true);
     }
     go(r.v,r.sec,{push:old||r.lost?false:(push?true:undefined),instant:instant});
     return true;
@@ -577,11 +596,21 @@
       v.setAttribute('playsinline','');v.setAttribute('aria-label','The ascii/ui reel, 15 seconds');
       if(poster.naturalWidth)v.poster=poster.currentSrc||poster.src;
       let tried=0;
+      /* neither copy loads: the dead player goes, the poster comes back, and
+         the status line links to the file instead of printing its address */
       v.addEventListener('error',()=>{
         if(!tried){tried=1;v.src=ABS;v.load();if(!A.reduce)v.play().catch(()=>{});return}
+        if(tried>1||!v.isConnected)return;tried=2;
+        const had=document.activeElement===v;
+        v.removeAttribute('src');v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
         rs.textContent='';rs.classList.add('err');
-        setTimeout(()=>{rs.textContent='The reel did not load. It lives at '+ABS+'.'},40);
+        setTimeout(()=>{
+          rs.textContent='The reel did not load here. ';
+          const a=document.createElement('a');a.className='inl';a.href=ABS;a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
+          rs.append(a,'.');
+        },40);
       });
+      rs.classList.remove('err');rs.textContent='';
       v.src=REL;
       reelBtn.replaceWith(v);
       v.focus({preventScroll:true});
@@ -590,6 +619,12 @@
       tick();
     });
   }
+
+  /* ---- print: the questions open, for browsers without ::details-content
+     (css/29 does it where there is). They close again after ---- */
+  let printed=[];
+  window.addEventListener('beforeprint',()=>{printed=[].filter.call(document.querySelectorAll('details.acc:not([open])'),d=>{d.open=true;return true})});
+  window.addEventListener('afterprint',()=>{printed.forEach(d=>{d.open=false});printed=[]});
 
   /* ---- start ---- */
   try{history.scrollRestoration='manual'}catch(e){}

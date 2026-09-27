@@ -887,7 +887,7 @@ Anatomy:
 | open | `. . . .` | Modal, over yellow periods. The page behind is inert and does not scroll. The safe button has the focus. |
 | nudged | `////////` | A tap outside: the card jolts one character left, right, left, and the focus goes back to the safe button. |
 | danger disabled | `- - - -` | With `data-aui="confirm"`: Delete stays `disabled` until the field holds the name. |
-| invalid | `!!!!!!!!` | Enter with the wrong name: a wall of ! and "Type static-prod exactly." under the field. |
+| invalid | `!!!!!!!!` | The wrong name, on Enter, on leaving the field, or on a pause once it cannot become the name: a wall of ! and "Type static-prod exactly." under the field. |
 | reduced motion | `////////` | No jolt. The focus still goes back to the safe button. |
 | no script | `////////` | The button does nothing and the dialog stays closed. |
 
@@ -919,7 +919,7 @@ Accessibility:
 | attr | `data-aui-close="delete"` | On the danger button: closes it with `returnValue` "delete". A plain `data-aui-close` leaves it empty. |
 | attr | `autofocus` | On the safe button. The focus lands there on open and after a nudge. |
 | attr | `data-aui="confirm"` | On a field in it, with `data-match="static-prod"`: the danger buttons stay off until the field holds exactly those words. It is empty every time the dialog opens. |
-| attr | `data-error` | On that field: what it says when Enter comes with the wrong words. "Type static-prod exactly." when missing. |
+| attr | `data-error` | On that field: what it says when the words are wrong (on Enter, on leaving the field, on a pause). "Type static-prod exactly." when missing. |
 | attr | `data-aui-toast-err` | On the danger button: a yellow toast once it closes. |
 | event | `close` | The dialog's own. Read `returnValue` there: "delete", or empty. |
 | call | `ASCIIUI.get(input)` | On the confirm field: `check()` and `ok`. |
@@ -1272,7 +1272,7 @@ Accessibility:
 - **name**: Give the menu an `aria-label` for what it acts on: "Incident".
 - **focus**: Opening moves the focus to the first item; Escape, Tab and a pick bring it back. Give the rows `tabindex="0"`, or a keyboard cannot reach them.
 - **live**: The nearest `role="status"` says what was picked, on what: "Copy ID: INC-481."
-- **touch**: Press and hold half a second without moving. The menu that opens is this one, not the browser's, and the text under the finger is not selected. The finger lifting picks nothing.
+- **touch**: Press and hold half a second without moving. The menu that opens is this one, not the browser's, and it opens under the row, as the keyboard does, so it does not cover what it acts on. The text under the finger is not selected, and the finger lifting picks nothing.
 - **paint**: The rims, the walls and the shadow are paint. The violet bar on the row is a shadow; in Windows High Contrast it is an outline.
 
 | Do | Don't |

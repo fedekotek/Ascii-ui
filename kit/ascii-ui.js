@@ -688,7 +688,7 @@ var behaviors={
      being the row, list item or focusable element it opened on */
   contextmenu:function(box,cx){
     var menu=kid(box,'[role="menu"]');if(!menu)return;
-    var f=float(menu,cx),target=null,from=null,quiet=0,eat=0,lp=null;
+    var f=float(menu,cx),target=null,from=null,quiet=0,eat=0,lp=null,touch=false;
     var items=function(){return all('[role="menuitem"]',menu).filter(function(x){return !x.disabled&&x.getAttribute('aria-disabled')!=='true'&&!x.hidden})};
     var words=function(it){var c=it.cloneNode(true);all('kbd',c).forEach(function(k){k.remove()});return c.textContent.replace(/\s+/g,' ').trim()};
     /* the letter in a <kbd> is a shortcut, not part of the name: "Open", shortcut O, not "Open [o]" */
@@ -717,8 +717,10 @@ var behaviors={
     cx.on(box,'contextmenu',function(e){
       if(menu.contains(e.target)||Date.now()<quiet){e.preventDefault();return}   /* the keyboard or a long press opened it a moment ago */
       if(e.shiftKey||e.target.closest('input,textarea,select,[contenteditable],a[href]'))return;
-      var kb=!e.clientX&&!e.clientY;   /* a menu key on a browser that sends one */
-      if(openAt(kb?null:e.clientX,kb?null:e.clientY,on(e.target)))e.preventDefault();
+      /* a menu key on a browser that sends one, or a finger on a row: then it
+         opens under the row, where it does not cover what it acts on */
+      var t=on(e.target),kb=(!e.clientX&&!e.clientY)||((touch||e.pointerType==='touch')&&t!==box);
+      if(openAt(kb?null:e.clientX,kb?null:e.clientY,t))e.preventDefault();
     });
     cx.on(box,'keydown',function(e){
       if(menu.contains(e.target))return;
@@ -726,10 +728,11 @@ var behaviors={
     });
     /* touch: press and hold half a second, without moving */
     cx.on(box,'pointerdown',function(e){
-      if(e.pointerType!=='touch'||!e.isPrimary||menu.contains(e.target)||e.target.closest('input,textarea,select,a[href]'))return;
+      touch=e.pointerType==='touch';
+      if(!touch||!e.isPrimary||menu.contains(e.target)||e.target.closest('input,textarea,select,a[href]'))return;
       if(lp)clearTimeout(lp.id);
-      var x=e.clientX,y=e.clientY,t=on(e.target);
-      lp={x:x,y:y,id:setTimeout(function(){lp=null;if(openAt(x,y,t)){quiet=Date.now()+800;eat=Date.now()+800}},500)};
+      var x=e.clientX,y=e.clientY,t=on(e.target),row=t!==box;
+      lp={x:x,y:y,id:setTimeout(function(){lp=null;if(openAt(row?null:x,row?null:y,t)){quiet=Date.now()+800;eat=Date.now()+800}},500)};
     });
     function drop(e){if(!lp)return;if(e.type==='pointermove'&&Math.abs(e.clientX-lp.x)<10&&Math.abs(e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null}
     ['pointerup','pointercancel','pointermove'].forEach(function(t){cx.on(box,t,drop)});
@@ -772,8 +775,9 @@ var behaviors={
 
   /* an input in an alert dialog, data-match="the words to type": the
      dialog's danger buttons stay disabled until the input holds exactly
-     those words. Enter with them wrong says what to type. Every time the
-     dialog opens it starts empty */
+     those words. Enter with them wrong says what to type, and so does a
+     pause (once the words cannot become the name) or leaving the field.
+     Every time the dialog opens it starts empty */
   confirm:function(inp,cx){
     var want=(inp.getAttribute('data-match')||'').trim(),box=inp.closest('dialog')||inp.form||inp.parentElement;
     var field=inp.closest('.field'),out=byId((inp.getAttribute('aria-describedby')||'').split(' ')[0])||near(inp,null,'.error');
@@ -781,14 +785,20 @@ var behaviors={
     var btns=function(){return all('.btn-danger',box)};
     function mark(msg){if(field)field.classList.toggle('invalid',!!msg);inp.setAttribute('aria-invalid',msg?'true':'false');if(out)out.textContent=msg||''}
     function check(){var ok=!!want&&inp.value.trim()===want;btns().forEach(function(b){b.disabled=!ok});return ok}
-    cx.on(inp,'input',function(){mark('');check()});
+    var said=function(){return inp.getAttribute('data-error')||'Type '+want+' exactly.'},pause=null;
+    /* wrong and typed: a pause says so once the words stop being the start
+       of the name, leaving the field says so always */
+    var wrong=function(all){var v=inp.value.trim();return !!v&&v!==want&&(all||want.indexOf(v)!==0)};
+    cx.on(inp,'input',function(){mark('');check();clearTimeout(pause);pause=setTimeout(function(){if(inp.isConnected&&wrong(false))mark(said())},900)});
+    cx.on(inp,'blur',function(){clearTimeout(pause);if(wrong(true))mark(said())});
+    cx.later(function(){clearTimeout(pause)});
     cx.on(inp,'keydown',function(e){
-      if(e.key!=='Enter')return;e.preventDefault();
+      if(e.key!=='Enter')return;e.preventDefault();clearTimeout(pause);
       if(check()){var b=btns()[0];if(b)b.click()}
-      else mark(inp.getAttribute('data-error')||'Type '+want+' exactly.');
+      else mark(said());
     });
     if(box.localName==='dialog'){
-      var mo=new MutationObserver(function(){if(box.open){inp.value='';mark('');check()}});
+      var mo=new MutationObserver(function(){clearTimeout(pause);if(box.open){inp.value='';mark('');check()}});
       mo.observe(box,{attributes:true,attributeFilter:['open']});cx.later(function(){mo.disconnect()});
     }
     check();

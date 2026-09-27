@@ -65,6 +65,10 @@
   .u-sec > summary{padding:0 !important;margin:0 !important}
   .u-draw{overflow:visible !important}
   .u-sec,.u-parts li,.u-kv{break-inside:avoid}
+  /* Home's Questions print with their answers: paper has no [+] to press */
+  .acc::details-content{content-visibility:visible !important;display:contents}
+  .acc > summary::before{content:"" !important;display:none !important}
+  .acc{break-inside:avoid}
 }
 
 /* ---- Windows High Contrast (forced colors) -----------------------------------
@@ -76,6 +80,9 @@
    where the focus is. Focus is written after the picks, so a focused pick
    shows the focus. */
 @media (forced-colors:active){
+  /* the tracking band and the tears are the signal failing: high contrast was
+     turned on to read, so it gets none of them, like reduced motion */
+  #track{display:none !important}
   /* the transparent outline that waited for focus became a box round every button and tab */
   .btn,.tab{outline:0 !important}
   /* picked, current, and the slabs that carry a label */

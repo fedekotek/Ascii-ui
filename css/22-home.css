@@ -3,8 +3,10 @@
    The reel plays in js/70 too: nothing is fetched until you press play. */
 
 /* the reel: a 16:9 box whose height is a whole number of rows */
-.reel{margin:var(--r) 0 0;max-width:80ch}
-.reel-box{container-type:inline-size;position:relative;background:#05030a;aspect-ratio:16/9}
+.reel{margin:var(--r) 0 0;max-width:80ch;container-type:inline-size}
+/* the figure is the container, so 56.25cqi is 9/16 of the box's own width
+   (on the box itself, cqi would measure the gallery column instead) */
+.reel-box{position:relative;background:#05030a;aspect-ratio:16/9}
 @supports (height:round(up,1px,1px)){
   .reel-box{aspect-ratio:auto;height:round(up,56.25cqi,var(--r))}
 }
@@ -33,6 +35,8 @@
 .nosig h2:focus{outline:0}
 .nosig h2:focus-visible{outline:0}   /* focused by the router, so a screen reader hears it; not a control */
 .nosig b{color:var(--ink);overflow-wrap:anywhere}
+/* the ring is not on screen under No signal, so "Feed the ring a photo" goes too */
+body.nosig-on #heroSrc{display:none}
 
 /* credits in the [=] menu, a line of its own under the switches */
 .menu-credit{flex:1 0 100%;margin:0;line-height:var(--r)}
@@ -44,9 +48,10 @@
 .hlink{
   display:inline-block;vertical-align:top;font:inherit;font-weight:400;line-height:var(--r);
   background:none;border:0;border-radius:0;color:var(--muted);cursor:pointer;outline:0;
-  padding:12px 1ch;margin:-12px 0;background-clip:content-box;text-transform:none;
+  padding:11.5px 1ch;margin:-11.5px 0;background-clip:content-box;text-transform:none;
 }
 @media (hover:hover) and (pointer:fine){.hlink:hover{color:var(--hot)}}
-.hlink:focus-visible{background:var(--accent);color:var(--bg)}
+/* background-color, not the shorthand: that would reset the clip and paint the whole 44px */
+.hlink:focus-visible{background-color:var(--accent);color:var(--bg)}
 .hlink.ok{color:var(--ok)}
 @media print{.hlink,.reel-go{display:none!important}}

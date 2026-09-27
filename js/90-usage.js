@@ -954,7 +954,7 @@ window.AUI_DOCS={
           ['open','. . . . ','w','Modal, over yellow periods. The page behind is inert and does not scroll. The safe button has the focus.'],
           ['nudged','////////','w','A tap outside: the card jolts one character left, right, left, and the focus goes back to the safe button.'],
           ['danger disabled','- - - - ','m','With `data-aui="confirm"`: Delete stays `disabled` until the field holds the name.'],
-          ['invalid','!!!!!!!!','w','Enter with the wrong name: a wall of ! and "Type static-prod exactly." under the field.'],
+          ['invalid','!!!!!!!!','w','The wrong name, on Enter, on leaving the field, or on a pause once it cannot become the name: a wall of ! and "Type static-prod exactly." under the field.'],
           ['reduced motion','////////','w','No jolt. The focus still goes back to the safe button.'],
           ['no script','////////','w','The button does nothing and the dialog stays closed.']],
   keys:[[['Enter',' '],'On the button: opens it. On a button in it: presses it. In the name field: with the right name it presses Delete, with the wrong one it says what to type.'],
@@ -975,7 +975,7 @@ window.AUI_DOCS={
        ['attr','data-aui-close="delete"','On the danger button: closes it with `returnValue` "delete". A plain `data-aui-close` leaves it empty.'],
        ['attr','autofocus','On the safe button. The focus lands there on open and after a nudge.'],
        ['attr','data-aui="confirm"','On a field in it, with `data-match="static-prod"`: the danger buttons stay off until the field holds exactly those words. It is empty every time the dialog opens.'],
-       ['attr','data-error','On that field: what it says when Enter comes with the wrong words. "Type static-prod exactly." when missing.'],
+       ['attr','data-error','On that field: what it says when the words are wrong (on Enter, on leaving the field, on a pause). "Type static-prod exactly." when missing.'],
        ['attr','data-aui-toast-err','On the danger button: a yellow toast once it closes.'],
        ['event','close','The dialog\'s own. Read `returnValue` there: "delete", or empty.'],
        ['call','ASCIIUI.get(input)','On the confirm field: `check()` and `ok`.']],
@@ -1031,7 +1031,7 @@ window.AUI_DOCS={
         ['name','Give the menu an `aria-label` for what it acts on: "Incident".'],
         ['focus','Opening moves the focus to the first item; Escape, Tab and a pick bring it back. Give the rows `tabindex="0"`, or a keyboard cannot reach them.'],
         ['live','The nearest `role="status"` says what was picked, on what: "Copy ID: INC-481."'],
-        ['touch','Press and hold half a second without moving. The menu that opens is this one, not the browser\'s, and the text under the finger is not selected. The finger lifting picks nothing.'],
+        ['touch','Press and hold half a second without moving. The menu that opens is this one, not the browser\'s, and it opens under the row, as the keyboard does, so it does not cover what it acts on. The text under the finger is not selected, and the finger lifting picks nothing.'],
         ['paint','The rims, the walls and the shadow are paint. The violet bar on the row is a shadow; in Windows High Contrast it is an outline.']],
   dos:[['Offer the same actions where people can see them: a row menu, a toolbar.','Hide the only Delete behind a right-click.'],
        ['Give every row `tabindex="0"`, so Shift F10 works on it.','Make it a menu for the mouse only.'],
@@ -1850,9 +1850,12 @@ const states=list=>'<dl class="u-kv u-st">'+list.map(s=>'<dt><span class="u-sw" 
 const keys=list=>'<dl class="u-kv u-keys">'+list.map(r=>'<dt>'+r[0].map(kbd).join(' ')+'</dt><dd>'+auto(r[2])+inline(r[1])+'</dd>').join('')+'</dl>';
 const tags=list=>'<dl class="u-kv">'+list.map(r=>'<dt>'+esc(r[0])+'</dt><dd>'+auto(r[2])+inline(r[1])+'</dd>').join('')+'</dl>';
 const api=list=>'<dl class="u-kv u-api">'+list.map(r=>'<dt>'+esc(r[0])+'</dt><dd><code class="u-nm">'+auto(r[3])+esc(r[1])+'</code><span class="u-d">'+inline(r[2])+'</span></dd>').join('')+'</dl>';
+/* the line beside a closed section is a count, the way Limits always was:
+   "6 states", "3 keys". A list of names ran past the column and ended in ... */
+const count=(n,one,many)=>n+' '+(n===1?one:many);
 function keyTeaser(list){
   const w=[];list.forEach(r=>r[0].forEach(k=>{const x=/^Arrow/.test(k)?'arrows':word(k);if(!w.includes(x))w.push(x)}));
-  return w.join(', ');
+  return count(w.length,'key','keys');
 }
 const chips=ids=>'<p class="u-see">'+ids.map(id=>'<a class="chip" href="'+href(id)+'">'+esc(nameOf(id))+'</a>').join('')+'</p>';
 function page(m){
@@ -1862,13 +1865,13 @@ function page(m){
   if(m.use.length)h+=grp('Use it for','u-yes',m.use);
   if(m.avoid.length)h+=grp('Not for','u-no',m.avoid);
   const S=[];
-  if(m.anatomy)S.push(['anatomy','Anatomy',m.anatomy.parts.map(p=>p[1]).join(', '),anatomy(m.anatomy)]);
-  if(m.states.length)S.push(['states','States',m.states.map(s=>s[0]).join(', '),states(m.states)]);
+  if(m.anatomy)S.push(['anatomy','Anatomy',count(m.anatomy.parts.length,'part','parts'),anatomy(m.anatomy)]);
+  if(m.states.length)S.push(['states','States',count(m.states.length,'state','states'),states(m.states)]);
   if(m.keys.length)S.push(['keys','Keyboard',keyTeaser(m.keys),keys(m.keys)]);
-  if(m.a11y.length)S.push(['a11y','Accessibility',plain(m.a11y[0][1]).split(/\.\s/)[0],tags(m.a11y)]);
-  if(m.dos.length)S.push(['dos','Do and don\'t',plain(m.dos[0][0]),'<ul class="u-list u-dd">'+m.dos.map(p=>'<li class="u-do"><b>Do</b> '+inline(p[0])+'</li><li class="u-dont"><b>Don\'t</b> '+inline(p[1])+'</li>').join('')+'</ul>']);
-  if(m.api.length)S.push(['api','API',m.api.map(r=>r[1]).join(', '),api(m.api)]);
-  if(m.limits.length)S.push(['limits','Limits',m.limits.length+(m.limits.length===1?' thing':' things'),'<ul class="u-list u-no">'+m.limits.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>']);
+  if(m.a11y.length)S.push(['a11y','Accessibility',count(m.a11y.length,'note','notes'),tags(m.a11y)]);
+  if(m.dos.length)S.push(['dos','Do and don\'t',count(m.dos.length,'pair','pairs'),'<ul class="u-list u-dd">'+m.dos.map(p=>'<li class="u-do"><b>Do</b> '+inline(p[0])+'</li><li class="u-dont"><b>Don\'t</b> '+inline(p[1])+'</li>').join('')+'</ul>']);
+  if(m.api.length)S.push(['api','API',count(m.api.length,'entry','entries'),api(m.api)]);
+  if(m.limits.length)S.push(['limits','Limits',count(m.limits.length,'thing','things'),'<ul class="u-list u-no">'+m.limits.map(x=>'<li>'+inline(x)+'</li>').join('')+'</ul>']);
   if(S.length)h+='<div class="u-secs">'+S.map(s=>disc.apply(null,s)).join('')+'</div>';
   if(m.madeOf.length)h+='<div class="u-grp"><h3 class="u-h">Made of</h3>'+chips(m.madeOf)+'</div>';
   if(m.see.length)h+='<div class="u-grp"><h3 class="u-h">See also</h3>'+chips(m.see)+'</div>';

@@ -4,8 +4,8 @@
      VIEWS         Home, Components, Blocks, Charts, Themes
      ON THIS PAGE  the sections of the view you are in (Home: Getting started)
      SETTINGS      Theme, Sound, Glitch, Show grid, with their live values
-     TRICKS        the verbs that do something to the page, plus Credits
-                   (whoami) and the kit's changelog
+     TRICKS        the verbs that do something to the page
+     ABOUT         Credits (whoami) and the kit's changelog: not tricks
    Typing searches every section of every view as well. A word that starts
    with what you typed ranks first, then anything that contains it or has it
    as one of its other names (ALIAS), then captions and partial other names,
@@ -165,11 +165,11 @@
          when nothing is left, so no row shows twice */
       const h=here(),seen=new Set(h.items),com=common().filter(it=>!seen.has(it));
       return [{label:'Views',items:views},{label:h.label,items:h.items,more:h.more},
-              {label:'Settings',items:SETS},{label:'Components',items:com},{label:'Tricks',items:TRICKS.concat(DOS)}]
+              {label:'Settings',items:SETS},{label:'Components',items:com},{label:'Tricks',items:TRICKS},{label:'About',items:DOS}]
              .filter(g=>g.items.length);
     }
     const toks=q.toLowerCase().split(/\s+/).filter(Boolean);
-    const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS.concat(DOS)}]);
+    const cand=[{label:'Views',items:views}].concat(secGroups,[{label:'Settings',items:SETS},{label:'Tricks',items:TRICKS},{label:'About',items:DOS}]);
     let left=MAX;
     const out=cand.map((g,gi)=>{
       const m=g.items.map((it,i)=>({it:it,r:rank(it,toks),i:i})).filter(x=>x.r<9)

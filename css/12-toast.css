@@ -4,8 +4,9 @@
   bottom:calc(var(--r) + env(safe-area-inset-bottom,0px));
   display:flex;pointer-events:none;z-index:10;
 }
+/* a long address wraps inside the toast rather than running off its edge */
 .toast span{
-  background:var(--ok);color:var(--bg);padding:0 1ch;max-width:100%;font-weight:700;
+  background:var(--ok);color:var(--bg);padding:0 1ch;max-width:100%;font-weight:700;overflow-wrap:anywhere;
   clip-path:inset(0 100% 0 0);transition:clip-path .24s steps(12);
 }
 .toast.on span{clip-path:inset(0 0 0 0)}
@@ -17,4 +18,6 @@
    bar is exactly three rows (css/17), so the toast starts on the fourth. */
 @media (max-width:1023px),(pointer:coarse){
   .toast{bottom:auto;top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
+  /* news that no tap asked for (a stale link) stays at the bottom, off the title */
+  .toast.low{top:auto;bottom:calc(var(--r) + env(safe-area-inset-bottom,0px))}
 }
