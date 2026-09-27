@@ -9,7 +9,7 @@
 .chip[aria-pressed="true"]{color:var(--bg);background:var(--ink);background-clip:content-box;box-shadow:none}
 .chip:focus-visible,.chip[aria-pressed="true"]:focus-visible{background:var(--accent);background-clip:content-box;color:var(--bg)}
 /* a pressed chip is ink on paper already, hovering it must not turn the text into the paper */
-@media (hover:hover){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
+@media (hover:hover) and (pointer:fine){.chip:not([aria-pressed="true"]):hover{color:var(--ink)}}
 .filters{display:flex;flex-wrap:wrap;gap:var(--r) 2ch}
 .doc{margin-top:var(--r)}
 .doc-tabs{padding-bottom:var(--r)}
@@ -55,7 +55,7 @@
 .crumbs li + li::before{content:"/";content:"/" / "";color:var(--hot);font-weight:700;padding:0 1ch}
 .crumbs a{color:var(--muted);text-decoration:none;outline:0;padding:12px 0;margin:-12px 0;display:inline-block;background-clip:content-box}
 .crumbs a:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
+@media (hover:hover) and (pointer:fine){.crumbs a:hover{color:var(--ink);text-decoration:underline}}
 .crumbs [aria-current] span{background:var(--ink);color:var(--bg);padding:0 1ch;font-weight:700}
 /* calendar */
 .cal{display:inline-block}
@@ -86,22 +86,30 @@
 .menu{position:absolute;left:0;top:calc(var(--r)*3);z-index:30;width:28ch;max-width:calc(100vw - 6ch);background:var(--bg)}
 .menu.open .lift{animation:glitchin .3s steps(1) both}
 .menu [role="menuitem"]{display:flex;justify-content:space-between;width:100%;font:inherit;background:none;border:0;border-radius:0;color:var(--ink);padding:calc(var(--r)/2) 0;text-align:left;cursor:pointer;outline:0}   /* two whole rows, a thumb tall */
-.menu [role="menuitem"]:focus-visible,.menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+.menu [role="menuitem"]:focus-visible{background:var(--ink);color:var(--bg)}
 .menu [role="menuitem"].danger{color:var(--warn)}
-.menu [role="menuitem"].danger:focus-visible,.menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+.menu [role="menuitem"].danger:focus-visible{background:var(--warn);color:var(--bg)}
+/* hover only where there is a mouse: a tap leaves a sticky hover behind */
+@media (hover:hover) and (pointer:fine){
+  .menu [role="menuitem"]:hover{background:var(--ink);color:var(--bg)}
+  .menu [role="menuitem"].danger:hover{background:var(--warn);color:var(--bg)}
+}
 .menu .sepd{margin:0}
 .menu kbd{color:inherit;font-weight:300}   /* no opacity: at .7 the hints fell under 4.5:1 */
-.tip{position:absolute;left:0;bottom:calc(var(--r)*3 + 6px);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
-.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:12px}
-.pop:hover .tip,.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 -4px -14px -4px)}
+.tip{position:absolute;left:0;bottom:calc(var(--r)*4);z-index:30;background:var(--ink);color:var(--bg);padding:0 1ch;white-space:nowrap;font-weight:700;clip-path:inset(0 100% 0 0);transition:clip-path .16s steps(8);pointer-events:none}
+/* the arrow has a row of its own, between the tip and the button */
+.tip::after{content:"v";content:"v" / "";position:absolute;left:2ch;top:var(--r);color:var(--ink);line-height:var(--r)}
+.pop:focus-within .tip,.pop.on .tip{clip-path:inset(0 0 calc(var(--r)*-1) 0)}
+@media (hover:hover) and (pointer:fine){.pop:hover .tip{clip-path:inset(0 0 calc(var(--r)*-1) 0)}}
 /* On touch a tap leaves both hover and focus behind, so the tip stayed up for
    good, and it opened over the Preview and Code tabs. There it opens below the
    button and only the tap timer shows it. */
 @media (pointer:coarse){
-  .tip{bottom:auto;top:calc(var(--r)*3 + 6px)}
-  .tip::after{content:"^";content:"^" / "";top:-12px}
-  .pop:hover .tip,.pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
-  .pop.on .tip{clip-path:inset(-14px -4px 0 -4px)}
+  .tip{bottom:auto;top:calc(var(--r)*4)}
+  .tip::after{content:"^";content:"^" / "";top:calc(var(--r)*-1)}
+  .pop:focus-within .tip{clip-path:inset(0 100% 0 0)}
+  /* a keyboard on a tablet: the trigger has visible focus, which a tap does not set */
+  .pop.on .tip,.pop:has(:focus-visible) .tip{clip-path:inset(calc(var(--r)*-1) 0 0 0)}
   #view-kit > section:has(.pop.on){z-index:6}
 }
 /* otp */
@@ -166,7 +174,7 @@ dialog.sheet .card{padding-bottom:calc(var(--r) + env(safe-area-inset-bottom,0px
 dialog.sheet .body{max-width:80ch;margin:0 auto}
 /* LCD pictures */
 figure.pic{margin:0;max-width:480px}
-figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y;background:var(--lcd-bg,#05030a)}
+figure.pic canvas,.lcd{display:block;width:100%;cursor:crosshair;touch-action:pan-y pinch-zoom;background:var(--lcd-bg,#05030a)}
 figure.pic .bezel{padding:6px;background:var(--lcd-bg,#05030a)}
 figcaption{color:var(--muted);margin-top:calc(var(--r)/2)}
 figcaption b{color:var(--ink)}
@@ -209,4 +217,5 @@ figcaption b{color:var(--ink)}
 #cases .lift:focus-visible .card{--frame-color:var(--accent)}
 #cases .lift:focus-visible .bar-title{background:var(--accent);color:var(--bg)}
 /* charts and pictures you can drive from the keyboard */
-.chart:focus-visible,figure.pic canvas:focus-visible{outline:0;box-shadow:0 0 0 2px var(--accent)}
+/* the ring is an outline so Windows High Contrast keeps it (it drops shadows) */
+.chart:focus-visible,figure.pic canvas:focus-visible{outline:2px solid var(--accent);outline-offset:0}

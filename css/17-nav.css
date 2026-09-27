@@ -43,7 +43,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   white-space:nowrap;text-decoration:none;-webkit-tap-highlight-color:transparent;
 }
 .bbtn:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.bbtn:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.bbtn:hover{color:var(--hot)}}
 
 /* the name is Home, at every width */
 .brand{
@@ -54,7 +54,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 .brand .slash{color:var(--hot)}
 .brand:focus-visible{background:var(--accent);color:var(--bg)}
 .brand:focus-visible .slash{color:inherit}
-@media (hover:hover){.brand:hover .slash{color:var(--pink)}}
+@media (hover:hover) and (pointer:fine){.brand:hover .slash{color:var(--pink)}}
 #v-home{display:none!important}
 
 /* the views: muted, the one you are in ink and bold with a heavy run of
@@ -73,7 +73,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   height:var(--r);overflow:hidden;white-space:nowrap;color:var(--ink);background:var(--bg);z-index:1;
   font-weight:700;pointer-events:none;
 }
-@media (hover:hover){#views .tab:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){#views .tab:hover{color:var(--hot)}}
 #views .tab:focus-visible{background:var(--accent);color:var(--bg)}
 
 /* the settings, on the right edge. Search looks like a field from 1024px; the
@@ -96,12 +96,12 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 #soundBar:has(#soundToggle:focus-visible){background:var(--accent);color:var(--bg)}
 #soundBar:has(#soundToggle:focus-visible) .lbl{color:inherit}
 #soundBar:has(#soundToggle:disabled){cursor:not-allowed;color:var(--muted)}
-@media (hover:hover){#soundBar:hover .lbl{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){#soundBar:hover .lbl{color:var(--hot)}}
 
 .sfield{display:flex;justify-content:space-between;width:22ch;color:var(--muted);font-weight:400}
 .sfield b{font-weight:400}
 .sf-g{display:none}
-@media (hover:hover){.sfield:hover,.sfield:hover b{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.sfield:hover,.sfield:hover b{color:var(--hot)}}
 .sfield:focus-visible b{color:inherit}
 @media (min-width:1280px){.sfield{width:28ch}}
 
@@ -183,7 +183,7 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
 /* a link reached by Tab is not left under the sticky heading */
 #sidenav .side-in{scroll-padding-top:calc(var(--r)*2)}
 .navlink::before{content:"  ";white-space:pre}
-@media (hover:hover){.navlink:hover{color:var(--ink)}}
+@media (hover:hover) and (pointer:fine){.navlink:hover{color:var(--ink)}}
 .navlink:focus-visible{background:var(--accent);color:var(--bg)}
 .navlink[aria-current]{color:var(--ink);font-weight:700}
 .navlink[aria-current]::before{content:"> ";color:var(--hot)}
@@ -221,7 +221,7 @@ body:has(dialog[open]){overflow:hidden}
   cursor:pointer;outline:0;
 }
 .sheet-x:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover){.sheet-x:hover{color:var(--hot)}}
+@media (hover:hover) and (pointer:fine){.sheet-x:hover{color:var(--hot)}}
 /* the Filters sheet closes the same way, from its own [x] or the page above it.
    Its body is 80 characters, so on a wide screen the [x] sits on that column's
    edge rather than the window's, and the body takes the whole 80 rather than

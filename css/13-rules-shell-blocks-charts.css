@@ -50,7 +50,10 @@
 /* the picked row is an ink slab, like a pressed Segment: magenta is for acting */
 .tbl tbody tr[aria-selected="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .tbl tbody tr[aria-selected="true"] .badge{background:var(--bg);color:var(--ink);box-shadow:none}
-.tbl tbody tr:focus-visible{box-shadow:inset 1ch 0 0 var(--accent)}
+/* a focused row is marked the way the sidebar marks where you are: a > in the
+   first character, which the cell's padding keeps free */
+.tbl tbody td:first-child{position:relative}
+.tbl tbody tr:focus-visible > td:first-child::before{content:">";content:">" / "";position:absolute;left:0;top:calc(var(--r)/2);font-weight:700;color:var(--accent)}
 /* At 390px four columns needed 42 characters in a 36 character box and the
    last one showed a single digit. Under 480px the duration rides in the status
    cell, on the row under the badge, and its own column steps out, so the table
@@ -72,12 +75,14 @@
 #build .b-warn{background:var(--pink);color:var(--on-pink)}
 
 /* charts */
-.chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.chart{font-size:12px;line-height:14px;font-weight:700;white-space:pre;overflow:hidden;cursor:crosshair;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none}
 .status{min-height:var(--r)}
 
 /* invaders */
-#inv{display:block;width:100%;touch-action:pan-y;cursor:crosshair;outline:0}
-#inv:focus-visible{box-shadow:0 0 0 2px var(--accent)}
+#inv{display:block;width:100%;touch-action:pan-y pinch-zoom;cursor:crosshair;outline:0}
+/* a canvas cannot carry characters around itself, so it keeps a ring. An
+   outline, not a box-shadow: Windows High Contrast keeps outlines */
+#inv:focus-visible{outline:2px solid var(--accent);outline-offset:0}
 
 
 /* overlays */

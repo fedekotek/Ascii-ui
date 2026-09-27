@@ -4,7 +4,7 @@
 .views{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);margin-top:calc(var(--r)*2)}
 .lab-h{margin-top:calc(var(--r)*3);text-transform:uppercase}
 .lab-h::before{content:"## ";content:"## " / "";color:var(--hot);font-weight:700}
-pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y;cursor:crosshair}
+pre.lab{font-weight:700;white-space:pre;overflow:hidden;touch-action:pan-y pinch-zoom;cursor:crosshair}
 .frame-demo{display:inline-block}
 .frame-demo .mid{display:inline-flex}
 .frame-demo .label{padding:0 1ch}

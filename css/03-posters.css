@@ -3,7 +3,7 @@
   font-weight:700;white-space:pre;overflow:hidden;
   user-select:none;-webkit-user-select:none;
 }
-#hero{display:block;width:100%;touch-action:pan-y;cursor:crosshair}
+#hero{display:block;width:100%;touch-action:pan-y pinch-zoom;cursor:crosshair}
 .ptitle{font-size:6px;line-height:5px;height:calc(var(--r)*3);padding-top:1px;cursor:pointer}
 /* one row of air between a title's bottom dots and its caption */
 .ptitle + p{margin-top:var(--r)}

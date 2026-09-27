@@ -12,7 +12,7 @@
 .btn:not(:disabled):active .label{text-shadow:-2px 0 var(--violet),2px 0 var(--hot)}
 .btn-danger .label{color:var(--danger)}
 .btn-danger{--frame-color:var(--danger)}
-@media (hover:hover){
+@media (hover:hover) and (pointer:fine){
   .btn:not(:disabled):hover{--h:var(--h-mid);--s:var(--s-mid)}
   .btn-primary:not(:disabled):hover{--h:var(--h-dense);--s:var(--s-dense)}
   .btn-danger:not(:disabled):hover{--h:var(--h-danger);--s:var(--s-danger)}
