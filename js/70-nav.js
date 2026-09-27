@@ -592,6 +592,13 @@
     const REL=[rsrc.dataset.webm||'assets/reel.webm',rsrc.dataset.src||'assets/reel.mp4'],ABS=[SITE+'assets/reel.webm',SITE+'assets/reel.mp4'];
     const TYPE=['video/webm; codecs="vp9, opus"','video/mp4; codecs="avc1.640029, mp4a.40.2"'];
     const noPoster=()=>reelBtn.classList.add('noposter');
+    /* the size in the caption is the file this browser will play: the WebM,
+       or the MP4 where there is no WebM (Safari). qa/reel.py checks both
+       numbers against the files */
+    const MB=[rsrc.dataset.webmMb||'3',rsrc.dataset.mp4Mb||'4'],capMB=document.querySelector('#reelCap [data-reel="mb"]');
+    let mb=MB[0];
+    try{const t=document.createElement('video');if(!t.canPlayType(TYPE[0])&&t.canPlayType(TYPE[1]))mb=MB[1]}catch(e){}
+    if(capMB)capMB.textContent=mb;
     poster.addEventListener('error',noPoster);
     if(poster.complete&&!poster.naturalWidth)noPoster();
     reelBtn.addEventListener('click',()=>{
@@ -623,9 +630,9 @@
         v.replaceChildren();v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
         rs.textContent='';rs.classList.add('err');
         setTimeout(()=>{
-          rs.textContent='The reel did not load here. ';
-          const a=document.createElement('a');a.className='inl';a.href=ABS[1];a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
-          rs.append(a,'.');
+          const link=(u,t)=>{const a=document.createElement('a');a.className='inl';a.href=u;a.target='_blank';a.rel='noopener';a.textContent=t;return a};
+          rs.textContent='The reel did not load here. Open the video file: ';
+          rs.append(link(ABS[0],'WebM'),' or ',link(ABS[1],'MP4'),'.');
         },40);
       };
       /* a file that arrives but will not decode. A WebM a browser said it
@@ -637,9 +644,12 @@
       rs.classList.remove('err');rs.textContent='';
       reelBtn.replaceWith(v);
       v.focus({preventScroll:true});
+      /* from the press until the first frame plays, the status line says it is coming */
+      const LOADING='Loading, '+mb+' MB.';
+      v.addEventListener('playing',()=>{if(rs.textContent===LOADING||/^Reduced motion/.test(rs.textContent))rs.textContent=''});
       if(!load(REL)){fail();return}
       if(A.reduce)rs.textContent='Reduced motion is on, so it waits for you. Press play.';
-      else{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{})}
+      else{rs.textContent=LOADING;const pr=v.play();if(pr&&pr.catch)pr.catch(e=>{if(e&&e.name==='NotAllowedError'&&rs.textContent===LOADING)rs.textContent=''})}   /* the browser said no: its own play button is there */
       tick();
     });
   }

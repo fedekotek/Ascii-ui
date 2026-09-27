@@ -469,22 +469,29 @@ function docify(sec){
     /* built every time Code opens, from the snapshot; the same text is not redrawn */
     const key=(ex.note||'')+'\u0000'+html+'\u0000'+ex.css+'\u0000'+ex.js;if(key===last)return;last=key;
     p2.querySelector('.copyrow').textContent='';
+    /* the whole page: this html between the two pinned kit links, ready to open (js/40).
+       When there is none, the note says why, at its end: site only is said once */
+    const pg=A.pageOf?A.pageOf(sec,html,ex):null,why=pg&&!pg.text?pg.why:'';
+    const words=[ex.note||'',why].filter(Boolean).join(' ');
     /* what the kit does not cover goes first, above the html */
     let note=p2.querySelector('[data-part="note"]');
-    if(ex.note&&!note){note=document.createElement('p');note.className='muted';note.setAttribute('data-part','note');p2.insertBefore(note,pre)}
-    if(note){note.textContent=ex.note||'';note.hidden=!ex.note}
+    if(words&&!note){note=document.createElement('p');note.className='muted';note.setAttribute('data-part','note');p2.insertBefore(note,pre)}
+    if(note){note.textContent=words;note.hidden=!words}
     pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
       (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
       '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
-    const row=p2.querySelector('.copyrow'),out=p2.querySelector('.page-out'),btn=(label,fn,attr)=>{
-      const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>';
+    /* Copy HTML is the one most people want, so it is the heavy button, as
+       Copy tokens is in Themes. Open page is the quiet text button at the end */
+    const row=p2.querySelector('.copyrow'),out=p2.querySelector('.page-out'),btn=(label,fn,attr,cls)=>{
+      const b=document.createElement('button');b.type='button';
+      if(cls==='link'){b.className='linkbtn';b.textContent=label}
+      else{b.className='btn frame '+(cls||'tone-light');b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>'}
       if(attr)b.setAttribute(attr,'');b.addEventListener('click',fn);row.appendChild(b);
-    },mk=(label,txt,part)=>btn(label,()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});
-    mk('Copy HTML',html,'html');if(ex.css)mk('Copy CSS',ex.css,'css');
-    /* the whole page: this html between the two pinned kit links, ready to open (js/40) */
-    const pg=A.pageOf?A.pageOf(sec,html,ex):null;out.textContent='';
-    if(pg&&pg.text){btn('Download page',()=>A.savePage(pg,out,false),'data-page');btn('Open page',()=>A.savePage(pg,out,true),'data-open')}
-    else if(pg)out.textContent=pg.why;
+    },mk=(label,txt,part,cls)=>btn(label,()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'),out)},null,cls);
+    mk('Copy HTML',html,'html','btn-primary tone-heavy');if(ex.css)mk('Copy CSS',ex.css,'css');
+    /* the status line says nothing until a button is pressed */
+    out.textContent='';out.classList.remove('err');
+    if(pg&&pg.text){btn('Download page',()=>A.savePage(pg,out,false),'data-page');btn('Open page',()=>A.savePage(pg,out,true),'data-open','link')}
   }
   const panels=[p1,p2,p3].filter(Boolean);
   function pick(t,focus){

@@ -8,12 +8,15 @@ On site/ served over http, at 390 with touch and at 1440 with a mouse:
   - nothing asks for assets/reel.webm or reel.mp4 before Play the reel is
     pressed (the poster is fine)
   - after the press it plays: currentTime past 1 s, readyState 3 or more,
-    no error event, and the player fits the screen
+    no error event, and the player fits the screen. From the press until it
+    plays the status line says "Loading, 3 MB.", and it is empty after
+  - the caption tells the truth: its seconds are the video's length, and
+    its MB (and data-webm-mb, data-mp4-mb) are the files' sizes, rounded
   - with reduced motion it does not start by itself, it says so, and it
     plays when asked
   - when both files 404, or the file that arrives will not decode, the dead
     player goes, the poster comes back with focus, and the status line says
-    so with a link
+    so, with a link to each file, WebM and MP4
 And dist/ascii-ui.html from file:// plays the same files next to it.
 Exits 1 on any failure."""
 import functools,http.server,pathlib,re,sys,threading
@@ -31,7 +34,7 @@ bad=[]
 
 STATE="""()=>{const v=document.querySelector('#reel video');if(!v)return null;
   const r=v.getBoundingClientRect();
-  return {t:v.currentTime,rs:v.readyState,paused:v.paused,err:v.error&&v.error.code,
+  return {t:v.currentTime,d:v.duration,rs:v.readyState,paused:v.paused,err:v.error&&v.error.code,
     src:v.currentSrc,fits:r.left>=0&&r.right<=innerWidth+.5,st:document.getElementById('reelStatus').textContent}}"""
 
 def ctx_for(b,size,reduce=False):
@@ -61,7 +64,9 @@ def open_home(b,size,reduce=False,base=None):
     errs=[];pg.on('pageerror',lambda e:errs.append(str(e)))
     reqs=[];pg.on('request',lambda r:reqs.append(r.url) if VID.search(r.url) else None)
     pg.goto((base or URL)+'#home',wait_until='load');pg.wait_for_timeout(1200)
-    pg.evaluate("()=>{window.__reelErr=0;document.addEventListener('error',e=>{if(e.target.closest&&e.target.closest('#reel'))window.__reelErr++},true)}")
+    pg.evaluate("""()=>{window.__reelErr=0;document.addEventListener('error',e=>{if(e.target.closest&&e.target.closest('#reel'))window.__reelErr++},true);
+      window.__reelSaid=[];const st=document.getElementById('reelStatus');
+      new MutationObserver(()=>{const t=st.textContent;if(t&&window.__reelSaid[window.__reelSaid.length-1]!==t)window.__reelSaid.push(t)}).observe(st,{childList:true,characterData:true,subtree:true})}""")
     return c,pg,errs,reqs
 
 def plays(b,size,label,base=None):
@@ -74,6 +79,12 @@ def plays(b,size,label,base=None):
         if s['err']: bad.append('%s: media error %s'%(label,s['err']))
         if not s['fits']: bad.append('%s: the player is wider than the screen'%label)
         if not s['src'].endswith('reel.webm'): bad.append('%s: played %s, not the WebM'%(label,s['src']))
+        cap=pg.evaluate("()=>{const q=k=>(document.querySelector('#reelCap [data-reel=\"'+k+'\"]')||{}).textContent;return {sec:q('seconds'),mb:q('mb')}}")
+        if cap['sec']!=str(round(s['d'])): bad.append('%s: the caption says %s seconds, the video is %.1f'%(label,cap['sec'],s['d']))
+        if cap['mb']!=str(MB['webm']): bad.append('%s: the caption says %s MB, the WebM is %s'%(label,cap['mb'],MB['webm']))
+        said=pg.evaluate('window.__reelSaid')
+        if 'Loading, %s MB.'%MB['webm'] not in said: bad.append('%s: the status never said Loading, %s MB. (%r)'%(label,MB['webm'],said))
+        if s['st']: bad.append('%s: the status still says %r while it plays'%(label,s['st']))
     if pg.evaluate('window.__reelErr'): bad.append('%s: an error event on the reel'%label)
     if errs: bad.append('%s: %s'%(label,errs[0]))
     print('reel: %-16s plays %s'%(label,'at %.1f s, readyState %d, %s'%(s['t'],s['rs'],s['src'].rsplit('/',1)[-1]) if s else 'no'))
@@ -98,20 +109,26 @@ def missing(b,size,label,junk=False):
     if junk: pg.route(VID,lambda r:r.fulfill(status=200,content_type='video/webm',body=b'\x1aE\xdf\xa3'+b'junk'*4000))
     else: pg.route(VID,lambda r:r.fulfill(status=404,body='not here'))
     press(pg,size[2]);pg.wait_for_timeout(2500)
-    r=pg.evaluate("""()=>{const st=document.getElementById('reelStatus'),a=st.querySelector('a');
+    r=pg.evaluate("""()=>{const st=document.getElementById('reelStatus');
       return {video:!!document.querySelector('#reel video'),btn:!!document.getElementById('reelPlay'),
         focus:document.activeElement&&document.activeElement.id,err:st.classList.contains('err'),
-        text:st.textContent,link:a&&a.href}}""")
+        text:st.textContent,links:[...st.querySelectorAll('a')].map(a=>a.href)}}""")
     if r['video']: bad.append(label+': a dead player stays on screen')
     if not r['btn']: bad.append(label+': the poster did not come back')
     if r['focus']!='reelPlay': bad.append('%s: focus is on %r, not the poster'%(label,r['focus']))
-    if not r['err'] or 'did not load' not in r['text']: bad.append('%s: no error line (%r)'%(label,r['text']))
-    if not r['link'] or not r['link'].endswith('assets/reel.mp4'): bad.append('%s: no link to the file (%r)'%(label,r['link']))
+    if not r['err'] or r['text']!='The reel did not load here. Open the video file: WebM or MP4.': bad.append('%s: no error line (%r)'%(label,r['text']))
+    if [l.rsplit('/',2)[-2:] for l in r['links']]!=[['assets','reel.webm'],['assets','reel.mp4']]: bad.append('%s: no link to each file (%r)'%(label,r['links']))
     if errs: bad.append('%s: %s'%(label,errs[0]))
     print('reel: %-16s poster back, %r'%(label,r['text']))
     c.close()
 
 if not (SITE/'assets/reel.webm').exists(): sys.exit('reel: site/assets/reel.webm missing (python3 build.py)')
+# the sizes the page states, against the files (MB here is 1024 x 1024 bytes, as kB is 1024 on the page)
+MB={k:round((ROOT/'assets'/('reel.'+k)).stat().st_size/2**20) for k in ('webm','mp4')}
+SRC=re.search(r'<span hidden id="reelSrc"[^>]*>',(ROOT/'index.html').read_text(encoding='utf-8')).group(0)
+for k in ('webm','mp4'):
+    m=re.search(r'data-%s-mb="(\d+)"'%k,SRC)
+    if not m or int(m.group(1))!=MB[k]: bad.append('index.html: data-%s-mb says %s, the file is %d MB'%(k,m and m.group(1),MB[k]))
 with sync_playwright() as p:
     b=p.chromium.launch()
     for size,name in (((390,844,True),'390 touch'),((1440,900,False),'1440')):

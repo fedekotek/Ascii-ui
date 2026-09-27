@@ -10,12 +10,14 @@ every fact from the repo and from site/ (what ships), then fails when:
 
   facts    a data-fact on the page differs from its recount, or a fact
            this script knows is missing from the page
-  bars     a bar's length is not its number (one # is one thing, or
-           data-per things a #, as long as data-of allows)
+  bars     a bar's length is not its number (data-per things a #, and
+           the row as long as data-of allows). Counts get no bar: the one
+           bar is the weight against its cap
   counts   the meta description, share card text, JSON-LD, noscript,
            llms.txt, README.md and the kit lede disagree on the counts
            (components, in the kit, blocks, charts) or on the versions
-  rules    each data-rule names a script that is a step of qa/release.sh
+  rules    each data-rule is a Script cell of the Rule and Script table and
+           names a script that is a step of qa/release.sh
            and holds the check the page says it does. Two rules are checked
            here: no em dash in any text file or commit message, and cyan
            (--cy, --accent) painted only by a rule with a focus state
@@ -69,7 +71,7 @@ F['kit-kb']=gz(SITE/'kit'/'ascii-ui.css')+gz(SITE/'kit'/'ascii-ui.js')
 F['version']=re.search(r'<meta name="aui-version" content="([\d.]+)">',html).group(1)
 F['kit-version']=re.search(r"var VERSION='(\d+\.\d+\.\d+)'",read('kit/ascii-ui.js')).group(1)
 DRIFT={'weight-kb':3,'kit-kb':2}   # kB either way
-HELPERS={'siteonly'}                # drawn as a bar, not printed
+HELPERS={'siteonly'}                # only used to count the kit, not printed or drawn
 
 # the accessibility modes: each needs its evidence in the source
 css=''.join(p.read_text(encoding='utf-8') for p in sorted((ROOT/'css').glob('*.css')))
@@ -120,6 +122,10 @@ for attrs,text in re.findall(r'<span\b([^>]*\bdata-bar="[a-z0-9-]+"[^>]*)>([^<]*
         m=re.search(r'data-bar="%s"[^>]*>[^<]*</span><span[^>]*>([^<]*)</span>'%name,html)
         total=len(text)+(len(m.group(1)) if m else 0)
         if total!=round(F[of.group(1)]/per): fail('bars','%s: the row is %d long, %s/%d is %d'%(name,total,of.group(1),per,round(F[of.group(1)]/per)))
+
+BARS=['weight-kb']
+got=re.findall(r'data-bar="([a-z0-9-]+)"',html)
+if got!=BARS: fail('bars','the bars on the page are %s, the one bar is %s'%(got,BARS))
 
 # ---------------------------------------------------------------- counts elsewhere
 N={'thirty-two':32,'thirty-four':34}
@@ -190,6 +196,13 @@ HOLDS={
   'budget.py':      'loads from elsewhere',
   'audit.py':       'r.height<40',
 }
+tb=re.search(r'<table class="ftbl frules">([\s\S]*?)</table>',html)
+if not tb: fail('rules','no Rule and Script table (table.ftbl.frules)')
+else:
+    heads=re.findall(r'<th scope="col">([^<]*)</th>',tb.group(1))
+    if heads!=['Rule','Script']: fail('rules','the table heads are %s, not Rule and Script'%heads)
+    if len(re.findall(r'data-rule=',html))!=len(re.findall(r'<td data-rule="[a-z.]+">[a-z.]+</td>',tb.group(1))):
+        fail('rules','a data-rule outside the table, or not a Script cell that says its own name')
 for s in sorted(set(re.findall(r'data-rule="([a-z.]+)"',html))):
     if not any(st.split()[1]=='qa/'+s for st in STEPS): fail('rules','%s is on the page but not a step of qa/release.sh'%s)
     if s not in HOLDS or HOLDS[s] not in read('qa/'+s): fail('rules','%s does not hold the check the page pairs it with'%s)

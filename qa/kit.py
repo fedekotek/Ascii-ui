@@ -204,15 +204,26 @@ async def starter(b):
     await pg.keyboard.type('-prod')
     ok('alert dialog: the right name turns Delete on',await ev("!document.querySelectorAll('#alertdialog dialog')[1].querySelector('.btn-danger').disabled"))
     await pg.keyboard.press('Escape')
-    # context menu: Shift F10 on a row, arrows, Escape back to the row
+    # context menu: Shift F10 on a row, arrows, Escape back to the row.
+    # The kit closes the menu on any scroll, and focus() scrolls the row into
+    # view with its scroll event a frame later: press only once that frame has
+    # passed, and the next key only once the menu has the focus
     cm="%s(document.querySelector('#contextmenu [role=menu]'))"%OPEN
-    await pg.focus('#contextmenu tbody tr'); await pg.keyboard.press('Shift+F10')
+    settled="new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(()=>r())))"
+    inmenu="%s&&document.activeElement.getAttribute('role')==='menuitem'"%cm
+    async def menu_up():
+        try: await pg.wait_for_function(inmenu,timeout=2000)
+        except Exception: pass
+        await ev(settled)
+    await pg.focus('#contextmenu tbody tr'); await ev(settled); await pg.keyboard.press('Shift+F10'); await menu_up()
     ok('context menu: Shift F10 opens on the row',await ev("%s&&document.activeElement.getAttribute('role')==='menuitem'&&document.querySelector('#contextmenu tbody tr').hasAttribute('data-ctx')"%cm))
     await pg.keyboard.press('ArrowDown')
     ok('context menu: arrows move',await ev("document.activeElement.textContent.startsWith('Copy ID')"))
     await pg.keyboard.press('Escape')
     ok('context menu: Escape closes, focus back',await ev("!%s&&document.activeElement===document.querySelector('#contextmenu tbody tr')"%cm))
-    await pg.keyboard.press('Shift+F10'); await pg.keyboard.press('c')
+    await ev(settled); await pg.keyboard.press('Shift+F10'); await menu_up()
+    ok('context menu: Shift F10 opens again',await ev(inmenu))
+    await pg.keyboard.press('c')
     ok('context menu: the kbd letter picks',await ev("!%s&&document.querySelector('#contextmenu [role=status]').textContent==='Copy ID: INC-481.'"%cm))
     # tooltip: tap shows, Escape hides
     tt="document.querySelector('#tooltip .pop')"

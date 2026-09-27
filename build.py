@@ -210,13 +210,32 @@ function kitWant(e){
   if(e.type==='click')return kit?t:null;
   return ['ArrowRight','ArrowLeft','End'].includes(e.key)?t:null;   /* Home lands on Preview, which needs no kit */
 }
+/* while it is held, the tab or button says it is busy, and a status line
+   under the tab strip (or the download's own) says so in words */
+function kitWait(t,on){
+  if(on)t.setAttribute('aria-busy','true');else t.removeAttribute('aria-busy');
+  const tl=t.closest('.doc-tabs'),li=t.closest('li');
+  let out=tl?tl.nextElementSibling:li&&li.querySelector('.kit-out');
+  if(tl&&!(out&&out.classList.contains('kit-wait'))){
+    if(!on)return;
+    out=document.createElement('p');out.className='muted status kit-wait';out.setAttribute('role','status');tl.after(out);
+  }
+  if(!out)return;
+  if(on){out.classList.remove('err');out.textContent='';setTimeout(()=>{if(t.hasAttribute('aria-busy'))out.textContent='Getting the kit.'},40)}
+  else if(tl)out.remove();
+  else if(out.textContent==='Getting the kit.')out.textContent='';
+}
 function kitGate(e){
   if(kitS().t)return;
   const t=kitWant(e);if(!t)return;
   e.preventDefault();e.stopImmediatePropagation();
+  /* a second click on it while the kit is on the way is the same click;
+     keys are each their own move, so they wait in order */
+  if(e.type==='click'&&t.hasAttribute('aria-busy'))return;
   const key=e.type==='keydown'?e.key:null;
-  kitLoad().then(()=>{if(key)t.dispatchEvent(new KeyboardEvent('keydown',{key:key,bubbles:true,cancelable:true}));else t.click()},
-    ()=>A.say('The kit did not load, so there is no code to show yet. Check the connection and try again.',true));
+  kitWait(t,true);
+  kitLoad().then(()=>{kitWait(t,false);if(key)t.dispatchEvent(new KeyboardEvent('keydown',{key:key,bubbles:true,cancelable:true}));else t.click()},
+    ()=>{kitWait(t,false);A.say('The kit did not load, so there is no code to show yet. Check the connection and try again.',true)});
 }
 /* on the way to one of them, start early: the text is usually here before the click */
 function kitSoon(e){const S=kitS();if(!S.t&&!S.p&&kitAt(e))kitLoad().catch(()=>{})}

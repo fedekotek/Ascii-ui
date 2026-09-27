@@ -13,7 +13,7 @@ Checks:
 4. the button, pressed with the keyboard and with a click, from index.html,
    dist/ascii-ui.html (file://) and site/index.html (over http, the kit text
    fetched on first use), in a light and a dark system setting: the same
-   bytes as site/kit/tokens.json, the status says Downloading tokens.json.,
+   bytes as site/kit/tokens.json, the status says Saved as tokens.json.,
    the root keeps its attributes and there are no console errors
 5. Amber CRT: dark is Amber's computed colors, light is the default light,
    and it says so. A color of your own lands in its mode and says so
@@ -143,7 +143,7 @@ async def main():
                 tag='%s %s %s'%(name,scheme,how)
                 if fn!='tokens.json': fails.append(tag+': the file is called %s'%fn)
                 if txt!=static: fails.append(tag+': the download is not site/kit/tokens.json')
-                if st!='Downloading tokens.json.': fails.append(tag+': the status says %r'%st)
+                if st!='Saved as tokens.json.': fails.append(tag+': the status says %r'%st)
                 if before!=after: fails.append(tag+': the root changed, %s then %s'%(before,after))
                 fails+=[tag+': '+e for e in errs]
                 await ctx.close()

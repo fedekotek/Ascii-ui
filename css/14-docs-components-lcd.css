@@ -37,7 +37,7 @@
 }
 .code::before{content:"";order:2;flex:none;height:var(--r);margin-top:calc(var(--r)*-1);background:var(--bg);position:relative;z-index:2}
 /* the copy and download messages under their buttons: blocked is yellow, it warns */
-.kit-out.err{color:var(--warn)}
+.kit-out.err,.page-out.err{color:var(--warn)}
 /* strings are ink, not lime: lime only confirms */
 .code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ink)}
 .copyrow{margin-top:var(--r)}

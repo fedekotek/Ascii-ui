@@ -351,7 +351,7 @@ function download(name,text,type,out,msg){
     const url=URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'})),a=document.createElement('a');
     a.href=url;a.download=name;a.hidden=true;document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
-    tell(out,msg||'Downloading '+name+'.');
+    tell(out,msg||'Saved as '+name+'.');
   }catch(e){tell(out,'This browser will not save files from a page. Take '+name+' from the kit folder instead.',true)}
 }
 
@@ -365,24 +365,31 @@ A.pageOf=function(sec,html,ex){
   const id=sec.getAttribute('aria-labelledby')||'',slug=id.replace(/^[so]-/,''),block=!!sec.closest('#view-blocks');
   /* the published site fetches the kit on first use: until then there is nothing to judge by */
   if(!PAGE_OUT.includes(id)&&!KIT().css.trim())return null;
-  if(PAGE_OUT.includes(id)||(ex&&ex.siteOnly&&ex.siteOnly.length))return {why:'Site only, no page to download.'};
+  /* the Code tab puts this at the end of its note, so "site only" is said once */
+  if(PAGE_OUT.includes(id))return {why:'The kit cannot run it, so there is no page to download.'};
+  if(ex&&ex.siteOnly&&ex.siteOnly.length)return {why:'Part of it is not in the kit, so there is no page to download.'};
   const h=sec.querySelector('h2'),title=h?h.textContent.trim():slug,K='https://ascii.fedekotek.design/kit/'+PIN.v+'/';
+  const home='https://ascii.fedekotek.design/#'+(block?'blocks':'components')+'/'+slug;
+  /* the kit resets headings to body type, so the page brings its own: bold,
+     uppercase, with the ## the site's headings wear. The intro links back to
+     the component, to Get the kit and to the two pinned files */
   const text='<!doctype html>\n'+
-    '<!-- '+title.replace(/--/g,'-')+', from the Code tab of https://ascii.fedekotek.design/#'+(block?'blocks':'components')+'/'+slug+'. Kit '+PIN.v+', MIT. -->\n'+
+    '<!-- '+title.replace(/--/g,'-')+', from the Code tab of '+home+'. Kit '+PIN.v+', MIT. -->\n'+
     '<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'+
-    '<title>'+esc(title)+' . ascii/ui kit '+PIN.v+'</title>\n'+
+    '<title>'+esc(title)+': ascii/ui kit '+PIN.v+'</title>\n'+
     '<link rel="stylesheet" href="'+K+'ascii-ui.css" integrity="'+PIN.css+'" crossorigin="anonymous">\n'+
     '<script defer src="'+K+'ascii-ui.js" integrity="'+PIN.js+'" crossorigin="anonymous"></'+'script>\n'+
+    '<style>\nh1{font-weight:700;text-transform:uppercase}\nh1::before{content:"## ";color:var(--hot)}\n</style>\n'+
     '</head>\n<body>\n<main class="stack" style="max-width:80ch;margin:0 auto;padding:var(--r) 2ch">\n'+
     '<h1>'+esc(title)+'</h1>\n'+
-    '<p class="muted">Linked to the pinned kit, so it looks the same next year. Paste more from any Code tab.</p>\n'+
+    '<p class="muted">From ascii/ui kit '+PIN.v+', MIT. <a href="'+home+'">'+esc(title)+' on the site</a>. Docs: <a href="https://ascii.fedekotek.design/#components/install">Get the kit</a>. Both files, pinned: <a href="'+K+'ascii-ui.css">ascii-ui.css</a> and <a href="'+K+'ascii-ui.js">ascii-ui.js</a>.</p>\n'+
     html+'\n</main>\n</body>\n</html>\n';
   return {name:'ascii-ui-'+slug+'.html',text:text};
 };
 /* a new tab from a Blob. From file://, or when the browser keeps the tab
    closed, the same page is downloaded instead, and the status line says so */
 A.savePage=function(pg,out,open){
-  const save=why=>download(pg.name,pg.text,'text/html',out,why?why+' Downloading '+pg.name+' instead.':'');
+  const save=why=>download(pg.name,pg.text,'text/html',out,why?why+' Saved as '+pg.name+' instead.':'');
   if(!open||location.protocol==='file:')return save(open?'A page opened from a file cannot open another.':'');
   let url='',w=null;
   try{url=URL.createObjectURL(new Blob([pg.text],{type:'text/html;charset=utf-8'}));w=window.open(url,'_blank')}catch(e){w=null}
@@ -547,12 +554,18 @@ function tokensJSON(){
 /* site/index.html fetches the kit text on first use (build.py, LAZY_KIT).
    The motion is in it, so the download waits for it */
 const kitReady=()=>typeof kitLoad==='function'?kitLoad():Promise.resolve();
+/* while the kit is on the way the button is busy and the status line says so */
 $('tokensJson').addEventListener('click',()=>{
-  const out=$('tokensStatus');
+  const out=$('tokensStatus'),b=$('tokensJson');
+  if(b.hasAttribute('aria-busy'))return;
+  const held=typeof kitS==='function'&&!kitS().t;
+  if(held){b.setAttribute('aria-busy','true');tell(out,'Getting the kit.')}
+  const done=()=>b.removeAttribute('aria-busy');
   kitReady().then(()=>{
+    done();
     let t;try{t=tokensJSON()}catch(e){tell(out,'The tokens did not come together ('+e.message+'). Take tokens.json from the kit folder instead.',true);return}
     download('tokens.json',t,'application/json',out);if(live())sfx.ok();
-  },()=>tell(out,'The kit did not load, and the motion tokens are in it. Check the connection, or take tokens.json from the kit folder.',true));
+  },()=>{done();tell(out,'The kit did not load, and the motion tokens are in it. Check the connection, or take tokens.json from the kit folder.',true)});
 });
 
 (function install(){

@@ -167,9 +167,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <div class="reel-box">
         <button class="reel-play" id="reelPlay" type="button" aria-describedby="reelCap"><img id="reelPoster" src="assets/reel-poster.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async"><span class="reel-go"><span aria-hidden="true">[&gt;] </span>Play the reel</span></button>
       </div>
-      <figcaption class="muted" id="reelCap">15 seconds of the kit at work. It loads when you press play, and starts muted.</figcaption>
+      <figcaption class="muted" id="reelCap">The kit at work: <span data-reel="seconds">15</span> seconds, <span data-reel="mb">3</span> MB, muted. It loads when you press play.</figcaption>
       <p class="muted status" id="reelStatus" role="status"></p>
-      <span hidden id="reelSrc" data-webm="assets/reel.webm" data-src="assets/reel.mp4"></span>
+      <span hidden id="reelSrc" data-webm="assets/reel.webm" data-src="assets/reel.mp4" data-webm-mb="3" data-mp4-mb="4"></span>
     </figure>
 
     <h3 class="lab-h">The problem</h3>
@@ -177,40 +177,42 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 
     <h3 class="lab-h">By the numbers</h3>
     <p class="muted">Counted from the repo and the built site. A script recounts them before every release and fails if this page says otherwise.</p>
-    <pre class="demo statbars facts"> <span data-fact="components">34</span> <span class="muted">components, <span data-fact="kit">32</span> in the kit</span>
-    <span data-bar="kit" style="color:var(--violet)" aria-hidden="true">################################</span><span data-bar="siteonly" class="muted" aria-hidden="true">..</span>
- <span data-fact="blocks">16</span> <span class="muted">blocks</span>
-    <span data-bar="blocks" style="color:var(--violet)" aria-hidden="true">################</span>
-  <span data-fact="charts">5</span> <span class="muted">charts</span>
-    <span data-bar="charts" style="color:var(--violet)" aria-hidden="true">#####</span>
-  <span data-fact="kit-versions">4</span> <span class="muted">kit versions, each pinned</span>
-    <span data-bar="kit-versions" style="color:var(--violet)" aria-hidden="true">####</span>
- <span data-fact="release-steps">22</span> <span class="muted">steps in the release bar</span>
-    <span data-bar="release-steps" style="color:var(--hot)" aria-hidden="true">######################</span>
- <span data-fact="qa-scripts">21</span> <span class="muted">QA scripts</span>
-    <span data-bar="qa-scripts" style="color:var(--hot)" aria-hidden="true">#####################</span>
- <span data-fact="widths">11</span> <span class="muted">screen widths, <span data-fact="widths-min">360</span> to <span data-fact="widths-max">1920</span></span>
-    <span data-bar="widths" style="color:var(--hot)" aria-hidden="true">###########</span>
-  <span data-fact="a11y-modes">7</span> <span class="muted">accessibility modes</span>
-    <span data-bar="a11y-modes" style="color:var(--hot)" aria-hidden="true">#######</span>
-<span data-fact="weight-kb">168</span> <span class="muted">kB on first visit, cap <span data-fact="weight-cap">180</span></span>
-    <span data-bar="weight-kb" data-per="5" data-of="weight-cap" style="color:var(--hot)" aria-hidden="true">##################################</span><span class="muted" aria-hidden="true">..</span>
- <span data-fact="kit-kb">38</span> <span class="muted">kB for the <span data-fact="kit-files">2</span> kit files</span>
-  <span style="color:var(--ok)" data-fact="requests">0</span> <span class="muted">requests to anyone else</span>
-  <span style="color:var(--ok)" data-fact="idle-frames">0</span> <span class="muted">idle frames, reduced motion</span></pre>
-    <p class="muted demo">One # is one thing, except weight: 5 kB a #, and the row ends at the cap. Sizes are gzip. The seven modes: <span data-fact="a11y-list">keyboard, screen reader names, reduced motion, forced colors, more contrast, print, touch</span>.</p>
+    <h4 class="facts-h">What it is</h4>
+    <ul class="facts">
+      <li><span data-fact="components">34</span> <span>components, <span data-fact="kit">32</span> in the kit</span></li>
+      <li><span data-fact="blocks">16</span> <span>blocks</span></li>
+      <li><span data-fact="charts">5</span> <span>charts</span></li>
+      <li><span data-fact="kit-versions">4</span> <span>kit versions published, each still served</span></li>
+      <li><span data-fact="weight-kb">168</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">180</span></span></li>
+      <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">############################</span><span class="muted">..</span></span></li>
+      <li><span data-fact="kit-kb">38</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
+    </ul>
+    <h4 class="facts-h">What checks it</h4>
+    <ul class="facts">
+      <li><span data-fact="release-steps">22</span> <span>checks before every release</span></li>
+      <li><span data-fact="qa-scripts">21</span> <span>test scripts</span></li>
+      <li><span data-fact="widths">11</span> <span>screen widths, <span data-fact="widths-min">360</span> to <span data-fact="widths-max">1920</span></span></li>
+      <li><span data-fact="a11y-modes">7</span> <span>accessibility modes</span></li>
+      <li><span data-fact="requests">0</span> <span>requests to anyone else</span></li>
+      <li><span data-fact="idle-frames">0</span> <span>animation frames at rest when the system asks for reduced motion</span></li>
+    </ul>
+    <p class="muted demo">The bar is the weight against its cap, 6 kB a #. The seven modes: <span data-fact="a11y-list">keyboard, screen reader names, reduced motion, forced colors, more contrast, print, touch</span>.</p>
 
     <h3 class="lab-h">Rules the scripts enforce</h3>
     <p class="muted">Each rule has a script, and each script is a step in the release bar. A rule no script checks is a suggestion.</p>
-    <pre class="demo statbars rulebar"><span class="muted" aria-hidden="true">RULE                    FAILS IT</span>
-no em dashes            <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
-cyan is focus only      <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
-columns on the 1ch grid <span style="color:var(--ok)" data-rule="breakpoints.py">breakpoints.py</span>
-reduced motion is none  <span style="color:var(--ok)" data-rule="reduced.py">reduced.py</span>
-no setInterval          <span style="color:var(--ok)" data-rule="clock.py">clock.py</span>
-nothing from elsewhere  <span style="color:var(--ok)" data-rule="budget.py">budget.py</span>
-no target under 40px    <span style="color:var(--ok)" data-rule="audit.py">audit.py</span>
-these numbers           <span style="color:var(--ok)" data-rule="facts.py">facts.py</span></pre>
+    <div class="demo tablewrap"><table class="ftbl frules"><caption class="vh">Each rule, and the script in the release bar that fails the release when it is broken.</caption>
+      <thead><tr><th scope="col">Rule</th><th scope="col">Script</th></tr></thead>
+      <tbody>
+        <tr><td>No em dashes</td><td data-rule="facts.py">facts.py</td></tr>
+        <tr><td>Cyan is focus only</td><td data-rule="facts.py">facts.py</td></tr>
+        <tr><td>Columns on the 1ch grid</td><td data-rule="breakpoints.py">breakpoints.py</td></tr>
+        <tr><td>Reduced motion means none</td><td data-rule="reduced.py">reduced.py</td></tr>
+        <tr><td>No setInterval</td><td data-rule="clock.py">clock.py</td></tr>
+        <tr><td>Nothing from elsewhere</td><td data-rule="budget.py">budget.py</td></tr>
+        <tr><td>No tap target under 40px</td><td data-rule="audit.py">audit.py</td></tr>
+        <tr><td>These numbers</td><td data-rule="facts.py">facts.py</td></tr>
+      </tbody>
+    </table></div>
     <p class="muted demo">Em dashes are looked for in the source, the docs, the built site and the commit log. Cyan is read from every CSS rule that paints with it: each one needs a focus state. Taps are drawn at 44px, and the script fails anything under 40.</p>
 
     <h3 class="lab-h">Principles</h3>
@@ -1151,9 +1153,9 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
   <section aria-labelledby="s-tokens">
     <h2 id="s-tokens" class="vh">Tokens</h2>
     <pre class="poster ptitle" data-text="TOKENS" aria-hidden="true"></pre>
-    <p class="muted">The theme you are looking at, as CSS. Paste it after ascii-ui.css, or save it as tokens.css. For Figma or Tokens Studio, tokens.json has both modes, the grid, the ramp and the motion.</p>
+    <p class="muted">The theme you are looking at, as CSS. Paste it after ascii-ui.css, or download tokens.css for a page. For Figma or Tokens Studio, download tokens.json: both modes, the grid, the ramp and the motion.</p>
     <pre class="demo code" id="tokensOut" tabindex="0" aria-label="The tokens, as CSS"></pre>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button" data-still><span class="mid"><span class="label">Copy tokens</span></span></button><button class="btn frame tone-light" id="tokensSave" type="button" data-still><span class="mid"><span class="label">Download tokens.css</span></span></button><button class="btn frame tone-light" id="tokensJson" type="button" data-still><span class="mid"><span class="label">Download tokens.json</span></span></button></div>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button" data-still><span class="mid"><span class="label">Copy tokens</span></span></button><button class="btn frame tone-light" id="tokensJson" type="button" data-still><span class="mid"><span class="label">Download tokens.json for Figma</span></span></button><button class="btn frame tone-light" id="tokensSave" type="button" data-still><span class="mid"><span class="label">Download tokens.css for a page</span></span></button></div>
     <p class="muted status" id="tokensStatus" role="status"></p>
   </section>
 

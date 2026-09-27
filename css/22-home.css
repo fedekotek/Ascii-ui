@@ -55,3 +55,19 @@ body.nosig-on #heroSrc{display:none}
 .hlink:focus-visible{background-color:var(--accent);color:var(--bg)}
 .hlink.ok{color:var(--ok)}
 @media print{.hlink,.reel-go{display:none!important}}
+
+/* How it was made, By the numbers: a number, then what it counts. Two
+   groups under their own subheads, and one bar, the weight against its cap */
+.facts-h{margin:var(--r) 0 0;font:inherit;font-weight:700}
+.facts{list-style:none;margin:0;padding:0;max-width:60ch}
+.facts li{display:grid;grid-template-columns:5ch minmax(0,1fr);column-gap:1ch}
+.facts li > span:first-child{text-align:right;font-weight:700}
+.facts li > span:last-child{color:var(--muted);font-weight:400}
+.facts li > span:last-child [data-fact]{color:var(--ink)}
+.facts .facts-bar > span:last-child{white-space:pre;overflow:hidden;font-weight:700}
+.facts [data-bar]{color:var(--violet)}
+/* Rules the scripts enforce: the Foundations table, where the rule wraps
+   and the script name stays on one line */
+.ftbl.frules{min-width:0;max-width:60ch}
+.ftbl.frules td{white-space:normal}
+.ftbl.frules td:last-child{white-space:nowrap;min-width:0}

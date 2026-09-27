@@ -1133,7 +1133,7 @@ Limits:
 - Group: Overlay
 - In the kit: no, site only
 - Caption: The command menu. On this site it is Search: press / and type. Site only, not in the kit.
-- Note: Site only, not in the kit. Search is this site's own palette. The kit has no command palette yet, so this is a button and a kbd.
+- Note: Site only, not in the kit. Search is this site's own palette. The kit has no command palette yet, so this is a button and a kbd. The kit cannot run it, so there is no page to download.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`
@@ -2236,7 +2236,7 @@ Limits:
 - Group: Display
 - In the kit: no, site only
 - Caption: An LCD panel cut into twelve sectors. Every cell is three subpixels and each sector can run its own mode. Tap a sector. Site only, not in the kit.
-- Note: Site only, not in the kit. The LCD panel is drawn by this site's engine. The mode switches are a Segment, which is in the kit. Reference markup. These classes are site-only: bezel, lcd, pic. Their css is not in ascii-ui.css, so write your own. The rest is in ascii-ui.css already.
+- Note: Site only, not in the kit. The LCD panel is drawn by this site's engine. The mode switches are a Segment, which is in the kit. Reference markup. These classes are site-only: bezel, lcd, pic. Their css is not in ascii-ui.css, so write your own. The rest is in ascii-ui.css already. The kit cannot run it, so there is no page to download.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `button`: `.btn`

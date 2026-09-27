@@ -39,7 +39,7 @@ Off by default. They striped every slab, printed as blank pages and are not char
 ## tokens.json, for design tools
 The same tokens in the shape of the W3C design tokens draft (DTCG: `$value`, `$type`, `$description`), as Tokens Studio and the Figma Variables importers read it. It is not the strict subset: the cell, the ramp, the frame tones and the easings are `"$type":"string"`, and durations and dimensions are strings like `"160ms"`, so strict tools (Style Dictionary in DTCG mode, Terrazzo) may warn on those. Two copies, one template:
 - `site/kit/tokens.json`, written by `build.py` (`tokens_json()`), for the default preset, at https://ascii.fedekotek.design/kit/tokens.json. It is not in `kit/` and not in any `kit/releases/` version: it is built, never edited.
-- Themes > Tokens > Download tokens.json (js/40, `tokensJSON()`), for the preset and colors on screen.
+- Themes > Tokens > Download tokens.json for Figma (js/40, `tokensJSON()`), for the preset and colors on screen.
 
 The shape and every word are `TOKDOC` in js/40, a JSON block between `/* tokens.json words start */` and `/* tokens.json words end */`. Each `"@name"` in it is a value: the page fills them from computed styles (colors, `--r`, body type), the engine (the ramp, the `--h-*`/`--s-*` tones) and the kit css (`--aui-*`); `build.py` fills them from `css/01`, `css/02`, `js/10` (`RAMP`), `kit/ascii-ui.css` and the preset names in `index.html`. Change a word in TOKDOC, not in either filler.
 

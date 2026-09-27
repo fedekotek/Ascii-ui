@@ -5,11 +5,14 @@
 
 For every component and block on index.html it opens the Code tab and takes
 what Download page saves. Command and Picture, and blocks with classes the kit
-does not style, must say "Site only, no page to download." instead. Every other
-component must offer the page. Each page must start with a doctype, have a
-charset, a viewport, the title "<Name> . ascii/ui kit <version>", the two
-pinned kit links with the integrity kit/README.md gives and crossorigin, and
-the comment that says where it came from. Then each page is opened from
+does not style, instead end the note above the code with "so there is no page
+to download.", once, and leave the status line empty. Every other component
+must offer the page, with Copy HTML first and heavy. Each page must start with
+a doctype, have a charset, a viewport, the title "<Name>: ascii/ui kit
+<version>", the two pinned kit links with the integrity kit/README.md gives
+and crossorigin, the comment that says where it came from, a heading styled
+by the page itself (the kit resets h1), and an intro line that links back to
+the component on the site, to Get the kit and to both pinned files. Then each page is opened from
 file:// in Chromium, with https://ascii.fedekotek.design/kit/<version>/ served
 from site/kit/<version>/ (so build first): no console errors, no page errors,
 ASCIIUI is there, the kit css is applied, and the component is on screen with
@@ -31,7 +34,7 @@ README=(ROOT/'kit'/'README.md').read_text(encoding='utf-8')
 KITURL='https://ascii.fedekotek.design/kit/'+V+'/'
 KITDIR=ROOT/'site'/'kit'/V
 if not (KITDIR/'ascii-ui.js').exists(): sys.exit('pages: no site/kit/%s/, run python3 build.py first'%V)
-SITE_ONLY_MSG='Site only, no page to download.'
+NO_PAGE='so there is no page to download.'
 MUST_SAY=('s-command','s-picture')
 NOT_COMPONENTS=('s-install','s-rules','s-foundations')
 
@@ -54,7 +57,9 @@ SECTIONS="""()=>[...document.querySelectorAll('#view-kit > section[aria-labelled
   .filter(s=>s.querySelector('.doc-tabs')).map(s=>[s.getAttribute('aria-labelledby'),!!s.closest('#view-blocks')])"""
 OPEN_CODE="""id=>{const s=document.querySelector('section[aria-labelledby="'+id+'"]');s.querySelectorAll('.doc-tabs [role="tab"]')[1].click();
   const p=s.querySelector('.doc-panel:not([hidden])');const out=p.querySelector('.page-out');
+  const n=p.querySelector('[data-part="note"]'),c=p.querySelector('.copyrow button');
   return {dl:!!p.querySelector('[data-page]'),open:!!p.querySelector('[data-open]'),say:out?out.textContent.trim():'',
+    note:n&&!n.hidden?n.textContent.trim():'',first:c?c.className:'',
     labels:[...p.querySelectorAll('.copyrow button')].map(b=>b.textContent.trim())}}"""
 CLICK="""([id,what])=>document.querySelector('section[aria-labelledby="'+id+'"] .doc-panel:not([hidden]) ['+what+']').click()"""
 OUT="""id=>document.querySelector('section[aria-labelledby="'+id+'"] .doc-panel:not([hidden]) .page-out').textContent"""
@@ -70,7 +75,15 @@ def check_text(sid,name,t,bad):
     for f,h in (('ascii-ui.css',SRI_CSS),('ascii-ui.js',SRI_JS)):
         r=re.search(r'/kit/'+re.escape(V)+'/'+re.escape(f)+r'"[^>]*integrity="([^"]+)"',README)
         if not r or r.group(1)!=h: bad.append('%s: the integrity of %s is not the one kit/README.md gives'%(sid,f))
-    if not re.search(r'<title>[^<]+ \. ascii/ui kit '+re.escape(V)+'</title>',t): bad.append(sid+': the title is not "<Name> . ascii/ui kit %s"'%V)
+    if not re.search(r'<title>[^<]+: ascii/ui kit '+re.escape(V)+'</title>',t): bad.append(sid+': the title is not "<Name>: ascii/ui kit %s"'%V)
+    if not re.search(r'<style>\nh1\{[^}]*font-weight:700',t): bad.append(sid+': the page does not style its h1 (the kit resets it)')
+    intro=re.search(r'<p class="muted">From ascii/ui kit '+re.escape(V)+r', MIT\. (.*)</p>\n',t)
+    if not intro: bad.append(sid+': no intro line "From ascii/ui kit %s, MIT."'%V)
+    else:
+        links=re.findall(r'<a href="([^"]+)">',intro.group(1))
+        for need in ('#components/install',KITURL+'ascii-ui.css',KITURL+'ascii-ui.js'):
+            if not any(l.endswith(need) for l in links): bad.append('%s: the intro does not link %s'%(sid,need))
+        if not any(re.search(r'/#(components|blocks)/'+re.escape(slug)+'$',l) for l in links): bad.append(sid+': the intro does not link back to the component')
     if not re.search(r'<!-- .+from the Code tab of https://ascii\.fedekotek\.design/#(components|blocks)/'+re.escape(slug)+r'\..* -->\n',t):
         bad.append(sid+': no comment saying where the page came from')
     if '\u2014' in t: bad.append(sid+': an em dash in the page')
@@ -81,8 +94,8 @@ async def run_page(ctx,sid,path,bad):
     pg.on('pageerror',lambda e:errs.append('pageerror: '+str(e)))
     pg.on('request',lambda r:asked.append(r.url))
     await pg.goto(pathlib.Path(path).as_uri());await pg.wait_for_timeout(250)
-    r=await pg.evaluate("""()=>{const root=document.querySelector('main > p.muted + *'),b=root&&root.getBoundingClientRect();
-      return {kit:!!window.ASCIIUI,ver:window.ASCIIUI&&ASCIIUI.version,
+    r=await pg.evaluate("""()=>{const root=document.querySelector('main > p.muted + *'),b=root&&root.getBoundingClientRect(),h=document.querySelector('h1');
+      return {kit:!!window.ASCIIUI,ver:window.ASCIIUI&&ASCIIUI.version,hw:h?getComputedStyle(h).fontWeight:'',
         css:getComputedStyle(document.documentElement).getPropertyValue('--r').trim(),
         root:root?root.localName+'.'+root.className:null,w:b?b.width:0,h:b?b.height:0,
         vis:root?root.checkVisibility({visibilityProperty:true,opacityProperty:true}):false}}""")
@@ -90,6 +103,7 @@ async def run_page(ctx,sid,path,bad):
     if not r['kit']: bad.append(sid+': ASCIIUI is not defined, the kit did not run')
     elif r['ver']!=V: bad.append('%s: ASCIIUI.version is %s, not %s'%(sid,r['ver'],V))
     if not r['css']: bad.append(sid+': the kit css is not applied (no --r)')
+    if r['hw']!='700': bad.append('%s: the h1 is weight %s, not a heading'%(sid,r['hw']))
     if not r['root']: bad.append(sid+': no component after the intro line')
     elif not (r['w']>0 and r['h']>0 and r['vis']): bad.append('%s: the component (%s) is not on screen: %sx%s'%(sid,r['root'],r['w'],r['h']))
     other=[u for u in asked if not u.startswith('file:') and not u.startswith(KITURL)]
@@ -120,7 +134,7 @@ async def open_tab(b,url,label,bad):
     if not tab.url.startswith('blob:'): bad.append('%s: Open page opened %s, not a blob: page'%(label,tab.url))
     if not r['kit'] or not r['css']: bad.append('%s: the opened page did not run the kit (%s)%s'%(label,r,' '+terr[0] if terr else ''))
     elif terr: bad.append('%s: the opened page: %s'%(label,terr[0]))
-    if r['title']!='Button . ascii/ui kit '+V: bad.append('%s: the opened page is titled %s'%(label,r['title']))
+    if r['title']!='Button: ascii/ui kit '+V: bad.append('%s: the opened page is titled %s'%(label,r['title']))
     said=await pg.evaluate(OUT,'s-button')
     if 'new tab' not in said: bad.append('%s: after Open page the status says %r'%(label,said))
     if errs: bad.append('%s: %s'%(label,errs[0]))
@@ -165,12 +179,15 @@ async def main():
             if sid in NOT_COMPONENTS: continue
             r=await pg.evaluate(OPEN_CODE,sid)
             if r['dl']!=r['open']: bad.append(sid+': Download page and Open page do not come together')
+            if r['labels'][:1]!=['Copy HTML'] or 'btn-primary' not in r['first']: bad.append('%s: Copy HTML is not the first, heavy button (%s, %r)'%(sid,r['labels'],r['first']))
+            if r['say']: bad.append('%s: the status line says %r before any button is pressed'%(sid,r['say']))
             if not r['dl']:
-                if r['say']!=SITE_ONLY_MSG: bad.append('%s: no Download page, and the Code tab does not say %r (it says %r)'%(sid,SITE_ONLY_MSG,r['say']))
+                if not r['note'].endswith(NO_PAGE): bad.append('%s: no Download page, and the note does not end %r (it says %r)'%(sid,NO_PAGE,r['note']))
+                if r['note'].lower().count('site only')>1: bad.append('%s: the note says site only more than once (%r)'%(sid,r['note']))
                 if not block and sid not in MUST_SAY: bad.append(sid+': a kit component with no Download page')
                 rows.append((sid,'block' if block else 'component','site only'));continue
             if sid in MUST_SAY: bad.append(sid+': site only, and it offers a Download page')
-            if r['labels'][:1]!=['Copy HTML'] or 'Download page' not in r['labels']: bad.append('%s: the buttons are %s'%(sid,r['labels']))
+            if 'Download page' not in r['labels'] or NO_PAGE in r['note']: bad.append('%s: the buttons are %s, the note %r'%(sid,r['labels'],r['note']))
             await pg.wait_for_timeout(120)
             async with pg.expect_download() as info:
                 await pg.evaluate(CLICK,[sid,'data-page'])
