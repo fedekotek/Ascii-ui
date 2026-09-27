@@ -76,13 +76,14 @@ function show(name){const t=$('v-'+name);if(t){t.click();return true}return fals
 /* index.html paints #boot before anything else and drops it for a return visit or
    reduced motion; this fills it, or builds it again for the palette's `boot`.
    Keep BOOTSKEL in step with the markup in index.html. About 0.6s, then out. */
+/* the strip is glyphs, not slabs, and it has no cyan (cyan is focus) */
 const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
-  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="background:var(--'+k+');color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
-  '</div><div class="log">ASCII/UI BIOS v0.9  (c) nobody\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
+  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
+  '</div><div class="log">ASCII/UI BIOS v0.9  (c) 2026 FEDE KOTEK\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
 let booting=false;
 function boot(force,done){
   if(booting)return;
-  const fin=()=>{root.classList.remove('aui-booting');if(done)done()};
+  const fin=()=>{root.classList.remove('aui-booting');if(A.heroWake)A.heroWake();if(done)done()};
   let el=$('boot'),seen=false;
   try{seen=!!sessionStorage.getItem('aui-boot')}catch(e){}
   if(reduce||(!force&&seen)){if(el)el.remove();fin();return}
@@ -102,7 +103,10 @@ function boot(force,done){
   title._b=bm;title._n=bm.map(r=>r.map(()=>rnd(6)));title._scale=scale;title._bars=[];
   A.titleFrame(title,0);
   let i=0,over=false,titled=false,logged=false;
-  const streak=()=>{if(Math.random()>=0.35)return;const st=document.createElement('div');st.className='strk';st.style.top=(Math.random()*100)+'%';st.style.width=(20+Math.random()*60)+'%';st.style.left=(Math.random()*40)+'%';el.appendChild(st);setTimeout(()=>st.remove(),90+rnd(160))};
+  /* a streak is a row of = on the grid, not a 2px line */
+  const streak=()=>{if(Math.random()>=0.35)return;const st=document.createElement('div'),cols=Math.floor(window.innerWidth/A.CH()),n=Math.max(4,Math.round(cols*(0.2+Math.random()*0.6)));
+    st.className='strk';st.style.cssText='top:'+(rnd(Math.max(1,Math.floor(window.innerHeight/A.ROW)))*A.ROW)+'px;left:'+(rnd(Math.max(1,Math.floor(cols*0.4)))*A.CH())+'px;right:auto;height:'+A.ROW+'px;line-height:'+A.ROW+'px;background:none;color:var(--hot);white-space:pre';
+    st.textContent=A.TR(rep('=',n));el.appendChild(st);setTimeout(()=>st.remove(),90+rnd(160))};
   /* the title develops (14 frames) while the log types (5 lines); the bar hits 100% and it leaves */
   const tiv=times(30,14,f=>{A.titleFrame(title,f);streak()},()=>{A.titleFrame(title,99);titled=true;if(logged)end()});
   const iv=times(60,L.length,()=>{
@@ -124,11 +128,13 @@ A.boot=boot;
 let ly=window.scrollY,lt=performance.now(),lastTear=0,idleAt=Date.now(),rotten=[];
 window.addEventListener('scroll',()=>{
   const n=performance.now(),dy=Math.abs(window.scrollY-ly),dt=Math.max(16,n-lt);ly=window.scrollY;lt=n;
-  const v=dy/dt*1000;G.scroll=Math.min(1,Math.max(G.scroll,v/2600));
+  const v=dy/dt*1000,was=G.scroll;G.scroll=Math.min(1,Math.max(G.scroll,v/2600));
+  if(!was&&G.scroll&&decay)decay.wake(100);
   if(v>1300&&n-lastTear>90){lastTear=n;tear(1+rnd(2))}
   touch(true);
 },{passive:true});
-if(!reduce)every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0});
+/* the decay sleeps while there is nothing to decay; a scroll wakes it */
+const decay=reduce?null:every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0},{gate:()=>G.scroll>0});
 /* the repair only sounds when you touched something; a scroll repairs quietly */
 function touch(quiet){
   idleAt=Date.now();
@@ -293,22 +299,40 @@ $('rebuildBtn').addEventListener('click',rebuild);
 window.addEventListener('resize',sandSize);sandSize();
 const DEST='.btn,.lift,.chart,.ptitle,.stat,.kpi,.badge,.tablewrap,.acc,.skel';
 /* A finger holds things to read them, select them or scroll: a long press on a
-   button, a card or a table shattered it and ate the text selection, Copy on
-   the Code tabs included. On touch only the pictures break: titles, charts
-   and badges. A mouse still gets the whole set. */
-const DEST_TOUCH='.chart,.ptitle,.badge';
-let lp=null,swallow=false;
+   button, a card, a badge or a stat shattered it and ate the text selection.
+   On touch only the titles break. A mouse still gets the whole set. The hold
+   is 900ms and it warns you: a row of characters under the target fills up
+   the ramp, and letting go before it is full cancels. */
+const DEST_TOUCH='.ptitle',HOLD=900,FILL='.:=+*#%@';
+let lp=null,swallow=false,lastType='mouse';
+function warnRow(t){
+  const r=t.getBoundingClientRect(),d=document.createElement('div'),cols=Math.max(1,Math.floor(r.width/A.CH()));
+  d.setAttribute('aria-hidden','true');
+  d.style.cssText='left:'+r.left+'px;top:'+Math.max(0,Math.min(window.innerHeight-A.ROW,r.bottom))+'px;line-height:'+A.ROW+'px;height:'+A.ROW+'px;font-weight:700;white-space:pre;color:var(--hot)';
+  fx.appendChild(d);d._cols=cols;return d;
+}
+function endLp(){if(!lp)return;if(lp.run)lp.run.stop();if(lp.row)lp.row.remove();lp=null}
 document.addEventListener('pointerdown',e=>{
+  lastType=e.pointerType||'mouse';
   if(reduce||e.button)return;
   const t=e.target.closest&&e.target.closest(e.pointerType==='mouse'?DEST:DEST_TOUCH);
   if(!t||t.closest('dialog,#rebuild,.copyrow,.code,.ctx,.pane')||e.target.closest('input,select,textarea'))return;
-  const x=e.clientX,y=e.clientY;
-  lp={t,x,y,id:setTimeout(()=>{if(lp&&lp.t===t){swallow=true;shatter(t);lp=null;setTimeout(()=>{swallow=false},700)}},560)};
+  endLp();
+  const row=warnRow(t),n=FILL.length;
+  lp={t,x:e.clientX,y:e.clientY,row};
+  lp.run=times(Math.round(HOLD/n),n,f=>{row.textContent=A.TR(rep(FILL[f-1],row._cols))},()=>{
+    if(!lp||lp.t!==t)return;lp.run=null;endLp();swallow=true;shatter(t);setTimeout(()=>{swallow=false},700);
+  });
 });
-const cancelLp=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)<10)return;clearTimeout(lp.id);lp=null};
+const cancelLp=e=>{if(!lp)return;if(e.type==='pointermove'&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)<10)return;endLp()};
 ['pointerup','pointercancel','pointermove','scroll'].forEach(ev=>window.addEventListener(ev,cancelLp,{passive:true,capture:true}));
 document.addEventListener('click',e=>{if(swallow){e.preventDefault();e.stopPropagation();swallow=false}},true);
-document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest(DEST_TOUCH)&&!e.target.closest('input,#posterDlg,dialog'))e.preventDefault()});
+/* the menu a long press opens is blocked only for a finger on a title; a
+   mouse keeps its right click everywhere */
+document.addEventListener('contextmenu',e=>{
+  const touch=(e.pointerType||lastType)==='touch'||(e.sourceCapabilities&&e.sourceCapabilities.firesTouchEvents);
+  if(touch&&e.target.closest&&e.target.closest(DEST_TOUCH)&&!e.target.closest('input,#posterDlg,dialog'))e.preventDefault();
+});
 
 /* ================= photo / camera hero ================= */
 const off=document.createElement('canvas'),octx=off.getContext('2d',{willReadFrequently:true});
@@ -367,13 +391,29 @@ document.addEventListener('aui:view',()=>{
 /* ================= VHS layer ================= */
 const hud=$('hud'),t0=Date.now();
 if(!reduce){
+  /* it only runs while it shows (it is hidden under 480px and with Glitch
+     off), and the box is rewritten only when the text changed */
+  let hudWas='';
   every(120,()=>{
-    if(A.glitch()<=0)return;
     const ms=Date.now()-t0,p=n=>String(n).padStart(2,'0');
     const tc=p(Math.floor(ms/3600000))+':'+p(Math.floor(ms/60000)%60)+':'+p(Math.floor(ms/1000)%60)+':'+p(Math.floor(ms/40)%25);
-    hud.innerHTML=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
-  });
-  every(9000,()=>{if(A.glitch()<=0)return;const t=$('track');t.classList.remove('run');void t.offsetWidth;t.classList.add('run')});
+    const h=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
+    if(h!==hudWas){hudWas=h;hud.innerHTML=h}
+  },{gate:()=>A.glitch()>0&&hud.getClientRects().length>0});
+  /* the tracking band is three rows of characters that step down the screen
+     a row per frame. It moves by transform, so nothing is laid out again as
+     it passes (it used to animate top, a layout shift every frame, and it
+     filtered what was under it) */
+  const trk=$('track');let trkRun=null;
+  trk.style.cssText='top:0;height:auto;-webkit-backdrop-filter:none;backdrop-filter:none;background:none;animation:none;opacity:.2;color:var(--ink);font-weight:700;white-space:pre;overflow:hidden;line-height:'+A.ROW+'px;visibility:hidden';
+  every(9000,()=>{
+    if(trkRun)return;
+    const cols=Math.ceil(window.innerWidth/A.CH())+1,rows=Math.ceil(window.innerHeight/A.ROW)+3,dash=rep('- ',cols).slice(0,cols);
+    trk.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
+    const at=f=>{trk.style.transform='translateY('+((f-3)*A.ROW)+'px)'};
+    at(0);trk.style.visibility='visible';
+    trkRun=times(Math.max(40,Math.round(2600/rows)),rows,at,()=>{trk.style.visibility='hidden';trkRun=null});
+  },{gate:()=>A.glitch()>0});
 }
 
 /* ================= tilt ================= */
@@ -586,7 +626,10 @@ const INV=(function(){
     }
   }
   function ptr(e){const r=cv.getBoundingClientRect();px=clamp((e.clientX-r.left)/cw-4,0,COLS-8)}
-  cv.addEventListener('pointerdown',e=>{if(state!=='play'){start();ptr(e);return}down=true;ptr(e)});
+  /* a game starts on a tap (a finger may only be scrolling past); once it
+     runs, a finger steers and fires from the moment it lands */
+  cv.addEventListener('pointerdown',e=>{if(state!=='play')return;down=true;ptr(e)});
+  A.onTap(cv,e=>{if(state!=='play'){start();ptr(e)}});
   cv.addEventListener('pointermove',e=>{if(state==='play')ptr(e)});
   ['pointerup','pointercancel','pointerleave'].forEach(ev=>cv.addEventListener(ev,()=>{down=false}));
   document.addEventListener('keydown',e=>{
@@ -596,11 +639,15 @@ const INV=(function(){
     else if(e.key===' '){if(document.activeElement===cv||state==='play'){e.preventDefault();if(state!=='play')start();else kf=true}}
   });
   document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')kl=false;else if(e.key==='ArrowRight')kr=false;else if(e.key===' ')kf=false});
-  if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(cv);else vis=true;
+  let loop=null;
+  if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting;if(vis&&loop)loop.wake()}).observe(cv);else vis=true;
   fleet();bunkers();
   /* with reduced motion the loop only runs while you play: nothing on the
      idle screen moves by itself */
-  every(50,step,{gate:()=>vis&&(!reduce||state==='play')});
+  /* the attract screen also stops with Glitch off (the page's pause switch,
+     WCAG 2.2.2); a game you started keeps running */
+  loop=every(50,step,{gate:()=>vis&&(state==='play'||(!reduce&&G.on))});
+  const start0=start;start=function(){start0();loop.wake()};
   return {size,start,draw};
 })();
 window.AUI3={INV,makePoster,openCmd,run};
@@ -631,7 +678,7 @@ Grid.prototype.html=function(){
    and cut the right side off. A chart in a hidden view measures nothing, so it
    keeps the page's width until it shows, and a ResizeObserver redraws it then. */
 function colsOf(el){const w=el&&el.clientWidth;return w?Math.max(20,Math.floor(w/CCW)):CC}
-function grow(draw){return function(){if(reduce){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
+function grow(draw){return function(){if(reduce||A.glitch()<=0){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
 function cellAt(el,e){const r=el.getBoundingClientRect();return {x:Math.floor((e.clientX-r.left)/CCW),y:Math.floor((e.clientY-r.top)/14)}}
 /* every chart you can tap you can also drive: it takes a Tab stop, the arrows
    move the pick and Enter or Space does what a tap does. fn(key) returns true
@@ -647,13 +694,15 @@ function drawBars(p){
     const h=Math.round(v/mx*H*barP),x0=lab+i*(bw+1);
     for(let yy=0;yy<h;yy++){const top=h-1-yy,ch=top===0?'*':(top===1?'#':(top===2?'%':'@'));
       for(let xx=0;xx<bw;xx++)g.set(x0+xx,H-1-yy,ch,i===selBar?'violet':(top<2?'pink':'hot'))}
-    g.text(x0+Math.max(0,Math.floor((bw-3)/2)),H,DAYS[i].slice(0,bw),i===selBar?'ink':'muted');
+    /* the pick is said in text too, [Thu], not only by colour */
+    const lx=x0+Math.max(0,Math.floor((bw-3)/2));
+    if(i===selBar)g.text(lx-1,H,'['+DAYS[i].slice(0,bw)+']','ink');else g.text(lx,H,DAYS[i].slice(0,bw),'muted');
   });
   el.innerHTML=g.html();
   $('st-bars').textContent=DAYS[selBar]+'  '+REQ[selBar].toLocaleString('en-US')+' requests';
 }
 function pickBar(i){selBar=clamp(i,0,6);drawBars();blip(300+REQ[selBar]/3,0.06,'square',0.09)}
-$('ch-bars').addEventListener('pointerdown',e=>{
+A.onTap($('ch-bars'),e=>{
   const c=cellAt($('ch-bars'),e),bw=Math.max(3,Math.floor((colsOf($('ch-bars'))-5)/7)-1);pickBar(Math.floor((c.x-5)/(bw+1)));
 });
 keys($('ch-bars'),k=>{
@@ -684,7 +733,7 @@ function Line(id){
   st.removeAttribute('role');st.removeAttribute('aria-live');
   const hit=()=>{spike=4;A.kick();B.tear(2);blip(140,0.2,'sawtooth',0.14,0.5);
     d.push(next());if(d.length>300)d.shift();draw();A.announce('Spike sent. p95 '+d[d.length-1]+' ms.')};
-  el.addEventListener('pointerdown',hit);
+  A.onTap(el,hit);
   keys(el,k=>{if(k!=='Enter'&&k!==' ')return false;hit();return true});
   if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(el);
   /* it moves on its own, so it stops with reduced motion and with Glitch off
@@ -726,7 +775,7 @@ function pickHeat(y,w){
   $('st-heat').textContent=names[y]+', '+(weeks-w)+' weeks ago: '+(v*100).toFixed(2)+'%'+(v<0.78?'  outage':(v<0.93?'  degraded':''));
   blip(v>0.93?880:(v>0.78?440:160),0.06,'square',0.09);if(v<0.78)A.kick();
 }
-$('ch-heat').addEventListener('pointerdown',e=>{const c=cellAt($('ch-heat'),e);pickHeat(c.y,Math.floor((c.x-5)/2))});
+A.onTap($('ch-heat'),e=>{const c=cellAt($('ch-heat'),e);pickHeat(c.y,Math.floor((c.x-5)/2))});
 keys($('ch-heat'),k=>{
   const d={ArrowLeft:[0,-1],ArrowRight:[0,1],ArrowUp:[-1,0],ArrowDown:[1,0],Enter:[0,0],' ':[0,0]}[k];if(!d)return false;
   /* the first key lands on the newest week, where the eye starts */
@@ -735,7 +784,9 @@ keys($('ch-heat'),k=>{
 $('ch-heat')._anim=grow(drawHeat);
 
 /* donut */
-const SEG=[['direct',0.38,'hot'],['search',0.27,'deep'],['social',0.20,'warn'],['email',0.15,'violet']];let selD=-1,donP=1;
+/* each slice has its own glyph as well as its own colour, so it reads without
+   colour (and in grey); the legend swatch uses the same glyph. No yellow: it warns */
+const SEG=[['direct',0.38,'hot','@'],['search',0.27,'deep','#'],['social',0.20,'pink','%'],['email',0.15,'violet','+']];let selD=-1,donP=1;
 function segAt(a){let acc=0;for(let i=0;i<SEG.length;i++){acc+=SEG[i][1];if(a<acc)return i}return SEG.length-1}
 function drawDonut(p){
   if(p!=null)donP=p;const H=13,g=new Grid(Math.min(colsOf($('ch-donut')),48),H),cx=13,cy=6,ay=14/CCW;
@@ -743,12 +794,12 @@ function drawDonut(p){
     const dx=x-cx,dy=(y-cy)*ay,r=Math.hypot(dx,dy);if(r<5.6||r>12.6)continue;
     let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;if(a>donP)continue;
     const i=segAt(a),on=selD<0||selD===i;
-    g.set(x,y,on?(r>10.4?'@':(r>8?'#':'*')):(r>10.4?':':'.'),on?SEG[i][2]:'muted');
+    g.set(x,y,on?SEG[i][3]:(r>10.4?':':'.'),on?SEG[i][2]:'muted');
   }
-  SEG.forEach((s,i)=>{const on=selD<0||selD===i;g.set(29,3+i*2,'@',on?s[2]:'muted');g.set(30,3+i*2,'@',on?s[2]:'muted');g.text(32,3+i*2,s[0].padEnd(7,' ')+Math.round(s[1]*100)+'%',on?'ink':'muted')});
+  SEG.forEach((s,i)=>{const on=selD<0||selD===i;g.set(29,3+i*2,s[3],on?s[2]:'muted');g.set(30,3+i*2,s[3],on?s[2]:'muted');g.text(32,3+i*2,s[0].padEnd(7,' ')+Math.round(s[1]*100)+'%',on?'ink':'muted')});
   $('ch-donut').innerHTML=g.html();
 }
-$('ch-donut').addEventListener('pointerdown',e=>{
+A.onTap($('ch-donut'),e=>{
   const c=cellAt($('ch-donut'),e);let i=-1;
   if(c.x>=29){i=Math.floor((c.y-3)/2);if(i<0||i>=SEG.length||(c.y-3)%2)i=-1}
   else{const dx=c.x-13,dy=(c.y-6)*(14/CCW),r=Math.hypot(dx,dy);if(r>=5&&r<=13.2){let a=(Math.atan2(dy,dx)+Math.PI/2)/(Math.PI*2);if(a<0)a+=1;i=segAt(a)}}
@@ -768,12 +819,20 @@ keys($('ch-donut'),k=>{
   return true;
 });
 $('ch-donut')._anim=grow(drawDonut);
-function drawCharts(){drawBars();line1.draw();drawRegions();drawHeat();drawDonut()}
+const DRAW={'ch-bars':()=>drawBars(),'ch-line':()=>line1.draw(),'ch-regions':()=>drawRegions(),'ch-heat':()=>drawHeat(),'ch-donut':()=>drawDonut()};
+/* a chart draws when it comes near the screen, not all five at load and on
+   every layout: until then it is marked as owed one, and it draws on arrival */
+const near=new Set(),owed=new Set();
+const nio='IntersectionObserver' in window?new IntersectionObserver(en=>en.forEach(e=>{
+  const id=e.target.id;if(e.isIntersecting){near.add(id);if(owed.has(id)){owed.delete(id);DRAW[id]()}}else near.delete(id);
+}),{rootMargin:'50% 0px'}):null;
+if(nio)Object.keys(DRAW).forEach(id=>{owed.add(id);nio.observe($(id))});
+function drawCharts(){Object.keys(DRAW).forEach(id=>{if(!nio||near.has(id))DRAW[id]();else owed.add(id)})}
 /* a chart redraws when its own box changes: a view shows, the sidebar
    appears, the gallery reflows, the text size changes */
 if('ResizeObserver' in window){
-  const DRAW={'ch-bars':()=>drawBars(),'ch-line':()=>line1.draw(),'ch-regions':()=>drawRegions(),'ch-heat':()=>drawHeat(),'ch-donut':()=>drawDonut()},seen=new WeakMap();
-  const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);DRAW[el.id]()}));
+  const seen=new WeakMap();
+  const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);if(!nio||near.has(el.id))DRAW[el.id]();else owed.add(el.id)}));
   Object.keys(DRAW).forEach(id=>ro.observe($(id)));
 }else document.addEventListener('aui:view',drawCharts);
 
@@ -792,7 +851,8 @@ function drawSkel(){
   const line=(n,r)=>side+' '+(n?wave(n,r):'')+' '.repeat(inner-n+1)+side;
   el.innerHTML=[edge,line(Math.min(12,inner),0),line(0,0),line(Math.floor(inner*0.9),1),line(Math.floor(inner*0.6),2),edge].join('\n');
 }
-if(!reduce)every(110,()=>{const el=$('skel');if(el&&inView(el)){skT+=0.5;drawSkel()}});
+/* the wave moves on its own, so it stops with Glitch off (the page's pause switch) */
+if(!reduce&&$('skel'))every(110,()=>{skT+=0.5;drawSkel()},{el:$('skel'),gate:()=>G.on});
 
 /* ================= blocks wiring ================= */
 function setErr(id,msg){

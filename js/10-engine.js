@@ -30,8 +30,10 @@
        el:node    run only while the node is on screen (combines with gate)
        times:n    stop after n runs
        end:fn     called when the count runs out (not when you stop it)
-       delay:ms   wait this long instead of one cadence before the first run  */
-  var CK={tasks:[],raf:0,paused:false};
+       delay:ms   wait this long instead of one cadence before the first run
+     The loop sleeps until the next task is due, and a task whose gate says no
+     looks again in a second. handle.wake() runs it at the next frame.  */
+  var CK={tasks:[],raf:0,timer:0,due:0,paused:false};
   /* on screen: laid out (a hidden view measures zero) and inside the viewport */
   function onScreen(el){
     if(!el)return false;
@@ -48,7 +50,9 @@
         if(off){t.at=now+t.ms;continue}
         if(now<t.at)continue;
         t.at=now+t.ms;
-        if(t.gate&&!t.gate())continue;
+        /* gated off: look again in a second, not every cadence */
+        /* snapped to a half second, so the sleepers wake together, once, not each on its own frame */
+        if(t.gate&&!t.gate()){t.at=Math.ceil((now+Math.max(t.ms,1000))/500)*500;continue}
         t.n++;
         /* a task that throws loses its place, not the whole loop; the error is
            rethrown out of band so it still reaches the console and QA */
@@ -60,7 +64,17 @@
       if(CK.tasks.length&&!CK.paused)clockStart();
     }
   }
-  function clockStart(){if(!CK.raf)CK.raf=requestAnimationFrame(clockFrame)}
+  /* sleep until the next task is due, then ask for one frame: a page whose
+     fastest task runs every 125ms wakes 8 times a second, not 60 */
+  function clockStart(){
+    if(CK.raf||CK.paused||!CK.tasks.length)return;
+    var now=window.performance?performance.now():Date.now(),next=Infinity,i,t;
+    for(i=0;i<CK.tasks.length;i++){t=CK.tasks[i];if(!t.dead&&t.at<next)next=t.at}
+    if(CK.timer){if(next>=CK.due)return;clearTimeout(CK.timer);CK.timer=0}
+    var wait=next-now-8;
+    if(wait>12){CK.due=next;CK.timer=setTimeout(function(){CK.timer=0;CK.raf=requestAnimationFrame(clockFrame)},wait)}
+    else CK.raf=requestAnimationFrame(clockFrame);
+  }
   function every(ms,fn,opt){
     opt=opt||{};
     var gate=opt.gate||null,el=opt.el||null;
@@ -69,6 +83,8 @@
     t.at=(window.performance?performance.now():Date.now())+(opt.delay===undefined?t.ms:opt.delay);
     t.stop=function(){t.dead=true};
     t.running=function(){return !t.dead};
+    /* run at the next frame (or in ms), for a gate that just opened: it would otherwise wait up to a second */
+    t.wake=function(ms){if(!t.dead){t.at=(window.performance?performance.now():Date.now())+(ms||0);clockStart()}};
     CK.tasks.push(t);clockStart();
     return t;
   }
@@ -78,7 +94,9 @@
     pause:function(){CK.paused=true},
     resume:function(){CK.paused=false;clockStart()},
     paused:function(){return CK.paused},
-    count:function(){return CK.tasks.length}
+    count:function(){return CK.tasks.length},
+    /* what is armed and how often each ran, for QA and for looking */
+    list:function(){return CK.tasks.map(function(t){return {ms:t.ms,runs:t.n,gated:!!t.gate}})}
   };
   document.addEventListener('visibilitychange',function(){if(!document.hidden)clockStart()});
 
@@ -95,10 +113,18 @@
       var d=nbuf.getChannelData(0),i,h=0;
       for(i=0;i<d.length;i++){if(i%7===0)h=Math.random()*2-1;d[i]=h}
     }
-    if(AC.state==='suspended')AC.resume();
+    if(AC.state==='suspended'||SND.nap)AC.resume();
+    SND.nap=false;napLater();
     return AC;
   }
-  function sndLive(){return SND.on&&AC&&AC.state==='running'}
+  /* a running context costs CPU even when it is silent, so it naps 5s after
+     the last sound (and when the tab is hidden). A nap still counts as live:
+     the next sound wakes it. The switch turning it off is not a nap. */
+  var napT=0;
+  function nap(){napT=0;if(AC&&AC.state==='running'){SND.nap=true;AC.suspend()}}
+  function napLater(){clearTimeout(napT);napT=setTimeout(nap,5000)}
+  document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(napT);nap()}});
+  function sndLive(){return SND.on&&AC&&(AC.state==='running'||SND.nap)}
   /* every sound is a little different, and a sound that repeats gets quieter and duller until it rests */
   var FAT={};
   function human(key,dur,vol){
@@ -158,11 +184,39 @@
   function letGo(){var el=document.activeElement;if(isRange(el)&&Date.now()-touchAt<5000)setTimeout(function(){el.blur()},0)}
   ['pointerup','pointercancel','touchend','touchcancel'].forEach(function(t){document.addEventListener(t,letGo,true)});
   document.addEventListener('change',function(e){if(isRange(e.target)&&Date.now()-touchAt<5000)letGo()},true);
+  /* a vertical swipe that starts on a slider is a scroll: the browser moves
+     the value, cancels the pointer, then commits it anyway. The value from
+     touch-down comes back on the cancel, and the late commit gets it too */
+  document.addEventListener('pointerdown',function(e){var el=e.target;if(e.pointerType!=='mouse'&&isRange(el)){el._v0=el.value;el._undo=0}},true);
+  document.addEventListener('pointerup',function(e){if(isRange(e.target))e.target._v0=null},true);
+  document.addEventListener('pointercancel',function(e){
+    var el=e.target;if(!isRange(el)||el._v0==null)return;
+    el._undo=Date.now();if(el.value!==el._v0){el.value=el._v0;el.dispatchEvent(new Event('change',{bubbles:true}))}
+  },true);
+  document.addEventListener('change',function(e){var el=e.target;if(isRange(el)&&el._undo&&Date.now()-el._undo<1000&&el.value!==el._v0)el.value=el._v0},true);
   document.addEventListener('focusin',function(e){
     /* focused from a label or anything that is not the slider: nothing to drag, let go now */
     if(isRange(e.target)&&Date.now()-touchAt<1000&&touchOn!==e.target)setTimeout(function(){e.target.blur()},0);
   },true);
   document.addEventListener('keydown',unlock,true);
+
+  /* A tap, not a touch-down. A finger that starts a scroll on a chart or a
+     picture used to change it on the way past. A mouse still acts on press;
+     a finger or a pen acts when it lifts, if it moved under 10px and the
+     browser did not take the gesture for a scroll (pointercancel). */
+  function onTap(el,fn){
+    var d=null;
+    el.addEventListener('pointerdown',function(e){
+      if(e.pointerType==='mouse'){d=null;if(!e.button)fn(e);return}
+      d={x:e.clientX,y:e.clientY,id:e.pointerId};
+    });
+    el.addEventListener('pointermove',function(e){if(d&&e.pointerId===d.id&&Math.hypot(e.clientX-d.x,e.clientY-d.y)>=10)d=null});
+    el.addEventListener('pointercancel',function(){d=null});
+    el.addEventListener('pointerup',function(e){
+      if(!d||e.pointerId!==d.id)return;
+      var ok=Math.hypot(e.clientX-d.x,e.clientY-d.y)<10;d=null;if(ok)fn(e);
+    });
+  }
 
   /* ---- 5x7 bitmap face, squared off ---- */
   var F={
@@ -239,7 +293,7 @@
       var dx=(!done&&Math.random()<0.4)?Math.round((Math.random()-0.5)*14):0;
       html+='<span class="tr c'+Math.min(3,pre._scale===1?(y>>1):(y>>2))+'" style="transform:translateX('+dx+'ch)">'+row+(pre._bars[y]||'')+'</span>';
     }
-    pre.innerHTML=html;
+    pre.innerHTML=html;pre._painted=1;
   }
   function makeBars(cols){
     /* tbar is ink in dark and magenta on paper, see css/01 */
@@ -268,8 +322,17 @@
     pre._b=b;pre._n=n;pre._scale=scale;pre._bars=makeBars((pre.hasAttribute('data-nobars')||nobars)?999:b[0].length);
     if(scale===1)pre._bars=pre._bars.map(function(){return ''});
   }
+  /* a title is painted when it comes near the screen, not all of them at load:
+     most sit in views that are not open, or are hidden by the docs layout */
+  var nio='IntersectionObserver' in window?new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      nio.unobserve(en.target);if(!en.target._painted)titleFrame(en.target,reduce?99:0);
+    });
+  },{rootMargin:'50% 0px'}):null;
   titles.forEach(function(pre){
-    initTitle(pre,pre.getAttribute('data-text'));titleFrame(pre,reduce?99:0);
+    initTitle(pre,pre.getAttribute('data-text'));
+    if(nio)nio.observe(pre);else titleFrame(pre,reduce?99:0);
     pre.addEventListener('click',function(){develop(pre)});
   });
   if(!reduce&&'IntersectionObserver' in window){
@@ -281,7 +344,7 @@
     },{threshold:0.7});
     titles.forEach(function(pre){tio.observe(pre)});
   every(1500,fitTitles);
-  }else titles.forEach(function(pre){titleFrame(pre,99)});
+  }else if(!nio)titles.forEach(function(pre){titleFrame(pre,99)});
 
   /* ---- layout: snap the page to a whole number of columns ---- */
   var probe=$('probe'),hero=$('hero'),ctx=hero.getContext('2d');
@@ -310,7 +373,9 @@
        the two fades at double size drops to single. */
     var fade=(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*CH;
     var x0=Math.ceil(fade/CW)+1;
-    var half=HR<44,sc=function(t){t=t||' ';return t.length>5||half||x0*2+t.length*12-2>HC?1:2};
+    /* from 1600px the hero is taller and the words go to double size as soon
+       as two lines of it fit (35 rows), not at 44 */
+    var half=HR<(wideHero()?36:44),sc=function(t){t=t||' ';return t.length>5||half||x0*2+t.length*12-2>HC?1:2};
     var m=[],y,x,l1=bitmap(HP.t1||' ',sc(HP.t1)),l2=bitmap(HP.t2||' ',sc(HP.t2));
     for(y=0;y<HR;y++){m.push([]);for(x=0;x<HC;x++)m[y].push(0)}
     wbox=[];
@@ -326,6 +391,7 @@
     put(l2,HC<70?Math.min(HR-l2.length,Math.round(HR*0.724)):Math.min(HR-l2.length,y1+l1.length+Math.ceil(l1.length*0.4)));
     mask=m;
   }
+  function wideHero(){return window.innerWidth>=1600}
   function inWord(x,y){
     for(var i=0;i<wbox.length;i++){var w=wbox[i];if(x>=w[0]&&x<=w[2]&&y>=w[1]&&y<=w[3])return true}
     return false;
@@ -398,7 +464,7 @@
     var W=inner*ch;
     /* the hero costs HC*58 cells a frame, so it stops getting denser past 140 */
     HC=W<520?60:Math.min(140,Math.round(W/9));
-    DPR=Math.min(window.devicePixelRatio||1,2.5);
+    DPR=Math.min(window.devicePixelRatio||1,2);
     ctx.setTransform(1,0,0,1,0,0);
     ctx.font='700 100px '+FONT;
     var r=ctx.measureText('M').width/100||0.6;
@@ -418,11 +484,14 @@
          whatever the copy costs */
       /* and a hard cap in rows: sixteen on a screen, twelve on a phone. The ring
          is the proof, not the page (Home, 2026) */
-      var cap=ROW*(window.innerWidth<720?12:16);
+      var cap=ROW*(window.innerWidth<720?12:(wideHero()?22:16));
       var lid=Math.min(cap,Math.max(floor,Math.min(Math.round(vh*0.45/ROW)*ROW,Math.round((vh-ROW*8-copy)/ROW)*ROW)));
       if(Hpx>lid){Hpx=lid;HR=Math.max(20,Math.floor(Hpx/LH))}
     }
     hero.style.height=Hpx+'px';
+    /* from 1600px the canvas reaches into the margin by its fade, so the
+       headline starts on the paragraph's left edge instead of 7ch in */
+    hero.style.marginLeft=wideHero()?(-(parseFloat(getComputedStyle(hero).getPropertyValue('--fade'))||6)*ch)+'px':'';
     hero.width=Math.round(W*DPR);hero.height=Math.round(Hpx*DPR);
     /* --ptitle caps how big a bitmap pixel in a poster title may get. It is a
        token so the size is a design decision, not a number buried in here. */
@@ -443,7 +512,8 @@
 
   /* ---- hero: a torus on a bad signal. streaks, colour bars, RGB split, tearing ---- */
   var streaks=[],blocks=[],zb=null,lu=null;
-  var BAR=['pink','warn','ok','deep','ink','hot','violet'];   /* no cyan: blue is focus */
+  /* no cyan (focus), no lime (confirms), no yellow (warns): decoration stays in magenta, pink, violet, deep and ink */
+  var BAR=['pink','violet','deep','ink','hot','violet'];
   /* the ring shades through violet and magenta, never blue: blue is focus */
   var TOR_D=['violet','violet','hot','hot','pink','pink','ink'];
   var TOR_L=['ink','ink','violet','violet','hot','hot','pink'];   /* one step more ink than dark: pale on paper otherwise */
@@ -451,7 +521,7 @@
   function mkBlock(){
     var bars=Math.random()<0.4;
     return {x:Math.random()*HC,y:rnd(HR-4),w:bars?2*(4+rnd(4)):2+rnd(5),h:bars?3+rnd(3):1+rnd(3),
-            v:(Math.random()-0.5)*0.5,bars:bars,c:['ink','ok','deep','hot','violet','pink'][rnd(6)]};
+            v:(Math.random()-0.5)*0.5,bars:bars,c:['ink','deep','hot','violet','pink'][rnd(5)]};
   }
   function seedScene(){
     var i;streaks=[];blocks=[];
@@ -497,6 +567,12 @@
        sits in the gap between the two lines instead of on top of them */
     var narrow=HC<70;
     var rr=narrow?Math.min(HC*0.2,HR*0.26):Math.min(HC*0.36,HR*0.47,27),rad=rr*HP.rad,cx=HC-rr-2,cy=Math.round(HR*(narrow?0.5:0.64));
+    /* From 1600px the ring left 600px of nothing between itself and the words.
+       It grows and moves in next to them, four cells after the last letter */
+    if(!narrow&&wideHero()){
+      var wr=0;for(i=0;i<wbox.length;i++)wr=Math.max(wr,wbox[i][2]);
+      rr=Math.min(HC*0.36,HR*0.5,34);rad=rr*HP.rad;cx=Math.min(HC-rr-2,Math.round(wr+4+rad*1.05));cy=Math.round(HR*0.55);
+    }
     /* A colour bar laid over the ring or through a letter read as a smudge on a
        phone, where everything is close. Bars now run up to the words and the
        ring and stop, a row at a time. With a photo there is no ring to avoid. */
@@ -506,15 +582,11 @@
       if(ext)return true;
       var dx=(x-cx)/rx2,dy=(y-cy)/ry2;return dx*dx+dy*dy>1;
     }
-    function runs(x0,y0,w,h,x1){
+    /* blocks and bars are runs of characters, not slabs: @@ for a bar, %% for a block */
+    function runs(x0,y0,w,h,x1,chr){
       for(var yy=y0;yy<y0+h&&yy<HR;yy++){
         if(yy<0)continue;
-        var s=-1;
-        for(var xx=x0;xx<=x0+w;xx++){
-          var ok=xx<x0+w&&xx>=0&&xx<HC&&open(xx,yy);
-          if(ok&&s<0)s=xx;
-          if(!ok&&s>=0){ctx.fillRect((s+x1)*CW,yy*LH,(xx-s)*CW+0.5,LH);s=-1}
-        }
+        for(var xx=x0;xx<x0+w;xx++)if(xx>=0&&xx<HC&&open(xx,yy))ctx.fillText(chr,(xx+x1)*CW,yy*LH);
       }
     }
     /* blocks and colour bars */
@@ -526,11 +598,11 @@
       if(b.bars){
         for(k=0;k<b.w/2;k++){
           ctx.fillStyle=PAL[BAR[k%BAR.length]];
-          runs(bx+k*2,b.y,2,b.h,shift[b.y]);
+          runs(bx+k*2,b.y,2,b.h,shift[b.y],'@');
         }
       }else{
         ctx.fillStyle=PAL[b.c];
-        runs(bx,b.y,b.w,b.h,shift[b.y]);
+        runs(bx,b.y,b.w,b.h,shift[b.y],'%');
       }
     }
     ctx.globalAlpha=1;
@@ -577,14 +649,26 @@
         ctx.fillText(RAMP.charAt(dark?2+q:8-q),x*CW+oxp,y*LH);
       }
     }
+    /* the glow is characters too: a speckled halo of : and . just outside the
+       ring, thinning out as it leaves, and it shimmers a little with the ring */
+    var rxo=rad*0.9,ryo=rxo/1.25,hx0=Math.max(0,Math.floor(cx-rxo*1.5)),hx1=Math.min(HC-1,Math.ceil(cx+rxo*1.5)),
+        hy0=Math.max(0,Math.floor(cy-ryo*1.5)),hy1=Math.min(HR-1,Math.ceil(cy+ryo*1.5)),tk=Math.floor(t*3);
+    ctx.fillStyle=PAL.hot;ctx.globalAlpha=0.55;
+    for(y=hy0;y<=hy1;y++)for(x=hx0;x<=hx1;x++){
+      if(lu[y*HC+x]>-9||mask[y][x]||inWord(x,y))continue;
+      var hdx=(x-cx)/rxo,hdy=(y-cy)/ryo,hq=Math.sqrt(hdx*hdx+hdy*hdy);if(hq<1.02||hq>1.45)continue;
+      var hh=(((x*73856093)^(y*19349663)^(tk*83492791))>>>0)%100;
+      if(hh<(1.45-hq)/0.43*30)ctx.fillText(hq<1.2?':':'.',(x+shift[y])*CW,y*LH);
+    }
+    ctx.globalAlpha=1;
     }
 
-    /* the name: backed, then cyan and magenta ghosts, then ink */
+    /* the name: backed, then violet and magenta ghosts, then ink */
     var split=((g>0?1+g*2.5:0)+burst*12)*HP.split;
     for(y=0;y<HR;y++)for(x=0;x<HC;x++)if(mask[y][x]){
       ctx.fillStyle=PAL.bg;ctx.fillRect((x+shift[y])*CW-0.5,y*LH,CW+1,LH);
     }
-    var pass=[[-split,'cy'],[split,'hot'],[0,'ink']];
+    var pass=[[-split,'violet'],[split,'hot'],[0,'ink']];
     for(k=0;k<3;k++){
       if(k<2&&split<=0)continue;
       ctx.fillStyle=PAL[pass[k][1]];
@@ -597,10 +681,11 @@
     if(burst>0){
       for(i=0;i<Math.ceil(3*burst);i++){
         var rw=4+rnd(14),rh=1+rnd(3),rx=rnd(HC-rw),ry=rnd(HR-rh);
-        ctx.globalAlpha=0.9;ctx.fillStyle=PAL[BAR[rnd(BAR.length)]];
-        ctx.fillRect(rx*CW,ry*LH,rw*CW,rh*LH);
-        ctx.fillStyle=PAL.bg;ctx.globalAlpha=1;
-        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++)ctx.fillText(RAMP.charAt(3+rnd(6)),x*CW,y*LH);
+        /* a patch of heavy characters in one bar colour, over paper, not a slab */
+        ctx.globalAlpha=1;
+        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++){ctx.fillStyle=PAL.bg;ctx.fillRect(x*CW,y*LH,CW+0.5,LH)}
+        ctx.fillStyle=PAL[BAR[rnd(BAR.length)]];
+        for(y=ry;y<ry+rh;y++)for(x=rx;x<rx+rw;x++)ctx.fillText(RAMP.charAt(5+rnd(4)),x*CW,y*LH);
       }
       G.burst=Math.max(0,burst-0.3);
     }
@@ -616,22 +701,40 @@
   hero.addEventListener('pointerleave',function(){spinX=spinY=0});
   var visible=true;
   if('IntersectionObserver' in window)
-    new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(hero);
+    new IntersectionObserver(function(en){visible=en[0].isIntersecting;if(visible&&heroTask)heroTask.wake()}).observe(hero);
   /* the ring turns on its own, so Glitch off stops it too (it is the page's
      pause switch); a pointer can still turn it by hand */
-  if(!reduce)every(85,function(){
+  /* it waits for the boot screen to leave (js/20 wakes it then) */
+  var heroTask=reduce?null:every(85,function(){
     var g=glitch(),now=Date.now();
     if(G.scroll>0.3)G.burst=Math.max(G.burst,G.scroll);
     if(g>0&&now>G.next){G.burst=1;G.next=now+(1400+Math.random()*4200)/(0.35+g)}
     t+=0.12;A+=0.05*HP.speed+spinY*0.35;B+=0.028*HP.speed+spinX*0.35;drawHero();
-  },{gate:function(){return visible&&G.on}});
+  },{gate:function(){return visible&&G.on&&!root.classList.contains('aui-booting')}});
+  function heroWake(){if(heroTask)heroTask.wake()}
 
   /* ---- fx layer: ambient streaks, shards where you touch, page jolts ---- */
   var fx=$('fx');
-  function spark(x,y,w,h,c,op,life){
-    var d=document.createElement('div');
-    d.style.cssText='left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;opacity:'+op+';background:var(--'+c+')';
-    fx.appendChild(d);setTimeout(function(){d.remove()},life);
+  /* sparks are characters on the grid that fade down the ramp, 40ms a step,
+     never boxes. Cyan is focus, so a spark asked for in cyan comes out violet */
+  var FADE='@%#*+=:.';
+  function fadeRun(x,y,n,c,op,life){
+    var d=document.createElement('div'),steps=Math.max(2,Math.min(FADE.length,Math.round(life/40)));
+    d.setAttribute('aria-hidden','true');
+    d.style.cssText='left:'+(Math.round(x/CH)*CH)+'px;top:'+(Math.round(y/ROW)*ROW)+'px;line-height:'+ROW+'px;font-weight:700;white-space:pre;opacity:'+op+';color:var(--'+(c==='cy'?'violet':c)+')';
+    d.textContent=TR(rep(FADE.charAt(0),n));fx.appendChild(d);
+    times(40,steps,function(f){if(f<steps)d.textContent=TR(rep(FADE.charAt(Math.round(f*(FADE.length-1)/(steps-1))),n))},function(){d.remove()});
+  }
+  function spark(x,y,w,h,c,op,life){fadeRun(x,y,Math.max(1,Math.round(w/CH)),c,op,life)}
+  /* a tap answers with a burst drawn in characters, four frames, 40ms each */
+  var TAPF=[['  @  '],[' %#% ','%#@#%',' %#% '],['+ * +','*   *','+ * +'],['.   .','     ','.   .']];
+  function tapBurst(x,y,c){
+    var d=document.createElement('div'),cx=Math.round(x/CH)*CH-2*CH,cy=Math.round(y/ROW)*ROW-ROW;
+    d.setAttribute('aria-hidden','true');
+    d.style.cssText='left:'+cx+'px;top:'+cy+'px;line-height:'+ROW+'px;font-weight:700;white-space:pre;color:var(--'+c+')';
+    var paint=function(f){var r=TAPF[f];d.textContent=TR(r.length===1?'\n'+r[0]+'\n':r.join('\n'))};
+    paint(0);fx.appendChild(d);
+    times(40,TAPF.length,function(f){if(f<TAPF.length)paint(f)},function(){d.remove()});
   }
   /* ambient sparks are runs of = on the character grid, and they only land
      where there is no text: the gutters either side of the column and the
@@ -653,7 +756,7 @@
     return out;
   }
   if(!reduce)every(650,function(){
-    var g=glitch();if(g<=0||Math.random()>g*1.3)return;
+    var g=glitch();if(Math.random()>g*1.3)return;
     var spots=sparkSpots();if(!spots.length)return;
     var n=1+rnd(Math.ceil(3*g));
     while(n--){
@@ -661,16 +764,14 @@
       var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/ROW)))*ROW;
       run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
-  });
-  var SH=['hot','pink','cy','warn','ok','deep','violet','ink'];
+  },{gate:function(){return glitch()>0}});
+  /* taps and the trail are magenta and pink only: the other colours mean something */
+  var SH=['hot','pink'];
   document.addEventListener('pointerdown',function(e){
     var g=glitch();if(g<=0||reduce)return;
-    var n=3+Math.round(g*8);
-    while(n--){
-      var w=CH*(1+rnd(5)),h=6*(1+rnd(3));
-      spark(e.clientX+(Math.random()-0.5)*150-w/2,Math.round((e.clientY+(Math.random()-0.5)*60)/6)*6,
-            w,h,SH[rnd(SH.length)],0.95,90+Math.random()*240);
-    }
+    tapBurst(e.clientX,e.clientY,SH[rnd(2)]);
+    var n=Math.round(g*3);
+    while(n--)fadeRun(e.clientX+(Math.random()-0.5)*150,e.clientY+(Math.random()-0.5)*60,1+rnd(4),SH[rnd(2)],0.8,160+Math.random()*160);
   });
   function jolt(){
     if(reduce||glitch()<=0)return;
@@ -700,7 +801,7 @@
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero();glitchGlyph()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
-    if(SND.on)sfx.ok();else if(AC)AC.suspend();
+    if(SND.on)sfx.ok();else if(AC){SND.nap=false;clearTimeout(napT);AC.suspend()}
     soundGlyph();
   });
   /* the bar's settings are glyphs: a speaker, a zigzag, a sun or a moon. The
@@ -726,7 +827,8 @@
   document.addEventListener('pointermove',function(e){
     if(e.pointerType!=='mouse'||reduce)return;
     var g=glitch(),n=Date.now();if(g<=0||n-trailAt<42)return;trailAt=n;
-    spark(e.clientX+10,Math.round((e.clientY+12)/6)*6,CH*(1+rnd(2)),6,SH[rnd(4)],0.85,150+Math.random()*120);
+    /* each cell the pointer passes goes @ % # * + = : . and is gone */
+    fadeRun(e.clientX+CH,e.clientY+ROW*0.6,1,SH[rnd(2)],0.85,320);
   });
   var lastY=window.scrollY,svNow=0,svTimer=null;
   function setSv(v){
@@ -839,7 +941,12 @@
      first. Now there is one lock: a transition asked for while another is
      running waits its turn, and the overlay swallows taps while it covers.
      The curtain is for the theme and the presets, the datamosh for views. */
-  var busy=false,waiting=[];
+  /* Asked for faster than they can play (a preset held on an arrow key, ten
+     taps on the theme), they used to queue and flash for seconds. Now what
+     waited lands at once, only the latest one plays, and two never start
+     closer than 400ms apart (WCAG 2.3.1). */
+  var busy=false,waiting=[],lastEnd=-1e9,GAP=400;
+  function nowMs(){return window.performance?performance.now():Date.now()}
   /* the overlay eats taps, except one on a view link under it: that one
      becomes the new target, so rapid picks still end where you stopped */
   function hold(wrap){
@@ -852,10 +959,18 @@
       if(t)t.click();
     });
   }
-  function free(){busy=false;while(!busy&&waiting.length)waiting.shift()()}
+  function free(){busy=false;lastEnd=nowMs();drain()}
+  function drain(){
+    if(busy||!waiting.length)return;
+    var q=waiting,i;waiting=[];
+    for(i=0;i<q.length-1;i++)q[i].cb();
+    transition(q[q.length-1].kind,q[q.length-1].cb);
+  }
   function transition(kind,cb){
     if(reduce){cb();return}
-    if(busy){waiting.push(function(){transition(kind,cb)});return}
+    if(busy){waiting.push({kind:kind,cb:cb});return}
+    var wait=lastEnd+GAP-nowMs();
+    if(wait>0){busy=true;setTimeout(function(){busy=false;waiting.unshift({kind:kind,cb:cb});drain()},wait);return}
     if(kind==='mosh'&&window.AUI&&AUI.mosh)AUI.mosh(cb);else curtain(cb);
   }
 
@@ -869,23 +984,24 @@
     var wrap=document.createElement('div'),solid=document.createElement('div'),pre=document.createElement('pre');
     wrap.setAttribute('aria-hidden','true');hold(wrap);
     wrap.style.cssText='position:fixed;inset:0;z-index:100;overflow:hidden;pointer-events:auto;touch-action:none';
-    var bc=['pink','warn','violet','deep','ink','hot','violet'],grad=[],bi;
-    for(bi=0;bi<bc.length;bi++)grad.push(PAL[bc[bi]]+' '+(bi*72)+'px '+((bi+1)*72)+'px');
-    solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:repeating-linear-gradient(to bottom,'+grad.join(',')+')';
-    pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:24px;white-space:pre;color:'+ink;
+    /* the bands are rows of @ in the band colours, three rows each, on the
+       page's own row; the paper behind them only hides the swap */
+    var bc=['pink','warn','violet','deep','ink','hot','violet'];
+    solid.style.cssText='position:absolute;top:0;bottom:0;left:0;width:0;background:'+PAL.bg;
+    pre.style.cssText='position:absolute;inset:0;margin:0;font:inherit;font-weight:700;line-height:'+ROW+'px;white-space:pre;color:'+ink;
     wrap.appendChild(solid);wrap.appendChild(pre);document.body.appendChild(wrap);
     var p=0,end=cols+8+skew,out=false,step=Math.max(8,Math.round(end/6.5));
     function frame(){
-      var txt='',x,y;
+      var html='',x,y;
       for(y=0;y<rows;y++){
-        var front=p-Math.floor(y*0.5);
+        var front=p-Math.floor(y*0.5),row='';
         for(x=0;x<cols;x++){
           var d=out?x-front+8:front-x;
-          txt+=d<0?' ':TR(EDGE.charAt(Math.min(7,d)));
+          row+=d<0?' ':TR(EDGE.charAt(Math.min(7,d)));
         }
-        txt+='\n';
+        html+='<span style="color:'+PAL[bc[Math.floor(y/3)%bc.length]]+'">'+row.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>\n';
       }
-      pre.textContent=txt;
+      pre.innerHTML=html;
       if(!out){solid.style.left='0';solid.style.right='auto';solid.style.width=Math.max(0,(p-skew-7)*CH)+'px'}
       else{solid.style.left=Math.max(0,(p+1)*CH)+'px';solid.style.right='0';solid.style.width='auto'}
     }
@@ -1299,6 +1415,8 @@
          '.slider > label,.slider-track,.slider output,.tablist:not(.views),.tabpanel,section .lift,.progress,.rules li,'+
          '.stat,.acc,pre.lab,.lab-h,.frame-demo,.badge,.alert,.tablewrap,.chart,.skel,.kpi,.hint,#inv,#sigText,.or,.avatar,.crumbs,.cal,.otp,.pager,.sepd,.sepl,.spins > span,.tgroup,.timeline > li,figure.pic,.wo > li,.side > li,.kbds > span,.kv,.steps,.ing,.stepper,.statbars,.tags,.profile > div > p,.count,.sw,.rampcells,.knobs > *,#rampSpec,#tokensOut,.phone';
   function reveal(el,i){
+    /* Glitch off is the page's pause switch: things arrive, they do not glitch in */
+    if(glitch()<=0){el.classList.add('in','done');if(el._anim)el._anim();return}
     el.style.setProperty('--d',(i*24)+'ms');
     el.classList.remove('done');el.classList.add('in');
     setTimeout(function(){
@@ -1346,7 +1464,7 @@
     };
   }
 
-  window.AUI={ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={onTap:onTap,heroWake:heroWake,ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,announce:announce,rawFill:rawFill,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,

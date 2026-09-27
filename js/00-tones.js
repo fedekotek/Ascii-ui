@@ -6,7 +6,8 @@ window.AUI_TONES=function(){
   var css=':root{--k8:"'+m('@')+'";--k6:"'+m('#')+'";--k1:"'+m('.')+'";',k,i,H,V;
   for(k in T){
     H='';V='';
-    while(H.length<180)H+=T[k][0];
+    /* 480 characters: a rule across a 3840px window at 8px a character */
+    while(H.length<480)H+=T[k][0];
     for(i=0;i<90;i++)V+=T[k][1]+'\\A ';
     css+='--h-'+k+':"'+H+'";--s-'+k+':"'+T[k][1]+'";--v-'+k+':"'+V+'";';
   }
