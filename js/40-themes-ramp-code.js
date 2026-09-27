@@ -356,6 +356,168 @@ function download(name,text,type,out){
 }
 const KB=s=>Math.max(1,Math.round(new Blob([s]).size/1024))+' kB';
 
+/* ================= themes: tokens.json, for design tools =================
+   The same tokens in the W3C design tokens format (DTCG: $value, $type,
+   $description), which Tokens Studio and the Figma Variables importers read.
+   The words and the shape are TOKDOC, below, in JSON: build.py reads this
+   block to write site/kit/tokens.json, so the download and the static file
+   cannot say different things (qa/tokens.py checks they are the same bytes).
+   Every "@name" is filled with a value read off the page: colors, the row and
+   the type from the computed styles, the ramp and the frame tones from the
+   engine, the motion from the kit's own css */
+/* tokens.json words start */
+const TOKDOC={
+"file":{
+  "global":{
+    "grid":{
+      "$description":"Everything on screen snaps to one cell: one character wide, one row tall. No free pixel sizes.",
+      "cell":{"$type":"string","$value":"1ch","$description":"One character of the type, wide. Every width is a whole number of these (CSS ch)."},
+      "row":{"$type":"dimension","$value":"@row","$description":"One row (--r). Every height is a whole number of rows."}
+    },
+    "type":{
+      "family":{"$type":"fontFamily","$value":"@family","$description":"Monospace, self-hosted, the only face. The grid needs every character the same width."},
+      "size":{"$type":"dimension","$value":"@size","$description":"Body type, at every width."},
+      "lineHeight":{"$type":"dimension","$value":"@lineHeight","$description":"One row."},
+      "weight":{"$type":"fontWeight","$value":"@weight","$description":"Body. Gray text is 400, frames, slabs and titles are 700."}
+    },
+    "ramp":{
+      "$description":"Nine steps, space to @, lightest to heaviest. Weight comes from how dense a character is: every frame, fill and chart is an index into these.",
+      "all":{"$type":"string","$value":"@ramp","$description":"The whole ramp, index 0 to 8. Swap the characters and you have a different kit."},
+      "k0":{"$type":"string","$value":"@k0","$description":"0. Nothing. Air."},
+      "k1":{"$type":"string","$value":"@k1","$description":"1. The faintest mark: an empty track, a dotted fill."},
+      "k2":{"$type":"string","$value":"@k2","$description":"2. Shade: rules, and the sides of light frames."},
+      "k3":{"$type":"string","$value":"@k3","$description":"3. Light: the top and bottom of light frames."},
+      "k4":{"$type":"string","$value":"@k4","$description":"4. Low fill in bars and charts."},
+      "k5":{"$type":"string","$value":"@k5","$description":"5. Middle fill in bars and charts."},
+      "k6":{"$type":"string","$value":"@k6","$description":"6. Mid frames."},
+      "k7":{"$type":"string","$value":"@k7","$description":"7. Dense frames."},
+      "k8":{"$type":"string","$value":"@k8","$description":"8. Heavy: primary buttons, cards, the focus rim, a full bar."}
+    },
+    "tone":{
+      "$description":"Frame tones. A frame is a string of characters: rule runs along the top and bottom, side is one wall, a row at a time.",
+      "heavy":{"$description":"Heavy. Primary buttons, cards and the focus rim.","rule":{"$type":"string","$value":"@heavy.rule"},"side":{"$type":"string","$value":"@heavy.side"}},
+      "dense":{"$description":"Dense. One step under heavy.","rule":{"$type":"string","$value":"@dense.rule"},"side":{"$type":"string","$value":"@dense.side"}},
+      "mid":{"$description":"Mid. A plain frame.","rule":{"$type":"string","$value":"@mid.rule"},"side":{"$type":"string","$value":"@mid.side"}},
+      "light":{"$description":"Light. Secondary buttons and quiet frames.","rule":{"$type":"string","$value":"@light.rule"},"side":{"$type":"string","$value":"@light.side"}},
+      "shade":{"$description":"Shade. Rules and walls that stay out of the way.","rule":{"$type":"string","$value":"@shade.rule"},"side":{"$type":"string","$value":"@shade.side"}},
+      "faint":{"$description":"Faint. Dashed: empty, a placeholder, a drop zone.","rule":{"$type":"string","$value":"@faint.rule"},"side":{"$type":"string","$value":"@faint.side"}},
+      "danger":{"$description":"Danger. Destructive actions.","rule":{"$type":"string","$value":"@danger.rule"},"side":{"$type":"string","$value":"@danger.side"}},
+      "error":{"$description":"Error. A wrong field, a failed toast.","rule":{"$type":"string","$value":"@error.rule"},"side":{"$type":"string","$value":"@error.side"}}
+    },
+    "motion":{
+      "$description":"The kit's motion. Steps, never eased: a step is a whole character or a whole row. Reduced motion turns all of it off.",
+      "duration":{
+        "quick":{"$type":"duration","$value":"@aui-quick","$description":"--aui-quick. A switch flips, a tooltip types in, a panel wipes open."},
+        "base":{"$type":"duration","$value":"@aui-base","$description":"--aui-base. A toast types in, an alert dialog nudges."},
+        "slow":{"$type":"duration","$value":"@aui-slow","$description":"--aui-slow. A sheet comes up."},
+        "toast":{"$type":"duration","$value":"@aui-toast","$description":"--aui-toast. The shortest a toast stays. Longer words stay longer."}
+      },
+      "easing":{
+        "flip":{"$type":"string","$value":"@aui-ease-flip","$description":"--aui-ease-flip. The switch thumb, one character a step."},
+        "type":{"$type":"string","$value":"@aui-ease-type","$description":"--aui-ease-type. The tooltip and the toast, typed in from the left."},
+        "wipe":{"$type":"string","$value":"@aui-ease-wipe","$description":"--aui-ease-wipe. A panel, a row a step."},
+        "rise":{"$type":"string","$value":"@aui-ease-rise","$description":"--aui-ease-rise. The sheet, from the bottom."},
+        "jolt":{"$type":"string","$value":"@aui-ease-jolt","$description":"--aui-ease-jolt. The nudge, no in-betweens."}
+      }
+    }
+  },
+  "light":null,
+  "dark":null,
+  "$themes":[
+    {"id":"light","name":"Light","selectedTokenSets":{"global":"enabled","light":"enabled","dark":"disabled"}},
+    {"id":"dark","name":"Dark","selectedTokenSets":{"global":"enabled","light":"disabled","dark":"enabled"}}
+  ],
+  "$metadata":{"tokenSetOrder":["global","light","dark"]}
+},
+"color":{
+  "color":{
+    "$description":"@mode",
+    "bg":{"$type":"color","$value":"@bg","$description":"Surface. The page."},
+    "ink":{"$type":"color","$value":"@ink","$description":"Text, frames and primary slabs."},
+    "muted":{"$type":"color","$value":"@muted","$description":"Secondary text."},
+    "hot":{"$type":"color","$value":"@hot","$description":"Magenta. It acts: primary buttons, title bars. Also the worst state (Down), which always carries a word."},
+    "pink":{"$type":"color","$value":"@pink","$description":"Secondary emphasis and halftone tails. Marks only, never body text."},
+    "cy":{"$type":"color","$value":"@cy","$description":"Cyan. Focus, and nothing else."},
+    "ok":{"$type":"color","$value":"@ok","$description":"Lime. It confirms: success, checked, on."},
+    "warn":{"$type":"color","$value":"@warn","$description":"Yellow. It warns: an error you can fix, a degraded state. Keep it clearly apart from magenta."},
+    "deep":{"$type":"color","$value":"@deep","$description":"Structure and shadows."},
+    "violet":{"$type":"color","$value":"@violet","$description":"Dividers, walls, tab rules, info."},
+    "t0":{"$type":"color","$value":"@t0","$description":"Poster titles, row 1, the top."},
+    "t1":{"$type":"color","$value":"@t1","$description":"Poster titles, row 2."},
+    "t2":{"$type":"color","$value":"@t2","$description":"Poster titles, row 3."},
+    "t3":{"$type":"color","$value":"@t3","$description":"Poster titles, row 4, the bottom."}
+  }
+},
+"words":{"light":"Light mode: %s.","dark":"Dark mode: %s.","only":" %s has no light version, so light is the default one.","yours":" With your colors."}
+};
+/* tokens.json words end */
+/* a template with its "@name" strings filled from V. A name with no value is a bug, so it throws */
+function tokFill(t,V){
+  if(Array.isArray(t))return t.map(x=>tokFill(x,V));
+  if(t&&typeof t==='object'){const o={};Object.keys(t).forEach(k=>{o[k]=tokFill(t[k],V)});return o}
+  if(typeof t==='string'&&t[0]==='@'){const k=t.slice(1);if(!(k in V))throw new Error('no value for '+k);return V[k]}
+  return t;
+}
+const TCOL=VARS.concat(['t0','t1','t2','t3']);
+/* the colors of a look that is not on screen: the root wears it for one
+   synchronous read, without your colors, then gets its own attributes back.
+   Nothing paints in between */
+function tokLook(theme){
+  const was=['data-theme','data-preset','style'].map(n=>[n,root.getAttribute(n)]),o={};
+  try{
+    TCOL.forEach(k=>root.style.removeProperty('--'+k));
+    root.setAttribute('data-theme',theme);root.removeAttribute('data-preset');
+    TCOL.forEach(k=>{o[k]=readVar(k).toLowerCase()});
+  }finally{was.forEach(([n,v])=>{if(v===null)root.removeAttribute(n);else root.setAttribute(n,v)})}
+  return o;
+}
+/* a css string, "@@@@", without its quotes */
+const tokStr=v=>{v=v.trim();return v[0]==='"'?v.slice(1,-1):v};
+/* a rule, cut to the unit that repeats: "- - - " is "- " */
+function tokUnit(v){
+  const c=Array.from(tokStr(v));
+  for(let p=1;p<c.length;p++){if(c.every((x,i)=>x===c[i%p]))return c.slice(0,p).join('')}
+  return c.join('');
+}
+const tokMs=v=>{v=v.trim();return Math.round(/ms$/.test(v)?parseFloat(v):parseFloat(v)*1000)+'ms'};
+const tokName=v=>{const i=document.querySelector('input[name="preset"][value="'+v+'"]');return i&&i.nextElementSibling?i.nextElementSibling.textContent.trim():v};
+function tokensJSON(){
+  const cs=getComputedStyle(root),bs=getComputedStyle(document.body),V={};
+  V.row=cs.getPropertyValue('--r').trim();
+  V.family=bs.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g,'');
+  V.size=bs.fontSize;V.lineHeight=bs.lineHeight;V.weight=parseInt(bs.fontWeight,10);
+  V.ramp=' '+A.rampString();
+  Array.from(V.ramp).forEach((c,i)=>{V['k'+i]=c});
+  ['heavy','dense','mid','light','shade','faint','danger','error'].forEach(k=>{
+    V[k+'.rule']=tokUnit(cs.getPropertyValue('--h-'+k));V[k+'.side']=tokStr(cs.getPropertyValue('--s-'+k));
+  });
+  /* the motion is the kit's: its own css, the first time each one is set */
+  const kcss=KIT().css,re=/--(aui-[a-z-]+):\s*([^;]+);/g;let m;
+  while((m=re.exec(kcss)))if(!(m[1] in V))V[m[1]]=/^aui-ease/.test(m[1])?m[2].trim():tokMs(m[2]);
+  /* the two looks: a preset is dark only, so its light is the default light */
+  const P=root.getAttribute('data-preset'),dark=P?true:/dark/.test(cs.colorScheme||'')||lum(readVar('bg'))<0.35;
+  const mine=TCOL.some(k=>root.style.getPropertyValue('--'+k)),here={};
+  TCOL.forEach(k=>{here[k]=readVar(k).toLowerCase()});
+  const L=dark?tokLook('light'):here,D=dark?here:tokLook('dark');
+  const W=TOKDOC.words,f=(s,x)=>s.replace('%s',x);
+  const lm=f(W.light,tokName('paper'))+(P?f(W.only,tokName(P)):'')+(!dark&&mine?W.yours:'');
+  const dm=f(W.dark,tokName(P||'signal'))+(dark&&mine?W.yours:'');
+  const out=tokFill(TOKDOC.file,V);
+  out.light=tokFill(TOKDOC.color,Object.assign({mode:lm},L));
+  out.dark=tokFill(TOKDOC.color,Object.assign({mode:dm},D));
+  return JSON.stringify(out,null,2)+'\n';
+}
+/* site/index.html fetches the kit text on first use (build.py, LAZY_KIT).
+   The motion is in it, so the download waits for it */
+const kitReady=()=>typeof kitLoad==='function'?kitLoad():Promise.resolve();
+$('tokensJson').addEventListener('click',()=>{
+  const out=$('tokensStatus');
+  kitReady().then(()=>{
+    let t;try{t=tokensJSON()}catch(e){tell(out,'The tokens did not come together ('+e.message+'). Take tokens.json from the kit folder instead.',true);return}
+    download('tokens.json',t,'application/json',out);if(live())sfx.ok();
+  },()=>tell(out,'The kit did not load, and the motion tokens are in it. Check the connection, or take tokens.json from the kit folder.',true));
+});
+
 (function install(){
   /* Get the kit opens the Components view, right after the intro: the first
      thing you need is the two files, the components come after. The id stays s-install. */

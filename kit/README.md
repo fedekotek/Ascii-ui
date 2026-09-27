@@ -191,6 +191,8 @@ Everything reads tokens on `:root`. Override them after the kit CSS:
 
 Dark follows the system. `<html data-theme="dark">` or `data-theme="light"` forces one. The kit sets its dark tokens under `@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and on `:root[data-theme="dark"]`, and a plain `:root` loses to both. The Themes view on the site prints the tokens of any preset under selectors that win in every case, ready to paste after the kit CSS.
 
+For design tools, the same tokens are in [tokens.json](https://ascii.fedekotek.design/kit/tokens.json), next to this file on the site: the W3C design tokens format (`$value`, `$type`, `$description`), which Tokens Studio and the Figma Variables importers read. It holds the colors in a light and a dark set, the grid, the type, the ramp, the frame tones and the motion below, for the default preset. Download tokens.json in the Themes view makes the same file for the preset and colors you are looking at. It is built from the tokens, not part of a pinned version.
+
 ### Motion
 
 Motion is steps, never eased: a step is a whole character or a whole row. Every animation takes its time and its steps from tokens on `:root`, so you can slow the kit down, speed it up, or switch one motion off with `0s`:

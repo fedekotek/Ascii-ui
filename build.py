@@ -370,6 +370,72 @@ SITEMAP="""<?xml version="1.0" encoding="UTF-8"?>
 </urlset>
 """
 
+# ---------------- kit/tokens.json ----------------
+# The tokens for design tools (DTCG), the default preset: the same file the
+# Download tokens.json button in Themes makes on a page with nothing changed.
+# The words and the shape are TOKDOC in js/40; the values come from the token
+# sources: css/01 (colors, the row), css/02 (type), js/10 (the ramp),
+# kit/ascii-ui.css (frame tones, motion) and index.html (the preset names).
+# qa/tokens.py checks the two are the same bytes and match the page.
+def tokens_json():
+    rd=lambda p:(root/p).read_text(encoding='utf-8')
+    j40=rd('js/40-themes-ramp-code.js')
+    m=re.search(r'/\* tokens\.json words start \*/\s*const TOKDOC=(.*?);\s*/\* tokens\.json words end \*/',j40,re.S)
+    if not m: sys.exit('build: js/40 has no TOKDOC block (tokens.json words start/end)')
+    doc=json.loads(m.group(1))
+    tok=rd('css/01-tokens.css')
+    def block(sel):
+        b=re.search(re.escape(sel)+r'\{(.*?)\n\}',tok,re.S)
+        if not b: sys.exit('build: css/01 has no '+sel+' block')
+        return b.group(1)
+    def hexes(b):
+        o={}
+        for k,v in re.findall(r'--([a-z0-9]+):\s*(#[0-9a-fA-F]{3,8})\b',b):
+            v=v.lower()
+            o[k]='#'+''.join(c*2 for c in v[1:4]) if len(v)==4 else v[:7]
+        return o
+    cols=['bg','ink','muted','hot','pink','cy','ok','warn','deep','violet','t0','t1','t2','t3']
+    L=hexes(block('\n:root')); D=hexes(block(':root[data-theme="dark"]'))
+    miss=[k for k in cols if k not in L or k not in D]
+    if miss: sys.exit('build: css/01 has no light or dark value for '+', '.join(miss))
+    V={}
+    V['row']=re.search(r'--r:\s*([0-9.]+px)',tok).group(1)
+    body=re.search(r'\nbody\{(.*?)\}',rd('css/02-base-grid.css'),re.S).group(1)
+    V['family']=re.search(r'font-family:\s*([^;,]+)',body).group(1).strip().strip('"\'')
+    V['size']=re.search(r'font-size:\s*([^;]+)',body).group(1).strip()
+    lh=re.search(r'line-height:\s*([^;]+)',body).group(1).strip()
+    V['lineHeight']=V['row'] if lh=='var(--r)' else lh
+    V['weight']=int(re.search(r'font-weight:\s*(\d+)',body).group(1))
+    V['ramp']=re.search(r"var RAMP='([^']+)'",rd('js/10-engine.js')).group(1)
+    for i,c in enumerate(V['ramp']): V['k'+str(i)]=c
+    kcss=rd('kit/ascii-ui.css')
+    def unit(s):
+        for p in range(1,len(s)):
+            if all(s[i]==s[i%p] for i in range(len(s))): return s[:p]
+        return s
+    for k in ('heavy','dense','mid','light','shade','faint','danger','error'):
+        V[k+'.rule']=unit(re.search(r'--h-'+k+r':"([^"]*)"',kcss).group(1))
+        V[k+'.side']=re.search(r'--s-'+k+r':"([^"]*)"',kcss).group(1)
+    for k,v in re.findall(r'--(aui-[a-z-]+):\s*([^;]+);',kcss):
+        if k in V: continue
+        v=v.strip()
+        if k.startswith('aui-ease'): V[k]=v
+        else: V[k]=str(round(float(v[:-2]) if v.endswith('ms') else float(v[:-1])*1000))+'ms'
+    page=rd('index.html')
+    name=lambda v:re.search(r'name="preset" value="'+v+r'"[^>]*><span>([^<]+)</span>',page).group(1).strip()
+    def fill(t,vals):
+        if isinstance(t,list): return [fill(x,vals) for x in t]
+        if isinstance(t,dict): return {k:fill(x,vals) for k,x in t.items()}
+        if isinstance(t,str) and t.startswith('@'):
+            if t[1:] not in vals: sys.exit('build: tokens.json has no value for '+t[1:])
+            return vals[t[1:]]
+        return t
+    W=doc['words']
+    out=fill(doc['file'],V)
+    out['light']=fill(doc['color'],dict({'mode':W['light'].replace('%s',name('paper'),1)},**{k:L[k] for k in cols}))
+    out['dark']=fill(doc['color'],dict({'mode':W['dark'].replace('%s',name('signal'),1)},**{k:D[k] for k in cols}))
+    return json.dumps(out,indent=2,ensure_ascii=False)+'\n'
+
 def build(out,quiet=False):
     """write dist/ascii-ui.html and site/ under out (the repo, or a temp folder)"""
     src=(root/'index.html').read_text()
@@ -431,6 +497,8 @@ def build(out,quiet=False):
         shutil.copytree(kit,site/'kit',ignore=shutil.ignore_patterns('.DS_Store','__pycache__','releases'))
         st=site/'kit'/'starter.html'
         if st.exists(): st.write_text(og_version(st.read_text(),og))
+        # the tokens for design tools, next to the kit (not in any frozen release)
+        (site/'kit'/'tokens.json').write_text(tokens_json(),encoding='utf-8')
         rels=kit/'releases'
         for r in sorted(rels.iterdir()) if rels.is_dir() else []:
             if r.is_dir() and re.fullmatch(r'\d+\.\d+\.\d+',r.name):
