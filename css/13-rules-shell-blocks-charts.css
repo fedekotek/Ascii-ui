@@ -67,7 +67,7 @@
 .price small{font:inherit;font-weight:300;color:var(--muted)}
 .feat{list-style:none;padding:0;margin:var(--r) 0 0}
 .feat li{position:relative;padding-left:2ch;color:var(--muted)}
-.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--ok);font-weight:700}
+.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--violet);font-weight:700}   /* a list mark, not a confirmation */
 .popular{position:absolute;top:0;right:2ch;z-index:1}
 /* lime confirms and yellow warns, so a tag that is only a label is violet or pink */
 .badge.popular{background:var(--violet)}

@@ -38,7 +38,8 @@ body{
   86%{opacity:.8;transform:none}
   100%{opacity:1;clip-path:inset(0 0 0 0);transform:none;filter:none}
 }
-main.sv{text-shadow:calc(var(--sv,0)*-1px) 0 var(--cy),calc(var(--sv,0)*1px) 0 var(--hot)}
+/* the split is violet and magenta: cyan is focus and nothing else */
+main.sv{text-shadow:calc(var(--sv,0)*-1px) 0 var(--violet),calc(var(--sv,0)*1px) 0 var(--hot)}
 main.jolt{animation:jolt .26s steps(1)}
 @keyframes jolt{
   0%{transform:translateX(-8px) skewX(-3deg);filter:hue-rotate(70deg) saturate(1.6)}

@@ -42,13 +42,15 @@
 .code::-webkit-scrollbar-thumb{background:var(--violet)}
 /* the copy and download messages under their buttons: blocked is yellow, it warns */
 .kit-out.err{color:var(--warn)}
-.code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ok)}
+/* strings are ink, not lime: lime only confirms */
+.code .t{color:var(--hot)}.code .a{color:var(--violet)}.code .s{color:var(--ink)}
 .copyrow{margin-top:var(--r)}
 
 /* avatar */
 .avatar{display:inline-grid;place-items:center;width:8ch;height:calc(var(--r)*3);background:var(--ink);color:var(--bg);font-weight:700;overflow:hidden;flex:none}
 .avatar.sm{width:5ch;height:calc(var(--r)*2)}
-.avatar.hot{background:var(--hot)}.avatar.ok{background:var(--ok)}
+/* a team colour is a label: violet, not the lime that confirms */
+.avatar.hot{background:var(--hot)}.avatar.ok{background:var(--violet)}
 .avatar canvas{width:100%;height:100%;display:block}
 /* breadcrumb */
 .crumbs{list-style:none;display:flex;flex-wrap:wrap;padding:0;margin:0}
