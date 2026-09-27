@@ -1,6 +1,6 @@
 # JS surface
 
-This page is the site's JS surface. All scripts are IIFEs. The public surface is six objects on `window` (`AUI`, `AUI2`, `AUI3`, `AUI_NAV`, `AUI_SEARCH`, `AUI_JS`), one function (`AUI_WIDE`), plus two hooks for the ramp (`AUI_TONES`, `AUI_MAP`).
+This page is the site's JS surface. All scripts are IIFEs. The public surface is seven objects on `window` (`AUI`, `AUI2`, `AUI3`, `AUI_NAV`, `AUI_SEARCH`, `AUI_JS`, `AUI_DOCS`), one function (`AUI_WIDE`), plus two hooks for the ramp (`AUI_TONES`, `AUI_MAP`).
 
 The kit is separate: `window.ASCIIUI` exists only on a page that links `kit/ascii-ui.js`, never on the site itself (the site embeds the kit files as text, in `KIT()` at the end of js/40, only to print and download them). See the last section, and `kit/README.md` for the whole kit API.
 
@@ -26,7 +26,10 @@ The kit is separate: `window.ASCIIUI` exists only on a page that links `kit/asci
 | `develop(pre)`, `titleFrame(pre, f)` | animate / draw a bitmap title (f=99 is final) |
 | `titles` | array of every `.ptitle` |
 | `fitTitles()` | re-measure titles, drop bars or halve scale to fit |
-| `say(msg, err)` | toast; lime, or yellow with `!!` when `err` is true |
+| `say(msg, err)` | toast; lime with `@@`, or yellow with `!!` when `err` is true. Read out through `announce()` |
+| `announce(msg, err)` | read `msg` out without a toast: a hidden status region, or an alert region when `err` is true |
+| `onTap(el, fn)` | a tap, not a touch-down: a mouse acts on press, a finger or pen when it lifts, if it moved under 10px and the browser did not take it for a scroll |
+| `heroWake()` | wake the hero's clock task (after the boot, when it scrolls back in) |
 | `flash(el)` | success: the nearest card or frame goes lime for 120ms, plus a hero burst |
 | `wipe(cb)` | theme curtain, calls `cb` under it. Waits its turn if a transition is running |
 | `showView(tab, then, instant)` | swap to a view (datamosh), then run `then` once it shows; a call while one is pending replaces the target. js/70 is the caller, through the links |
@@ -60,7 +63,7 @@ The kit is separate: `window.ASCIIUI` exists only on a page that links `kit/asci
 | `onLayout` | set by 20: called with the content width after `layout()` |
 | `onView` | set by 40 (`placeHero`): called with the new tab on every view switch, before the landing is measured. Shows the header and the game on Home only |
 
-Attached by later files: `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.kitify(section, clone)` (js/40: runs the section's `KITIFY` entry, then strips ids and demo scaffolding, see COMPONENTS.md), `A.codeExtra(section, html)` (js/40: returns `{css, js}`, the kit CSS blocks and kit behavior text the Code tab prints under the HTML), `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows; nothing asks for `'snap'` since Play's Snapshot went), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
+Attached by later files: `A.usageModel(section)` and `A.usage(section, panel)` (js/90: the Usage tab's model as plain data, which `qa/usage.py` and `qa/reference.py` read, and the drawing of the tab), `A.tear(n)`, `A.mosh(cb)`, `A.boot(force, done)`, `A.shatter(el)`, `A.rebuild()`, `A.lcdOf(canvas)`, `A.copy(text, what)`, `A.kitify(section, clone)` (js/40: runs the section's `KITIFY` entry, then strips ids and demo scaffolding, see COMPONENTS.md), `A.codeExtra(section, html)` (js/40: returns `{css, js}`, the kit CSS blocks and kit behavior text the Code tab prints under the HTML), `A.picDialog(src, 'poster'|'snap')` (the picture dialog, worded for what it shows; nothing asks for `'snap'` since Play's Snapshot went), `A.goTo(view, el, block, then)` (switch view, then land on `el` once the switch has scrolled), `A.jump(section)` (js/70: go to a section, land its title under the bar, add a history entry).
 
 Events: `document` gets `aui:view` (detail: the view's tab) after a view has swapped in.
 
@@ -79,6 +82,9 @@ Events: `document` gets `aui:view` (detail: the view's tab) after a view has swa
 ## window.AUI_JS (from js/30)
 The site's own wiring for five demos: `{calendar, dropdown, otp, pagination, spinners}`, each a function that js/30 defines and calls once. Nothing reads it any more: the Code tab prints the kit's behaviors instead (`behaviors.NAME` from `kit/ascii-ui.js`, see COMPONENTS.md, What the Code tab prints). There is no `JSMAP`. New site wiring does not need to go here.
 
+## window.AUI_DOCS (from js/90)
+The Usage tab's words: one entry per section id (`'s-button':{use, avoid, anatomy, states, keys, a11y, dos, see, api, limits}`). `A.usageModel()` merges it with what the kit says about itself (read from `KIT()` in js/40), so a gap in the words is filled by the kit and a component with no entry still gets a tab. `qa/usage.py` checks every entry against the kit.
+
 ## window.AUI_WIDE() (from js/30)
 Re-checks every `.tablewrap` and sets `data-wide` on the ones whose table is wider than the box, so CSS can say there is more to the side (on touch there is no scrollbar). Runs on load and after every view switch; call it after you change a table.
 
@@ -86,7 +92,7 @@ Re-checks every `.tablewrap` and sets `data-wide` on the ones whose table is wid
 `AUI_TONES()` writes the frame strings to `<style id="aui-tones">`. `AUI_MAP` is `null` (canonical ramp) or `{'.':'x', ':':'y', ...}`. Do not set it directly; use `A.setRamp()`.
 
 ## Search (`/`, Ctrl K or Cmd K, `#cmdBtn` in the bar)
-Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (the sections of the view you are in; Home offers Getting started), Settings (Theme, Sound, Glitch, Show grid, flipped in place), Components (Button, Input, Card and dialog, Select, Toast), Tricks (Tear, Jolt, Boot, Poster, Invaders, Feed the ring a photo, Rebuild). Typing searches every section of every view by name, poster title, caption and the other names people type (`ALIAS` in js/80: accordion finds Details, drawer finds Sheet, modal finds Card and dialog, install finds Get the kit), and a word four letters or longer may be one typo off. Once typing stops, the count is read out on the dialog's status line (`#cmdOut`), visually hidden. A typed command gets a Run row on top. The commands:
+Nothing typed: Views (Home, Components, Blocks, Charts, Themes), On this page (the sections of the view you are in; Home offers Getting started), Settings (Theme, Sound, Glitch, Show grid, CRT scanlines, flipped in place; CRT is remembered in `localStorage['aui-crt']`), Credits (`whoami`, answers on the status line) and Kit changelog, Components (Button, Input, Card and dialog, Select, Toast), Tricks (Tear, Jolt, Boot, Poster, Invaders, Feed the ring a photo, Rebuild). Typing searches every section of every view by name, poster title, caption and the other names people type (`ALIAS` in js/80: accordion finds Details, drawer finds Sheet, modal finds Card and dialog, install finds Get the kit), and a word four letters or longer may be one typo off. Once typing stops, the count is read out on the dialog's status line (`#cmdOut`), visually hidden. A typed command gets a Run row on top. The commands:
 `help`, `glitch 0-100`, `theme`, `sound on|off`, `goto home|components|blocks|charts|themes` (alias `cd`; also `kit` and `view/section`; `play`, `apps`, `onepager` and `page` land on Home), `rm -rf button|card|chart|title|all`, `rebuild`, `tear`, `jolt`, `boot`, `poster`, `sign NAME`, `invaders` (goes to the game and starts it), `photo` (opens the picker and lands on the Home hero), `ring` (alias `torus`, back to the ring), `tilt`, `sudo`.
 
 ## Keyboard

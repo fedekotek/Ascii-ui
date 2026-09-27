@@ -6,7 +6,7 @@ ascii/ui is one page with five views (tab panels: Home, Components, Blocks, Char
 
 ```
 css/01-tokens.css           colors, light/dark, --r (row height, 21px)
-css/02-base-grid.css        body, main, grid overlay, scanlines, jolt keyframes
+css/02-base-grid.css        body, main, grid overlay, scanlines (only with :root.crt), jolt keyframes
 css/03-posters.css          .poster, .ptitle (bitmap titles)
 css/04-frame.css            .frame, .mid  (borders made of strings)
 css/05..10                  one file per primitive
@@ -20,6 +20,10 @@ css/17-nav.css              the top bar, the sidebar, the [=] menu
 css/18-search.css           Search, the palette in #cmdDlg
 css/19-foundations.css      the Foundations section (color table, state matrix)
 css/20-overlays.css         popover, combobox, context menu, alert dialog: the floating .pane and its parts
+css/21-usage.css            the Usage tab (js/90): when, anatomy, states, keys, accessibility, API
+css/22-home.css             Home: the reel, No signal, credits, the [#] copy link after every section title
+css/29-print.css            print, forced colors (Windows High Contrast), prefers-contrast:more. Last on purpose,
+                            so it wins over everything before it. Numbers 23 to 28 are free for new files
 
 js/00-tones.js              window.AUI_TONES(): writes the frame strings (--h-*, --s-*, --v-*) into a <style>. Runs in <head>.
                             Reads window.AUI_MAP to translate the canonical ramp into a custom one.
@@ -43,7 +47,11 @@ js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Home (hero butt
                             written by `python3 qa/kit.py sync`.
 js/70-nav.js                navigation: the addresses (#view/section), the view links in the bar, the
                             sidebar, the [=] menu, the name, the skip link, the scroll spy and the landing.
-js/80-search.js             Search: the palette in #cmdDlg (views, sections, settings, tricks, typed commands).
+js/80-search.js             Search: the palette in #cmdDlg (views, sections, settings, credits, tricks, typed commands),
+                            and the CRT scanlines setting.
+js/90-usage.js              the Usage tab, third after Preview and Code: window.AUI_DOCS (one entry per component),
+                            A.usageModel(section) (those words plus what the kit says about itself, from KIT()),
+                            A.usage(section, panel) (draws it).
 ```
 
 Every JS file is an IIFE. They share these globals (see API.md):
@@ -55,6 +63,7 @@ Every JS file is an IIFE. They share these globals (see API.md):
 - `window.AUI_NAV`: addresses, the sidebar and menu model, the search index, from js/70.
 - `window.AUI_SEARCH`: Search `open()` and `close()`, from js/80.
 - `window.AUI_TONES()` and `window.AUI_MAP`: the frame strings and the ramp translation, from js/00.
+- `window.AUI_DOCS`: the Usage tab's words, from js/90. `qa/usage.py` checks them against the kit.
 
 Later scripts attach to `A` (e.g. `A.shatter`, `A.lcdOf`, `A.kitify`, `A.codeExtra`, `A.onLayout`).
 
@@ -72,13 +81,15 @@ The kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`) is not loaded by the site. It is
                             lede, who it is for, See components + Get the kit, facts line, #heroSw
                             (hidden, holds the real Show grid and Glitch inputs the menu and Search flip)
   <nav id="sidenav">        the sections of the view you are in (from 1024px, not on Home)
-  <div id="view-home">      Where to start (s-go, four tiles, then #heroSrc: Feed the ring a photo, with
-                            Camera and Back to the ring once a picture is in), Questions (s-faq)
+  <div id="view-home">      #noSig (No signal, hidden until an unknown address), Where to start (s-go, four tiles,
+                            then #heroSrc: Feed the ring a photo, with Camera and Back to the ring once a picture
+                            is in), Questions (s-faq), How it was made (s-made: the reel, the case study, credits)
   <div id="view-kit">       Components: .dochead, Get the kit (s-install, from js/40), index, five groups of parts, Rules
   <div id="view-blocks">    Blocks: .dochead, filters, index, Login and Stats pinned first, the rest A to Z
   <div id="view-charts">    Charts (5): .dochead, then the charts
   <div id="view-themes">    .dochead, Presets, Colors, Ramp, Tokens, Labs (the old One pager toys)
-  <footer id="foot">        Invaders (#footGame) on Home only, and #footLine on every view
+  <footer id="foot">        Invaders (#footGame) on Home only, and #footLine (version, license, kit links, credits)
+                            on every view
 </main>
 <dialog #publishDialog>     card demo
 <div #fx>                   sparks and tears (fixed, pointer-events:none)
@@ -154,6 +165,8 @@ Ten variables: `--bg --ink --muted --hot --pink --cy --ok --warn --deep --violet
 
 One clock, in `js/10-engine.js`. Every repeating animation is a task on a single `requestAnimationFrame` loop; there are no `setInterval`s left in the page. A task is `{ms, fn, gate}`: the loop runs `fn` when its cadence is due, the tab is visible, the clock is not paused and its gate returns true. Missed frames are dropped instead of queued, so nothing stampedes after the tab comes back. The loop stops itself when the task list empties and restarts when a task is added or the tab becomes visible again.
 
+The clock sleeps. It asks for a frame only when the next task is due, so a page whose fastest task runs every 125ms wakes 8 times a second, not 60. A task whose gate says no is not asked again every frame: it sleeps for `sleep` ms (1000 by default), snapped to a half second grid so the sleepers wake together. A task with `sleep: Infinity` waits until whatever opens its gate calls `handle.wake()` (the hero after the boot and when it scrolls back in, the invaders when they come on screen). With nothing due, no frame is asked for at all; with reduced motion the idle page runs no frames. The audio context naps 5s after the last sound and when the tab is hidden. `qa/budget.py --idle` counts DOM changes, style recalcs and frames per second on an idle page, per view, and fails over its caps.
+
 ```js
 var t = A.every(125, draw, {el: canvas});   // repeats while the node is on screen
 A.every(85, frame, {gate: function(){return visible}});
@@ -179,12 +192,12 @@ Command and Picture are site only (32 components are in the kit). `docs/COMPONEN
 ## Versions
 
 Two numbers, owned separately.
-- The site: `<meta name="aui-version" content="11.0">` in `index.html`, and the footer line (`#footLine`) must say the same `v11.0`. `build.py` refuses to build when they disagree. Add a line to `docs/CHANGELOG.md` when it changes.
+- The site: `<meta name="aui-version" content="11.2">` in `index.html`, and the footer line (`#footLine`) must say the same `v11.2`. `build.py` refuses to build when they disagree. Add a line to `docs/CHANGELOG.md` when it changes.
 - The kit: `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog and pinned paths under `kit/`. See `kit/README.md`.
 
 ## Shipping
 
-You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then rebuilds `site/` from nothing: `index.html` and `ascii-ui.html` (the single file, the second one served as the footer's Download), `404.html` (its colors are written in `build.py`), `robots.txt` and `sitemap.xml`, `favicon.ico`, `LICENSE.txt`, `llms.txt` and `llms-full.txt`, `assets/og.png` and `assets/icon-180.png` (made by `qa/shots.py`), and a copy of `kit/`. The switches at the top of `build.py` say what differs between copies: every copy is minified (comments and indentation only, line breaks kept) and carries Geist Mono as a data: URL (`assets/fonts/geist-mono-site.woff2`, the characters the site uses). Only `site/index.html` gets a Content-Security-Policy meta (a hash for each inline script, computed by the build) and fetches the Code tab's kit text from `kit/<version>/` the first time Code or a kit download is asked for; `dist/` and the Download keep it embedded, so they work from file://. `vercel.json` adds the headers a meta cannot carry (framing, opener, permissions) and the redirects from `/components` and the other views to their hash addresses. An inline `onclick=` or a `<script>` with attributes stops the build: the CSP would refuse it. `vercel.json` points Vercel at `site/`, so the deploy serves those and nothing else from the repo. `site/` and `dist/` are committed: the deploy has no build step. `python3 build.py --check` builds into a temporary folder and fails if what is committed differs. Vercel deploys `main` on every push, to https://ascii.fedekotek.design.
+You develop against `index.html`, which links `css/` and `js/`. `python3 build.py` inlines both, in load order, into `dist/ascii-ui.html`, then rebuilds `site/` from nothing: `index.html` and `ascii-ui.html` (the single file, the second one served as the footer's Download), `404.html` (its colors are written in `build.py`), `robots.txt` and `sitemap.xml`, `favicon.ico`, `LICENSE.txt`, `llms.txt` and `llms-full.txt`, `assets/og.png` and `assets/icon-180.png` (made by `qa/shots.py`), and a copy of `kit/`. The switches at the top of `build.py` say what differs between copies: every copy is minified (comments and indentation only, line breaks kept) and carries Geist Mono as a data: URL (`assets/fonts/geist-mono-site.woff2`, the characters the site uses). Only `site/index.html` gets a Content-Security-Policy meta (a hash for each inline script, computed by the build) and fetches the Code tab's kit text from `kit/<version>/` the first time Code or a kit download is asked for; `dist/` and the Download keep it embedded, so they work from file://. `vercel.json` adds the headers a meta cannot carry (framing, opener, permissions) and the redirects from `/components` and the other views to their hash addresses. An inline `onclick=` or a `<script>` with attributes stops the build: the CSP would refuse it. `ANALYTICS` is off by default; turned on, it adds a Vercel Web Analytics loader to `site/index.html` that runs only on https://ascii.fedekotek.design. The reel (`assets/reel.mp4` and its poster) is copied into `site/assets/`, and the CSP allows `media-src 'self'` for it. `vercel.json` points Vercel at `site/`, so the deploy serves those and nothing else from the repo. `site/` and `dist/` are committed: the deploy has no build step. `python3 build.py --check` builds into a temporary folder and fails if what is committed differs. Vercel deploys `main` on every push, to https://ascii.fedekotek.design.
 
 The release bar is `sh qa/release.sh` (see `qa/README.md`). It checks and never writes.
 
@@ -205,5 +218,5 @@ Keep the roles. Magenta (`--hot`) acts, cyan (`--cy`) is focus and nothing else,
 
 ## What is intentionally not here
 - No i18n. Copy is English, a couple of Rioplatense words in personal blocks.
-- No persistence beyond `sessionStorage['aui-boot']` and `localStorage['aui-hi']` (invaders high score).
+- No persistence beyond `sessionStorage['aui-boot']`, `localStorage['aui-hi']` (invaders high score) and `localStorage['aui-crt']` (scanlines on).
 - No analytics, and no network request to anyone else: the font is inlined in the page and shipped next to the kit in `kit/fonts/`. `build.py` has a Vercel Web Analytics loader behind `ANALYTICS`, off; it would run only on https://ascii.fedekotek.design. Turn it on and this line, and the privacy words on the site, change with it.

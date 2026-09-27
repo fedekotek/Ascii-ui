@@ -6,26 +6,28 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 
 ## How to use it
 
-1. Link the two kit files in the `<head>` of your page:
+1. Link the two kit files in the `<head>` of your page. Pinned to 1.2.0, so they never change under you:
 
    ```html
-   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/ascii-ui.css">
-   <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
+   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css" integrity="sha384-UcdPVYqNVMmlHhnyIlkEy76hu6Wvz6B83tUk88YBXjNnq53yfQariBIHNP86RtTl" crossorigin="anonymous">
+   <script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js" integrity="sha384-LRINmTRNU36W+ff4sSbJPdve2Pa2rF8UdBC+QZipAyvgfCSTPTN4n3VIqhL+HMcd" crossorigin="anonymous"></script>
    ```
+
+   Or the latest, which moves with every version: `https://ascii.fedekotek.design/kit/ascii-ui.css` and `https://ascii.fedekotek.design/kit/ascii-ui.js`. The font (Geist Mono) comes from `kit/fonts/` next to the CSS; nothing asks Google or anyone else.
 
 2. Open https://ascii.fedekotek.design/#components, pick the Code tab on any component and copy its HTML into your page. It works as pasted, twice on one page too.
 3. Or start from the starter page, which already links both and has every kit component on it: https://ascii.fedekotek.design/kit/starter.html
 
-The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 32 of the 34 components are in the kit; Command and Picture need the site's engine.
+The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 32 of the 34 components are in the kit; Command and Picture need the site's engine. Every component has three tabs on the site: Preview, Code and Usage (when to use it, anatomy, states, keys, accessibility, do and don't).
 
 There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
 
-Five views: Home (the ring, where to start, questions, invaders), Components (34, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
+Five views: Home (the ring, where to start, questions, how it was made, invaders), Components (34, in five groups), Blocks (16), Charts (5) and Themes (presets, colors, ramp, tokens, labs). Search is `/` or Ctrl K.
 
 ```
 index.html          the page, linking css/ and js/ (develop here)
-css/                18 files, load order matters (numbered)
-js/                 7 files, load order matters (numbered)
+css/                23 files, load order matters (numbered, 29-print last)
+js/                 8 files, load order matters (numbered)
 kit/                the kit you link from your own page: ascii-ui.css, ascii-ui.js, starter.html, README.md
 build.py            inlines css/ and js/ into dist/ascii-ui.html and writes site/
 dist/ascii-ui.html  the single-file build
@@ -35,8 +37,8 @@ qa/                 Playwright scripts, the release bar (qa/release.sh) and the 
 docs/               everything you need to keep going (start with docs/ARCHITECTURE.md)
 archive/            old published versions (v2 to v9.3) as single files, not every point release. From v10 the history is in git
 assets/             og.png (the link preview) and icon-180.png (the home screen icon), both made by qa/shots.py and
-                    shipped in site/, favicon.ico, and fonts/ (the Geist Mono subset build.py inlines); the other
-                    pictures are old review screenshots, some of views that are gone
+                    shipped in site/, favicon.ico, reel.mp4 and reel-poster.jpg (the reel on Home), and fonts/
+                    (the Geist Mono subset build.py inlines); the other pictures are old review screenshots
 llms.txt            a one-page map of the repo and the kit for an AI agent (llms-full.txt: every component in full)
 LICENSE             MIT
 CLAUDE.md           instructions for an AI agent working on this repo (the rules, the checklist, the release bar)
@@ -44,7 +46,7 @@ CLAUDE.md           instructions for an AI agent working on this repo (the rules
 
 ## Run it
 
-Open `index.html` in a browser. That's it. A local server is nicer because the file:// origin blocks the camera and the clipboard:
+Open `index.html` in a browser. That's it. The page makes no requests to anyone else, so it works offline. A local server is nicer because the file:// origin blocks the camera and the clipboard:
 
 ```
 python3 -m http.server 8000     # then http://localhost:8000
@@ -56,7 +58,7 @@ python3 -m http.server 8000     # then http://localhost:8000
 python3 build.py                # writes dist/ascii-ui.html and site/
 ```
 
-`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, merges the adjacent `<style>` blocks, minifies, and inlines the font. Then it rebuilds `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page (with a Content-Security-Policy, and the Code tab's kit text fetched on first use) and as the Download (everything embedded), a 404 page, `robots.txt`, `sitemap.xml`, `favicon.ico`, `LICENSE.txt`, the two pictures in `assets/`, plus `kit/`. `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file. The version is the `aui-version` meta in `index.html`; `build.py` refuses to build when the footer says another. `python3 build.py --check` fails when the committed `site/` or `dist/` is not what the source builds.
+`build.py` inlines the stylesheets and scripts in the order they appear in `index.html`, escapes `</script>` inside strings, merges the adjacent `<style>` blocks, minifies, and inlines the font. Then it rebuilds `site/`, the folder Vercel serves (see `vercel.json`): the single file as the page (with a Content-Security-Policy, and the Code tab's kit text fetched on first use) and as the Download (everything embedded), a 404 page, `robots.txt`, `sitemap.xml`, `favicon.ico`, `LICENSE.txt`, `llms.txt` and `llms-full.txt`, the pictures and the reel in `assets/`, plus `kit/` with every pinned version. Analytics are off (`ANALYTICS` in `build.py`). `dist/ascii-ui.html` also works on its own, anywhere that serves one HTML file. The version is the `aui-version` meta in `index.html`; `build.py` refuses to build when the footer says another. `python3 build.py --check` fails when the committed `site/` or `dist/` is not what the source builds.
 
 ## QA
 
@@ -81,9 +83,11 @@ Every script is described in `qa/README.md`. Drop the trailing `x` from `qa.py` 
 | Add a block | `docs/BLOCKS.md` |
 | Understand a trick (torus, tear, LCD, shatter, ramp swap) | `docs/EFFECTS.md` |
 | See what is fragile | `docs/KNOWN-ISSUES.md` |
+| Know what is accessible and what is not | `docs/ACCESSIBILITY.md` |
+| Write a component's Usage tab | `AUI_DOCS` in `js/90-usage.js`, checked by `qa/usage.py` |
 | Change the navigation (top bar, sidebar, menu) | `css/17-nav.css`, `js/70-nav.js` |
 | Change Search | `css/18-search.css`, `js/80-search.js`, commands in `run()` in `js/20` |
-| Change Home | `index.html` (`main > header`, `#view-home`), `css/16-grid.css`, `js/40` |
+| Change Home | `index.html` (`main > header`, `#view-home`), `css/16-grid.css`, `css/22-home.css`, `js/40`, `js/70` (the reel, No signal) |
 | Decide what to do next | `docs/ROADMAP.md` |
 | Know why something is the way it is | `docs/DECISIONS.md` |
 | See how it got here | `docs/CHANGELOG.md` |
