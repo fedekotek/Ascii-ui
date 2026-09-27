@@ -582,11 +582,15 @@
   /* ---- the reel, at the top of How it was made ----
      Only a poster until you press play: then the video is made, muted, with
      controls, and played because you asked. Under reduced motion it waits
-     for you to press play in its own controls. It tries the file next to the
-     page, then the one on the site (the single file has no assets folder) */
+     for you to press play in its own controls. Two sources: WebM (VP9, Opus)
+     first, MP4 (H.264, AAC) for Safari, only the ones this browser says it
+     can play. It tries the files next to the page, then the ones on the site
+     (the single file has no assets folder) */
   const reelBtn=$('reelPlay');
   if(reelBtn){
-    const poster=$('reelPoster'),rs=$('reelStatus'),REL=($('reelSrc')&&$('reelSrc').dataset.src)||'assets/reel.mp4',ABS=SITE+'assets/reel.mp4';
+    const poster=$('reelPoster'),rs=$('reelStatus'),rsrc=$('reelSrc')||{dataset:{}};
+    const REL=[rsrc.dataset.webm||'assets/reel.webm',rsrc.dataset.src||'assets/reel.mp4'],ABS=[SITE+'assets/reel.webm',SITE+'assets/reel.mp4'];
+    const TYPE=['video/webm; codecs="vp9, opus"','video/mp4; codecs="avc1.640029, mp4a.40.2"'];
     const noPoster=()=>reelBtn.classList.add('noposter');
     poster.addEventListener('error',noPoster);
     if(poster.complete&&!poster.naturalWidth)noPoster();
@@ -596,24 +600,44 @@
       v.setAttribute('playsinline','');v.setAttribute('aria-label','The ascii/ui reel, 15 seconds');
       if(poster.naturalWidth)v.poster=poster.currentSrc||poster.src;
       let tried=0;
+      /* the sources of a list this browser can play; the last one's error
+         means none of them loaded (a type it cannot play is skipped silently,
+         so it is never added) */
+      let noWebm=0;
+      const load=list=>{
+        const ok=list.map((u,i)=>[u,TYPE[i]]).filter((x,i)=>!(i===0&&noWebm)&&v.canPlayType(x[1]));
+        v.replaceChildren(...ok.map((x,i)=>{
+          const s=document.createElement('source');s.src=x[0];s.type=x[1];
+          if(i===ok.length-1)s.addEventListener('error',fail);
+          return s;
+        }));
+        if(ok.length)v.load();
+        return ok.length;
+      };
       /* neither copy loads: the dead player goes, the poster comes back, and
          the status line links to the file instead of printing its address */
-      v.addEventListener('error',()=>{
-        if(!tried){tried=1;v.src=ABS;v.load();if(!A.reduce)v.play().catch(()=>{});return}
+      const fail=()=>{
+        if(!tried){tried=1;if(load(ABS)){if(!A.reduce)v.play().catch(()=>{});return}}
         if(tried>1||!v.isConnected)return;tried=2;
         const had=document.activeElement===v;
-        v.removeAttribute('src');v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
+        v.replaceChildren();v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
         rs.textContent='';rs.classList.add('err');
         setTimeout(()=>{
           rs.textContent='The reel did not load here. ';
-          const a=document.createElement('a');a.className='inl';a.href=ABS;a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
+          const a=document.createElement('a');a.className='inl';a.href=ABS[1];a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
           rs.append(a,'.');
         },40);
+      };
+      /* a file that arrives but will not decode. A WebM a browser said it
+         could play and then could not gets one more go, as the MP4 */
+      v.addEventListener('error',()=>{
+        if(!noWebm&&/\.webm$/.test(v.currentSrc)){noWebm=1;if(load(tried?ABS:REL)){if(!A.reduce)v.play().catch(()=>{});return}}
+        fail();
       });
       rs.classList.remove('err');rs.textContent='';
-      v.src=REL;
       reelBtn.replaceWith(v);
       v.focus({preventScroll:true});
+      if(!load(REL)){fail();return}
       if(A.reduce)rs.textContent='Reduced motion is on, so it waits for you. Press play.';
       else{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{})}
       tick();

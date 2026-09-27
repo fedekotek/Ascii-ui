@@ -17,7 +17,7 @@
      favicon.ico       for search results and browsers that ask for it by name
      LICENSE.txt       the MIT license, also in kit/ and every kit/<version>/
      assets/           og.png (the share picture), icon-180.png (the home screen icon),
-                       reel.mp4 and reel-poster.jpg (Home, How it was made; the video
+                       reel.webm, reel.mp4 and reel-poster.jpg (Home, How it was made; the video
                        loads only when someone presses play)
      llms.txt          a copy of llms.txt at the repo root, when it exists
      llms-full.txt     every component in full, written by qa/reference.py
@@ -46,7 +46,7 @@ refreeze it.
 import re,pathlib,shutil,sys,tempfile,filecmp,hashlib,base64,json
 root=pathlib.Path(__file__).resolve().parent
 SITE_URL='https://ascii.fedekotek.design'
-SITE_ASSETS=['og.png','icon-180.png','reel.mp4','reel-poster.jpg']
+SITE_ASSETS=['og.png','icon-180.png','reel.webm','reel.mp4','reel-poster.jpg']
 KIT_FILES=['ascii-ui.css','ascii-ui.js']
 FONT='assets/fonts/geist-mono-site.woff2'
 

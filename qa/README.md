@@ -27,6 +27,7 @@ Every check script prints `[]` or `ok` when there is nothing wrong and exits non
 | `shatter.py` | Shatters a card and a button, screenshots, rebuilds. | no, pictures |
 | `themes-play-code.py` | Presets, ramp presets, Labs, Code tab, Install section screenshots. | no, pictures |
 | `shots.py` | Makes `assets/og.png` (1200x630, the share card drawn in characters on the kit's grid, with the counts read from the page) and `assets/icon-180.png` (the favicon). Run it when the counts, the colors or the favicon change, then `python3 build.py`, which gives the card a new `?v=`. | on page errors |
+| `reel.py` | The reel on Home, on `site/` over http at 390 touch and 1440, and on `dist/` from file://: nothing fetched before the press, then it plays (past 1 s, readyState 3 or more, no error event, the WebM), under reduced motion it waits for play, and a 404 or a file that will not decode puts the poster back with focus and an error line with a link. | yes |
 | `budget.py [--idle]` | The size budget of `site/`: each file's gzip size under its cap, the whole folder under its cap, and no request to anyone else in the page. `--idle` also counts idle work per view (DOM changes, style recalcs, animation frames per second) and fails over its caps; the release bar runs it this way. Lower a cap when a file shrinks. | yes |
 
 ## Release bar
@@ -38,6 +39,6 @@ python3 build.py        # first: release.sh checks and never writes
 sh qa/release.sh
 ```
 
-It runs, in order, and stops at the first failure: `qa.py` at 390x844 and 1440x900 in dark and light, `qa.py 390 844 dark s x --site`, `breakpoints.py`, `clock.py`, `audit.py`, `keyboard.py`, `kit.py`, `usage.py`, `reduced.py`, `reduced.py --site`, `nav.py quick`, `reference.py --check`, `build.py --check`, `budget.py --idle`. The last line is `release: ok, 17 of 17 steps passed. Commit, push to main, Vercel ships it.` or `release: FAIL at step N: ...`. If you edited `kit/`, run `python3 qa/kit.py sync` before it; if you changed a component, `python3 qa/reference.py`. The full `nav.py` (without `quick`) is worth a run after navigation changes.
+It runs, in order, and stops at the first failure: `qa.py` at 390x844 and 1440x900 in dark and light, `qa.py 390 844 dark s x --site`, `lazykit.py`, `breakpoints.py`, `clock.py`, `audit.py`, `keyboard.py`, `kit.py`, `usage.py`, `reduced.py`, `reduced.py --site`, `reel.py`, `nav.py quick`, `reference.py --check`, `build.py --check`, `budget.py --idle`. The last line is `release: ok, 19 of 19 steps passed. Commit, push to main, Vercel ships it.` or `release: FAIL at step N: ...`. If you edited `kit/`, run `python3 qa/kit.py sync` before it; if you changed a component, `python3 qa/reference.py`. The full `nav.py` (without `quick`) is worth a run after navigation changes.
 
 `build.py` writes `dist/ascii-ui.html` and the `site/` folder that Vercel serves. Commit `site/` with the change: the deploy has no build step. `python3 build.py --check` builds into a temporary folder and compares it with `site/` and `dist/` on disk: it prints `ok`, or lists every file that is missing, extra or different and exits 1. Run it last, right before the commit.

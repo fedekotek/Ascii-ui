@@ -35,6 +35,7 @@ step python3 qa/kit.py
 step python3 qa/usage.py
 step python3 qa/reduced.py
 step python3 qa/reduced.py --site
+step python3 qa/reel.py
 step python3 qa/nav.py quick
 step python3 qa/reference.py --check
 step python3 build.py --check
