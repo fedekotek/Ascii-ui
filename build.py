@@ -279,7 +279,7 @@ def og_version(h,og):
 
 def sha(s): return "'sha256-"+base64.b64encode(hashlib.sha256(s.encode('utf-8')).digest()).decode()+"'"
 
-def csp(h):
+def csp(h,kv):
     """a Content-Security-Policy meta, first thing in the head, that allows the
     inline scripts this copy has and nothing else. Hashed here, from the final
     text, so a changed script needs a build and nothing else"""
@@ -294,7 +294,8 @@ def csp(h):
     # takes this policy with it. It links the pinned kit and nothing else, so
     # the kit folder is allowed for scripts, styles and the font. This page
     # itself never asks for them.
-    PAGE='https://ascii.fedekotek.design/kit/'
+    if not kv: sys.exit('build: the CSP needs the kit version for the pinned kit')
+    PAGE='https://ascii.fedekotek.design/kit/'+kv+'/'   # the pinned version only, its two files and its font
     pol=["default-src 'none'",
          "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else '')+' '+PAGE,
          "style-src 'unsafe-inline' "+PAGE,      # the engine writes style="" on titles, charts and colored text
@@ -481,7 +482,7 @@ def build(out,quiet=False):
     # the page: kit text on demand, analytics when on, then the CSP over all of it
     i=links(inline(src,kv) if LAZY_KIT and kv else one,'ascii-ui.html',starter,'assets/icon-180.png','favicon.ico',og)
     if ANALYTICS: i=i.replace('</head>',VA+'</head>',1)
-    if CSP: i=csp(i)
+    if CSP: i=csp(i,kv)
     (site/'index.html').write_text(i)
     say('site/index.html',len(i.encode()),'bytes')
     (site/'404.html').write_text(PAGE404.replace('FAVICON',fav.group(1) if fav else ''))

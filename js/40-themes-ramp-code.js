@@ -388,7 +388,7 @@ A.savePage=function(pg,out,open){
   try{url=URL.createObjectURL(new Blob([pg.text],{type:'text/html;charset=utf-8'}));w=window.open(url,'_blank')}catch(e){w=null}
   if(!w){if(url)URL.revokeObjectURL(url);return save('The browser kept the new tab closed.')}
   try{w.opener=null}catch(e){}
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  /* the address is kept, so the tab still reloads; it goes with this page */
   tell(out,'Opened '+pg.name+' in a new tab.');
 };
 const KB=s=>Math.max(1,Math.round(new Blob([s]).size/1024))+' kB';

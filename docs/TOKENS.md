@@ -37,7 +37,7 @@ Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same 
 Off by default. They striped every slab, printed as blank pages and are not characters. `:root.crt` turns them on: `body::before` draws `--scanlines` (built from `--scan`, one line in four) over the page, and every dialog draws its own in `::after` and `::backdrop`. On the site the switch is CRT scanlines under Settings in Search, remembered in `localStorage['aui-crt']`. In the kit it is `class="crt"` on `<html>`.
 
 ## tokens.json, for design tools
-The same tokens in the W3C design tokens format (DTCG: `$value`, `$type`, `$description`), for Tokens Studio and the Figma Variables importers. Two copies, one template:
+The same tokens in the shape of the W3C design tokens draft (DTCG: `$value`, `$type`, `$description`), as Tokens Studio and the Figma Variables importers read it. It is not the strict subset: the cell, the ramp, the frame tones and the easings are `"$type":"string"`, and durations and dimensions are strings like `"160ms"`, so strict tools (Style Dictionary in DTCG mode, Terrazzo) may warn on those. Two copies, one template:
 - `site/kit/tokens.json`, written by `build.py` (`tokens_json()`), for the default preset, at https://ascii.fedekotek.design/kit/tokens.json. It is not in `kit/` and not in any `kit/releases/` version: it is built, never edited.
 - Themes > Tokens > Download tokens.json (js/40, `tokensJSON()`), for the preset and colors on screen.
 

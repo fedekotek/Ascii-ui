@@ -197,16 +197,21 @@ for s in sorted(set(re.findall(r'data-rule="([a-z.]+)"',html))):
 # no em dash: every text file in the repo and what ships, and the commit log
 DASH=chr(0x2014)   # spelled as a number, so this file holds none
 TEXT={'.html','.css','.js','.md','.txt','.py','.sh','.json','.svg','.xml'}
-skip={'archive','.git','node_modules','.claude'}
-for p in ROOT.rglob('*'):
-    if not p.is_file() or p.suffix not in TEXT or skip & set(p.relative_to(ROOT).parts): continue
+# what git tracks, plus what the build writes: never a virtual env or a stray download
+try: tracked=subprocess.run(['git','-C',str(ROOT),'ls-files'],capture_output=True,text=True,timeout=30).stdout.split('\n')
+except (OSError,subprocess.SubprocessError): tracked=[]
+files={ROOT/f for f in tracked if f}|{p for d in ('site','dist') for p in (ROOT/d).rglob('*')}
+for p in sorted(files):
+    if not p.is_file() or p.suffix not in TEXT or 'archive' in p.relative_to(ROOT).parts: continue
     t=p.read_text(encoding='utf-8',errors='ignore')
     if p.name=='usage.py': t=t.replace("'%s' in w"%DASH,'')   # its own dash check
     if DASH in t:
         ln=t[:t.index(DASH)].count('\n')+1
         fail('rules','an em dash in %s:%d'%(p.relative_to(ROOT),ln))
 try:
-    log=subprocess.run(['git','-C',str(ROOT),'log','--format=%h %B'],capture_output=True,text=True,timeout=30).stdout
+    # only commits main does not have yet: those can still be reworded, published ones cannot
+    base=subprocess.run(['git','-C',str(ROOT),'rev-parse','--verify','-q','origin/main'],capture_output=True,text=True,timeout=30).stdout.strip()
+    log=subprocess.run(['git','-C',str(ROOT),'log','--format=%h %B',base+'..HEAD'],capture_output=True,text=True,timeout=30).stdout if base else ''
     for c in re.split(r'\n(?=[0-9a-f]{7,} )',log):
         if DASH in c: fail('rules','an em dash in commit %s'%c.split()[0])
 except (OSError,subprocess.SubprocessError): pass
