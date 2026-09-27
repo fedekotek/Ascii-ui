@@ -32,6 +32,7 @@ step python3 qa/clock.py
 step python3 qa/audit.py
 step python3 qa/keyboard.py
 step python3 qa/kit.py
+step python3 qa/pages.py
 step python3 qa/usage.py
 step python3 qa/reduced.py
 step python3 qa/reduced.py --site

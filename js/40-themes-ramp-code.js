@@ -346,14 +346,51 @@ function copy(txt,what,el,out){
 }
 A.copy=copy;
 /* a download from a string: Blob plus a.download, so it works from file:// */
-function download(name,text,type,out){
+function download(name,text,type,out,msg){
   try{
     const url=URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'})),a=document.createElement('a');
     a.href=url;a.download=name;a.hidden=true;document.body.appendChild(a);a.click();a.remove();
     setTimeout(()=>URL.revokeObjectURL(url),4000);
-    tell(out,'Downloading '+name+'.');
+    tell(out,msg||'Downloading '+name+'.');
   }catch(e){tell(out,'This browser will not save files from a page. Take '+name+' from the kit folder instead.',true)}
 }
+
+/* ---- the page a Code tab downloads: one component, whole, linked to the pinned kit.
+   PIN is written by `python3 qa/kit.py sync` from the released files, and
+   `python3 qa/kit.py` fails when it and the hashes in kit/README.md disagree */
+const PIN={v:'1.2.0',css:'sha384-j/ryrYuSrB/+dEoZsY1c72v7yBJLagXPwkFVv4q1CDH348eTrLgoE53X91dUs51I',js:'sha384-LfiKgjFkwB/7slBU5RZ4WbLFau1HoiPdY8nGzxLpACcT1Y5ZR8WbXG1EIkoxnpp0'};
+const PAGE_OUT=['s-command','s-picture'];
+/* {name, text} for a section whose html runs on the kit alone, or {why} */
+A.pageOf=function(sec,html,ex){
+  const id=sec.getAttribute('aria-labelledby')||'',slug=id.replace(/^[so]-/,''),block=!!sec.closest('#view-blocks');
+  /* the published site fetches the kit on first use: until then there is nothing to judge by */
+  if(!PAGE_OUT.includes(id)&&!KIT().css.trim())return null;
+  if(PAGE_OUT.includes(id)||(ex&&ex.siteOnly&&ex.siteOnly.length))return {why:'Site only, no page to download.'};
+  const h=sec.querySelector('h2'),title=h?h.textContent.trim():slug,K='https://ascii.fedekotek.design/kit/'+PIN.v+'/';
+  const text='<!doctype html>\n'+
+    '<!-- '+title.replace(/--/g,'-')+', from the Code tab of https://ascii.fedekotek.design/#'+(block?'blocks':'components')+'/'+slug+'. Kit '+PIN.v+', MIT. -->\n'+
+    '<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'+
+    '<title>'+esc(title)+' . ascii/ui kit '+PIN.v+'</title>\n'+
+    '<link rel="stylesheet" href="'+K+'ascii-ui.css" integrity="'+PIN.css+'" crossorigin="anonymous">\n'+
+    '<script defer src="'+K+'ascii-ui.js" integrity="'+PIN.js+'" crossorigin="anonymous"></'+'script>\n'+
+    '</head>\n<body>\n<main class="stack" style="max-width:80ch;margin:0 auto;padding:var(--r) 2ch">\n'+
+    '<h1>'+esc(title)+'</h1>\n'+
+    '<p class="muted">Linked to the pinned kit, so it looks the same next year. Paste more from any Code tab.</p>\n'+
+    html+'\n</main>\n</body>\n</html>\n';
+  return {name:'ascii-ui-'+slug+'.html',text:text};
+};
+/* a new tab from a Blob. From file://, or when the browser keeps the tab
+   closed, the same page is downloaded instead, and the status line says so */
+A.savePage=function(pg,out,open){
+  const save=why=>download(pg.name,pg.text,'text/html',out,why?why+' Downloading '+pg.name+' instead.':'');
+  if(!open||location.protocol==='file:')return save(open?'A page opened from a file cannot open another.':'');
+  let url='',w=null;
+  try{url=URL.createObjectURL(new Blob([pg.text],{type:'text/html;charset=utf-8'}));w=window.open(url,'_blank')}catch(e){w=null}
+  if(!w){if(url)URL.revokeObjectURL(url);return save('The browser kept the new tab closed.')}
+  try{w.opener=null}catch(e){}
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  tell(out,'Opened '+pg.name+' in a new tab.');
+};
 const KB=s=>Math.max(1,Math.round(new Blob([s]).size/1024))+' kB';
 
 (function install(){
@@ -382,7 +419,7 @@ const KB=s=>Math.max(1,Math.round(new Blob([s]).size/1024))+' kB';
     '<li class="past"><b>Or download them</b><span>The same two files, to keep next to your page and edit. The CSS is '+KB(K.css)+', the JS '+KB(K.js)+'.</span>'+
       '<div class="row demo">'+btn('data-dl="css"','Download CSS')+btn('data-dl="js"','Download JS')+'</div>'+
       '<p class="muted status kit-out" role="status"></p></li>'+
-    '<li class="past"><b>Take a component</b><span>Open Code on any component below and copy its HTML. It works as pasted, twice on one page too. The CSS and JS under it are already in the two files, printed so you can read them.</span></li></ol>'+
+    '<li class="past"><b>Take a component</b><span>Open Code on any component below and copy its HTML. It works as pasted, twice on one page too. Download page puts it on a page of its own, linked and ready. The CSS and JS under it are already in the two files, printed so you can read them.</span></li></ol>'+
     '<p class="muted demo">Every component working on one page: <a class="inl" href="https://ascii.fedekotek.design/kit/starter.html">the starter page</a>. MIT license, the code is yours. The whole site as one file is the Download in the footer.</p>';
   kit.insertBefore(sec,head.nextSibling);
   sec.addEventListener('click',e=>{

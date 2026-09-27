@@ -290,10 +290,15 @@ def csp(h):
     hand=sorted(set(re.findall(r'<[a-z][^>]*\s(on[a-z]+)=',tags)))
     if hand: sys.exit('build: inline event handlers are refused by the CSP ('+', '.join(hand)+'): use addEventListener')
     hashes=[sha(m.group(1)) for m in re.finditer(r'<script>([\s\S]*?)</script>',h)]
+    # PAGE: a page a Code tab opens in a new tab is a blob: document, and it
+    # takes this policy with it. It links the pinned kit and nothing else, so
+    # the kit folder is allowed for scripts, styles and the font. This page
+    # itself never asks for them.
+    PAGE='https://ascii.fedekotek.design/kit/'
     pol=["default-src 'none'",
-         "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else ''),
-         "style-src 'unsafe-inline'",      # the engine writes style="" on titles, charts and colored text
-         "font-src data:","img-src 'self' data: blob:","connect-src 'self'",
+         "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else '')+' '+PAGE,
+         "style-src 'unsafe-inline' "+PAGE,      # the engine writes style="" on titles, charts and colored text
+         "font-src data: "+PAGE,"img-src 'self' data: blob:","connect-src 'self'",
          "media-src 'self'",                 # the reel on Home, fetched on play
          "worker-src 'none'","frame-src 'none'","manifest-src 'none'",
          "object-src 'none'","base-uri 'none'","form-action 'none'"]

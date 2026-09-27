@@ -449,7 +449,7 @@ function docify(sec){
     '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button>'+
     (use?'<button class="tab" role="tab" type="button" id="'+id+'t3" aria-controls="'+id+'p3" aria-selected="false" tabindex="-1">Usage</button>':'')+'</div>'+
     '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
-    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>'+
+    '<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div><p class="muted status page-out" role="status"></p></div>'+
     (use?'<div class="doc-panel" role="tabpanel" id="'+id+'p3" aria-labelledby="'+id+'t3" hidden></div>':'');
   /* the demo as the html has it, before any glitch, scramble or click: the
      Code tab is built from this copy, never from the live preview, so a
@@ -476,11 +476,15 @@ function docify(sec){
     pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
       (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
       '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
-    const row=p2.querySelector('.copyrow'),mk=(label,txt,part)=>{
+    const row=p2.querySelector('.copyrow'),out=p2.querySelector('.page-out'),btn=(label,fn,attr)=>{
       const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>';
-      b.addEventListener('click',()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});row.appendChild(b);
-    };
+      if(attr)b.setAttribute(attr,'');b.addEventListener('click',fn);row.appendChild(b);
+    },mk=(label,txt,part)=>btn(label,()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});
     mk('Copy HTML',html,'html');if(ex.css)mk('Copy CSS',ex.css,'css');
+    /* the whole page: this html between the two pinned kit links, ready to open (js/40) */
+    const pg=A.pageOf?A.pageOf(sec,html,ex):null;out.textContent='';
+    if(pg&&pg.text){btn('Download page',()=>A.savePage(pg,out,false),'data-page');btn('Open page',()=>A.savePage(pg,out,true),'data-open')}
+    else if(pg)out.textContent=pg.why;
   }
   const panels=[p1,p2,p3].filter(Boolean);
   function pick(t,focus){
