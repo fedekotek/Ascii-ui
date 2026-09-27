@@ -3,7 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ascii/ui starter</title>
+<title>Starter page: every kit component, ascii/ui</title>
+<!-- for ascii.fedekotek.design only: delete these lines in your copy -->
+<meta name="description" content="Every ascii/ui kit component on one page, linking only ascii-ui.css and ascii-ui.js. View the source and copy what you need. MIT.">
+<meta name="author" content="Fede Kotek">
+<link rel="canonical" href="https://ascii.fedekotek.design/kit/starter.html">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ascii/ui">
+<meta property="og:title" content="ascii/ui starter page: every kit component">
+<meta property="og:description" content="Every ascii/ui kit component on one page, linking only the two kit files. View the source and copy what you need.">
+<meta property="og:url" content="https://ascii.fedekotek.design/kit/starter.html">
+<meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png?v=be07825a">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<!-- end of the lines for ascii.fedekotek.design -->
 <!-- the kit: two files, nothing else -->
 <link rel="stylesheet" href="ascii-ui.css">
 <script src="ascii-ui.js" defer></script>
@@ -33,6 +48,7 @@
     <label><input type="radio" name="theme" value="light"><span>Light</span></label>
     <label><input type="radio" name="theme" value="dark"><span>Dark</span></label>
   </div>
+  <label class="check"><input type="checkbox" id="crt"><span class="glyph" aria-hidden="true"></span>Scanlines</label>
 </header>
 <main id="top">
   <h1>Starter page</h1>
@@ -74,13 +90,19 @@
       <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="text" value="Reporting redesign" autocomplete="off" autocapitalize="off" spellcheck="false" data-aui="validate" required pattern="[a-z0-9\-]+" data-error-required="Enter a link for this project." data-error-pattern="Use lowercase letters, numbers and hyphens."></div></div>
       <p class="error"></p>
     </div>
+    <div class="group">
+      <label class="field-label">Email for the report</label>
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="email" autocomplete="email" data-aui="validate" required data-error-required="Enter an email for the report." data-error-type="That is not an email address."></div></div>
+      <p class="error"></p>
+    </div>
+    <p class="muted">The email waits until you leave it, then checks as you type.</p>
   </section>
 
   <section class="part" id="otp">
     <h3>Input OTP</h3>
     <div class="stack">
       <div class="otp" role="group" aria-label="One-time code" data-aui="otp"><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 1" autocomplete="one-time-code"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 2" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 3" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 4" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 5" autocomplete="off"></span><span><input inputmode="numeric" maxlength="1" placeholder="_" aria-label="Digit 6" autocomplete="off"></span></div>
-      <p class="muted status" role="status">Type any six digits.</p>
+      <p class="muted status" role="status">Type any six digits. A letter says no.</p>
     </div>
   </section>
 
@@ -128,11 +150,159 @@
 
   <section class="part" id="togglegroup">
     <h3>Toggle group</h3>
-    <div class="tgroup" role="radiogroup" aria-label="View"><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div>
+    <div class="stack">
+      <div class="tgroup" role="radiogroup" aria-label="View" data-aui="segment" data-say="{label} view."><label><input type="radio" name="viewmode" value="list"><span>List</span></label><label><input type="radio" name="viewmode" value="board" checked><span>Board</span></label><label><input type="radio" name="viewmode" value="cal"><span>Calendar</span></label></div>
+      <p class="muted status" role="status">Board view.</p>
+    </div>
   </section>
 
   <!-- ================= Overlay ================= -->
   <h2 id="overlay">Overlay</h2>
+
+  <section class="part" id="alertdialog">
+    <h3>Alert dialog</h3>
+    <div class="row">
+      <div>
+        <div class="row">
+          <button class="btn btn-danger frame tone-danger" type="button" data-aui-open><span class="mid"><span class="label">Delete project</span></span></button>
+        </div>
+        <dialog role="alertdialog">
+          <div class="alert lift">
+            <div class="card frame tone-danger">
+              <h2 class="bar-title">Delete project?</h2>
+              <div class="body">
+                <p>Reporting redesign and its 14 comments go for good. There is no undo.</p>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" autofocus data-aui-close><span class="mid"><span class="label">Keep it</span></span></button>
+                  <button class="btn btn-danger frame tone-danger" type="button" data-aui-close="delete" data-aui-toast-err="Deleted. It is gone."><span class="mid"><span class="label">Delete</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      </div>
+      <div>
+        <div class="row">
+          <button class="btn btn-danger frame tone-danger" type="button" data-aui-open><span class="mid"><span class="label">Delete workspace</span></span></button>
+        </div>
+        <dialog role="alertdialog">
+          <div class="alert lift">
+            <div class="card frame tone-danger">
+              <h2 class="bar-title">Delete static-prod?</h2>
+              <div class="body">
+                <p>Every monitor, status page and incident in static-prod goes. Type its name to confirm.</p>
+                <div class="group">
+                  <label class="field-label">Workspace name</label>
+                  <div class="field frame tone-light">
+                    <div class="mid">
+                      <span class="prompt" aria-hidden="true">&gt;</span>
+                      <input type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-match="static-prod" autofocus data-aui="confirm">
+                    </div>
+                  </div>
+                  <p class="error"></p>
+                </div>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Keep it</span></span></button>
+                  <button class="btn btn-danger frame tone-danger" type="button" disabled data-aui-close="delete" data-aui-toast-err="Workspace deleted. Nothing to watch now."><span class="mid"><span class="label">Delete</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      </div>
+    </div>
+  </section>
+
+  <section class="part" id="combobox">
+    <h3>Combobox</h3>
+    <div class="stack">
+      <div class="group">
+        <label class="field-label">Probe region</label>
+        <div class="combo" data-empty="No region by that name. Yet." data-error-list="Pick a region from the list." data-aui="combobox" data-name="region">
+          <div class="field frame tone-light">
+            <div class="mid">
+              <span class="prompt" aria-hidden="true">v</span>
+              <input type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type a city or a code">
+            </div>
+          </div>
+          <div class="pane" hidden>
+            <div class="lift">
+              <div class="card frame tone-heavy">
+                <div class="body">
+                  <div class="opts" role="listbox">
+                    <div role="option" data-value="iad-1">iad-1, Washington</div>
+                    <div role="option" data-value="ord-1">ord-1, Chicago</div>
+                    <div role="option" data-value="sfo-1">sfo-1, San Francisco</div>
+                    <div role="option" data-value="gru-1">gru-1, São Paulo</div>
+                    <div role="option" data-value="eze-1">eze-1, Buenos Aires</div>
+                    <div role="option" data-value="lhr-1">lhr-1, London</div>
+                    <div role="option" data-value="fra-1">fra-1, Frankfurt</div>
+                    <div role="option" data-value="arn-1">arn-1, Stockholm</div>
+                    <div role="option" data-value="jnb-1">jnb-1, Johannesburg</div>
+                    <div role="option" data-value="bom-1">bom-1, Mumbai</div>
+                    <div role="option" data-value="sin-1">sin-1, Singapore</div>
+                    <div role="option" data-value="hnd-1">hnd-1, Tokyo</div>
+                    <div role="option" data-value="syd-1">syd-1, Sydney</div>
+                    <div role="option" data-value="mcm-1" aria-disabled="true">mcm-1, McMurdo (full)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="error"></p>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="contextmenu">
+    <h3>Context menu</h3>
+    <div class="stack">
+      <div class="ctx" data-aui="contextmenu">
+        <div class="tablewrap">
+          <table class="tbl">
+            <caption class="vh">Incidents. Right-click a row, or press Shift F10 on it, for what you can do with it.</caption>
+            <thead>
+              <tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th></tr>
+            </thead>
+            <tbody>
+              <tr tabindex="0">
+                <td>INC-481</td>
+                <td>api-gateway</td>
+                <td><span class="badge b-hot">Down</span></td>
+              </tr>
+              <tr tabindex="0">
+                <td>INC-480</td>
+                <td>checkout</td>
+                <td><span class="badge b-warn">Degraded</span></td>
+              </tr>
+              <tr tabindex="0">
+                <td>INC-479</td>
+                <td>search</td>
+                <td><span class="badge b-ok">Resolved</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="menu pane" role="menu" aria-label="Incident" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <div class="body">
+                <button role="menuitem" type="button" tabindex="-1">Open <kbd>o</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1">Copy ID <kbd>c</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1">Assign to me <kbd>a</kbd></button>
+                <button role="menuitem" type="button" tabindex="-1" disabled>Undo</button>
+                <div class="sepd faint" role="separator"></div>
+                <button role="menuitem" type="button" tabindex="-1" class="danger">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="muted status" role="status">Right-click a row, or press and hold it.</p>
+    </div>
+  </section>
 
   <section class="part" id="dropdown">
     <h3>Dropdown</h3>
@@ -146,9 +316,66 @@
     </div>
   </section>
 
+  <section class="part" id="popover">
+    <h3>Popover</h3>
+    <div class="row">
+      <div class="pop" data-aui="popover">
+        <button class="btn frame tone-light" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="mid"><span class="label">Snooze <span aria-hidden="true">v</span></span></span></button>
+        <div class="pane" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <h3 class="bar-title">Snooze api-gateway</h3>
+              <div class="body">
+                <fieldset>
+                  <legend class="vh">Snooze for</legend>
+                  <div class="stack">
+                    <label class="check"><input type="radio" name="snooze" value="15m"><span class="glyph" aria-hidden="true"></span>15 minutes</label>
+                    <label class="check"><input type="radio" name="snooze" value="1h" checked><span class="glyph" aria-hidden="true"></span>1 hour</label>
+                    <label class="check"><input type="radio" name="snooze" value="tomorrow"><span class="glyph" aria-hidden="true"></span>Until tomorrow, 09:00</label>
+                  </div>
+                </fieldset>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
+                  <button class="btn btn-primary frame tone-heavy" type="button" data-aui-close data-aui-toast="Snoozed. It will be back."><span class="mid"><span class="label">Snooze</span></span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pop" data-aui="popover">
+        <button class="btn frame tone-light" type="button" aria-haspopup="dialog" aria-expanded="false"><span class="mid"><span class="label">Rename</span></span></button>
+        <div class="pane" hidden>
+          <div class="lift">
+            <div class="card frame tone-heavy">
+              <h3 class="bar-title">Rename probe</h3>
+              <form class="body" method="dialog">
+                <div class="group">
+                  <label class="field-label">Name</label>
+                  <div class="field frame tone-light">
+                    <div class="mid">
+                      <span class="prompt" aria-hidden="true">&gt;</span>
+                      <input type="text" value="iad-1 checkout" autocomplete="off" required data-aui="validate" data-error-required="Enter a name for the probe.">
+                    </div>
+                  </div>
+                  <p class="error"></p>
+                </div>
+                <div class="row">
+                  <button class="btn frame tone-light" type="button" data-aui-close><span class="mid"><span class="label">Cancel</span></span></button>
+                  <button class="btn btn-primary frame tone-heavy" type="submit"><span class="mid"><span class="label">Save</span></span></button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="part" id="sheet">
     <h3>Sheet</h3>
     <div class="row"><button class="btn frame tone-light" type="button" data-aui-open><span class="mid"><span class="label">Open filters</span></span></button></div>
+    <p class="muted">On a touch screen, drag it down by its title to close it.</p>
     <dialog class="sheet">
       <div class="lift"><div class="card frame tone-heavy">
         <h2 class="bar-title">Filters</h2>
@@ -261,12 +488,14 @@
 
   <section class="part" id="spinner">
     <h3>Spinner</h3>
+    <p class="row"><b data-aui="spinner" aria-label="Loading"></b><span class="muted">A spinner with an aria-label is read as that word.</span></p>
     <div class="spins" role="img" aria-label="Loading indicators"><span><b data-aui="spinner" data-kind="classic"></b>classic</span><span><b data-aui="spinner" data-kind="ramp"></b>ramp</span><span><b data-aui="spinner" data-kind="bounce"></b>bounce</span><span><b data-aui="spinner" data-kind="dots"></b>dots</span><span><b data-aui="spinner" data-kind="fill"></b>fill</span></div>
   </section>
 
   <section class="part" id="toast">
     <h3>Toast</h3>
-    <div class="row"><button class="btn frame tone-light" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button></div>
+    <div class="row"><button class="btn frame tone-light" type="button" data-aui-toast="Changes saved."><span class="mid"><span class="label">Save changes</span></span></button><button class="btn btn-danger frame tone-danger" type="button" data-aui-toast-err="Something broke. It was you."><span class="mid"><span class="label">Break something</span></span></button><button class="btn frame tone-light" type="button" data-aui-toast="Report sent to 14 people. Three of them will open it, one will reply."><span class="mid"><span class="label">Send report</span></span></button></div>
+    <p class="muted">Longer words stay longer. [x] puts it away, and it holds while you point at it.</p>
   </section>
 
   <!-- ================= Navigation ================= -->
@@ -307,6 +536,10 @@
     if (e.target.name !== 'theme') return;
     if (e.target.value) document.documentElement.setAttribute('data-theme', e.target.value);
     else document.documentElement.removeAttribute('data-theme');
+  });
+  /* and the scanlines, off unless asked for: the crt class on <html> */
+  document.getElementById('crt').addEventListener('change', function (e) {
+    document.documentElement.classList.toggle('crt', e.target.checked);
   });
 </script>
 </body>

@@ -2,6 +2,47 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.2.0, 2026-09-27
+
+Added
+- Popover, `data-aui="popover"` on a `.pop`: a button and a small panel next to it, not modal. The focus goes in and comes back on Escape or a `data-aui-close`; a click outside or Tab past the end put it away. A `<form method="dialog">` inside closes it once the form is valid. `aui:toggle`, `ASCIIUI.popover(el)`.
+- Combobox, `data-aui="combobox"` on a `.combo`: a field that narrows a list as you type, with `role="combobox"`, a listbox and `aria-activedescendant`. Case and accents do not count, the best match comes first, `data-empty` says when nothing matches and `data-error-list` when the words are not an option. `data-name`, `data-value`, `data-free`. `aui:change`, `ASCIIUI.combobox(el)`.
+- Context menu, `data-aui="contextmenu"` on a `.ctx`: opens on a right-click, a long press or Shift F10 where you are, arrows and letters move, the `<kbd>` letter picks. `aui:select`, `ASCIIUI.contextmenu(el)`.
+- Alert dialog, `<dialog role="alertdialog">`: a tap around it is not an answer, it nudges and puts the focus back on the safe button. `data-aui="confirm"` with `data-match` keeps the danger button off until the name is typed.
+- `pane`: the floating panel under the three above. It goes to the top layer where the browser has the Popover API and sits on the grid, below its button or above it when there is no room.
+- `data-aui-close="value"` sets the dialog's `returnValue`.
+- Segment, `data-aui="segment"` on a `.tgroup`: writes the pick into its status line, the label's words or `data-say="{label} view."`, and fires `aui:change` with `{ value, label, input }`.
+- Toasts have `[x]` to put them away (the focus goes back to where it was), stay longer for longer words (`--aui-toast`, 3.6s, at least, 60ms a character, 15s at most) and hold while a pointer or the focus is on them.
+- A sheet closes on a drag down on a touch screen: by its title, the grip of `=` above it, or from the top of what it holds. It follows the finger a row at a time.
+- Input OTP: a letter is refused out loud. "Digits only." in the status line (`data-error` for other words), `.invalid` on the group, `aria-invalid` on the box, brackets turned into `!`.
+- The calendar says a new month ("October 2026.") from a live region that stays put while the month is redrawn.
+- Motion tokens on `:root`: `--aui-quick`, `--aui-base`, `--aui-slow`, `--aui-toast` and the stepped easings `--aui-ease-flip`, `-type`, `-wipe`, `-rise`, `-jolt`. Every kit animation reads them.
+- Print, Windows High Contrast and more contrast: black characters on white paper with the floating parts left off; slabs and focus in the system colors under `forced-colors`; darker grey and heavier type under `prefers-contrast: more`.
+- Scanlines as an option, off unless `<html class="crt">`.
+- The README shows `integrity` hashes for the pinned files.
+
+Changed
+- Geist Mono comes from `fonts/` next to the CSS, not from Google Fonts. The `@import` is gone, so a page that links the kit makes no request to anyone but the kit's address, and nobody else sees its visitors. An installed Geist Mono is used first. Without the folder, the system monospace, as before.
+- Both files open with `/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */`, a line minifiers keep. `LICENSE.txt` is next to them on the site, and `fonts/OFL.txt` next to the font.
+- Validation waits for the first blur: typing says nothing until you leave the field (or send the form), then every key checks, so a fix clears the message at once. A value wrong on load still shows its message.
+- Toasts: the mark (`@@`, `!!`) is `aria-hidden`, so a screen reader hears only the words. Good news is a `role="status"`, an error a `role="alert"`, read at once.
+- Slabs have no 2px violet and magenta edges: the primary label, the picked tab, the card title, the magenta badge, the avatar, the picked day, the tooltip and the picked segment are plain slabs. A focused primary button's slab takes the focus color.
+- The veil behind a dialog is characters: a period every other column on every row, in faint magenta (yellow behind an alert dialog), not a pattern of dots.
+- Hover styles need a mouse, `(hover:hover) and (pointer:fine)`, so a stylus or a touch laptop does not leave them stuck. Menu items and the tooltip were not guarded at all. A keyboard on a touch screen shows the tooltip.
+- A focused tab panel gets a wall of `@` down its left edge and a focused table row a `>` in its first character, instead of a shadow that High Contrast drops.
+- A wrong field with the focus keeps its wall of `!`, in the focus color.
+
+Fixed
+- Dropdown items are two whole rows tall, on the grid. They sat off it.
+- A disabled field has a faint rim and gray text, the way a disabled button does.
+- A disabled danger button has a gray label, not a yellow one.
+- A dialog's `returnValue` starts empty every time it opens.
+- A `data-aui-close` in a popover inside a dialog closes the popover, not the dialog.
+- Kbd brackets are paint: a screen reader says the key, not "left bracket".
+- A tap on a select's frame focuses the select and opens its list, as it does for an input.
+- Spinners are not read as "slash", "dash": the frames are `aria-hidden`, or the spinner is `role="img"` named by its `aria-label`.
+- Disabled menu items are gray and do not light up under a mouse.
+
 ## 1.1.1, 2026-09-26
 
 Fixed
