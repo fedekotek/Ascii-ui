@@ -14,16 +14,18 @@ function arp(fs,gap){if(!A.live())return;fs.forEach(function(f,i){A.tone('square
 
 /* ================= fx helpers ================= */
 const fx=$('fx');
-/* the band only turns hues backwards a little: magenta goes violet, violet
-   goes cyan, paper goes pink. Quarter and half turns made oranges and browns
-   that are not in the palette. */
+/* A tear is a row or two of light characters across the screen, magenta or
+   violet, knocked a character sideways, gone in a fifth of a second. It used
+   to be a band that turned the hues under it, a filter; it is made of the
+   same stuff as everything else now, and it sits on the grid */
 function tear(n){
   if(A.glitch()<=0||reduce)return;
-  n=n||2;const vh=window.innerHeight;
+  n=n||2;const R=A.ROW,CW=A.CH(),rows=Math.max(1,Math.floor(window.innerHeight/R)),cols=Math.ceil(window.innerWidth/CW)+2;
   while(n--){
-    const d=document.createElement('div'),h=8+rnd(44),deg=[-45,-60,-75][rnd(3)];
-    d.style.cssText='left:0;right:0;top:'+rnd(vh-h)+'px;height:'+h+'px;-webkit-backdrop-filter:hue-rotate('+deg+'deg) saturate(1.6) contrast(1.2);backdrop-filter:hue-rotate('+deg+'deg) saturate(1.6) contrast(1.2);transform:translateX('+(rnd(17)-8)+'px)';
-    fx.appendChild(d);setTimeout(()=>d.remove(),80+rnd(140));
+    const d=document.createElement('div'),h=1+rnd(2),lite=RAMP.slice(1,5);let s='';
+    for(let y=0;y<h;y++){for(let x=0;x<cols;x++)s+=Math.random()<0.55?lite.charAt(rnd(lite.length)):' ';if(y<h-1)s+='\n'}
+    d.style.cssText='left:0;right:0;top:'+(rnd(rows)*R)+'px;height:'+(h*R)+'px;line-height:'+R+'px;white-space:pre;overflow:hidden;font-weight:700;opacity:.55;color:var(--'+(Math.random()<0.5?'hot':'violet')+');transform:translateX('+((rnd(3)-1)*CW)+'px)';
+    d.textContent=A.TR(s);fx.appendChild(d);setTimeout(()=>d.remove(),80+rnd(140));
   }
 }
 A.tear=tear;
@@ -55,7 +57,7 @@ function rearm(el){
    beside the curtain, and it takes the taps while it covers the page */
 function mosh(cb){
   if(reduce||A.glitch()<=0){cb();return}
-  const P=A.pal(),keys=['hot','pink','cy','warn','deep','violet','ok'];
+  const P=A.pal(),keys=['hot','pink','violet','deep','violet','hot','ink'];
   const wrap=document.createElement('div');wrap.setAttribute('aria-hidden','true');A.hold(wrap);
   wrap.style.cssText='position:fixed;inset:0;z-index:90;overflow:hidden;pointer-events:auto;touch-action:none';
   const R=A.ROW,rows=Math.ceil(window.innerHeight/R),els=[];
@@ -78,7 +80,7 @@ function show(name){const t=$('v-'+name);if(t){t.click();return true}return fals
    Keep BOOTSKEL in step with the markup in index.html. About 0.6s, then out. */
 /* the strip is glyphs, not slabs, and it has no cyan (cyan is focus) */
 const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
-  ['pink','warn','violet','deep','ink','hot','violet'].map(k=>'<b style="color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
+  ['pink','hot','violet','deep','ink','hot','violet'].map(k=>'<b style="color:var(--'+k+')">'+rep('@',24)+'</b>').join('')+
   '</div><div class="log">ASCII/UI BIOS v0.9  (c) 2026 FEDE KOTEK\n</div><div class="pb"></div><div class="skip">Tap or press any key to skip.</div></div>';
 let booting=false;
 function boot(force,done){
@@ -91,6 +93,11 @@ function boot(force,done){
   booting=true;
   if(!el){el=document.createElement('div');el.id='boot';el.setAttribute('aria-hidden','true');document.body.appendChild(el)}
   el.innerHTML=BOOTSKEL;
+  /* the glow behind it is characters, not a gradient: a soft ellipse of the
+     ramp's lightest steps in magenta, densest a little right of centre */
+  {const R=A.ROW,CW=A.CH(),gc=Math.ceil(window.innerWidth/CW),gr=Math.ceil(window.innerHeight/R),lite=RAMP.slice(0,3);let s='';
+   for(let y=0;y<gr;y++){for(let x=0;x<gc;x++){const dx=(x/gc-0.62)/0.64,dy=(y/gr-0.44)/0.46,d=1-Math.sqrt(dx*dx+dy*dy),k=d>0?d*d*(lite.length-0.2)*(0.7+Math.random()*0.6):0;s+=lite.charAt(Math.min(lite.length-1,Math.floor(k)))}s+='\n'}
+   const gl=document.createElement('pre');gl.className='glow';gl.textContent=A.TR(s);el.insertBefore(gl,el.firstChild)}
   const bin=el.querySelector('.bin'),title=el.querySelector('.bt'),log=el.querySelector('.log'),pb=el.querySelector('.pb');
   const L=[['ramp ........ '+A.TR('@%#*+=:.'),'ok'],['charts ......','ok'],['invaders ....','armed'],['signal ......','BAD'],['booting .....','ok']];
   const bar=k=>{pb.innerHTML=A.colorize(A.barRow(Math.round(k/L.length*24),true,24))+' '+String(Math.round(k/L.length*100)).padStart(3)+'%'};
@@ -213,7 +220,7 @@ function sim(){
   drawSand();
   if(!P.length){simOn=false;if(simTask){simTask.stop();simTask=null}}
 }
-const KEYS=['ink','ink','hot','pink','cy','warn','violet','ok'];
+const KEYS=['ink','ink','hot','pink','violet','deep','violet','hot'];
 /* the pieces are the component's own characters: its text, its frames, its glyphs, its pixels */
 function transparent(c){return !c||c==='transparent'||/rgba\(\s*\d+,\s*\d+,\s*\d+,\s*0\)/.test(c)}
 function harvest(el,cw){
@@ -394,25 +401,28 @@ if(!reduce){
   /* it only runs while it shows (it is hidden under 480px and with Glitch
      off), and the box is rewritten only when the text changed */
   let hudWas='';
-  every(120,()=>{
+  /* five times a second: the frame count still runs, at half the DOM work */
+  every(200,()=>{
     const ms=Date.now()-t0,p=n=>String(n).padStart(2,'0');
     const tc=p(Math.floor(ms/3600000))+':'+p(Math.floor(ms/60000)%60)+':'+p(Math.floor(ms/1000)%60)+':'+p(Math.floor(ms/40)%25);
     const h=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
     if(h!==hudWas){hudWas=h;hud.innerHTML=h}
   },{gate:()=>A.glitch()>0&&hud.getClientRects().length>0});
   /* the tracking band is three rows of characters that step down the screen
-     a row per frame. It moves by transform, so nothing is laid out again as
-     it passes (it used to animate top, a layout shift every frame, and it
-     filtered what was under it) */
-  const trk=$('track');let trkRun=null;
+     a row per step. A CSS animation in whole rows moves it (css/13, aui-track),
+     so a pass costs the page a handful of changes, not one a row, and nothing
+     is laid out again as it passes (it used to animate top, a layout shift
+     every frame, and it filtered what was under it) */
+  const trk=$('track');let trkRun=false,trkAt=0;
   trk.style.cssText='top:0;height:auto;-webkit-backdrop-filter:none;backdrop-filter:none;background:none;animation:none;opacity:.2;color:var(--ink);font-weight:700;white-space:pre;overflow:hidden;line-height:'+A.ROW+'px;visibility:hidden';
+  trk.addEventListener('animationend',()=>{trk.style.visibility='hidden';trk.style.animation='none';trkRun=false});
   every(9000,()=>{
-    if(trkRun)return;
+    /* a pass that never reported its end (hidden mid-way) does not block the next */
+    if(trkRun&&Date.now()-trkAt<6000)return;trkAt=Date.now();
     const cols=Math.ceil(window.innerWidth/A.CH())+1,rows=Math.ceil(window.innerHeight/A.ROW)+3,dash=rep('- ',cols).slice(0,cols);
     trk.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
-    const at=f=>{trk.style.transform='translateY('+((f-3)*A.ROW)+'px)'};
-    at(0);trk.style.visibility='visible';
-    trkRun=times(Math.max(40,Math.round(2600/rows)),rows,at,()=>{trk.style.visibility='hidden';trkRun=null});
+    trk.style.setProperty('--rows',rows);trk.style.visibility='visible';trkRun=true;
+    trk.style.animation='aui-track '+(Math.max(40,Math.round(2600/rows))*rows)+'ms steps('+rows+',end) 1 both';
   },{gate:()=>A.glitch()>0});
 }
 
@@ -442,7 +452,7 @@ function showSig(){$('sigText').textContent='CODE '+sig()}
 function makePoster(){
   const pal=A.pal(),W=1080,H=1350,c=document.createElement('canvas'),x=c.getContext('2d'),r=mulberry(SEED);
   c.width=W;c.height=H;x.fillStyle=pal.bg;x.fillRect(0,0,W,H);
-  const ac=['hot','pink','cy','warn','deep','violet','ok','ink'];
+  const ac=['hot','pink','violet','deep','hot','violet','pink','ink'];
   for(let i=0;i<170;i++){x.globalAlpha=0.2+r()*0.7;x.fillStyle=pal[r()<0.7?'hot':'pink'];x.fillRect(r()*W-80,Math.floor(r()*H/10)*10,20+r()*320,3)}
   x.globalAlpha=1;
   for(let i=0;i<24;i++){x.fillStyle=pal[ac[Math.floor(r()*8)]];const s=24+r()*90;x.fillRect(r()*W,r()*H,s*(0.6+r()*1.4),s)}
@@ -453,7 +463,7 @@ function makePoster(){
   lines.forEach(([t,y0])=>{
     const b=A.bitmap(t,2);
     for(let y=0;y<b.length;y++)for(let X=0;X<b[y].length;X++)if(b[y][X]){x.fillStyle=pal.bg;x.fillRect(40+X*cw-2,y0+y*lh,cw+4,lh)}
-    [[-7,'cy'],[7,'hot'],[0,'ink']].forEach(([dx,k])=>{
+    [[-7,'violet'],[7,'hot'],[0,'ink']].forEach(([dx,k])=>{
       x.fillStyle=pal[k];
       for(let y=0;y<b.length;y++){const sh2=r()<0.12?Math.round((r()-0.5)*90):0;
         for(let X=0;X<b[y].length;X++)if(b[y][X])x.fillText((X*7+y*13)%11===0?'%':'@',40+X*cw+dx+(k==='ink'?0:sh2*0.2),y0+y*lh)}
@@ -542,7 +552,7 @@ const INV=(function(){
     [['...##...','..####..','.######.','##.##.##','..#..#..','.#.##.#.'],['...##...','..####..','.######.','##.##.##','.#....#.','..#..#..']],
     [['..#..#..','.######.','##.##.##','########','#.#..#.#','..#..#..'],['..#..#..','.######.','##.##.##','########','.#....#.','#......#']],
     [['..####..','########','##.##.##','########','.##..##.','##....##'],['..####..','########','##.##.##','########','..#..#..','.#.##.#.']]];
-  const SHIP=['...##...','..####..','########','########'],KC=['pink','warn','violet'];
+  const SHIP=['...##...','..####..','########','########'],KC=['pink','hot','violet'];
   let cw=5,lh=7,fs=8,dpr=1,state='idle',inv=[],bul=[],bom=[],bunk=[],px=28,dir=1,t=0,score=0,hi=0,lives=3,wave=1,down=false,kl=false,kr=false,kf=false,cool=0,vis=false,flash=0;
   try{hi=parseInt(localStorage.getItem('aui-hi'),10)||0}catch(e){}
   function size(W){
@@ -611,7 +621,7 @@ const INV=(function(){
     text('WAVE '+wave,40,0,'muted',pal);text(rep('@',Math.max(0,lives)),COLS-5,0,'ok',pal);
     for(let i=0;i<COLS;i++){x.fillStyle=pal.violet;x.fillText('=',i*cw,1.4*lh)}
     inv.forEach(i=>{if(!i.a)return;const j=(g>0&&Math.random()<0.04*g)?(rnd(9)-4)*cw*0.5:0;
-      if(j){sprite(SPR[i.ty][fr],i.x,i.y,'cy',pal,j-2);sprite(SPR[i.ty][fr],i.x,i.y,'hot',pal,j+2)}
+      if(j){sprite(SPR[i.ty][fr],i.x,i.y,'violet',pal,j-2);sprite(SPR[i.ty][fr],i.x,i.y,'hot',pal,j+2)}
       sprite(SPR[i.ty][fr],i.x,i.y,KC[i.ty],pal,j)});
     x.fillStyle=pal.violet;bunk.forEach(c=>x.fillText('#',c.x*cw,c.y*lh));
     if(state!=='over'&&(flash<=0||flash%2)){sprite(SHIP,Math.round(px),ROWS-6,'ok',pal)}
@@ -646,7 +656,9 @@ const INV=(function(){
      idle screen moves by itself */
   /* the attract screen also stops with Glitch off (the page's pause switch,
      WCAG 2.2.2); a game you started keeps running */
-  loop=every(50,step,{gate:()=>vis&&(state==='play'||(!reduce&&G.on))});
+  /* with reduced motion only a game opens the gate, and start() and the
+     observer both wake it, so it sleeps outright instead of asking each second */
+  loop=every(50,step,{gate:()=>vis&&(state==='play'||(!reduce&&G.on)),sleep:reduce?Infinity:1000});
   const start0=start;start=function(){start0();loop.wake()};
   return {size,start,draw};
 })();
@@ -677,7 +689,9 @@ Grid.prototype.html=function(){
    page's width, which from 1024px ignored the sidebar and the gallery column
    and cut the right side off. A chart in a hidden view measures nothing, so it
    keeps the page's width until it shows, and a ResizeObserver redraws it then. */
-function colsOf(el){const w=el&&el.clientWidth;return w?Math.max(20,Math.floor(w/CCW)):CC}
+/* printCap: while a print is being laid out, no wider than the paper (below) */
+let printCap=0;
+function colsOf(el){const w=el&&el.clientWidth,n=w?Math.max(20,Math.floor(w/CCW)):CC;return printCap?Math.min(n,printCap):n}
 function grow(draw){return function(){if(reduce||A.glitch()<=0){draw(1);return}times(42,10,s=>draw(Math.min(1,s/10)))}}
 function cellAt(el,e){const r=el.getBoundingClientRect();return {x:Math.floor((e.clientX-r.left)/CCW),y:Math.floor((e.clientY-r.top)/14)}}
 /* every chart you can tap you can also drive: it takes a Tab stop, the arrows
@@ -835,6 +849,16 @@ if('ResizeObserver' in window){
   const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);if(!nio||near.has(el.id))DRAW[el.id]();else owed.add(el.id)}));
   Object.keys(DRAW).forEach(id=>ro.observe($(id)));
 }else document.addEventListener('aui:view',drawCharts);
+/* Paper is narrower than a wide screen, and the browser still reports the
+   screen's boxes when a print starts. So as it starts every chart is drawn
+   again no wider than the paper: A4 less css/29's margins is 190mm, 718px,
+   in css/29's 9px characters (three quarters of the 12px ones). When it ends
+   they go back to their boxes. Without it Bars lost Sat and Sun off the edge */
+function drawAllNow(){Object.keys(DRAW).forEach(id=>{owed.delete(id);try{DRAW[id]()}catch(e){}})}
+function toPaper(){printCap=Math.floor(718/(CCW*0.75));drawAllNow()}
+window.addEventListener('beforeprint',toPaper);
+window.addEventListener('afterprint',()=>{printCap=0;drawAllNow()});
+{const pm=window.matchMedia&&window.matchMedia('print');if(pm){const f=e=>{if(e.matches)toPaper();else if(printCap){printCap=0;drawAllNow()}};if(pm.addEventListener)pm.addEventListener('change',f);else if(pm.addListener)pm.addListener(f)}}
 
 /* ================= sparklines, skeleton ================= */
 function drawSparks(){document.querySelectorAll('.spark').forEach(s=>{s.textContent=A.TR(s.getAttribute('data-spark').split(',').map(n=>RAMP[clamp(+n+1,1,8)]).join(''))})}

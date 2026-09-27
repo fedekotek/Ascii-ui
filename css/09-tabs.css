@@ -22,3 +22,8 @@
 }
 .tabpanel pre{overflow-x:auto;white-space:pre;padding-left:2ch}
 .tabpanel .row{padding-left:2ch}
+/* longer words than the box (a translation, big text): the tabs wrap to a
+   second row instead of running past the column. The docs' tabs leave a row
+   between rows for the heavy mark under the one you are in */
+.tablist:not(#views):not(.menu-views){flex-wrap:wrap}
+.doc-tabs{row-gap:var(--r)}

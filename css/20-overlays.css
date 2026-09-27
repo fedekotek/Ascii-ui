@@ -35,6 +35,9 @@
 /* context menu: opens where you are. The row it acts on wears a violet bar
    while the menu is open. On touch the press is the menu's, not the browser's */
 .ctx{position:relative}
+/* in a stack it takes the column and no more, so a long row scrolls in its
+   table box instead of pushing the page sideways */
+.stack > .ctx{justify-self:stretch;min-width:0}
 .ctx > .menu{top:0;width:28ch;max-width:calc(100vw - 2ch)}
 .ctx [data-ctx]{box-shadow:inset 1ch 0 0 var(--violet)}
 @media (pointer:coarse){.ctx{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}}

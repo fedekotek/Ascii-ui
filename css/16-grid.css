@@ -96,22 +96,13 @@ main{max-width:calc(var(--maxcols)*1ch)}
 /* ---- hero edges ----------------------------------------------------------
    The scene is drawn to the edge of its canvas, so streaks and the sides of
    the title used to stop mid character, a cut that reads as a mistake rather
-   than as a frame. Six characters of fade on the sides and two rows top and
-   bottom let them leave instead. The measurements are grid units, like
-   everything else. On a phone six characters is a sixth of the canvas and ate
-   the A of ASCII, so there it is two. layout() reads --fade and starts the
-   words where the fade ends. */
-#hero{
-  --fade:6;
-  -webkit-mask-image:
-    linear-gradient(to right,transparent 0,#000 calc(var(--fade)*1ch),#000 calc(100% - var(--fade)*1ch),transparent 100%),
-    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
-  -webkit-mask-composite:source-in;
-  mask-image:
-    linear-gradient(to right,transparent 0,#000 calc(var(--fade)*1ch),#000 calc(100% - var(--fade)*1ch),transparent 100%),
-    linear-gradient(to bottom,transparent 0,#000 calc(var(--r)*2),#000 calc(100% - var(--r)*2),transparent 100%);
-  mask-composite:intersect;
-}
+   than as a frame. Six characters on the sides and two rows top and bottom
+   dissolve instead: js/10 (fadeEdges) drops more of the cells the nearer they
+   are to the edge, so the characters thin out and leave. No mask, no
+   gradient. The measurements are grid units, like everything else. On a phone
+   six characters is a sixth of the canvas and ate the A of ASCII, so there it
+   is two. layout() reads --fade and starts the words where the fade ends. */
+#hero{--fade:6}
 @media (max-width:719px){#hero{--fade:2}}
 
 /* ---- the hero fold --------------------------------------------------------

@@ -102,26 +102,23 @@
 .hud{background:var(--bg);padding:0 1ch}
 .hud b{color:var(--hot)}
 .calm .hud,.calm .track{display:none}
-.track{
-  position:fixed;left:0;right:0;top:-90px;height:64px;z-index:46;pointer-events:none;
-  -webkit-backdrop-filter:brightness(1.2) hue-rotate(18deg) saturate(1.5);
-  backdrop-filter:brightness(1.2) hue-rotate(18deg) saturate(1.5);
-  background:repeating-linear-gradient(to bottom,transparent 0 5px,color-mix(in srgb,var(--ink) 10%,transparent) 5px 6px);
-}
-.track.run{animation:roll 2.6s steps(32) 1}
-@keyframes roll{from{top:-90px}to{top:110vh}}
+/* the tracking band: three rows of characters js/20 steps down the screen */
+.track{position:fixed;left:0;right:0;top:0;z-index:46;pointer-events:none;visibility:hidden}
+@keyframes aui-track{from{transform:translateY(calc(var(--r)*-3))}to{transform:translateY(calc(var(--r)*(var(--rows,40) - 3)))}}
 /* the loader. index.html paints it before anything else (and drops it at once for a
    return visit or reduced motion), boot() in js/20 fills it. If the scripts never
    arrive, bootsafe hides it after 6s so the page is not held hostage. */
 #boot{
   position:fixed;inset:0;z-index:200;margin:0;display:flex;align-items:center;justify-content:center;
   padding:calc(var(--r) + env(safe-area-inset-top,0px)) 2ch calc(var(--r) + env(safe-area-inset-bottom,0px));
-  background:radial-gradient(64% 46% at 62% 44%,color-mix(in srgb,var(--hot) 16%,transparent),transparent),var(--bg);
+  background:var(--bg);
   color:var(--ink);font-weight:700;overflow:hidden;cursor:pointer;
   animation:bootsafe 0s 6s forwards;
 }
 #boot.out{animation:bootout .15s steps(3) both}
-#boot .bin{width:min(80ch,100%);white-space:pre}
+#boot .bin{width:min(80ch,100%);white-space:pre;position:relative;z-index:1}
+/* the glow: characters js/20 lays out on the grid, behind the words */
+#boot .glow{position:absolute;inset:0;margin:0;font:inherit;font-weight:400;line-height:var(--r);white-space:pre;overflow:hidden;color:var(--hot);opacity:.35;pointer-events:none}
 /* the same bitmap title as the section posters, fitted to the column. The height is
    a guess until boot() measures, rounded to whole rows so nothing jumps */
 #boot .bt{
