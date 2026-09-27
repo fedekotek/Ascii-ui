@@ -190,21 +190,49 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       </div>
       <figcaption class="muted" id="reelCap">15 seconds of the kit at work. It loads when you press play, and starts muted.</figcaption>
       <p class="muted status" id="reelStatus" role="status"></p>
-      <span hidden id="reelSrc" data-src="../assets/reel.mp4"></span>
+      <span hidden id="reelSrc" data-webm="../assets/reel.webm" data-src="../assets/reel.mp4"></span>
     </figure>
 
     <h3 class="lab-h">The problem</h3>
-    <p class="muted">Most component kits look like the same kit. ASCII interfaces look different, and most of them are screenshots or terminal toys: pure text breaks screen readers and does not reflow on a phone. The brief was a kit made of characters that still works like a kit, with a keyboard, a screen reader, a phone, and copy and paste. The person in charge is a product designer, so every rule had to be one a script can check.</p>
+    <p class="muted">Most component kits look like the same kit. ASCII interfaces look different, and most are screenshots or terminal toys: pure text breaks screen readers and does not reflow on a phone. The brief was a kit made of characters that still works like a kit, with a keyboard, a screen reader, a phone, and copy and paste. The person in charge is a product designer, so every rule had to be one a script can check.</p>
 
-    <h3 class="lab-h">Constraints</h3>
-    <ul class="rules demo muted">
-      <li>No frameworks, no bundler, no dependencies.</li>
-      <li>The whole site ships as one HTML file, and it works from file:// too.</li>
-      <li>Nothing loads from elsewhere except the font.</li>
-      <li>One clock runs every animation. A script fails if anything calls setInterval.</li>
-      <li>Every tap target is 44px.</li>
-      <li>No em dashes. Not even in commit messages.</li>
-    </ul>
+    <h3 class="lab-h">By the numbers</h3>
+    <p class="muted">Counted from the repo and the built site. A script recounts them before every release and fails if this page says otherwise.</p>
+    <pre class="demo statbars facts"> <span data-fact="components">34</span> <span class="muted">components, <span data-fact="kit">32</span> in the kit</span>
+    <span data-bar="kit" style="color:var(--violet)" aria-hidden="true">################################</span><span data-bar="siteonly" class="muted" aria-hidden="true">..</span>
+ <span data-fact="blocks">16</span> <span class="muted">blocks</span>
+    <span data-bar="blocks" style="color:var(--violet)" aria-hidden="true">################</span>
+  <span data-fact="charts">5</span> <span class="muted">charts</span>
+    <span data-bar="charts" style="color:var(--violet)" aria-hidden="true">#####</span>
+  <span data-fact="kit-versions">4</span> <span class="muted">kit versions, each pinned</span>
+    <span data-bar="kit-versions" style="color:var(--violet)" aria-hidden="true">####</span>
+ <span data-fact="release-steps">22</span> <span class="muted">steps in the release bar</span>
+    <span data-bar="release-steps" style="color:var(--hot)" aria-hidden="true">######################</span>
+ <span data-fact="qa-scripts">21</span> <span class="muted">QA scripts</span>
+    <span data-bar="qa-scripts" style="color:var(--hot)" aria-hidden="true">#####################</span>
+ <span data-fact="widths">11</span> <span class="muted">screen widths, <span data-fact="widths-min">360</span> to <span data-fact="widths-max">1920</span></span>
+    <span data-bar="widths" style="color:var(--hot)" aria-hidden="true">###########</span>
+  <span data-fact="a11y-modes">7</span> <span class="muted">accessibility modes</span>
+    <span data-bar="a11y-modes" style="color:var(--hot)" aria-hidden="true">#######</span>
+<span data-fact="weight-kb">168</span> <span class="muted">kB on first visit, cap <span data-fact="weight-cap">180</span></span>
+    <span data-bar="weight-kb" data-per="5" data-of="weight-cap" style="color:var(--hot)" aria-hidden="true">##################################</span><span class="muted" aria-hidden="true">..</span>
+ <span data-fact="kit-kb">38</span> <span class="muted">kB for the <span data-fact="kit-files">2</span> kit files</span>
+  <span style="color:var(--ok)" data-fact="requests">0</span> <span class="muted">requests to anyone else</span>
+  <span style="color:var(--ok)" data-fact="idle-frames">0</span> <span class="muted">idle frames, reduced motion</span></pre>
+    <p class="muted demo">One # is one thing, except weight: 5 kB a #, and the row ends at the cap. Sizes are gzip. The seven modes: <span data-fact="a11y-list">keyboard, screen reader names, reduced motion, forced colors, more contrast, print, touch</span>.</p>
+
+    <h3 class="lab-h">Rules the scripts enforce</h3>
+    <p class="muted">Each rule has a script, and each script is a step in the release bar. A rule no script checks is a suggestion.</p>
+    <pre class="demo statbars rulebar"><span class="muted" aria-hidden="true">RULE                    FAILS IT</span>
+no em dashes            <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
+cyan is focus only      <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
+columns on the 1ch grid <span style="color:var(--ok)" data-rule="breakpoints.py">breakpoints.py</span>
+reduced motion is none  <span style="color:var(--ok)" data-rule="reduced.py">reduced.py</span>
+no setInterval          <span style="color:var(--ok)" data-rule="clock.py">clock.py</span>
+nothing from elsewhere  <span style="color:var(--ok)" data-rule="budget.py">budget.py</span>
+no target under 40px    <span style="color:var(--ok)" data-rule="audit.py">audit.py</span>
+these numbers           <span style="color:var(--ok)" data-rule="facts.py">facts.py</span></pre>
+    <p class="muted demo">Em dashes are looked for in the source, the docs, the built site and the commit log. Cyan is read from every CSS rule that paints with it: each one needs a focus state. Taps are drawn at 44px, and the script fails anything under 40.</p>
 
     <h3 class="lab-h">Principles</h3>
     <ul class="rules demo muted">
@@ -212,13 +240,12 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><b>Every frame is a string.</b> A border is one character repeated, so a new character reskins the part.</li>
       <li><b>Weight is density.</b> @ is the loudest thing on the page and . is the quietest.</li>
       <li><b>One grid, 1ch by 21px.</b> Widths are counts of characters, heights are counts of rows.</li>
-      <li><b>Cyan means focus and nothing else.</b> It is how you see where the keyboard is.</li>
       <li><b>Glitch is feedback.</b> It fires on touch and on state changes. At rest, the page reads.</li>
-      <li><b>Reduced motion means none.</b> Every animation and every sound stops, and a script checks it before every release.</li>
+      <li><b>One file, no dependencies.</b> No framework, no bundler. The site ships as one HTML file and works from file://.</li>
     </ul>
 
     <h3 class="lab-h">Process</h3>
-    <p class="muted">It started as one HTML file and stayed one for nine versions. v10 made it a repo, with docs and Playwright scripts for QA.</p>
+    <p class="muted">One HTML file for nine versions. v10 made it a repo, with docs and Playwright scripts for QA.</p>
     <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">.</span>  v1   <span class="muted">HTML on a character grid</span>
 <span style="color:var(--hot)" aria-hidden="true">:</span>  v2   <span class="muted">frames are strings</span>
 <span style="color:var(--hot)" aria-hidden="true">=</span>  v3   <span class="muted">the ring spins</span>
@@ -228,7 +255,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <span style="color:var(--hot)" aria-hidden="true">#</span>  v8   <span class="muted">6 presets, a ramp editor</span>
 <span style="color:var(--hot)" aria-hidden="true">%</span>  v10  <span class="muted">a repo, docs, QA scripts</span>
 <span style="color:var(--hot)" aria-hidden="true">@</span>  v11  <span class="muted">the kit: 2 files, MIT</span></pre>
-    <p class="muted demo">Each row is one step heavier on the ramp. v5 is a space because it never shipped. v10 to v11.1 took 76 commits in five days.</p>
+    <p class="muted demo">Each row is one step heavier on the ramp. v5 is a space because it never shipped.</p>
     <p class="muted demo">From v10.8 on, the work ran in rounds. Auditors read the site in parallel, one lens each, and change nothing. Their findings are split by file, so no two builders touch the same one.</p>
     <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">@</span> audit   <span class="muted">read only, in parallel</span>
 <span style="color:var(--violet)" aria-hidden="true">:</span>
@@ -247,10 +274,11 @@ v11.0   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
 v11.1   <span style="color:var(--violet)" aria-hidden="true">#######</span>     <span style="color:var(--hot)" aria-hidden="true">####</span><span class="vh"> 7 auditors, 4 builders.</span>
 v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  <span style="color:var(--hot)" aria-hidden="true">#########</span><span class="vh"> 10 auditors, 9 builders.</span></pre>
     <p class="muted demo">One # is one agent. v11.1 had seven lenses: a UI designer, legibility, copy, a frontend engineer, an interaction bug hunt, the Code tab's truth, and an LLM reading the docs cold. v11.2 went through a UX checklist: print, high contrast, touch, security, share cards, and four new overlays.</p>
-    <p class="muted demo">The release bar is one command. It runs 17 steps and stops at the first failure. A rule no script checks is a suggestion.</p>
+    <p class="muted demo">The release bar is one command. It runs <span data-fact="release-steps">22</span> steps and stops at the first failure.</p>
     <pre class="demo statbars"><span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">clean at 2 sizes, 2 themes</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the shipped file loads clean</span>
-<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">11 widths, 360 to 1920</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the Code tab prints the kit</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted"><span data-fact="widths">11</span> widths, 360 to 1920</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">one animation clock</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no tiny taps, no tiny text</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no surprise phone keyboard</span>
@@ -260,24 +288,10 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every address lands</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the docs match the code</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">what ships is what builds</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every number on this page</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">under the size budget</span>
 
 <span style="color:var(--ok)">release: ok</span></pre>
-
-    <h3 class="lab-h">Results</h3>
-    <p class="muted">What shipped, counted.</p>
-    <pre class="demo statbars">34  <span class="muted">components, 32 in the kit</span>
-16  <span class="muted">blocks</span>
- 5  <span class="muted">charts</span>
- 6  <span class="muted">presets</span>
- 7  <span class="muted">ramps</span>
- 0  <span class="muted">dependencies</span>
- 2  <span class="muted">kit files, 33 kB gzipped</span>
- 4  <span class="muted">kit versions, each pinned</span>
- 1  <span class="muted">HTML file for the whole site</span>
-16  <span class="muted">QA scripts</span>
-17  <span class="muted">steps in the release bar</span>
-11  <span class="muted">screen widths, 360 to 1920</span></pre>
 
     <h3 class="lab-h">What did not work</h3>
     <ul class="rules demo muted">
@@ -291,7 +305,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     </ul>
 
     <h3 class="lab-h">Credits</h3>
-    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.2</span>, with kit <span data-fact="kit-version">1.2.0</span>.</p>
   </section>
   </div>
 
@@ -1158,9 +1172,9 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
   <section aria-labelledby="s-tokens">
     <h2 id="s-tokens" class="vh">Tokens</h2>
     <pre class="poster ptitle" data-text="TOKENS" aria-hidden="true"></pre>
-    <p class="muted">The theme you are looking at, as CSS. Paste it after ascii-ui.css, or save it as tokens.css.</p>
+    <p class="muted">The theme you are looking at, as CSS. Paste it after ascii-ui.css, or save it as tokens.css. For Figma or Tokens Studio, tokens.json has both modes, the grid, the ramp and the motion.</p>
     <pre class="demo code" id="tokensOut" tabindex="0" aria-label="The tokens, as CSS"></pre>
-    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button" data-still><span class="mid"><span class="label">Copy tokens</span></span></button><button class="btn frame tone-light" id="tokensSave" type="button" data-still><span class="mid"><span class="label">Download tokens.css</span></span></button></div>
+    <div class="row demo"><button class="btn btn-primary frame tone-heavy" id="tokensCopy" type="button" data-still><span class="mid"><span class="label">Copy tokens</span></span></button><button class="btn frame tone-light" id="tokensSave" type="button" data-still><span class="mid"><span class="label">Download tokens.css</span></span></button><button class="btn frame tone-light" id="tokensJson" type="button" data-still><span class="mid"><span class="label">Download tokens.json</span></span></button></div>
     <p class="muted status" id="tokensStatus" role="status"></p>
   </section>
 
@@ -3761,7 +3775,7 @@ wrap.innerHTML='<div class="tablist doc-tabs" role="tablist" aria-label="'+esc(s
 '<button class="tab" role="tab" type="button" id="'+id+'t2" aria-controls="'+id+'p2" aria-selected="false" tabindex="-1">Code</button>'+
 (use?'<button class="tab" role="tab" type="button" id="'+id+'t3" aria-controls="'+id+'p3" aria-selected="false" tabindex="-1">Usage</button>':'')+'</div>'+
 '<div class="doc-panel" role="tabpanel" id="'+id+'p1" aria-labelledby="'+id+'t1"></div>'+
-'<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div></div>'+
+'<div class="doc-panel" role="tabpanel" id="'+id+'p2" aria-labelledby="'+id+'t2" hidden><pre class="code" tabindex="0" aria-label="Source code"></pre><div class="row copyrow"></div><p class="muted status page-out" role="status"></p></div>'+
 (use?'<div class="doc-panel" role="tabpanel" id="'+id+'p3" aria-labelledby="'+id+'t3" hidden></div>':'');
 const snap=document.createElement('div');demo.forEach(n=>snap.appendChild(n.cloneNode(true)));
 sec.insertBefore(wrap,demo[0]);const p1=wrap.children[1],p2=wrap.children[2],p3=wrap.children[3]||null;demo.forEach(n=>p1.appendChild(n));
@@ -3777,11 +3791,14 @@ if(note){note.textContent=ex.note||'';note.hidden=!ex.note}
 pre.innerHTML='<b class="h4">html</b><span data-part="html">'+hl(html)+'</span>'+
 (ex.css?'\n<b class="h4">css</b><span data-part="css">'+esc(ex.css)+'</span>\n':'')+
 '\n<b class="h4">js</b><span data-part="js">'+esc(ex.js)+'</span>\n';
-const row=p2.querySelector('.copyrow'),mk=(label,txt,part)=>{
+const row=p2.querySelector('.copyrow'),out=p2.querySelector('.page-out'),btn=(label,fn,attr)=>{
 const b=document.createElement('button');b.type='button';b.className='btn frame tone-light';b.innerHTML='<span class="mid"><span class="label">'+label+'</span></span>';
-b.addEventListener('click',()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});row.appendChild(b);
-};
+if(attr)b.setAttribute(attr,'');b.addEventListener('click',fn);row.appendChild(b);
+},mk=(label,txt,part)=>btn(label,()=>{if(A.copy)A.copy(txt,'the '+part.toUpperCase(),pre.querySelector('[data-part="'+part+'"]'))});
 mk('Copy HTML',html,'html');if(ex.css)mk('Copy CSS',ex.css,'css');
+const pg=A.pageOf?A.pageOf(sec,html,ex):null;out.textContent='';
+if(pg&&pg.text){btn('Download page',()=>A.savePage(pg,out,false),'data-page');btn('Open page',()=>A.savePage(pg,out,true),'data-open')}
+else if(pg)out.textContent=pg.why;
 }
 const panels=[p1,p2,p3].filter(Boolean);
 function pick(t,focus){
@@ -4394,15 +4411,184 @@ try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.w
 done(false);
 }
 A.copy=copy;
-function download(name,text,type,out){
+function download(name,text,type,out,msg){
 try{
 const url=URL.createObjectURL(new Blob([text],{type:type+';charset=utf-8'})),a=document.createElement('a');
 a.href=url;a.download=name;a.hidden=true;document.body.appendChild(a);a.click();a.remove();
 setTimeout(()=>URL.revokeObjectURL(url),4000);
-tell(out,'Downloading '+name+'.');
+tell(out,msg||'Downloading '+name+'.');
 }catch(e){tell(out,'This browser will not save files from a page. Take '+name+' from the kit folder instead.',true)}
 }
+const PIN={v:'1.2.0',css:'sha384-j/ryrYuSrB/+dEoZsY1c72v7yBJLagXPwkFVv4q1CDH348eTrLgoE53X91dUs51I',js:'sha384-LfiKgjFkwB/7slBU5RZ4WbLFau1HoiPdY8nGzxLpACcT1Y5ZR8WbXG1EIkoxnpp0'};
+const PAGE_OUT=['s-command','s-picture'];
+A.pageOf=function(sec,html,ex){
+const id=sec.getAttribute('aria-labelledby')||'',slug=id.replace(/^[so]-/,''),block=!!sec.closest('#view-blocks');
+if(!PAGE_OUT.includes(id)&&!KIT().css.trim())return null;
+if(PAGE_OUT.includes(id)||(ex&&ex.siteOnly&&ex.siteOnly.length))return {why:'Site only, no page to download.'};
+const h=sec.querySelector('h2'),title=h?h.textContent.trim():slug,K='https://ascii.fedekotek.design/kit/'+PIN.v+'/';
+const text='<!doctype html>\n'+
+'<!-- '+title.replace(/--/g,'-')+', from the Code tab of https://ascii.fedekotek.design/#'+(block?'blocks':'components')+'/'+slug+'. Kit '+PIN.v+', MIT. -->\n'+
+'<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n'+
+'<title>'+esc(title)+' . ascii/ui kit '+PIN.v+'</title>\n'+
+'<link rel="stylesheet" href="'+K+'ascii-ui.css" integrity="'+PIN.css+'" crossorigin="anonymous">\n'+
+'<script defer src="'+K+'ascii-ui.js" integrity="'+PIN.js+'" crossorigin="anonymous"></'+'script>\n'+
+'</head>\n<body>\n<main class="stack" style="max-width:80ch;margin:0 auto;padding:var(--r) 2ch">\n'+
+'<h1>'+esc(title)+'</h1>\n'+
+'<p class="muted">Linked to the pinned kit, so it looks the same next year. Paste more from any Code tab.</p>\n'+
+html+'\n</main>\n</body>\n</html>\n';
+return {name:'ascii-ui-'+slug+'.html',text:text};
+};
+A.savePage=function(pg,out,open){
+const save=why=>download(pg.name,pg.text,'text/html',out,why?why+' Downloading '+pg.name+' instead.':'');
+if(!open||location.protocol==='file:')return save(open?'A page opened from a file cannot open another.':'');
+let url='',w=null;
+try{url=URL.createObjectURL(new Blob([pg.text],{type:'text/html;charset=utf-8'}));w=window.open(url,'_blank')}catch(e){w=null}
+if(!w){if(url)URL.revokeObjectURL(url);return save('The browser kept the new tab closed.')}
+try{w.opener=null}catch(e){}
+setTimeout(()=>URL.revokeObjectURL(url),60000);
+tell(out,'Opened '+pg.name+' in a new tab.');
+};
 const KB=s=>Math.max(1,Math.round(new Blob([s]).size/1024))+' kB';
+const TOKDOC={
+"file":{
+"global":{
+"grid":{
+"$description":"Everything on screen snaps to one cell: one character wide, one row tall. No free pixel sizes.",
+"cell":{"$type":"string","$value":"1ch","$description":"One character of the type, wide. Every width is a whole number of these (CSS ch)."},
+"row":{"$type":"dimension","$value":"@row","$description":"One row (--r). Every height is a whole number of rows."}
+},
+"type":{
+"family":{"$type":"fontFamily","$value":"@family","$description":"Monospace, self-hosted, the only face. The grid needs every character the same width."},
+"size":{"$type":"dimension","$value":"@size","$description":"Body type, at every width."},
+"lineHeight":{"$type":"dimension","$value":"@lineHeight","$description":"One row."},
+"weight":{"$type":"fontWeight","$value":"@weight","$description":"Body. Gray text is 400, frames, slabs and titles are 700."}
+},
+"ramp":{
+"$description":"Nine steps, space to @, lightest to heaviest. Weight comes from how dense a character is: every frame, fill and chart is an index into these.",
+"all":{"$type":"string","$value":"@ramp","$description":"The whole ramp, index 0 to 8. Swap the characters and you have a different kit."},
+"k0":{"$type":"string","$value":"@k0","$description":"0. Nothing. Air."},
+"k1":{"$type":"string","$value":"@k1","$description":"1. The faintest mark: an empty track, a dotted fill."},
+"k2":{"$type":"string","$value":"@k2","$description":"2. Shade: rules, and the sides of light frames."},
+"k3":{"$type":"string","$value":"@k3","$description":"3. Light: the top and bottom of light frames."},
+"k4":{"$type":"string","$value":"@k4","$description":"4. Low fill in bars and charts."},
+"k5":{"$type":"string","$value":"@k5","$description":"5. Middle fill in bars and charts."},
+"k6":{"$type":"string","$value":"@k6","$description":"6. Mid frames."},
+"k7":{"$type":"string","$value":"@k7","$description":"7. Dense frames."},
+"k8":{"$type":"string","$value":"@k8","$description":"8. Heavy: primary buttons, cards, the focus rim, a full bar."}
+},
+"tone":{
+"$description":"Frame tones. A frame is a string of characters: rule runs along the top and bottom, side is one wall, a row at a time.",
+"heavy":{"$description":"Heavy. Primary buttons, cards and the focus rim.","rule":{"$type":"string","$value":"@heavy.rule"},"side":{"$type":"string","$value":"@heavy.side"}},
+"dense":{"$description":"Dense. One step under heavy.","rule":{"$type":"string","$value":"@dense.rule"},"side":{"$type":"string","$value":"@dense.side"}},
+"mid":{"$description":"Mid. A plain frame.","rule":{"$type":"string","$value":"@mid.rule"},"side":{"$type":"string","$value":"@mid.side"}},
+"light":{"$description":"Light. Secondary buttons and quiet frames.","rule":{"$type":"string","$value":"@light.rule"},"side":{"$type":"string","$value":"@light.side"}},
+"shade":{"$description":"Shade. Rules and walls that stay out of the way.","rule":{"$type":"string","$value":"@shade.rule"},"side":{"$type":"string","$value":"@shade.side"}},
+"faint":{"$description":"Faint. Dashed: empty, a placeholder, a drop zone.","rule":{"$type":"string","$value":"@faint.rule"},"side":{"$type":"string","$value":"@faint.side"}},
+"danger":{"$description":"Danger. Destructive actions.","rule":{"$type":"string","$value":"@danger.rule"},"side":{"$type":"string","$value":"@danger.side"}},
+"error":{"$description":"Error. A wrong field, a failed toast.","rule":{"$type":"string","$value":"@error.rule"},"side":{"$type":"string","$value":"@error.side"}}
+},
+"motion":{
+"$description":"The kit's motion. Steps, never eased: a step is a whole character or a whole row. Reduced motion turns all of it off.",
+"duration":{
+"quick":{"$type":"duration","$value":"@aui-quick","$description":"--aui-quick. A switch flips, a tooltip types in, a panel wipes open."},
+"base":{"$type":"duration","$value":"@aui-base","$description":"--aui-base. A toast types in, an alert dialog nudges."},
+"slow":{"$type":"duration","$value":"@aui-slow","$description":"--aui-slow. A sheet comes up."},
+"toast":{"$type":"duration","$value":"@aui-toast","$description":"--aui-toast. The shortest a toast stays. Longer words stay longer."}
+},
+"easing":{
+"flip":{"$type":"string","$value":"@aui-ease-flip","$description":"--aui-ease-flip. The switch thumb, one character a step."},
+"type":{"$type":"string","$value":"@aui-ease-type","$description":"--aui-ease-type. The tooltip and the toast, typed in from the left."},
+"wipe":{"$type":"string","$value":"@aui-ease-wipe","$description":"--aui-ease-wipe. A panel, a row a step."},
+"rise":{"$type":"string","$value":"@aui-ease-rise","$description":"--aui-ease-rise. The sheet, from the bottom."},
+"jolt":{"$type":"string","$value":"@aui-ease-jolt","$description":"--aui-ease-jolt. The nudge, no in-betweens."}
+}
+}
+},
+"light":null,
+"dark":null,
+"$themes":[
+{"id":"light","name":"Light","selectedTokenSets":{"global":"enabled","light":"enabled","dark":"disabled"}},
+{"id":"dark","name":"Dark","selectedTokenSets":{"global":"enabled","light":"disabled","dark":"enabled"}}
+],
+"$metadata":{"tokenSetOrder":["global","light","dark"]}
+},
+"color":{
+"color":{
+"$description":"@mode",
+"bg":{"$type":"color","$value":"@bg","$description":"Surface. The page."},
+"ink":{"$type":"color","$value":"@ink","$description":"Text, frames and primary slabs."},
+"muted":{"$type":"color","$value":"@muted","$description":"Secondary text."},
+"hot":{"$type":"color","$value":"@hot","$description":"Magenta. It acts: primary buttons, title bars. Also the worst state (Down), which always carries a word."},
+"pink":{"$type":"color","$value":"@pink","$description":"Secondary emphasis and halftone tails. Marks only, never body text."},
+"cy":{"$type":"color","$value":"@cy","$description":"Cyan. Focus, and nothing else."},
+"ok":{"$type":"color","$value":"@ok","$description":"Lime. It confirms: success, checked, on."},
+"warn":{"$type":"color","$value":"@warn","$description":"Yellow. It warns: an error you can fix, a degraded state. Keep it clearly apart from magenta."},
+"deep":{"$type":"color","$value":"@deep","$description":"Structure and shadows."},
+"violet":{"$type":"color","$value":"@violet","$description":"Dividers, walls, tab rules, info."},
+"t0":{"$type":"color","$value":"@t0","$description":"Poster titles, row 1, the top."},
+"t1":{"$type":"color","$value":"@t1","$description":"Poster titles, row 2."},
+"t2":{"$type":"color","$value":"@t2","$description":"Poster titles, row 3."},
+"t3":{"$type":"color","$value":"@t3","$description":"Poster titles, row 4, the bottom."}
+}
+},
+"words":{"light":"Light mode: %s.","dark":"Dark mode: %s.","only":" %s has no light version, so light is the default one.","yours":" With your colors."}
+};
+function tokFill(t,V){
+if(Array.isArray(t))return t.map(x=>tokFill(x,V));
+if(t&&typeof t==='object'){const o={};Object.keys(t).forEach(k=>{o[k]=tokFill(t[k],V)});return o}
+if(typeof t==='string'&&t[0]==='@'){const k=t.slice(1);if(!(k in V))throw new Error('no value for '+k);return V[k]}
+return t;
+}
+const TCOL=VARS.concat(['t0','t1','t2','t3']);
+function tokLook(theme){
+const was=['data-theme','data-preset','style'].map(n=>[n,root.getAttribute(n)]),o={};
+try{
+TCOL.forEach(k=>root.style.removeProperty('--'+k));
+root.setAttribute('data-theme',theme);root.removeAttribute('data-preset');
+TCOL.forEach(k=>{o[k]=readVar(k).toLowerCase()});
+}finally{was.forEach(([n,v])=>{if(v===null)root.removeAttribute(n);else root.setAttribute(n,v)})}
+return o;
+}
+const tokStr=v=>{v=v.trim();return v[0]==='"'?v.slice(1,-1):v};
+function tokUnit(v){
+const c=Array.from(tokStr(v));
+for(let p=1;p<c.length;p++){if(c.every((x,i)=>x===c[i%p]))return c.slice(0,p).join('')}
+return c.join('');
+}
+const tokMs=v=>{v=v.trim();return Math.round(/ms$/.test(v)?parseFloat(v):parseFloat(v)*1000)+'ms'};
+const tokName=v=>{const i=document.querySelector('input[name="preset"][value="'+v+'"]');return i&&i.nextElementSibling?i.nextElementSibling.textContent.trim():v};
+function tokensJSON(){
+const cs=getComputedStyle(root),bs=getComputedStyle(document.body),V={};
+V.row=cs.getPropertyValue('--r').trim();
+V.family=bs.fontFamily.split(',')[0].trim().replace(/^["']|["']$/g,'');
+V.size=bs.fontSize;V.lineHeight=bs.lineHeight;V.weight=parseInt(bs.fontWeight,10);
+V.ramp=' '+A.rampString();
+Array.from(V.ramp).forEach((c,i)=>{V['k'+i]=c});
+['heavy','dense','mid','light','shade','faint','danger','error'].forEach(k=>{
+V[k+'.rule']=tokUnit(cs.getPropertyValue('--h-'+k));V[k+'.side']=tokStr(cs.getPropertyValue('--s-'+k));
+});
+const kcss=KIT().css,re=/--(aui-[a-z-]+):\s*([^;]+);/g;let m;
+while((m=re.exec(kcss)))if(!(m[1] in V))V[m[1]]=/^aui-ease/.test(m[1])?m[2].trim():tokMs(m[2]);
+const P=root.getAttribute('data-preset'),dark=P?true:/dark/.test(cs.colorScheme||'')||lum(readVar('bg'))<0.35;
+const mine=TCOL.some(k=>root.style.getPropertyValue('--'+k)),here={};
+TCOL.forEach(k=>{here[k]=readVar(k).toLowerCase()});
+const L=dark?tokLook('light'):here,D=dark?here:tokLook('dark');
+const W=TOKDOC.words,f=(s,x)=>s.replace('%s',x);
+const lm=f(W.light,tokName('paper'))+(P?f(W.only,tokName(P)):'')+(!dark&&mine?W.yours:'');
+const dm=f(W.dark,tokName(P||'signal'))+(dark&&mine?W.yours:'');
+const out=tokFill(TOKDOC.file,V);
+out.light=tokFill(TOKDOC.color,Object.assign({mode:lm},L));
+out.dark=tokFill(TOKDOC.color,Object.assign({mode:dm},D));
+return JSON.stringify(out,null,2)+'\n';
+}
+const kitReady=()=>typeof kitLoad==='function'?kitLoad():Promise.resolve();
+$('tokensJson').addEventListener('click',()=>{
+const out=$('tokensStatus');
+kitReady().then(()=>{
+let t;try{t=tokensJSON()}catch(e){tell(out,'The tokens did not come together ('+e.message+'). Take tokens.json from the kit folder instead.',true);return}
+download('tokens.json',t,'application/json',out);if(live())sfx.ok();
+},()=>tell(out,'The kit did not load, and the motion tokens are in it. Check the connection, or take tokens.json from the kit folder.',true));
+});
 (function install(){
 const kit=$('view-kit'),head=kit&&kit.querySelector(':scope > .dochead');if(!head)return;
 const K=KIT(),KVER=(/var VERSION='([\d.]+)'/.exec(K.js)||[])[1];
@@ -4424,7 +4610,7 @@ block('latest','Latest, which follows every new version.','Copy latest')+
 '<li class="past"><b>Or download them</b><span>The same two files, to keep next to your page and edit. The CSS is '+KB(K.css)+', the JS '+KB(K.js)+'.</span>'+
 '<div class="row demo">'+btn('data-dl="css"','Download CSS')+btn('data-dl="js"','Download JS')+'</div>'+
 '<p class="muted status kit-out" role="status"></p></li>'+
-'<li class="past"><b>Take a component</b><span>Open Code on any component below and copy its HTML. It works as pasted, twice on one page too. The CSS and JS under it are already in the two files, printed so you can read them.</span></li></ol>'+
+'<li class="past"><b>Take a component</b><span>Open Code on any component below and copy its HTML. It works as pasted, twice on one page too. Download page puts it on a page of its own, linked and ready. The CSS and JS under it are already in the two files, printed so you can read them.</span></li></ol>'+
 '<p class="muted demo">Every component working on one page: <a class="inl" href="https://ascii.fedekotek.design/kit/starter.html">the starter page</a>. MIT license, the code is yours. The whole site as one file is the Download in the footer.</p>';
 kit.insertBefore(sec,head.nextSibling);
 sec.addEventListener('click',e=>{
@@ -4893,7 +5079,9 @@ h.classList.add('hl-h');h.after(b);
 });
 const reelBtn=$('reelPlay');
 if(reelBtn){
-const poster=$('reelPoster'),rs=$('reelStatus'),REL=($('reelSrc')&&$('reelSrc').dataset.src)||'assets/reel.mp4',ABS=SITE+'assets/reel.mp4';
+const poster=$('reelPoster'),rs=$('reelStatus'),rsrc=$('reelSrc')||{dataset:{}};
+const REL=[rsrc.dataset.webm||'assets/reel.webm',rsrc.dataset.src||'assets/reel.mp4'],ABS=[SITE+'assets/reel.webm',SITE+'assets/reel.mp4'];
+const TYPE=['video/webm; codecs="vp9, opus"','video/mp4; codecs="avc1.640029, mp4a.40.2"'];
 const noPoster=()=>reelBtn.classList.add('noposter');
 poster.addEventListener('error',noPoster);
 if(poster.complete&&!poster.naturalWidth)noPoster();
@@ -4903,22 +5091,37 @@ v.controls=true;v.muted=true;v.defaultMuted=true;v.playsInline=true;v.preload='a
 v.setAttribute('playsinline','');v.setAttribute('aria-label','The ascii/ui reel, 15 seconds');
 if(poster.naturalWidth)v.poster=poster.currentSrc||poster.src;
 let tried=0;
-v.addEventListener('error',()=>{
-if(!tried){tried=1;v.src=ABS;v.load();if(!A.reduce)v.play().catch(()=>{});return}
+let noWebm=0;
+const load=list=>{
+const ok=list.map((u,i)=>[u,TYPE[i]]).filter((x,i)=>!(i===0&&noWebm)&&v.canPlayType(x[1]));
+v.replaceChildren(...ok.map((x,i)=>{
+const s=document.createElement('source');s.src=x[0];s.type=x[1];
+if(i===ok.length-1)s.addEventListener('error',fail);
+return s;
+}));
+if(ok.length)v.load();
+return ok.length;
+};
+const fail=()=>{
+if(!tried){tried=1;if(load(ABS)){if(!A.reduce)v.play().catch(()=>{});return}}
 if(tried>1||!v.isConnected)return;tried=2;
 const had=document.activeElement===v;
-v.removeAttribute('src');v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
+v.replaceChildren();v.load();v.replaceWith(reelBtn);if(had)reelBtn.focus({preventScroll:true});
 rs.textContent='';rs.classList.add('err');
 setTimeout(()=>{
 rs.textContent='The reel did not load here. ';
-const a=document.createElement('a');a.className='inl';a.href=ABS;a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
+const a=document.createElement('a');a.className='inl';a.href=ABS[1];a.target='_blank';a.rel='noopener';a.textContent='Open it on the site';
 rs.append(a,'.');
 },40);
+};
+v.addEventListener('error',()=>{
+if(!noWebm&&/\.webm$/.test(v.currentSrc)){noWebm=1;if(load(tried?ABS:REL)){if(!A.reduce)v.play().catch(()=>{});return}}
+fail();
 });
 rs.classList.remove('err');rs.textContent='';
-v.src=REL;
 reelBtn.replaceWith(v);
 v.focus({preventScroll:true});
+if(!load(REL)){fail();return}
 if(A.reduce)rs.textContent='Reduced motion is on, so it waits for you. Press play.';
 else{const pr=v.play();if(pr&&pr.catch)pr.catch(()=>{})}
 tick();

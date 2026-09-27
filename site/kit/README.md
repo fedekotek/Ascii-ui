@@ -28,6 +28,8 @@ The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a L
 
 ## Use it in three steps
 
+Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. Command, Picture and the Blocks that need the site's own css say so instead.
+
 1. Link the two files, as above.
 2. Open a component on https://ascii.fedekotek.design/#components, pick its Code tab and copy the HTML.
 3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the Blocks, and the two components marked site only), it says which, so you know what to write yourself.
@@ -190,6 +192,8 @@ Everything reads tokens on `:root`. Override them after the kit CSS:
 ```
 
 Dark follows the system. `<html data-theme="dark">` or `data-theme="light"` forces one. The kit sets its dark tokens under `@media (prefers-color-scheme: dark)` on `:root:not([data-theme="light"])`, and on `:root[data-theme="dark"]`, and a plain `:root` loses to both. The Themes view on the site prints the tokens of any preset under selectors that win in every case, ready to paste after the kit CSS.
+
+For design tools, the same tokens are in [tokens.json](https://ascii.fedekotek.design/kit/tokens.json), next to this file on the site: the W3C design tokens format (`$value`, `$type`, `$description`), which Tokens Studio and the Figma Variables importers read. It holds the colors in a light and a dark set, the grid, the type, the ramp, the frame tones and the motion below, for the default preset. Download tokens.json in the Themes view makes the same file for the preset and colors you are looking at. It is built from the tokens, not part of a pinned version.
 
 ### Motion
 
