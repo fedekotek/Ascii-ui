@@ -36,6 +36,15 @@ Presets (`css/15`): `amber`, `gameboy`, `blueprint`, `hotdog` override the same 
 ## Scanlines (`crt`)
 Off by default. They striped every slab, printed as blank pages and are not characters. `:root.crt` turns them on: `body::before` draws `--scanlines` (built from `--scan`, one line in four) over the page, and every dialog draws its own in `::after` and `::backdrop`. On the site the switch is CRT scanlines under Settings in Search, remembered in `localStorage['aui-crt']`. In the kit it is `class="crt"` on `<html>`.
 
+## tokens.json, for design tools
+The same tokens in the W3C design tokens format (DTCG: `$value`, `$type`, `$description`), for Tokens Studio and the Figma Variables importers. Two copies, one template:
+- `site/kit/tokens.json`, written by `build.py` (`tokens_json()`), for the default preset, at https://ascii.fedekotek.design/kit/tokens.json. It is not in `kit/` and not in any `kit/releases/` version: it is built, never edited.
+- Themes > Tokens > Download tokens.json (js/40, `tokensJSON()`), for the preset and colors on screen.
+
+The shape and every word are `TOKDOC` in js/40, a JSON block between `/* tokens.json words start */` and `/* tokens.json words end */`. Each `"@name"` in it is a value: the page fills them from computed styles (colors, `--r`, body type), the engine (the ramp, the `--h-*`/`--s-*` tones) and the kit css (`--aui-*`); `build.py` fills them from `css/01`, `css/02`, `js/10` (`RAMP`), `kit/ascii-ui.css` and the preset names in `index.html`. Change a word in TOKDOC, not in either filler.
+
+Sets: `global` (grid.cell `1ch`, grid.row, type, ramp `all` and `k0`..`k8`, tone `rule`/`side` for the eight tones, motion durations in ms and the `steps()` easings as strings), `light` and `dark` (the fourteen colors: the ten roles, with the role in each description, and `t0`..`t3`), and `$themes`/`$metadata` for Tokens Studio. A preset is dark only, so its light set is the default light, and the description says so. Colors of your own go into the mode on screen and say "With your colors." `qa/tokens.py` (in the release bar) checks the shape, that every color is the computed variable in both themes, and that the button makes the same bytes as the static file.
+
 ## Motion (kit only, `kit/ascii-ui.css`)
 Every animation in the kit takes its time and its steps from these. Motion is steps, never eased: a step is a whole character or a whole row. Set a duration to `0s` to turn that motion off; reduced motion turns off all of it.
 

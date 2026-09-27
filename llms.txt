@@ -76,6 +76,7 @@ Navigation:
 - [ascii-ui.js](https://ascii.fedekotek.design/kit/ascii-ui.js): the behaviors, wired by `data-aui` attributes; `window.ASCIIUI`. Latest.
 - Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js`. 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
 - [starter.html](https://ascii.fedekotek.design/kit/starter.html): a page that links the two files and nothing else, with every kit component on it.
+- [tokens.json](https://ascii.fedekotek.design/kit/tokens.json): the tokens for design tools (W3C design tokens format, `$value`/`$type`/`$description`; Tokens Studio, Figma Variables importers). Sets `global` (grid, type, ramp, frame tones, motion), `light` and `dark` (colors), plus `$themes`. Default preset; Themes > Download tokens.json makes it for any preset. Not pinned to a kit version.
 - [kit README](https://ascii.fedekotek.design/kit/README.md): the reference for the kit: install, attributes, `window.ASCIIUI` API, events, lifecycle, theming, versions, changelog.
 - [Single file](https://ascii.fedekotek.design/ascii-ui.html): the whole site as one HTML file.
 - [llms-full.txt](https://ascii.fedekotek.design/llms-full.txt): every component in full, when to use it, its states, keys and the HTML to paste.
@@ -120,6 +121,7 @@ Magenta (`--hot`) acts. Cyan (`--cy`) is focus and nothing else. Lime (`--ok`) c
 
 - `css/01-tokens.css`: the site's tokens, light on `:root`, dark twice (by system and by `data-theme="dark"`).
 - `kit/ascii-ui.css`, the `tokens` block: the kit's copy. Override on `:root` after the file.
+- `site/kit/tokens.json`: written by `build.py` from the sources above and `TOKDOC` in js/40 (the words). The Themes download fills the same template from the live page; `qa/tokens.py` checks they match.
 - `css/15-themes-menu.css`: the presets. Every other place a color is written: `docs/ARCHITECTURE.md`, Rebrand.
 
 ## Work on it
