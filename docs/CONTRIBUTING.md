@@ -11,11 +11,11 @@
 - Vanilla, no transpile. ES2019 is fine (optional chaining is not used today; it would be fine).
 - Files are one IIFE each with a banner comment per feature (`/* ---- name ---- */` in the engine, `/* ================= name ================= */` elsewhere). Keep it.
 - Comments explain intent in one line, dry voice. No em dashes, no emojis, anywhere.
-- CSS: one rule per line where the rule is short; tokens only; no magic pixels except the 12px/-12px hit-area pattern and the 2px aberration shadow.
+- CSS: one rule per line where the rule is short; tokens only; no magic pixels except the 12px/-12px hit-area pattern. Slabs have no colored edge shadows any more.
 - Copy: sentence case, uppercase only in slabs, captions are one sentence that names the trick.
 
 ## Adding things
 See the recipes in `docs/COMPONENTS.md` (a checklist: site, kit, docs), `docs/BLOCKS.md`, `docs/CHARTS.md`. To change the palette, `docs/ARCHITECTURE.md`, Rebrand. For a new effect, add a section to `docs/EFFECTS.md` at the same time.
 
 ## Versioning
-Two numbers. The site's is `<meta name="aui-version">` in `index.html`, and the footer line (`#footLine`) must say the same (`v11.0`): `build.py` refuses to build when they disagree. Bump both and add a line to `docs/CHANGELOG.md`. The kit's is `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog; how and when to bump it is in `kit/README.md`. The `ASCII/UI BIOS v0.9` line in the boot log is a joke, not a version. `archive/` holds the single files for v2 to v9.3 and stops there: from v10 the history is in git, so do not add to it.
+Two numbers. The site's is `<meta name="aui-version">` in `index.html`, and the footer line (`#footLine`) must say the same (`v11.2`): `build.py` refuses to build when they disagree. Bump both and add a line to `docs/CHANGELOG.md`. The kit's is `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog; how and when to bump it is in `kit/README.md`. The `ASCII/UI BIOS v0.9` line in the boot log is a joke, not a version. `archive/` holds the single files for v2 to v9.3 and stops there: from v10 the history is in git, so do not add to it.
