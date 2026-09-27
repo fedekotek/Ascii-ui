@@ -19,7 +19,7 @@ Pinned, which never changes under you. The `integrity` attribute is the file's f
 
 ```html
 <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css" integrity="sha384-j/ryrYuSrB/+dEoZsY1c72v7yBJLagXPwkFVv4q1CDH348eTrLgoE53X91dUs51I" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js" integrity="sha384-swXyiBS7ieziLvQr/fK977/s6TSSuiXt+QZb9KGgYT8eL/j+vPAG7O6/RI4tA9DL" crossorigin="anonymous"></script>
+<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js" integrity="sha384-LfiKgjFkwB/7slBU5RZ4WbLFau1HoiPdY8nGzxLpACcT1Y5ZR8WbXG1EIkoxnpp0" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.

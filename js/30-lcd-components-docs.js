@@ -882,7 +882,10 @@ setTimeout(markWide,1200);
   const aiWrong=all=>{const v=ai.value.trim();return !!v&&v!==want&&(all||want.indexOf(v)!==0)};
   const aiSay=()=>err(aiField,ai,aiOut,'Type '+want+' exactly.');
   ai.addEventListener('input',()=>{err(aiField,ai,aiOut,'');aiCheck();clearTimeout(aiT);aiT=setTimeout(()=>{if(aiWrong(false))aiSay()},900)});
-  ai.addEventListener('blur',()=>{clearTimeout(aiT);if($('adDlg2').open&&aiWrong(true))aiSay()});
+  /* not when the way out is a button in the dialog: the line would push Cancel down mid-press */
+  let aiBtn=false;
+  $('adDlg2').addEventListener('pointerdown',e=>{aiBtn=!!e.target.closest('button')},true);
+  ai.addEventListener('blur',e=>{clearTimeout(aiT);const b=aiBtn||!!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('#adDlg2 button'));aiBtn=false;if(!b&&$('adDlg2').open&&aiWrong(true))aiSay()});
   ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();clearTimeout(aiT);if(aiCheck())aiDel.click();else{aiSay();A.jolt();if(live())sfx.err()}});
   $('adOpen2').addEventListener('click',()=>{clearTimeout(aiT);ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
 })();

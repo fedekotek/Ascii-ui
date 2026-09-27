@@ -790,7 +790,10 @@ var behaviors={
        of the name, leaving the field says so always */
     var wrong=function(all){var v=inp.value.trim();return !!v&&v!==want&&(all||want.indexOf(v)!==0)};
     cx.on(inp,'input',function(){mark('');check();clearTimeout(pause);pause=setTimeout(function(){if(inp.isConnected&&wrong(false))mark(said())},900)});
-    cx.on(inp,'blur',function(){clearTimeout(pause);if(wrong(true))mark(said())});
+    /* not when the way out is a button next to it: the line would push Cancel down mid-press */
+    var toBtn=false;
+    cx.on(box,'pointerdown',function(e){toBtn=!!(e.target.closest&&e.target.closest('button'))});
+    cx.on(inp,'blur',function(e){clearTimeout(pause);var r=e.relatedTarget,b=toBtn||!!(r&&r.tagName==='BUTTON'&&box.contains(r));toBtn=false;if(!b&&wrong(true))mark(said())});
     cx.later(function(){clearTimeout(pause)});
     cx.on(inp,'keydown',function(e){
       if(e.key!=='Enter')return;e.preventDefault();clearTimeout(pause);

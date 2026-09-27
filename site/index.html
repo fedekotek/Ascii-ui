@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-Jr1n3q/k+XqBBY2XoH4av0CRotLRRTDQnl94JuYfYZg=' 'sha256-mf7tn9diLvSIR8egqz9olVZkMngcCfaDvgtsu4v4jjs=' 'sha256-VxiU7NMbVmOgYNYF5gNT4E2AjTQEAPNPIy/NQKFrZTM=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU='; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-1VCPuhPo2//phb8b6fENsKm3CViJUj2l8d19reK91Yg=' 'sha256-X+X97xW7NlJ4NnR5t80BWMBkt4X6hRWxc8yvbqMa4yU=' 'sha256-VxiU7NMbVmOgYNYF5gNT4E2AjTQEAPNPIy/NQKFrZTM=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU='; style-src 'unsafe-inline'; font-src data:; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
 <meta name="aui-version" content="11.2">
@@ -4116,7 +4116,9 @@ let aiT=null;
 const aiWrong=all=>{const v=ai.value.trim();return !!v&&v!==want&&(all||want.indexOf(v)!==0)};
 const aiSay=()=>err(aiField,ai,aiOut,'Type '+want+' exactly.');
 ai.addEventListener('input',()=>{err(aiField,ai,aiOut,'');aiCheck();clearTimeout(aiT);aiT=setTimeout(()=>{if(aiWrong(false))aiSay()},900)});
-ai.addEventListener('blur',()=>{clearTimeout(aiT);if($('adDlg2').open&&aiWrong(true))aiSay()});
+let aiBtn=false;
+$('adDlg2').addEventListener('pointerdown',e=>{aiBtn=!!e.target.closest('button')},true);
+ai.addEventListener('blur',e=>{clearTimeout(aiT);const b=aiBtn||!!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('#adDlg2 button'));aiBtn=false;if(!b&&$('adDlg2').open&&aiWrong(true))aiSay()});
 ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();clearTimeout(aiT);if(aiCheck())aiDel.click();else{aiSay();A.jolt();if(live())sfx.err()}});
 $('adOpen2').addEventListener('click',()=>{clearTimeout(aiT);ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
 })();
@@ -4435,7 +4437,7 @@ else download('ascii-ui.js',K.js,'text/javascript',out);
 });
 })();
 syncPickers();
-function kitS(){return kitS.s||(kitS.s={v:'1.2.0',b:{css:54764,js:80969},t:null,p:null})}
+function kitS(){return kitS.s||(kitS.s={v:'1.2.0',b:{css:54764,js:81278},t:null,p:null})}
 function kitStub(k){const S=kitS();return (k==='js'?"var VERSION='"+S.v+"';":'').padEnd(S.b[k],' ')}
 function KIT(){const S=kitS();return {get css(){return S.t?S.t.css:kitStub('css')},get js(){return S.t?S.t.js:kitStub('js')}}}
 function kitLoad(){
@@ -4450,7 +4452,7 @@ const t=kitAt(e);if(!t)return null;
 if(t.hasAttribute('data-dl'))return e.type==='click'?t:null;
 const kit=t.parentNode.firstElementChild!==t;
 if(e.type==='click')return kit?t:null;
-return ['ArrowRight','ArrowLeft','Home','End'].includes(e.key)?t:null;
+return ['ArrowRight','ArrowLeft','End'].includes(e.key)?t:null;
 }
 function kitGate(e){
 if(kitS().t)return;

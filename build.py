@@ -208,7 +208,7 @@ function kitWant(e){
   if(t.hasAttribute('data-dl'))return e.type==='click'?t:null;
   const kit=t.parentNode.firstElementChild!==t;
   if(e.type==='click')return kit?t:null;
-  return ['ArrowRight','ArrowLeft','Home','End'].includes(e.key)?t:null;
+  return ['ArrowRight','ArrowLeft','End'].includes(e.key)?t:null;   /* Home lands on Preview, which needs no kit */
 }
 function kitGate(e){
   if(kitS().t)return;
