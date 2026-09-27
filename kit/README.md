@@ -28,6 +28,8 @@ The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a L
 
 ## Use it in three steps
 
+Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. Command, Picture and the Blocks that need the site's own css say so instead.
+
 1. Link the two files, as above.
 2. Open a component on https://ascii.fedekotek.design/#components, pick its Code tab and copy the HTML.
 3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the Blocks, and the two components marked site only), it says which, so you know what to write yourself.

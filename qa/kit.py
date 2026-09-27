@@ -38,7 +38,8 @@ Checks:
    tap, spinners and kbd brackets are not read, the sheet closes on a drag
    down, motion tokens, scanlines only with .crt, the veil is characters,
    and print, forced colors and more contrast
-9. README: the integrity hashes of the pinned files match the served bytes
+9. README: the integrity hashes of the pinned files match the served bytes,
+   and PIN in js/40 (what a Download page links) matches README
 The Google Fonts request fails in some sandboxes (proxy certificates); that one
 is reported as a note, not a failure.
 """
@@ -66,11 +67,39 @@ def embedded():
     i=s.index(START); j=s.index(END)+len(END)
     return s,i,j
 
+# PIN in js/40: the version and the integrity hashes a Code tab's Download
+# page links. Written here from the released files, never by hand, and checked
+# against kit/README.md
+PIN_RE=re.compile(r"const PIN=\{v:'([^']*)',css:'([^']*)',js:'([^']*)'\};")
+def pin_want():
+    import base64,hashlib
+    js=open(os.path.join(KIT,'ascii-ui.js'),encoding='utf-8').read()
+    v=re.search(r"var VERSION='([^']+)'",js).group(1)
+    h={}
+    for f in ('css','js'):
+        src=os.path.join(KIT,'releases',v,'ascii-ui.'+f)
+        if not os.path.exists(src): src=os.path.join(KIT,'ascii-ui.'+f)
+        h[f]='sha384-'+base64.b64encode(hashlib.sha384(open(src,'rb').read()).digest()).decode()
+    return v,h['css'],h['js']
+
+def pin_check(s):
+    m=PIN_RE.search(s)
+    if not m: return ['js/40: no const PIN={v:...,css:...,js:...}; for the Download page']
+    fails=[];v,c,j=pin_want()
+    if m.groups()!=(v,c,j): fails.append('js/40 PIN is %s, the released kit is %s: run python3 qa/kit.py sync'%(m.groups(),(v,c,j)))
+    readme=open(os.path.join(KIT,'README.md'),encoding='utf-8').read()
+    for f,h in (('ascii-ui.css',m.group(2)),('ascii-ui.js',m.group(3))):
+        r=re.search(r'/kit/'+re.escape(m.group(1))+'/'+re.escape(f)+r'"[^>]*integrity="([^"]+)"',readme)
+        if not r or r.group(1)!=h: fails.append('js/40 PIN for %s is not the integrity kit/README.md gives /kit/%s/%s'%(f,m.group(1),f))
+    return fails
+
 def sync():
     s,i,j=embedded()
     s=s[:i]+kit_block()+s[j:]
+    v,c,js=pin_want()
+    if PIN_RE.search(s): s=PIN_RE.sub(lambda m:"const PIN={v:'%s',css:'%s',js:'%s'};"%(v,c,js),s,1)
     open(J40,'w',encoding='utf-8').write(s)
-    print('js/40: kit source synced')
+    print('js/40: kit source and PIN synced')
 
 FONT=re.compile(r'fonts\.(googleapis|gstatic)\.com')
 
@@ -1046,6 +1075,7 @@ async def main():
     s,i,j=embedded()
     if s[i:j]!=kit_block(): fails.append('js/40 KIT() is not the kit files: run python3 qa/kit.py sync')
     fails+=sri()
+    fails+=pin_check(s)
     async with async_playwright() as p:
         b=await p.chromium.launch()
         f,n=await starter(b);fails+=f;notes|=n

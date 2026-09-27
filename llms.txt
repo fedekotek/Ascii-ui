@@ -89,7 +89,7 @@ Navigation:
 <script defer src="https://ascii.fedekotek.design/kit/ascii-ui.js"></script>
 ```
 
-Then copy a component's HTML from its Code tab, or from `docs/COMPONENTS-REFERENCE.md` in the repo. The HTML has no ids; the kit makes the ones accessibility needs, so a component pasted twice is two working copies. Elements added later are wired too. Dark follows the system; `<html data-theme="dark">` or `"light"` forces one.
+Then copy a component's HTML from its Code tab, or from `docs/COMPONENTS-REFERENCE.md` in the repo. Or take Download page on the Code tab: one standalone HTML file with that component, linked to the pinned kit with integrity (Command, Picture and the site-only Blocks do not offer it). The HTML has no ids; the kit makes the ones accessibility needs, so a component pasted twice is two working copies. Elements added later are wired too. Dark follows the system; `<html data-theme="dark">` or `"light"` forces one.
 
 ## Attributes (summary; kit/README.md has the full table)
 
