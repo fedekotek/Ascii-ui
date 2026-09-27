@@ -2,6 +2,11 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.2.1, 2026-09-27
+
+Fixed
+- Context menu: when a scroll or a click away closes it with the focus still inside, the focus goes back to the row it opened on. It used to fall to the top of the page, or, when the close landed before the browser moved it, stay on an item in the hidden menu, where a letter typed next ran that item.
+
 ## 1.2.0, 2026-09-27
 
 Added

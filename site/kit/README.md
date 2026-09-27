@@ -1,6 +1,6 @@
 # ascii/ui kit
 
-Version 1.2.0. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
+Version 1.2.1. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
 
 The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://ascii.fedekotek.design.
 
@@ -18,11 +18,11 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.css" integrity="sha384-j/ryrYuSrB/+dEoZsY1c72v7yBJLagXPwkFVv4q1CDH348eTrLgoE53X91dUs51I" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js" integrity="sha384-LfiKgjFkwB/7slBU5RZ4WbLFau1HoiPdY8nGzxLpACcT1Y5ZR8WbXG1EIkoxnpp0" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb" crossorigin="anonymous"></script>
 ```
 
-Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
+Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
 
 The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a Latin-1 subset, 19 kB, SIL OFL 1.1, the license is `fonts/OFL.txt`). Linked from this site, it comes from here too, and nothing asks Google or anyone else. With your own copies, put the `fonts/` folder next to `ascii-ui.css`, or leave it out: an installed Geist Mono is used first, then the system monospace. `LICENSE.txt` sits next to the two files on the site.
 
@@ -119,7 +119,7 @@ document.addEventListener('aui:change', e => {
 
 | Call | Does |
 |---|---|
-| `version` | `"1.2.0"` |
+| `version` | `"1.2.1"` |
 | `init(root)` | wires everything under `root` (the page when left out). Safe to call again: a component is wired once |
 | `destroy(root)` | tears down the components under `root`, and `root` itself: their listeners, observers and animations go |
 | `get(el)` | the calls of the component on `el`, whatever it is, or `null` |

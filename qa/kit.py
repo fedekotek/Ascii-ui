@@ -225,6 +225,13 @@ async def starter(b):
     ok('context menu: Shift F10 opens again',await ev(inmenu))
     await pg.keyboard.press('c')
     ok('context menu: the kbd letter picks',await ev("!%s&&document.querySelector('#contextmenu [role=status]').textContent==='Copy ID: INC-481.'"%cm))
+    # 1.2.1: a scroll closes it and the focus leaves the hidden menu, so a letter runs nothing
+    await ev("document.querySelector('#contextmenu [role=status]').textContent=''")
+    await pg.focus('#contextmenu tbody tr'); await ev(settled); await pg.keyboard.press('Shift+F10'); await menu_up()
+    await pg.mouse.move(700,300); await pg.mouse.wheel(0,120); await pg.wait_for_timeout(300)
+    ok('context menu: a scroll closes it and the focus goes back to the row',await ev("!%s&&document.activeElement===document.querySelector('#contextmenu tbody tr')"%cm))
+    await pg.keyboard.press('c')
+    ok('context menu: a letter after that runs nothing',await ev("document.querySelector('#contextmenu [role=status]').textContent===''"))
     # tooltip: tap shows, Escape hides
     tt="document.querySelector('#tooltip .pop')"
     await pg.click('#tooltip button')
@@ -611,7 +618,7 @@ EDGES=[
   '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
   '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
   """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
-    if(ASCIIUI.version!=='1.2.0')bad.push('version '+ASCIIUI.version);
+    if(ASCIIUI.version!=='1.2.1')bad.push('version '+ASCIIUI.version);
     if(__ev.length)bad.push('aui:change fired on load: '+__ev);
     const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
     if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');

@@ -1,4 +1,4 @@
-/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */
+/*! ascii/ui kit 1.2.1 | MIT | (c) 2026 Fede Kotek */
 /* ascii-ui.js
    The behaviors for the components that need a script, wired by data
    attributes. No dependencies. Link it after ascii-ui.css:
@@ -56,7 +56,7 @@
 (function(){
 'use strict';
 if(window.ASCIIUI)return;   /* linked twice: keep the first */
-var VERSION='1.2.0';
+var VERSION='1.2.1';
 var doc=document;
 
 /* ---- reduced motion, followed live ---- */
@@ -709,7 +709,10 @@ var behaviors={
       return true;
     }
     function close(back){
-      if(!f.isOpen)return;f.hide();
+      if(!f.isOpen)return;
+      /* closed by a scroll or a click away with the focus still inside: it goes back too, never stays in a hidden menu */
+      if(menu.contains(doc.activeElement))back=true;
+      f.hide();
       if(target)target.removeAttribute('data-ctx');
       if(back){var b=from&&from!==doc.body&&from.isConnected&&!menu.contains(from)?from:(target&&target!==box&&target.matches(TABBABLE)?target:null);if(b)b.focus()}
       from=null;

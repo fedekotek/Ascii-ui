@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-ehhu+1Q8Ylmsn4pJNu1Z+n2RAahTD7A1+taU1NiQvv0=' 'sha256-K+DMmofgU/B+WL1/DC+XWkPRW7GKjCA0hmrW1sCl23M=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU=' https://ascii.fedekotek.design/kit/1.2.0/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.2.0/; font-src data: https://ascii.fedekotek.design/kit/1.2.0/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-ehhu+1Q8Ylmsn4pJNu1Z+n2RAahTD7A1+taU1NiQvv0=' 'sha256-StujknrwszcaDb+kYe1JExVswcarpS7RTYLZzzlHvQY=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU=' https://ascii.fedekotek.design/kit/1.2.1/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.2.1/; font-src data: https://ascii.fedekotek.design/kit/1.2.1/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
-<meta name="aui-version" content="11.2">
+<meta name="aui-version" content="11.3">
 <meta name="description" content="34 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
 <meta name="author" content="Fede Kotek">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
@@ -34,7 +34,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 34 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
- {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.2.0","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png?v=be07825a","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
+ {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.2.1","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png?v=be07825a","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
  {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
 </script>
 <!-- Geist Mono, a subset of the characters this page uses. build.py inlines it,
@@ -204,7 +204,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><span data-fact="components">34</span> <span>components, <span data-fact="kit">32</span> in the kit</span></li>
       <li><span data-fact="blocks">16</span> <span>blocks</span></li>
       <li><span data-fact="charts">5</span> <span>charts</span></li>
-      <li><span data-fact="kit-versions">4</span> <span>kit versions published, each still served</span></li>
+      <li><span data-fact="kit-versions">5</span> <span>kit versions published, each still served</span></li>
       <li><span data-fact="weight-kb">168</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">180</span></span></li>
       <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">############################</span><span class="muted">..</span></span></li>
       <li><span data-fact="kit-kb">38</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
@@ -212,7 +212,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <h4 class="facts-h">What checks it</h4>
     <ul class="facts">
       <li><span data-fact="release-steps">22</span> <span>checks before every release</span></li>
-      <li><span data-fact="qa-scripts">21</span> <span>test scripts</span></li>
+      <li><span data-fact="qa-scripts">22</span> <span>test scripts</span></li>
       <li><span data-fact="widths">11</span> <span>screen widths, <span data-fact="widths-min">360</span> to <span data-fact="widths-max">1920</span></span></li>
       <li><span data-fact="a11y-modes">7</span> <span>accessibility modes</span></li>
       <li><span data-fact="requests">0</span> <span>requests to anyone else</span></li>
@@ -308,7 +308,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     </ul>
 
     <h3 class="lab-h">Credits</h3>
-    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.2</span>, with kit <span data-fact="kit-version">1.2.0</span>.</p>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.3</span>, with kit <span data-fact="kit-version">1.2.1</span>.</p>
   </section>
   </div>
 
@@ -1240,7 +1240,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.2. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+    <p class="foot" id="footLine">ascii/ui v11.3. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
   </footer>
 </main>
 
@@ -4425,7 +4425,7 @@ setTimeout(()=>URL.revokeObjectURL(url),4000);
 tell(out,msg||'Saved as '+name+'.');
 }catch(e){tell(out,'This browser will not save files from a page. Take '+name+' from the kit folder instead.',true)}
 }
-const PIN={v:'1.2.0',css:'sha384-j/ryrYuSrB/+dEoZsY1c72v7yBJLagXPwkFVv4q1CDH348eTrLgoE53X91dUs51I',js:'sha384-LfiKgjFkwB/7slBU5RZ4WbLFau1HoiPdY8nGzxLpACcT1Y5ZR8WbXG1EIkoxnpp0'};
+const PIN={v:'1.2.1',css:'sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6',js:'sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb'};
 const PAGE_OUT=['s-command','s-picture'];
 A.pageOf=function(sec,html,ex){
 const id=sec.getAttribute('aria-labelledby')||'',slug=id.replace(/^[so]-/,''),block=!!sec.closest('#view-blocks');
@@ -4635,7 +4635,7 @@ else download('ascii-ui.js',K.js,'text/javascript',out);
 });
 })();
 syncPickers();
-function kitS(){return kitS.s||(kitS.s={v:'1.2.0',b:{css:54764,js:81278},t:null,p:null})}
+function kitS(){return kitS.s||(kitS.s={v:'1.2.1',b:{css:54764,js:81461},t:null,p:null})}
 function kitStub(k){const S=kitS();return (k==='js'?"var VERSION='"+S.v+"';":'').padEnd(S.b[k],' ')}
 function KIT(){const S=kitS();return {get css(){return S.t?S.t.css:kitStub('css')},get js(){return S.t?S.t.js:kitStub('js')}}}
 function kitLoad(){
