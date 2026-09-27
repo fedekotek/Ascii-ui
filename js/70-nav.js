@@ -290,7 +290,7 @@
 
   function build(){
     const v=current(),m=model(v);
-    if(nav)nav.hidden=!m.groups.length;
+    if(nav&&nav.hidden!==!m.groups.length)nav.hidden=!m.groups.length;
     /* what you were reading stays marked across a rebuild */
     const was=reading&&reading.sec;
     links=render(inner,m,v,'h2');

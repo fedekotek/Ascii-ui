@@ -18,6 +18,8 @@ async def run(w,h):
         pg.on('pageerror',lambda e:errs.append(str(e)))
         await pg.add_init_script(GUARD)
         await pg.goto(URL)
+        # the timecode only runs while it shows, and it is hidden under 480px
+        await pg.evaluate("document.getElementById('hud').style.display='block'")
         await pg.wait_for_timeout(2600)
         await pg.mouse.click(w//2,200)
         await pg.wait_for_timeout(600)

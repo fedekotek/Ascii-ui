@@ -82,7 +82,7 @@ const BOOTSKEL='<div class="bin"><div class="bt"></div><div class="bs">'+
 let booting=false;
 function boot(force,done){
   if(booting)return;
-  const fin=()=>{root.classList.remove('aui-booting');if(done)done()};
+  const fin=()=>{root.classList.remove('aui-booting');if(A.heroWake)A.heroWake();if(done)done()};
   let el=$('boot'),seen=false;
   try{seen=!!sessionStorage.getItem('aui-boot')}catch(e){}
   if(reduce||(!force&&seen)){if(el)el.remove();fin();return}
@@ -124,11 +124,13 @@ A.boot=boot;
 let ly=window.scrollY,lt=performance.now(),lastTear=0,idleAt=Date.now(),rotten=[];
 window.addEventListener('scroll',()=>{
   const n=performance.now(),dy=Math.abs(window.scrollY-ly),dt=Math.max(16,n-lt);ly=window.scrollY;lt=n;
-  const v=dy/dt*1000;G.scroll=Math.min(1,Math.max(G.scroll,v/2600));
+  const v=dy/dt*1000,was=G.scroll;G.scroll=Math.min(1,Math.max(G.scroll,v/2600));
+  if(!was&&G.scroll&&decay)decay.wake(100);
   if(v>1300&&n-lastTear>90){lastTear=n;tear(1+rnd(2))}
   touch(true);
 },{passive:true});
-if(!reduce)every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0});
+/* the decay sleeps while there is nothing to decay; a scroll wakes it */
+const decay=reduce?null:every(100,()=>{G.scroll*=0.72;if(G.scroll<0.02)G.scroll=0},{gate:()=>G.scroll>0});
 /* the repair only sounds when you touched something; a scroll repairs quietly */
 function touch(quiet){
   idleAt=Date.now();
@@ -367,12 +369,15 @@ document.addEventListener('aui:view',()=>{
 /* ================= VHS layer ================= */
 const hud=$('hud'),t0=Date.now();
 if(!reduce){
+  /* it only runs while it shows (it is hidden under 480px and with Glitch
+     off), and the box is rewritten only when the text changed */
+  let hudWas='';
   every(120,()=>{
-    if(A.glitch()<=0)return;
     const ms=Date.now()-t0,p=n=>String(n).padStart(2,'0');
     const tc=p(Math.floor(ms/3600000))+':'+p(Math.floor(ms/60000)%60)+':'+p(Math.floor(ms/1000)%60)+':'+p(Math.floor(ms/40)%25);
-    hud.innerHTML=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
-  });
+    const h=(Math.floor(ms/600)%2?'<b>REC *</b> ':'REC   ')+tc+'\nSIG '+String(Math.round((1-A.glitch())*100)).padStart(3,' ')+'%  '+(A.SND.on?'SND':'   ');
+    if(h!==hudWas){hudWas=h;hud.innerHTML=h}
+  },{gate:()=>A.glitch()>0&&hud.getClientRects().length>0});
   every(9000,()=>{if(A.glitch()<=0)return;const t=$('track');t.classList.remove('run');void t.offsetWidth;t.classList.add('run')});
 }
 
@@ -596,11 +601,15 @@ const INV=(function(){
     else if(e.key===' '){if(document.activeElement===cv||state==='play'){e.preventDefault();if(state!=='play')start();else kf=true}}
   });
   document.addEventListener('keyup',e=>{if(e.key==='ArrowLeft')kl=false;else if(e.key==='ArrowRight')kr=false;else if(e.key===' ')kf=false});
-  if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting}).observe(cv);else vis=true;
+  let loop=null;
+  if('IntersectionObserver' in window)new IntersectionObserver(en=>{vis=en[0].isIntersecting;if(vis&&loop)loop.wake()}).observe(cv);else vis=true;
   fleet();bunkers();
   /* with reduced motion the loop only runs while you play: nothing on the
      idle screen moves by itself */
-  every(50,step,{gate:()=>vis&&(!reduce||state==='play')});
+  /* the attract screen also stops with Glitch off (the page's pause switch,
+     WCAG 2.2.2); a game you started keeps running */
+  loop=every(50,step,{gate:()=>vis&&(state==='play'||(!reduce&&G.on))});
+  const start0=start;start=function(){start0();loop.wake()};
   return {size,start,draw};
 })();
 window.AUI3={INV,makePoster,openCmd,run};
@@ -768,12 +777,20 @@ keys($('ch-donut'),k=>{
   return true;
 });
 $('ch-donut')._anim=grow(drawDonut);
-function drawCharts(){drawBars();line1.draw();drawRegions();drawHeat();drawDonut()}
+const DRAW={'ch-bars':()=>drawBars(),'ch-line':()=>line1.draw(),'ch-regions':()=>drawRegions(),'ch-heat':()=>drawHeat(),'ch-donut':()=>drawDonut()};
+/* a chart draws when it comes near the screen, not all five at load and on
+   every layout: until then it is marked as owed one, and it draws on arrival */
+const near=new Set(),owed=new Set();
+const nio='IntersectionObserver' in window?new IntersectionObserver(en=>en.forEach(e=>{
+  const id=e.target.id;if(e.isIntersecting){near.add(id);if(owed.has(id)){owed.delete(id);DRAW[id]()}}else near.delete(id);
+}),{rootMargin:'50% 0px'}):null;
+if(nio)Object.keys(DRAW).forEach(id=>{owed.add(id);nio.observe($(id))});
+function drawCharts(){Object.keys(DRAW).forEach(id=>{if(!nio||near.has(id))DRAW[id]();else owed.add(id)})}
 /* a chart redraws when its own box changes: a view shows, the sidebar
    appears, the gallery reflows, the text size changes */
 if('ResizeObserver' in window){
-  const DRAW={'ch-bars':()=>drawBars(),'ch-line':()=>line1.draw(),'ch-regions':()=>drawRegions(),'ch-heat':()=>drawHeat(),'ch-donut':()=>drawDonut()},seen=new WeakMap();
-  const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);DRAW[el.id]()}));
+  const seen=new WeakMap();
+  const ro=new ResizeObserver(en=>en.forEach(e=>{const el=e.target,w=el.clientWidth;if(!w||seen.get(el)===w)return;seen.set(el,w);if(!nio||near.has(el.id))DRAW[el.id]();else owed.add(el.id)}));
   Object.keys(DRAW).forEach(id=>ro.observe($(id)));
 }else document.addEventListener('aui:view',drawCharts);
 
@@ -792,7 +809,8 @@ function drawSkel(){
   const line=(n,r)=>side+' '+(n?wave(n,r):'')+' '.repeat(inner-n+1)+side;
   el.innerHTML=[edge,line(Math.min(12,inner),0),line(0,0),line(Math.floor(inner*0.9),1),line(Math.floor(inner*0.6),2),edge].join('\n');
 }
-if(!reduce)every(110,()=>{const el=$('skel');if(el&&inView(el)){skT+=0.5;drawSkel()}});
+/* the wave moves on its own, so it stops with Glitch off (the page's pause switch) */
+if(!reduce&&$('skel'))every(110,()=>{skT+=0.5;drawSkel()},{el:$('skel'),gate:()=>G.on});
 
 /* ================= blocks wiring ================= */
 function setErr(id,msg){

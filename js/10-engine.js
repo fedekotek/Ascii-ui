@@ -30,8 +30,10 @@
        el:node    run only while the node is on screen (combines with gate)
        times:n    stop after n runs
        end:fn     called when the count runs out (not when you stop it)
-       delay:ms   wait this long instead of one cadence before the first run  */
-  var CK={tasks:[],raf:0,paused:false};
+       delay:ms   wait this long instead of one cadence before the first run
+     The loop sleeps until the next task is due, and a task whose gate says no
+     looks again in a second. handle.wake() runs it at the next frame.  */
+  var CK={tasks:[],raf:0,timer:0,due:0,paused:false};
   /* on screen: laid out (a hidden view measures zero) and inside the viewport */
   function onScreen(el){
     if(!el)return false;
@@ -48,7 +50,9 @@
         if(off){t.at=now+t.ms;continue}
         if(now<t.at)continue;
         t.at=now+t.ms;
-        if(t.gate&&!t.gate())continue;
+        /* gated off: look again in a second, not every cadence */
+        /* snapped to a half second, so the sleepers wake together, once, not each on its own frame */
+        if(t.gate&&!t.gate()){t.at=Math.ceil((now+Math.max(t.ms,1000))/500)*500;continue}
         t.n++;
         /* a task that throws loses its place, not the whole loop; the error is
            rethrown out of band so it still reaches the console and QA */
@@ -60,7 +64,17 @@
       if(CK.tasks.length&&!CK.paused)clockStart();
     }
   }
-  function clockStart(){if(!CK.raf)CK.raf=requestAnimationFrame(clockFrame)}
+  /* sleep until the next task is due, then ask for one frame: a page whose
+     fastest task runs every 125ms wakes 8 times a second, not 60 */
+  function clockStart(){
+    if(CK.raf||CK.paused||!CK.tasks.length)return;
+    var now=window.performance?performance.now():Date.now(),next=Infinity,i,t;
+    for(i=0;i<CK.tasks.length;i++){t=CK.tasks[i];if(!t.dead&&t.at<next)next=t.at}
+    if(CK.timer){if(next>=CK.due)return;clearTimeout(CK.timer);CK.timer=0}
+    var wait=next-now-8;
+    if(wait>12){CK.due=next;CK.timer=setTimeout(function(){CK.timer=0;CK.raf=requestAnimationFrame(clockFrame)},wait)}
+    else CK.raf=requestAnimationFrame(clockFrame);
+  }
   function every(ms,fn,opt){
     opt=opt||{};
     var gate=opt.gate||null,el=opt.el||null;
@@ -69,6 +83,8 @@
     t.at=(window.performance?performance.now():Date.now())+(opt.delay===undefined?t.ms:opt.delay);
     t.stop=function(){t.dead=true};
     t.running=function(){return !t.dead};
+    /* run at the next frame (or in ms), for a gate that just opened: it would otherwise wait up to a second */
+    t.wake=function(ms){if(!t.dead){t.at=(window.performance?performance.now():Date.now())+(ms||0);clockStart()}};
     CK.tasks.push(t);clockStart();
     return t;
   }
@@ -78,7 +94,9 @@
     pause:function(){CK.paused=true},
     resume:function(){CK.paused=false;clockStart()},
     paused:function(){return CK.paused},
-    count:function(){return CK.tasks.length}
+    count:function(){return CK.tasks.length},
+    /* what is armed and how often each ran, for QA and for looking */
+    list:function(){return CK.tasks.map(function(t){return {ms:t.ms,runs:t.n,gated:!!t.gate}})}
   };
   document.addEventListener('visibilitychange',function(){if(!document.hidden)clockStart()});
 
@@ -95,10 +113,18 @@
       var d=nbuf.getChannelData(0),i,h=0;
       for(i=0;i<d.length;i++){if(i%7===0)h=Math.random()*2-1;d[i]=h}
     }
-    if(AC.state==='suspended')AC.resume();
+    if(AC.state==='suspended'||SND.nap)AC.resume();
+    SND.nap=false;napLater();
     return AC;
   }
-  function sndLive(){return SND.on&&AC&&AC.state==='running'}
+  /* a running context costs CPU even when it is silent, so it naps 5s after
+     the last sound (and when the tab is hidden). A nap still counts as live:
+     the next sound wakes it. The switch turning it off is not a nap. */
+  var napT=0;
+  function nap(){napT=0;if(AC&&AC.state==='running'){SND.nap=true;AC.suspend()}}
+  function napLater(){clearTimeout(napT);napT=setTimeout(nap,5000)}
+  document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(napT);nap()}});
+  function sndLive(){return SND.on&&AC&&(AC.state==='running'||SND.nap)}
   /* every sound is a little different, and a sound that repeats gets quieter and duller until it rests */
   var FAT={};
   function human(key,dur,vol){
@@ -239,7 +265,7 @@
       var dx=(!done&&Math.random()<0.4)?Math.round((Math.random()-0.5)*14):0;
       html+='<span class="tr c'+Math.min(3,pre._scale===1?(y>>1):(y>>2))+'" style="transform:translateX('+dx+'ch)">'+row+(pre._bars[y]||'')+'</span>';
     }
-    pre.innerHTML=html;
+    pre.innerHTML=html;pre._painted=1;
   }
   function makeBars(cols){
     /* tbar is ink in dark and magenta on paper, see css/01 */
@@ -268,8 +294,17 @@
     pre._b=b;pre._n=n;pre._scale=scale;pre._bars=makeBars((pre.hasAttribute('data-nobars')||nobars)?999:b[0].length);
     if(scale===1)pre._bars=pre._bars.map(function(){return ''});
   }
+  /* a title is painted when it comes near the screen, not all of them at load:
+     most sit in views that are not open, or are hidden by the docs layout */
+  var nio='IntersectionObserver' in window?new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      nio.unobserve(en.target);if(!en.target._painted)titleFrame(en.target,reduce?99:0);
+    });
+  },{rootMargin:'50% 0px'}):null;
   titles.forEach(function(pre){
-    initTitle(pre,pre.getAttribute('data-text'));titleFrame(pre,reduce?99:0);
+    initTitle(pre,pre.getAttribute('data-text'));
+    if(nio)nio.observe(pre);else titleFrame(pre,reduce?99:0);
     pre.addEventListener('click',function(){develop(pre)});
   });
   if(!reduce&&'IntersectionObserver' in window){
@@ -281,7 +316,7 @@
     },{threshold:0.7});
     titles.forEach(function(pre){tio.observe(pre)});
   every(1500,fitTitles);
-  }else titles.forEach(function(pre){titleFrame(pre,99)});
+  }else if(!nio)titles.forEach(function(pre){titleFrame(pre,99)});
 
   /* ---- layout: snap the page to a whole number of columns ---- */
   var probe=$('probe'),hero=$('hero'),ctx=hero.getContext('2d');
@@ -398,7 +433,7 @@
     var W=inner*ch;
     /* the hero costs HC*58 cells a frame, so it stops getting denser past 140 */
     HC=W<520?60:Math.min(140,Math.round(W/9));
-    DPR=Math.min(window.devicePixelRatio||1,2.5);
+    DPR=Math.min(window.devicePixelRatio||1,2);
     ctx.setTransform(1,0,0,1,0,0);
     ctx.font='700 100px '+FONT;
     var r=ctx.measureText('M').width/100||0.6;
@@ -616,15 +651,17 @@
   hero.addEventListener('pointerleave',function(){spinX=spinY=0});
   var visible=true;
   if('IntersectionObserver' in window)
-    new IntersectionObserver(function(en){visible=en[0].isIntersecting}).observe(hero);
+    new IntersectionObserver(function(en){visible=en[0].isIntersecting;if(visible&&heroTask)heroTask.wake()}).observe(hero);
   /* the ring turns on its own, so Glitch off stops it too (it is the page's
      pause switch); a pointer can still turn it by hand */
-  if(!reduce)every(85,function(){
+  /* it waits for the boot screen to leave (js/20 wakes it then) */
+  var heroTask=reduce?null:every(85,function(){
     var g=glitch(),now=Date.now();
     if(G.scroll>0.3)G.burst=Math.max(G.burst,G.scroll);
     if(g>0&&now>G.next){G.burst=1;G.next=now+(1400+Math.random()*4200)/(0.35+g)}
     t+=0.12;A+=0.05*HP.speed+spinY*0.35;B+=0.028*HP.speed+spinX*0.35;drawHero();
-  },{gate:function(){return visible&&G.on}});
+  },{gate:function(){return visible&&G.on&&!root.classList.contains('aui-booting')}});
+  function heroWake(){if(heroTask)heroTask.wake()}
 
   /* ---- fx layer: ambient streaks, shards where you touch, page jolts ---- */
   var fx=$('fx');
@@ -653,7 +690,7 @@
     return out;
   }
   if(!reduce)every(650,function(){
-    var g=glitch();if(g<=0||Math.random()>g*1.3)return;
+    var g=glitch();if(Math.random()>g*1.3)return;
     var spots=sparkSpots();if(!spots.length)return;
     var n=1+rnd(Math.ceil(3*g));
     while(n--){
@@ -661,7 +698,7 @@
       var x=s[0]+rnd(s[1]-len+1)*CH,y=s[2]+rnd(Math.max(1,Math.floor((s[3]-s[2])/ROW)))*ROW;
       run(x,y,len,Math.random()<0.7?'hot':'pink',0.25+Math.random()*0.6,80+Math.random()*220);
     }
-  });
+  },{gate:function(){return glitch()>0}});
   var SH=['hot','pink','cy','warn','ok','deep','violet','ink'];
   document.addEventListener('pointerdown',function(e){
     var g=glitch();if(g<=0||reduce)return;
@@ -700,7 +737,7 @@
   $('glitchToggle').addEventListener('change',function(e){G.on=e.target.checked;if(G.on)jolt();else drawHero();glitchGlyph()});
   $('soundToggle').addEventListener('change',function(e){
     SND.on=e.target.checked;
-    if(SND.on)sfx.ok();else if(AC)AC.suspend();
+    if(SND.on)sfx.ok();else if(AC){SND.nap=false;clearTimeout(napT);AC.suspend()}
     soundGlyph();
   });
   /* the bar's settings are glyphs: a speaker, a zigzag, a sun or a moon. The
@@ -1346,7 +1383,7 @@
     };
   }
 
-  window.AUI={ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
+  window.AUI={heroWake:heroWake,ROW:ROW,backdropClose:backdropClose,$:$,G:G,rnd:rnd,rep:rep,RAMP:RAMP,reduce:reduce,glitch:glitch,jolt:jolt,kick:kick,spark:spark,bitmap:bitmap,
     scramble:scramble,setLabel:setLabel,announce:announce,rawFill:rawFill,develop:develop,titleFrame:titleFrame,titles:titles,say:say,wipe:function(cb){transition('wipe',cb)},hold:hold,free:free,showView:showView,
     currentTheme:currentTheme,layout:layout,colorize:colorize,barRow:barRow,pal:function(){return PAL},CH:function(){return CH},
     charWidth:charWidth,fit:fit,drawHero:drawHero,spin:function(x,y){spinX=x;spinY=y},tone:tone,noise:noise,sfx:sfx,SND:SND,

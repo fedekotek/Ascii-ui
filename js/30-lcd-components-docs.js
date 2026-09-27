@@ -170,7 +170,8 @@ document.querySelectorAll('canvas.lcd').forEach(c=>new LCD(c));
 const lcdOf=el=>LCDS.find(l=>l.cv===el);A.lcdOf=lcdOf;
 /* a picture resized while it was hidden (a Code tab open, another view)
    kept its old width: the loop sizes it again once it shows at a new one */
-if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){l.t+=0.12;if(l.cv.clientWidth!==l.w)l.size();else l.draw()}})});
+/* the pictures move on their own, so they stop with Glitch off (WCAG 2.2.2); a resize still lands */
+if(!reduce)every(125,()=>{LCDS.forEach(l=>{if(l.vis&&l.cv.clientWidth){if(l.cv.clientWidth!==l.w)l.size();else if(A.G.on){l.t+=0.12;l.draw()}}})},{gate:()=>LCDS.some(l=>l.vis&&l.cv.clientWidth&&(A.G.on||l.cv.clientWidth!==l.w))});
 window.addEventListener('resize',()=>LCDS.forEach(l=>l.size()));
 const bigPic=lcdOf(document.querySelector('figure.pic canvas[data-scene="ba"]'));
 const CAP={ba:'<b>Buenos Aires, 19:42.</b> Procedural, 64 by 48 cells.',desk:'<b>The desk.</b> One monitor, one plant, one chart that never stops.',mate:'<b>Mate.</b> Steam included.',test:'<b>Test card.</b> If this looks wrong, everything is fine.'};
@@ -303,7 +304,7 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.spinners=function(){
     bs[3].textContent=rep('.',1+(f>>1)%3);
     bs[4].textContent=A.TR(A.barRow((f*0.7)%9|0,false,8));
   }
-  draw();if(!reduce)A.every(110,draw,{el:$('spins')});
+  draw();if(!reduce)A.every(110,draw,{el:$('spins'),gate:()=>A.G.on});
 };window.AUI_JS.spinners();
 /* textarea counters */
 /* at the limit the counter warns: the next key does nothing, so say so */
@@ -333,7 +334,7 @@ $('sayHi').addEventListener('click',()=>A.say('Hi. No inbox is wired in this pro
   });
 })();
 $('nowRead').innerHTML=A.colorize(A.barRow(Math.round(163/179*14),false,14))+' <span class="muted">163/179</span>';
-if(!reduce)every(140,()=>{const e=$('nowPull');if(e&&inView(e))e.textContent='|/-\\'[Date.now()/140&3]+' loading'});else $('nowPull').textContent='loading';
+if(!reduce)every(140,()=>{$('nowPull').textContent='|/-\\'[Date.now()/140&3]+' loading'},{gate:()=>A.G.on&&$('nowPull')&&inView($('nowPull'))});else $('nowPull').textContent='loading';
 (function(){
   const ING=[['Tira de asado',400,'g'],['Vacío',220,'g'],['Chorizo',1,'u'],['Provoleta',0.34,'u'],['Coarse salt',12,'g'],['Charcoal',700,'g'],['Malbec',0.25,'l']];let n=6;
   const fmt=(q,u)=>u==='g'?(q>=1000?(q/1000).toFixed(1).replace(/\.0$/,'')+' kg':Math.round(q/10)*10+' g'):(u==='l'?(Math.round(q*10)/10)+' l':Math.max(1,Math.ceil(q))+'');
@@ -374,7 +375,7 @@ $('critSend').addEventListener('click',()=>{
   $('critErr').textContent='';f.classList.remove('invalid');ta.removeAttribute('aria-invalid');A.say('Crit sent. Verdict: '+v.toLowerCase()+'.');if(live())sfx.ok();
 });
 $('lostHome').addEventListener('click',()=>{const t=$('v-kit');window.scrollTo(0,0);if(t.getAttribute('aria-selected')!=='true')t.click()});
-if(!reduce)every(260,()=>{const p=$('lostTitle');if(p&&inView(p)&&!p._iv&&A.glitch()>0&&p._b)A.titleFrame(p,6+rnd(6))});
+if(!reduce)every(260,()=>{const p=$('lostTitle');if(!p._iv&&p._b)A.titleFrame(p,6+rnd(6))},{gate:()=>A.glitch()>0&&$('lostTitle')&&inView($('lostTitle'))});
 
 /* ================= shadcn-style docs: index, preview and code tabs, filters ================= */
 /* a button the engine has touched keeps its real label in data-text and got
