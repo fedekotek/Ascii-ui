@@ -475,3 +475,12 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
   content:" site only";color:var(--violet);font-weight:400;text-transform:none;
 }
 .navlink[aria-current]:focus-visible::after,.navlink:focus-visible::after{color:var(--bg)}
+
+/* ---- very short windows: the bar lets go ------------------------------------
+   At 400% zoom (320 by 256) the three row bar was a quarter of the screen and
+   the focused skip link sat under it. Under 400px of height it scrolls away
+   with the page; a jump still lands the title where the bar would be. */
+@media (max-height:400px){
+  .topbar{position:relative}
+  html{scroll-padding-top:env(safe-area-inset-top,0px)}
+}
