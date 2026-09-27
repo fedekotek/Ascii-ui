@@ -201,14 +201,14 @@ function kitLoad(){
     .then(t=>{S.t={css:t[0],js:t[1]}},e=>{S.p=null;throw e});
   return S.p;
 }
-/* a doc's Code tab (the second of its two), the arrow key that leaves Preview for it, and the two downloads */
+/* a doc's Code and Usage tabs (both read the kit), the keys that leave Preview for them, and the two downloads */
 function kitAt(e){return e.target&&e.target.closest?e.target.closest('.doc-tabs [role="tab"],[data-dl]'):null}
 function kitWant(e){
   const t=kitAt(e);if(!t)return null;
   if(t.hasAttribute('data-dl'))return e.type==='click'?t:null;
-  const code=t.parentNode.lastElementChild===t;
-  if(e.type==='click')return code?t:null;
-  return !code&&(e.key==='ArrowRight'||e.key==='ArrowLeft')?t:null;
+  const kit=t.parentNode.firstElementChild!==t;
+  if(e.type==='click')return kit?t:null;
+  return ['ArrowRight','ArrowLeft','Home','End'].includes(e.key)?t:null;
 }
 function kitGate(e){
   if(kitS().t)return;
@@ -294,7 +294,8 @@ def csp(h):
          "script-src "+' '.join(hashes)+(" 'self'" if ANALYTICS else ''),
          "style-src 'unsafe-inline'",      # the engine writes style="" on titles, charts and colored text
          "font-src data:","img-src 'self' data: blob:","connect-src 'self'",
-         "media-src 'self'",                 # the reel on Home, fetched on play"worker-src 'none'","frame-src 'none'","manifest-src 'none'",
+         "media-src 'self'",                 # the reel on Home, fetched on play
+         "worker-src 'none'","frame-src 'none'","manifest-src 'none'",
          "object-src 'none'","base-uri 'none'","form-action 'none'"]
     meta='<meta http-equiv="Content-Security-Policy" content="'+'; '.join(pol)+'">'
     if '<meta charset="utf-8">' not in h: sys.exit('build: no <meta charset="utf-8"> to put the CSP after')

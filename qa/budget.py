@@ -19,8 +19,8 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
-    'index.html':        160*KB,     # 155 KB with Usage words for all 34 (the four overlays added): minified, kit text fetched on first use, font inlined
-    'ascii-ui.html':     195*KB,     # 192 KB: the download, everything embedded
+    'index.html':        170*KB,     # 162 KB with Usage words for all 34 (the four overlays added): minified, kit text fetched on first use, font inlined
+    'ascii-ui.html':     210*KB,     # 198 KB: the download, everything embedded
     'kit/ascii-ui.css':   13*KB,     # 12 KB with print, forced colors, more contrast, the veil and the motion tokens
     'kit/ascii-ui.js':    27*KB,     # 25.5 KB with the toast [x], the sheet swipe, segment and the OTP and calendar words
     'kit/starter.html':    7*KB,     # 6 KB

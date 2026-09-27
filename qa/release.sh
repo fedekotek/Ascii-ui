@@ -26,6 +26,7 @@ step python3 qa/qa.py 390 844 light m x
 step python3 qa/qa.py 1440 900 dark d x
 step python3 qa/qa.py 1440 900 light d x
 step python3 qa/qa.py 390 844 dark s x --site
+step python3 qa/lazykit.py
 step python3 qa/breakpoints.py
 step python3 qa/clock.py
 step python3 qa/audit.py

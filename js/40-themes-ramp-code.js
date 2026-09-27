@@ -243,10 +243,12 @@ A.kitify=(sec,c)=>{const f=KITIFY[sec.getAttribute('aria-labelledby')];if(f)f(c)
 let BLOCKS=null;
 function kitBlocks(){
   if(BLOCKS)return BLOCKS;
-  BLOCKS=[];const css=KIT().css,re=/^\/\* ==== ([a-z-]+): (.+?) ==== \*\/$/gm;let m,last=null;
-  while((m=re.exec(css))){if(last)last.text=css.slice(last.at,m.index).trim();last={name:m[1],sel:m[2].split(' '),at:m.index};BLOCKS.push(last)}
+  /* the published site fetches the kit on first use: until it is here the text is blank, and a blank is never kept */
+  const out=[],css=KIT().css,re=/^\/\* ==== ([a-z-]+): (.+?) ==== \*\/$/gm;let m,last=null;
+  while((m=re.exec(css))){if(last)last.text=css.slice(last.at,m.index).trim();last={name:m[1],sel:m[2].split(' '),at:m.index};out.push(last)}
   if(last)last.text=css.slice(last.at).trim();
-  return BLOCKS;
+  if(css.trim())BLOCKS=out;
+  return out;
 }
 const BASEBLOCKS=['tokens','tones','base','frame'];
 /* what ascii-ui.js draws inside a component is not in its html, but its css is
@@ -260,9 +262,10 @@ function kitCSS(frag){
 let KITCLS=null;
 function kitClasses(){
   if(KITCLS)return KITCLS;
-  KITCLS=new Set();
-  KIT().css.replace(/\/\*[\s\S]*?\*\//g,'').replace(/"(?:[^"\\]|\\.)*"/g,'""').replace(/\.(-?[_a-zA-Z][\w-]*)/g,(m,c)=>{KITCLS.add(c);return m});
-  return KITCLS;
+  const out=new Set(),css=KIT().css;
+  css.replace(/\/\*[\s\S]*?\*\//g,'').replace(/"(?:[^"\\]|\\.)*"/g,'""').replace(/\.(-?[_a-zA-Z][\w-]*)/g,(m,c)=>{out.add(c);return m});
+  if(css.trim())KITCLS=out;
+  return out;
 }
 function siteOnly(frag){
   const k=kitClasses(),out=new Set();
