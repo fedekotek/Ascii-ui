@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-ehhu+1Q8Ylmsn4pJNu1Z+n2RAahTD7A1+taU1NiQvv0=' 'sha256-StujknrwszcaDb+kYe1JExVswcarpS7RTYLZzzlHvQY=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU=' https://ascii.fedekotek.design/kit/1.2.1/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.2.1/; font-src data: https://ascii.fedekotek.design/kit/1.2.1/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-U8YGsnfeIWVD945wjLctmLA7osmZ2hPa0cAO7gfu7QE=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-eYrUtv8cK9vYLYUXzoCkP2ESqrCUZWmcyoI153LE/N8=' 'sha256-ehhu+1Q8Ylmsn4pJNu1Z+n2RAahTD7A1+taU1NiQvv0=' 'sha256-StujknrwszcaDb+kYe1JExVswcarpS7RTYLZzzlHvQY=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-2WaV8sUuVT19TGyPmil8HMIM7sKeHC1OHBM2b/mIEHY=' 'sha256-ZzgaJ2tEROwYIlMQ7XTHWKclQvIwJYleabx3wu8eVOU=' 'self' https://ascii.fedekotek.design/kit/1.2.1/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.2.1/; font-src data: https://ascii.fedekotek.design/kit/1.2.1/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
 <meta name="aui-version" content="11.3">
@@ -88,6 +88,16 @@ if(!st){st=document.createElement('style');st.id='aui-tones';document.head.appen
 st.textContent=css;
 };
 window.AUI_TONES();
+</script>
+<script>
+/* visits are counted on https://ascii.fedekotek.design only (build.py, ANALYTICS) */
+(function(){
+  if(location.protocol!=='https:'||location.hostname!=='ascii.fedekotek.design')return;
+  if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl)return;
+  window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};
+  var s=document.createElement('script');s.defer=true;s.src='/_vercel/insights/script.js';
+  document.head.appendChild(s);
+})();
 </script>
 </head>
 <body>
