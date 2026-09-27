@@ -22,9 +22,9 @@ Pinned, which never changes under you:
 <script defer src="https://ascii.fedekotek.design/kit/1.2.0/ascii-ui.js"></script>
 ```
 
-Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version in their first line, and `ASCIIUI.version` says it in the console.
+Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1 and 1.2.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
 
-The CSS pulls Geist Mono from Google Fonts with an `@import`. For a faster first paint, remove that line and put the `<link>` from the comment next to it in your `<head>`. Without the font it falls back to the system monospace.
+The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a Latin-1 subset, 19 kB, SIL OFL 1.1, the license is `fonts/OFL.txt`). Linked from this site, it comes from here too, and nothing asks Google or anyone else. With your own copies, put the `fonts/` folder next to `ascii-ui.css`, or leave it out: an installed Geist Mono is used first, then the system monospace. `LICENSE.txt` sits next to the two files on the site.
 
 ## Use it in three steps
 

@@ -168,13 +168,14 @@
     catch(e){if(push)location.hash=h}
     routed=location.hash;
   }
-  /* the tab's name follows the address: Section, View, ascii/ui */
+  /* the tab's name follows the address: Section, View, ascii/ui. Home keeps
+     the <title> in index.html, which is what search shows for the page */
+  const HOME=document.title;
   function title(v,sec){
     const t=[];
     if(sec&&name(sec))t.push(name(sec));
     if(v&&v!=='home')t.push(LABEL[v]);
-    t.push('ascii/ui');
-    document.title=t.join(', ');
+    document.title=t.length?t.concat('ascii/ui').join(', '):HOME;
   }
   /* go to a view, and to a section in it or to its top. opt.push: true adds
      an entry, false replaces it, missing leaves the address alone. opt.after

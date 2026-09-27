@@ -22,6 +22,8 @@ Every section has an address: `#components/button`, `#themes/tokens`.
 - [starter.html](https://ascii.fedekotek.design/kit/starter.html): a page that links the two files and nothing else, with every kit component on it.
 - [kit README](https://ascii.fedekotek.design/kit/README.md): the reference for the kit: install, attributes, `window.ASCIIUI` API, events, lifecycle, theming, versions, changelog.
 - [Single file](https://ascii.fedekotek.design/ascii-ui.html): the whole site as one HTML file.
+- [llms-full.txt](https://ascii.fedekotek.design/llms-full.txt): every component in full, when to use it, its states, keys and the HTML to paste.
+- The font is Geist Mono, in `kit/fonts/` (SIL OFL 1.1). The MIT license is [LICENSE.txt](https://ascii.fedekotek.design/LICENSE.txt), also next to the kit files.
 
 ## Install
 

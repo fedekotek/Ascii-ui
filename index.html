@@ -3,32 +3,46 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ascii/ui</title>
+<title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
 <meta name="aui-version" content="11.1">
-<meta name="description" content="ascii/ui: shadcn-style components in a brutalist ASCII skin with a bad signal. 34 components, 32 of them in the kit, 16 blocks, 5 charts. Copy the code and own it. The kit is two files, no dependencies.">
+<meta name="description" content="34 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
+<meta name="author" content="Fede Kotek">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#ecebe4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0a0612" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="assets/favicon.ico" sizes="32x32">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230a0612'/%3E%3Cpath d='M20 5 12 27' stroke='%23ff3d9a' stroke-width='4' stroke-linecap='square'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ascii/ui">
-<meta property="og:title" content="ascii/ui">
-<meta property="og:description" content="shadcn-style components in a brutalist ASCII skin with a bad signal. Copy the code and own it.">
+<meta property="og:title" content="ascii/ui: a design system drawn in ASCII">
+<meta property="og:description" content="30 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta property="og:url" content="https://ascii.fedekotek.design/">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The ascii/ui hero: a ring of characters spelling COPY IT, OWN IT, on a dark screen.">
+<meta property="og:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ascii/ui">
-<meta name="twitter:description" content="shadcn-style components in a brutalist ASCII skin with a bad signal. Copy the code and own it.">
+<meta name="twitter:title" content="ascii/ui: a design system drawn in ASCII">
+<meta name="twitter:description" content="30 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta name="twitter:image" content="https://ascii.fedekotek.design/assets/og.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;700&display=swap" rel="stylesheet"><style>#boot{display:none}</style></noscript>
+<meta name="twitter:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 30 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
+ {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.2.0","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
+ {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
+</script>
+<!-- Geist Mono, a subset of the characters this page uses. build.py inlines it,
+     so what ships makes no request for it. SIL OFL 1.1, kit/fonts/OFL.txt -->
+<style>
+/*! Geist Mono | SIL OFL 1.1 | Copyright 2024 The Geist Project Authors (https://github.com/vercel/geist-font) | https://ascii.fedekotek.design/kit/fonts/OFL.txt */
+@font-face{font-family:"Geist Mono";src:url(assets/fonts/geist-mono-site.woff2) format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
+</style>
+<noscript><style>#boot{display:none}</style></noscript>
 <link rel="stylesheet" href="css/01-tokens.css">
 <link rel="stylesheet" href="css/02-base-grid.css">
 <link rel="stylesheet" href="css/03-posters.css">
@@ -86,7 +100,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <main id="main">
 
   <header>
-    <h1 class="vh">ascii/ui</h1>
+    <h1 class="vh">ascii/ui, a design system drawn in ASCII</h1>
     <canvas id="hero" aria-hidden="true"></canvas>
     <p class="lede demo" id="heroLine">Thirty-four shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
     <p class="muted demo" id="heroWho">For designers and developers who copy a component and own the code.</p>
@@ -105,6 +119,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
+  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>30 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Command, Dropdown, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">

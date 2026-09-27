@@ -12,6 +12,10 @@ Added
 - `pane`: the floating panel under the three above. It goes to the top layer where the browser has the Popover API and sits on the grid, below its button or above it when there is no room.
 - `data-aui-close="value"` sets the dialog's `returnValue`.
 
+Changed
+- Geist Mono comes from `fonts/` next to the CSS, not from Google Fonts. The `@import` is gone, so a page that links the kit makes no request to anyone but the kit's address, and nobody else sees its visitors. An installed Geist Mono is used first. Without the folder, the system monospace, as before.
+- Both files open with `/*! ascii/ui kit 1.2.0 | MIT | (c) 2026 Fede Kotek */`, a line minifiers keep. `LICENSE.txt` is next to them on the site, and `fonts/OFL.txt` next to the font.
+
 Fixed
 - Dropdown items are two whole rows tall, on the grid. They sat off it.
 - A disabled field has a faint rim and gray text, the way a disabled button does.

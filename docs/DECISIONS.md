@@ -14,7 +14,7 @@ Why things are the way they are. Reverse any of these knowingly.
 10. **Ramp swaps translate at the output layer.** One map, one `TR()`, one `fillText` patch. Refactoring every drawing routine was the alternative and would have been slower and riskier. Acknowledged smell. (v8)
 11. **One file, then a repo.** The single HTML file was right for iteration speed and for publishing as an artifact; it is wrong for a kit. `dist/ascii-ui.html` keeps the first property. (v10)
 12. **Blocks contain real content about the owner** because generic lorem makes a kit feel like a template. Personal blocks are marked and the placeholder lines are listed. (v7)
-13. **No dependencies.** Geist Mono is the only external request. The kit's value is that you copy it and it is yours. (v1)
+13. **No dependencies.** Not even a font request: Geist Mono is inlined in the page and shipped next to the kit (it used to come from Google Fonts). The kit's value is that you copy it and it is yours. (v1)
 14. **Dark is the identity.** Paper (light) exists and works, but the signal palette is the default and the one the visuals are tuned for. (v4)
 15. **Menu appears under 1024px only.** From 1024px the views sit in the bar and the sidebar lists the sections, so a second navigation would be noise. Below, the `[=]` menu carries both. (v9, moved to 1024px in v10.6 and v10.9)
 16. **Five views, no playground views.** Play, Apps and One pager showed the kit under stress but read as a portfolio, not a kit. Home carries the ring, Themes carries the labs, and the rest is docs. (v10.9)
