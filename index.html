@@ -173,17 +173,45 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     </figure>
 
     <h3 class="lab-h">The problem</h3>
-    <p class="muted">Most component kits look like the same kit. ASCII interfaces look different, and most of them are screenshots or terminal toys: pure text breaks screen readers and does not reflow on a phone. The brief was a kit made of characters that still works like a kit, with a keyboard, a screen reader, a phone, and copy and paste. The person in charge is a product designer, so every rule had to be one a script can check.</p>
+    <p class="muted">Most component kits look like the same kit. ASCII interfaces look different, and most are screenshots or terminal toys: pure text breaks screen readers and does not reflow on a phone. The brief was a kit made of characters that still works like a kit, with a keyboard, a screen reader, a phone, and copy and paste. The person in charge is a product designer, so every rule had to be one a script can check.</p>
 
-    <h3 class="lab-h">Constraints</h3>
-    <ul class="rules demo muted">
-      <li>No frameworks, no bundler, no dependencies.</li>
-      <li>The whole site ships as one HTML file, and it works from file:// too.</li>
-      <li>Nothing loads from elsewhere except the font.</li>
-      <li>One clock runs every animation. A script fails if anything calls setInterval.</li>
-      <li>Every tap target is 44px.</li>
-      <li>No em dashes. Not even in commit messages.</li>
-    </ul>
+    <h3 class="lab-h">By the numbers</h3>
+    <p class="muted">Counted from the repo and the built site. A script recounts them before every release and fails if this page says otherwise.</p>
+    <pre class="demo statbars facts"> <span data-fact="components">34</span> <span class="muted">components, <span data-fact="kit">32</span> in the kit</span>
+    <span data-bar="kit" style="color:var(--violet)" aria-hidden="true">################################</span><span data-bar="siteonly" class="muted" aria-hidden="true">..</span>
+ <span data-fact="blocks">16</span> <span class="muted">blocks</span>
+    <span data-bar="blocks" style="color:var(--violet)" aria-hidden="true">################</span>
+  <span data-fact="charts">5</span> <span class="muted">charts</span>
+    <span data-bar="charts" style="color:var(--violet)" aria-hidden="true">#####</span>
+  <span data-fact="kit-versions">4</span> <span class="muted">kit versions, each pinned</span>
+    <span data-bar="kit-versions" style="color:var(--violet)" aria-hidden="true">####</span>
+ <span data-fact="release-steps">19</span> <span class="muted">steps in the release bar</span>
+    <span data-bar="release-steps" style="color:var(--hot)" aria-hidden="true">###################</span>
+ <span data-fact="qa-scripts">18</span> <span class="muted">QA scripts</span>
+    <span data-bar="qa-scripts" style="color:var(--hot)" aria-hidden="true">##################</span>
+ <span data-fact="widths">11</span> <span class="muted">screen widths, <span data-fact="widths-min">360</span> to <span data-fact="widths-max">1920</span></span>
+    <span data-bar="widths" style="color:var(--hot)" aria-hidden="true">###########</span>
+  <span data-fact="a11y-modes">7</span> <span class="muted">accessibility modes</span>
+    <span data-bar="a11y-modes" style="color:var(--hot)" aria-hidden="true">#######</span>
+<span data-fact="weight-kb">164</span> <span class="muted">kB on first visit, cap <span data-fact="weight-cap">170</span></span>
+    <span data-bar="weight-kb" data-per="5" data-of="weight-cap" style="color:var(--hot)" aria-hidden="true">#################################</span><span class="muted" aria-hidden="true">.</span>
+ <span data-fact="kit-kb">38</span> <span class="muted">kB for the <span data-fact="kit-files">2</span> kit files</span>
+  <span style="color:var(--ok)" data-fact="requests">0</span> <span class="muted">requests to anyone else</span>
+  <span style="color:var(--ok)" data-fact="idle-frames">0</span> <span class="muted">idle frames, reduced motion</span></pre>
+    <p class="muted demo">One # is one thing, except weight: 5 kB a #, and the row ends at the cap. Sizes are gzip. The seven modes: <span data-fact="a11y-list">keyboard, screen reader names, reduced motion, forced colors, more contrast, print, touch</span>.</p>
+
+    <h3 class="lab-h">Rules the scripts enforce</h3>
+    <p class="muted">Each rule has a script, and each script is a step in the release bar. A rule no script checks is a suggestion.</p>
+    <pre class="demo statbars rulebar"><span class="muted" aria-hidden="true">RULE                    FAILS IT</span>
+no em dashes            <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
+cyan is focus only      <span style="color:var(--ok)" data-rule="facts.py">facts.py</span>
+columns on the 1ch grid <span style="color:var(--ok)" data-rule="breakpoints.py">breakpoints.py</span>
+reduced motion is none  <span style="color:var(--ok)" data-rule="reduced.py">reduced.py</span>
+no setInterval          <span style="color:var(--ok)" data-rule="clock.py">clock.py</span>
+nothing from elsewhere  <span style="color:var(--ok)" data-rule="budget.py">budget.py</span>
+no target under 40px    <span style="color:var(--ok)" data-rule="audit.py">audit.py</span>
+these numbers           <span style="color:var(--ok)" data-rule="facts.py">facts.py</span></pre>
+    <p class="muted demo">Em dashes are looked for in the source, the docs, the built site and the commit log. Cyan is read from every CSS rule that paints with it: each one needs a focus state. Taps are drawn at 44px, and the script fails anything under 40.</p>
 
     <h3 class="lab-h">Principles</h3>
     <ul class="rules demo muted">
@@ -191,13 +219,12 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><b>Every frame is a string.</b> A border is one character repeated, so a new character reskins the part.</li>
       <li><b>Weight is density.</b> @ is the loudest thing on the page and . is the quietest.</li>
       <li><b>One grid, 1ch by 21px.</b> Widths are counts of characters, heights are counts of rows.</li>
-      <li><b>Cyan means focus and nothing else.</b> It is how you see where the keyboard is.</li>
       <li><b>Glitch is feedback.</b> It fires on touch and on state changes. At rest, the page reads.</li>
-      <li><b>Reduced motion means none.</b> Every animation and every sound stops, and a script checks it before every release.</li>
+      <li><b>One file, no dependencies.</b> No framework, no bundler. The site ships as one HTML file and works from file://.</li>
     </ul>
 
     <h3 class="lab-h">Process</h3>
-    <p class="muted">It started as one HTML file and stayed one for nine versions. v10 made it a repo, with docs and Playwright scripts for QA.</p>
+    <p class="muted">One HTML file for nine versions. v10 made it a repo, with docs and Playwright scripts for QA.</p>
     <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">.</span>  v1   <span class="muted">HTML on a character grid</span>
 <span style="color:var(--hot)" aria-hidden="true">:</span>  v2   <span class="muted">frames are strings</span>
 <span style="color:var(--hot)" aria-hidden="true">=</span>  v3   <span class="muted">the ring spins</span>
@@ -207,7 +234,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
 <span style="color:var(--hot)" aria-hidden="true">#</span>  v8   <span class="muted">6 presets, a ramp editor</span>
 <span style="color:var(--hot)" aria-hidden="true">%</span>  v10  <span class="muted">a repo, docs, QA scripts</span>
 <span style="color:var(--hot)" aria-hidden="true">@</span>  v11  <span class="muted">the kit: 2 files, MIT</span></pre>
-    <p class="muted demo">Each row is one step heavier on the ramp. v5 is a space because it never shipped. v10 to v11.1 took 76 commits in five days.</p>
+    <p class="muted demo">Each row is one step heavier on the ramp. v5 is a space because it never shipped.</p>
     <p class="muted demo">From v10.8 on, the work ran in rounds. Auditors read the site in parallel, one lens each, and change nothing. Their findings are split by file, so no two builders touch the same one.</p>
     <pre class="demo statbars"><span style="color:var(--hot)" aria-hidden="true">@</span> audit   <span class="muted">read only, in parallel</span>
 <span style="color:var(--violet)" aria-hidden="true">:</span>
@@ -226,10 +253,11 @@ v11.0   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
 v11.1   <span style="color:var(--violet)" aria-hidden="true">#######</span>     <span style="color:var(--hot)" aria-hidden="true">####</span><span class="vh"> 7 auditors, 4 builders.</span>
 v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  <span style="color:var(--hot)" aria-hidden="true">#########</span><span class="vh"> 10 auditors, 9 builders.</span></pre>
     <p class="muted demo">One # is one agent. v11.1 had seven lenses: a UI designer, legibility, copy, a frontend engineer, an interaction bug hunt, the Code tab's truth, and an LLM reading the docs cold. v11.2 went through a UX checklist: print, high contrast, touch, security, share cards, and four new overlays.</p>
-    <p class="muted demo">The release bar is one command. It runs 17 steps and stops at the first failure. A rule no script checks is a suggestion.</p>
+    <p class="muted demo">The release bar is one command. It runs <span data-fact="release-steps">19</span> steps and stops at the first failure.</p>
     <pre class="demo statbars"><span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">clean at 2 sizes, 2 themes</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the shipped file loads clean</span>
-<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">11 widths, 360 to 1920</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the Code tab prints the kit</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted"><span data-fact="widths">11</span> widths, 360 to 1920</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">one animation clock</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no tiny taps, no tiny text</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">no surprise phone keyboard</span>
@@ -239,24 +267,10 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every address lands</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">the docs match the code</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">what ships is what builds</span>
+<span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">every number on this page</span>
 <span aria-hidden="true">[</span><span style="color:var(--ok)" aria-hidden="true">@</span><span aria-hidden="true">]</span> <span class="muted">under the size budget</span>
 
 <span style="color:var(--ok)">release: ok</span></pre>
-
-    <h3 class="lab-h">Results</h3>
-    <p class="muted">What shipped, counted.</p>
-    <pre class="demo statbars">34  <span class="muted">components, 32 in the kit</span>
-16  <span class="muted">blocks</span>
- 5  <span class="muted">charts</span>
- 6  <span class="muted">presets</span>
- 7  <span class="muted">ramps</span>
- 0  <span class="muted">dependencies</span>
- 2  <span class="muted">kit files, 33 kB gzipped</span>
- 4  <span class="muted">kit versions, each pinned</span>
- 1  <span class="muted">HTML file for the whole site</span>
-16  <span class="muted">QA scripts</span>
-17  <span class="muted">steps in the release bar</span>
-11  <span class="muted">screen widths, 360 to 1920</span></pre>
 
     <h3 class="lab-h">What did not work</h3>
     <ul class="rules demo muted">
@@ -270,7 +284,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     </ul>
 
     <h3 class="lab-h">Credits</h3>
-    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.2</span>, with kit <span data-fact="kit-version">1.2.0</span>.</p>
   </section>
   </div>
 
