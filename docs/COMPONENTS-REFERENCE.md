@@ -77,7 +77,7 @@ One entry per component, in page order (group, then name). "Kit" means the compo
 ```html
 <div class="stack">
   <div class="cal" data-aui="calendar"></div>
-  <p class="muted status" role="status">Saturday, September 26, 2026</p>
+  <p class="muted status" role="status"></p>
 </div>
 ```
 

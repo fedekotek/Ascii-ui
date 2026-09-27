@@ -161,7 +161,8 @@ const KITIFY={
   },
   's-tooltip':c=>set(q1(c,'#tt'),{'data-aui':'tooltip'}),
   's-otp':c=>{set(q1(c,'#otp'),{'data-aui':'otp'});set(q1(c,'#otp input'),{autocomplete:'one-time-code'})},
-  's-calendar':c=>set(q1(c,'#cal'),{'data-aui':'calendar'}),
+  /* the status line holds today's date on the page; the copy starts empty, so the code does not change every day */
+  's-calendar':c=>{set(q1(c,'#cal'),{'data-aui':'calendar'});const st=q1(c,'#calStatus');if(st)st.textContent=''},
   's-pagination':c=>{const n=q1(c,'#pager');set(n,{'data-aui':'pagination','data-pages':'9','data-page':'3'});if(n)n.textContent=''},
   's-textarea':c=>set(q1(c,'#ta'),{'data-aui':'counter'}),
   's-spinner':c=>c.querySelectorAll('.spins b').forEach(b=>set(b,{'data-aui':'spinner','data-kind':(b.nextSibling&&b.nextSibling.textContent||'classic').trim()})),
