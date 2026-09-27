@@ -15,9 +15,12 @@
 .ftbl tbody td{white-space:nowrap}
 .ftbl tbody tr:nth-child(even){background:color-mix(in srgb,var(--ink) 7%,transparent)}
 .ftbl .fch{font-weight:700;white-space:pre}
-/* a swatch is a slab of its own color in a thin gray frame, so the page
-   color and the ink still show against the theme they belong to */
-.ftbl .fsw{display:inline-block;width:2ch;height:var(--r);vertical-align:top;background:currentColor;box-shadow:inset 0 0 0 1px var(--muted);color:transparent}
+/* a swatch is two of the heaviest character in its own color, in gray
+   brackets: [@@]. The page color reads as an empty [  ] on its own theme,
+   which is the truth about it */
+.ftbl .fsw{font-weight:700;white-space:pre}
+.ftbl .fsw::before{content:"[";content:"[" / "";color:var(--muted)}
+.ftbl .fsw::after{content:"]";content:"]" / "";color:var(--muted)}
 /* the role and "for" columns wrap: they are sentences, the rest are values */
 .ftbl td:last-child:not(.fch),.ftok td:nth-child(2){white-space:normal;min-width:20ch}
 .ftok td:last-child{white-space:nowrap;min-width:0}
