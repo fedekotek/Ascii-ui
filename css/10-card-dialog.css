@@ -23,7 +23,8 @@
 }
 .body::before{left:0}
 .body::after{right:0}
-.card dl{display:grid;grid-template-columns:9ch 1fr}
+/* the label column is at least 9 characters and grows with a longer word */
+.card dl{display:grid;grid-template-columns:minmax(9ch,max-content) minmax(0,1fr)}
 .card dt{color:var(--muted)}
 .body .row{margin-top:var(--r)}
 

@@ -37,7 +37,7 @@
 .or{color:var(--muted);text-align:center;white-space:pre;overflow:hidden}
 .card .group + .group,.card .group + .row{margin-top:var(--r)}
 .card .row.full .btn{flex:1}
-.card .row.full .btn .mid{display:flex;justify-content:space-between}
+.card .row.full .btn .mid{display:flex;justify-content:center}
 .kpi{max-width:50ch}
 .kpis{display:grid;gap:var(--r)}
 .spark{font-weight:700;color:var(--hot);white-space:pre}

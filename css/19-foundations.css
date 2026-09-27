@@ -25,6 +25,8 @@
 .ftbl td:last-child:not(.fch),.ftok td:nth-child(2){white-space:normal;min-width:20ch}
 .ftok td:last-child{white-space:nowrap;min-width:0}
 .ftbl.fst tbody td{white-space:normal;min-width:6ch}
+/* longer state names (a translation) break inside the header before the table pushes the page sideways */
+.ftbl.fst thead th{white-space:normal;overflow-wrap:anywhere}
 .fw3{font-weight:300}.fw4{font-weight:400}.fw7{font-weight:700}
 .fnd .kv dd{max-width:60ch}
 

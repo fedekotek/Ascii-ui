@@ -1,11 +1,26 @@
 /* ---------- button ---------- */
 .btn{
   display:inline-block;font:inherit;color:var(--ink);background:none;border:0;border-radius:0;
-  margin:0;cursor:pointer;text-transform:uppercase;white-space:pre;
+  margin:0;cursor:pointer;text-transform:uppercase;white-space:pre-wrap;
   -webkit-tap-highlight-color:transparent;touch-action:manipulation;
   outline:2px solid transparent;outline-offset:-2px;
 }
-.btn .mid{display:inline-flex}
+/* A label longer than its row wraps (a translation, 200% text) and the walls
+   grow with it: each wall is the side string repeated four rows deep and cut
+   to the height of the label. The effects that write --s and --sr (js/10)
+   still reach every row. */
+.btn .mid{display:inline-flex;position:relative;padding:0 2ch}
+.btn .mid::before,.btn .mid::after{
+  position:absolute;top:0;bottom:0;width:2ch;overflow:hidden;
+  content:var(--s) "\A " var(--s) "\A " var(--s) "\A " var(--s);
+  content:var(--s) "\A " var(--s) "\A " var(--s) "\A " var(--s) / "";
+}
+.btn .mid::before{left:0}
+.btn .mid::after{
+  right:0;
+  content:var(--sr,var(--s)) "\A " var(--sr,var(--s)) "\A " var(--sr,var(--s)) "\A " var(--sr,var(--s));
+  content:var(--sr,var(--s)) "\A " var(--sr,var(--s)) "\A " var(--sr,var(--s)) "\A " var(--sr,var(--s)) / "";
+}
 .btn .label{padding:0 1ch}
 .btn-primary{--frame-color:var(--hot)}
 .btn-primary .label{background:var(--hot);color:var(--bg)}

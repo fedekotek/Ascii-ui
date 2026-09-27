@@ -195,7 +195,7 @@ figcaption b{color:var(--ink)}
 .side button:focus-visible{background:var(--accent);color:var(--bg)}
 .side button::before{content:"  ";content:"  " / ""}.side button[aria-current="page"]::before{content:"> ";content:"> " / ""}
 .side button span{margin-left:auto;padding-left:2ch}
-.kv{display:grid;grid-template-columns:10ch 1fr;gap:0 1ch}
+.kv{display:grid;grid-template-columns:minmax(10ch,max-content) minmax(0,1fr);gap:0 1ch}
 .kv dt{color:var(--muted)}
 .qty{font-weight:700;color:var(--hot);white-space:nowrap}
 .ing{list-style:none;padding:0;margin:var(--r) 0 0}
