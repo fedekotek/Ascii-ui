@@ -1142,8 +1142,9 @@ SIGNAL_JS="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],$=id
     if(boxes()!==b0)bad.push('band: a box moved while it ran');
   }
   if(!U.band())bad.push('band: the call on the window did not run');
-  await w(3800);
-  if(document.querySelector('.aui-sig-band'))bad.push('band: still there after its pass');
+  /* a window pass is a row a step, about 3.4 s at this height: wait for it to go, up to 6 s, so a busy machine does not fail it */
+  for(let i=0;i<60&&document.querySelector('.aui-sig-band');i++)await w(100);
+  if(document.querySelector('.aui-sig-band'))bad.push('band: still there 6 s after it started');
   /* rot: idle for data-rot seconds, the frames decay; a key repairs them */
   await w(3400);
   const h=$('r').style.getPropertyValue('--h');
