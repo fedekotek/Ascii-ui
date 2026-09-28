@@ -1054,3 +1054,43 @@ kbd::after{content:"]";content:"]" / ""}
 /* ==== linkbtn: a.btn ==== */
 /* A link dressed as a button, for a way out that goes to another page. */
 a.btn{text-decoration:none}
+
+/* ==== signal: [data-aui-signal] [data-aui-signal-level] aui-sr ==== */
+/* Signal: the bad signal, opt in. Nothing here runs until an element asks
+   with data-aui-signal="glitch", "scramble", "band" or "rot" (several, with
+   spaces), or a script calls ASCIIUI.glitch(el) and the others. How loud is
+   one token on :root, calm, normal or loud (off stops it), or
+   data-aui-signal-level on the root or on any element around the effect.
+   Everything is drawn on one fixed layer that takes no clicks and is paint
+   (aria-hidden): the page under it keeps its boxes. Noise is magenta and
+   pink, never cyan, which is focus. Reduced motion, forced colors and print
+   switch all of it off, here and in ascii-ui.js. */
+:root{--aui-signal:normal}
+.aui-sig{position:fixed;left:0;top:0;width:0;height:0;overflow:visible;pointer-events:none;z-index:240}
+.aui-sig > span{
+  position:fixed;left:0;top:0;display:block;overflow:hidden;white-space:pre;pointer-events:none;
+  font-weight:700;line-height:var(--r);color:var(--hot);opacity:.7;
+}
+.aui-sig > .aui-sig-pk{color:var(--pink)}
+/* glitch: the element itself goes a character sideways for a frame. translate
+   moves the paint, never the layout */
+.aui-sig-g{translate:var(--aui-sig-x,0) 0}
+/* scramble: while the words decode, aui-noise is the paint (aria-hidden) and
+   aui-sr holds the words for a screen reader, out of sight */
+aui-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* band: three rows of characters roll down through the box, a row a step */
+.aui-sig > .aui-sig-band{opacity:1;color:var(--pink)}
+.aui-sig-band > span{display:block;white-space:pre;opacity:var(--aui-sig-o,.32);animation:aui-sig-band var(--aui-sig-t,2.6s) steps(var(--aui-sig-rows,40),end) 1 both}
+@keyframes aui-sig-band{
+  from{transform:translateY(calc(var(--r)*-3))}
+  to{transform:translateY(calc(var(--r)*(var(--aui-sig-rows,40) - 3)))}
+}
+/* scanlines, the other half of the signal: <html class="crt"> (base, above).
+   <html class="crt interlace"> draws them every other pixel, fainter: an
+   interlaced field. It holds still */
+:root.crt.interlace body::before{background:repeating-linear-gradient(to bottom,transparent 0 1px,color-mix(in srgb,var(--scan) 60%,transparent) 1px 2px)}
+:root.crt.interlace dialog[open]::after{background-image:repeating-linear-gradient(to bottom,transparent 0 1px,color-mix(in srgb,var(--scan,rgba(0,0,0,.12)) 60%,transparent) 1px 2px)}
+@media (prefers-reduced-motion:reduce),(forced-colors:active),print{
+  .aui-sig{display:none !important}
+  .aui-sig-g{translate:none !important}
+}

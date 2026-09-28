@@ -20,9 +20,9 @@ SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
     'index.html':        200*KB,     # 183 KB at 11.4 with the kit charts, the Blocks, the icons and the data table
-    'ascii-ui.html':     235*KB,     # charts, the Blocks, the icons and the data table on the kit: the download, everything embedded (each measured apart at 211 to 215)
-    'kit/ascii-ui.css':   20*KB,     # 14.4 KB with the Blocks pieces, plus the charts, the 39 icons and the data table
-    'kit/ascii-ui.js':    40*KB,     # 31.1 KB with charts, plus checklist, pick, stepper and about 4 KB of data table
+    'ascii-ui.html':     250*KB,     # charts, the Blocks, the icons and the data table on the kit: the download, everything embedded (each measured apart at 211 to 215)
+    'kit/ascii-ui.css':   22*KB,     # 14.4 KB with the Blocks pieces, plus the charts, the 39 icons and the data table
+    'kit/ascii-ui.js':    46*KB,     # 31.1 KB with charts, plus checklist, pick, stepper, about 4 KB of data table and about 6 KB of Signal
     'kit/starter.html':   14*KB,     # Charts, Blocks, icons and a 24 row data table, measured apart at 7 to 8 each
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it

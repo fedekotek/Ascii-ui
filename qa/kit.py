@@ -1066,6 +1066,140 @@ async def charts(b):
         os.remove(path)
     return fails,notes
 
+# Signal, the opt-in effects, on a blank page with the two kit files. Every
+# effect runs when asked, and leaves every box where it was (measured before,
+# during and after, without transforms); the scramble keeps the words for a
+# screen reader (the aria snapshot never holds the noise); the band and the
+# strips take no clicks; the flash cap holds (3 glitches a second); a field
+# with the focus holds it still; the level token and data-aui-signal-level
+# work; rot decays when idle and any input repairs it; and the loop asks for
+# no frame at all once nothing runs (requestAnimationFrame counted). Then
+# reduced motion, forced colors and print: every call says no, nothing is
+# drawn, no frame is asked for
+RAF_COUNT="""(()=>{const r=window.requestAnimationFrame.bind(window);window.__raf=0;window.requestAnimationFrame=f=>{window.__raf++;return r(f)}})()"""
+SIGNAL_BODY=('<main style="padding:2ch">'
+  '<div class="stack" id="g" data-aui-signal="glitch"><button class="btn frame tone-light" type="button" aria-pressed="false"><span class="mid"><span class="label">Mute alerts</span></span></button>'
+  '<label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Show on home page</label></div>'
+  '<p id="s" data-aui-signal="scramble">Frames decode into place, left to right. Twice-baked, 4.2 kg.</p>'
+  '<div id="b" class="card frame tone-mid" data-aui-signal="band"><div class="body"><p>A band rolls through.</p><p>Then it is gone.</p></div></div>'
+  '<div id="r" class="frame tone-mid" data-aui-signal="rot" data-rot="2"><p>Leave it alone.</p></div>'
+  '<div class="group"><label class="field-label">Name</label><div class="field frame tone-light"><div class="mid"><input id="f" type="text"></div></div></div>'
+  '<p id="x1">one</p><p id="x2">two</p><p id="x3">three</p><p id="x4">four</p>'
+  '<p id="far" style="margin-top:3000px" data-aui-signal="scramble">Down here all along.</p>'
+  '</main>')
+SIGNAL_JS="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],$=id=>document.getElementById(id),U=ASCIIUI;
+  await document.fonts.ready;await w(400);
+  const boxes=()=>[...document.querySelectorAll('main *')].filter(e=>!e.closest('aui-sr,aui-noise')).map(e=>{let x=0,y=0,p=e;while(p){x+=p.offsetLeft||0;y+=p.offsetTop||0;p=p.offsetParent}return [x,y,e.offsetWidth,e.offsetHeight].join(',')}).join('|');
+  const b0=boxes(),layer=()=>document.querySelector('body > .aui-sig');
+  /* glitch: a state change inside it, and the call */
+  $('g').querySelector('button').setAttribute('aria-pressed','true');await w(20);
+  const st=layer()&&layer().children.length,mid=boxes();
+  if(!st)bad.push('glitch: a state change drew nothing');
+  if(mid!==b0)bad.push('glitch: a box moved while it ran');
+  if(layer()&&getComputedStyle(layer()).pointerEvents!=='none')bad.push('glitch: the layer takes clicks');
+  if(layer()&&layer().getAttribute('aria-hidden')!=='true')bad.push('glitch: the layer is not aria-hidden');
+  await w(400);
+  if(layer().children.length||document.querySelector('.aui-sig-g'))bad.push('glitch: something stayed after it ended');
+  $('g').querySelector('input').click();await w(20);
+  if(!layer().children.length)bad.push('glitch: a checkbox change drew nothing');
+  await w(1100);
+  /* the flash cap: six at once, three run */
+  const n=['x1','x2','x3','x4','s','b'].map(i=>U.glitch($(i))).filter(Boolean).length;
+  if(n!==3)bad.push('glitch: '+n+' ran in one second, the cap is 3');
+  await w(1100);
+  /* a field with the focus holds it still */
+  $('f').focus();if(U.glitch($('x1'))||U.scramble($('x2')))bad.push('an effect ran while a field had the focus');$('f').blur();
+  await w(450);
+  /* the level: off stops it, the call sets it and says it */
+  document.documentElement.setAttribute('data-aui-signal-level','off');if(U.glitch($('x1')))bad.push('level off: glitch ran');
+  if(U.signal('calm')!=='calm'||U.signal(null)!=='normal')bad.push('signal(level) does not set and say the level');
+  document.documentElement.style.setProperty('--aui-signal','off');if(U.glitch($('x1')))bad.push('--aui-signal: off: glitch ran');
+  document.documentElement.style.removeProperty('--aui-signal');
+  /* scramble: noise on screen, the words for a screen reader */
+  const p=$('s'),html=p.innerHTML,words=p.textContent;
+  if(!U.scramble(p))bad.push('scramble: the call did not run');
+  const sr=[...p.querySelectorAll('aui-sr')].map(x=>x.textContent).join(''),no=[...p.querySelectorAll('aui-noise')];
+  if(sr!==words)bad.push('scramble: the hidden copy is not the words: '+sr);
+  if(!no.length||no.some(x=>x.getAttribute('aria-hidden')!=='true'))bad.push('scramble: the noise is not aria-hidden');
+  if(no.map(x=>x.textContent).join('')===words)bad.push('scramble: no noise drawn');
+  if(boxes()!==b0)bad.push('scramble: a box moved while it ran');
+  window.__sr=p;
+  await w(800);
+  if(p.innerHTML!==html)bad.push('scramble: the words did not come back as they were');
+  /* on screen once: the one far down decodes when it is scrolled to */
+  $('far').scrollIntoView();await w(120);
+  if(!$('far').querySelector('aui-noise'))bad.push('scramble: coming on screen did not decode it');
+  await w(800);window.scrollTo(0,0);await w(100);
+  /* band: rolls through, transform only, takes no clicks, then goes */
+  if(!U.band($('b')))bad.push('band: the call did not run');
+  const bd=document.querySelector('.aui-sig-band'),row=bd&&bd.firstChild;
+  if(!bd)bad.push('band: nothing drawn');
+  else{
+    const cs=getComputedStyle(row);
+    if(cs.animationName!=='aui-sig-band')bad.push('band: not the aui-sig-band animation');
+    const r=$('b').getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+10);
+    if(hit&&hit.closest('.aui-sig'))bad.push('band: it takes clicks');
+    if(boxes()!==b0)bad.push('band: a box moved while it ran');
+  }
+  if(!U.band())bad.push('band: the call on the window did not run');
+  await w(3800);
+  if(document.querySelector('.aui-sig-band'))bad.push('band: still there after its pass');
+  /* rot: idle for data-rot seconds, the frames decay; a key repairs them */
+  await w(3400);
+  const h=$('r').style.getPropertyValue('--h');
+  if(!h)bad.push('rot: two idle seconds and the frame did not decay');
+  document.dispatchEvent(new KeyboardEvent('keydown',{key:'Shift',bubbles:true}));
+  if($('r').style.getPropertyValue('--h'))bad.push('rot: a key did not repair it');
+  if(boxes()!==b0)bad.push('the boxes after every effect are not the boxes before');
+  /* idle: nothing runs, no frame is asked for (the rot waits on a timer) */
+  $('r').setAttribute('data-rot','60');await w(300);window.__raf=0;await w(1500);
+  if(window.__raf)bad.push('idle: '+window.__raf+' frames asked for with nothing running');
+  /* taken off the page: the layer empties, the rot is let go */
+  U.rot($('r'));$('r').remove();$('g').remove();await w(50);
+  if(layer().children.length)bad.push('removed: the layer kept something');
+  return bad.length?bad.join(', '):true})()"""
+SIGNAL_STILL_JS="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],$=id=>document.getElementById(id),U=ASCIIUI;
+  await w(400);const html=document.querySelector('main').innerHTML;window.__raf=0;
+  const ran=[['glitch',U.glitch($('x1'))],['scramble',U.scramble($('s'))],['band',U.band($('b'))],['band (window)',U.band()],['rot',U.rot($('r'))]].filter(x=>x[1]).map(x=>x[0]);
+  if(ran.length)bad.push('ran: '+ran.join(', '));
+  $('g').querySelector('button').setAttribute('aria-pressed','true');await w(2600);
+  const l=document.querySelector('.aui-sig');if(l&&l.children.length)bad.push('something was drawn');
+  if(document.querySelector('main').innerHTML.replace(' aria-pressed="true"',' aria-pressed="false"')!==html)bad.push('the page changed');
+  if(window.__raf)bad.push(window.__raf+' frames asked for');
+  return bad.length?bad.join(', '):true})()"""
+async def signal(b):
+    fails=[];notes=set()
+    path=blank_page(SIGNAL_BODY)
+    try:
+        pg=await b.new_page(viewport={'width':390,'height':844})
+        errs=[];watch(pg,errs,notes)
+        await pg.add_init_script(RAF_COUNT)
+        await pg.goto('file://'+path)
+        # the aria snapshot while the words are noise: it reads the words
+        task=asyncio.ensure_future(pg.evaluate(SIGNAL_JS))
+        for _ in range(200):
+            if await pg.evaluate("!!(window.__sr&&window.__sr.querySelector('aui-noise'))"): break
+            await pg.wait_for_timeout(5)
+        snap=await pg.locator('#s').aria_snapshot()
+        if 'Frames decode into place, left to right. Twice-baked, 4.2 kg.' not in snap: fails.append('signal: the scramble is not read as its words: %s'%snap)
+        r=await task
+        if r is not True: fails.append('signal: '+r)
+        fails+=['signal: '+e for e in errs]
+        await pg.close()
+        for name,kw in (('reduced motion',{'reduced_motion':'reduce'}),('forced colors',{'forced_colors':'active'}),('print',{'media':'print'})):
+            pg=await b.new_page(viewport={'width':390,'height':844})
+            errs=[];watch(pg,errs,notes)
+            await pg.emulate_media(**kw)
+            await pg.add_init_script(RAF_COUNT)
+            await pg.goto('file://'+path)
+            r=await pg.evaluate(SIGNAL_STILL_JS)
+            if r is not True: fails.append('signal (%s): %s'%(name,r))
+            fails+=['signal (%s): %s'%(name,e) for e in errs]
+            await pg.close()
+    finally:
+        os.remove(path)
+    return fails,notes
+
 # Icons are pure css, no data-aui: this is their ALIVE check. Every .icon on
 # the page draws in the kit font: something in its ::before, only characters
 # the font has (printable ASCII, the part both Geist Mono subsets hold), an
@@ -1372,6 +1506,7 @@ async def main():
     async with async_playwright() as p:
         b=await p.chromium.launch()
         f,n=await icons(b);fails+=f;notes|=n
+        f,n=await signal(b);fails+=f;notes|=n
         f,n=await starter(b);fails+=f;notes|=n
         f,n=await edges(b);fails+=f;notes|=n
         f,n=await lifecycle(b);fails+=f;notes|=n

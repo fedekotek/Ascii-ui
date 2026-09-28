@@ -10,7 +10,7 @@ The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one
 - [Components](https://ascii.fedekotek.design/#components): Get the kit, then 36 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview, Code and Usage tabs (Usage: when to use it and when not, anatomy, states, keys, accessibility, do and don't), then Rules.
 - [Blocks](https://ascii.fedekotek.design/#blocks): 16 page-sized compositions (login, stats, table, pricing, settings, a portfolio).
 - [Charts](https://ascii.fedekotek.design/#charts): 5 character-grid charts (bars, line, regions, heatmap, donut), each with Preview and Code tabs. In the kit they are `data-aui="chart"` around a `<table>` (`data-type` bars, line, hbars, heatmap, donut, spark), fire `aui:pick`, and show the table without the script.
-- [Themes](https://ascii.fedekotek.design/#themes): presets, color pickers, the ramp editor, tokens to paste, Labs.
+- [Themes](https://ascii.fedekotek.design/#themes): presets, color pickers, the ramp editor, tokens to paste, Signal, Labs. Signal is the kit's opt-in effects layer: `data-aui-signal="glitch"`, `scramble`, `band` or `rot` on any element, `--aui-signal: calm|normal|loud|off` or `data-aui-signal-level`, the `crt` and `crt interlace` classes; still under reduced motion, forced colors and print.
 
 Every section has an address: `#components/button`, `#themes/tokens`.
 

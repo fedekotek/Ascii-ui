@@ -26,6 +26,12 @@ Added
 - Stepper, `data-aui="stepper"`: a number between two buttons, `data-min` to `data-max`, that scales the `[data-each]` amounts in its card, in metric (g to kg, ml to l). `aui:change` with `{ value }`.
 - A progress bar with `data-cells` draws that many cells without the 24 character floor when it is a `role="meter"`.
 
+<!-- signal -->
+Added
+- **Signal**, the bad signal, opt in. `data-aui-signal` on any element, next to its own `data-aui` or not: `glitch` (a state change inside it, `aria-selected`, `aria-pressed`, `aria-expanded`, `aria-checked`, `aria-current`, `open` or a checkbox, breaks up for two frames), `scramble` (the words decode into place once, on screen), `band` (a band of `- = -` rolls through now and then; on `<html>` down the window) and `rot` (`data-rot` seconds idle and its frames decay; any input repairs them). Several at once with spaces. How loud: `--aui-signal: calm | normal | loud | off` on `:root`, or `data-aui-signal-level` on any element around it. The calls: `ASCIIUI.glitch(el)`, `scramble(el)`, `band(el)`, `rot(el)`, `repair(el)` and `signal(level)`. README has it under Signal.
+- It is paint: strips and bands on one fixed layer that takes no clicks and is `aria-hidden`, a `translate`, a frame's string. No box moves. A scramble keeps its words for a screen reader (`<aui-sr>`) and hides the noise (`<aui-noise>`); live regions are left alone. At most three glitches a second on the page. Noise is magenta and pink, never cyan. Still under reduced motion, forced colors and print, while a field has the focus and in a background tab. Its loop asks for a frame only while an effect draws.
+- `<html class="crt interlace">`: the scanlines every other pixel, fainter.
+
 ## 1.2.1, 2026-09-27
 
 Fixed

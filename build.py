@@ -441,10 +441,12 @@ def tokens_json():
     for k in ('heavy','dense','mid','light','shade','faint','danger','error'):
         V[k+'.rule']=unit(re.search(r'--h-'+k+r':"([^"]*)"',kcss).group(1))
         V[k+'.side']=re.search(r'--s-'+k+r':"([^"]*)"',kcss).group(1)
-    for k,v in re.findall(r'--(aui-[a-z-]+):\s*([^;]+);',kcss):
+    # the motion tokens: times and eases. --aui-signal (a level word) is not one
+    for k,v in re.findall(r'--(aui-[a-z-]+):\s*([^;{}]+);',kcss):
         if k in V: continue
         v=v.strip()
         if k.startswith('aui-ease'): V[k]=v
+        elif not re.fullmatch(r'[\d.]+m?s',v): continue
         else: V[k]=str(round(float(v[:-2]) if v.endswith('ms') else float(v[:-1])*1000))+'ms'
     page=rd('index.html')
     name=lambda v:re.search(r'name="preset" value="'+v+r'"[^>]*><span>([^<]+)</span>',page).group(1).strip()
