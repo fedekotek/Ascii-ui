@@ -55,7 +55,7 @@
   <p class="muted">A page that links ascii-ui.css and ascii-ui.js and nothing else. Below it is every component in the kit, as the Code tab prints it. View the source and take what you need.</p>
   <p class="muted">The three steps are in <a href="README.md">README.md</a>, next to this file. Every component with its code: <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>.</p>
   <nav class="row toc" aria-label="Groups">
-    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a><a href="#charts">Charts</a>
+    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a><a href="#charts">Charts</a><a href="#blocks">Blocks</a>
   </nav>
 
   <!-- ================= Form ================= -->
@@ -639,6 +639,77 @@
   <section class="part" id="chart-spark">
     <h3>Sparkline</h3>
     <p>p95 latency, 182 ms <span class="spark" data-aui="chart" data-type="spark" data-label="p95 latency, last 18 hours" data-values="120 135 128 140 150 162 148 190 260 170 150 148 160 150 152 165 188 182"></span></p>
+  <!-- ================= Blocks: the pieces the page-sized blocks are made of ================= -->
+  <h2 id="blocks">Blocks</h2>
+  <p class="muted">The pieces the Blocks on the site are made of. Each Block's Code tab has the whole thing.</p>
+
+  <section class="part" id="stat">
+    <h3>Stat</h3>
+    <div class="kpis">
+      <div class="kpi"><p class="muted">Uptime, last 90 days</p><pre class="poster ptitle" aria-hidden="true"><span>@@@@@@@@@@  @@@@@@@@@@              @@@@@@@@@@  @@@@@@@@@@</span><span>@@@@@@@@@@  @@@@@@@@@@              @@@@@@@@@@  @@@@@@@@@@</span><span>@@      @@  @@      @@              @@      @@  @@      @@</span><span>@@      @@  @@      @@              @@      @@  @@      @@</span><span>%%      %%  %%      %%              %%      %%  %%      %%</span><span>%%      %%  %%      %%              %%      %%  %%      %%</span><span>%%%%%%%%%%  %%%%%%%%%%              %%%%%%%%%%  %%%%%%%%%%</span><span>%%%%%%%%%%  %%%%%%%%%%              %%%%%%%%%%  %%%%%%%%%%</span><span>        ##          ##                      ##  ##      ##</span><span>        ##          ##                      ##  ##      ##</span><span>        ##          ##                      ##  ##      ##</span><span>        ##          ##                      ##  ##      ##</span><span>**********  **********      **      **********  **********</span><span>**********  **********      **      **********  **********</span></pre><p><span class="vh">99.98 percent.</span><span class="badge b-ok"><span aria-hidden="true">^ +0.02</span><span class="vh">up 0.02</span></span></p></div>
+      <div class="kpi"><p class="muted">p95 latency, milliseconds</p><pre class="poster ptitle" aria-hidden="true"><span>    @@      @@@@@@@@@@  @@@@@@@@@@</span><span>    @@      @@@@@@@@@@  @@@@@@@@@@</span><span>  @@@@      @@      @@          @@</span><span>  @@@@      @@      @@          @@</span><span>    %%      %%      %%          %%</span><span>    %%      %%      %%          %%</span><span>    %%      %%%%%%%%%%  %%%%%%%%%%</span><span>    %%      %%%%%%%%%%  %%%%%%%%%%</span><span>    ##      ##      ##  ##        </span><span>    ##      ##      ##  ##        </span><span>    ##      ##      ##  ##        </span><span>    ##      ##      ##  ##        </span><span>**********  **********  **********</span><span>**********  **********  **********</span></pre><p><span class="vh">182 milliseconds.</span><span class="badge b-warn"><span aria-hidden="true">^ +14</span><span class="vh">up 14</span></span></p></div>
+    </div>
+  </section>
+
+  <section class="part" id="pricing">
+    <h3>Pricing</h3>
+    <div class="grid3 pricing">
+      <div class="lift"><article class="card frame tone-mid"><h4 class="bar-title">Hobby</h4><div class="body"><p class="price">$0 <small>forever</small></p><ul class="feat"><li>3 monitors</li><li>1 status page</li></ul><div class="row full"><button class="btn frame tone-light" type="button" data-aui-toast="Hobby plan selected."><span class="mid"><span class="label">Start free</span></span></button></div></div></article></div>
+      <div class="lift"><article class="card frame tone-heavy"><h4 class="bar-title">Team</h4><span class="badge popular">Popular</span><div class="body"><p class="price">$29 <small>per month</small></p><ul class="feat"><li>50 monitors</li><li>10-second probes</li><li>Glitch alerts</li></ul><div class="row full"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Team plan selected."><span class="mid"><span class="label">Start trial</span></span></button></div></div></article></div>
+    </div>
+  </section>
+
+  <section class="part" id="cards">
+    <h3>Cards to pick</h3>
+    <div class="stack">
+      <div class="grid2" data-aui="pick">
+        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Search: one box, every work order."><article class="card frame tone-mid"><h4 class="bar-title">Search</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a search box and four results">[&gt; torque sensor_  ]
+WO-1182 torque, line 3
+AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="tags"><span class="badge b-violet">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div>
+        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Chat: messaging for people wearing gloves."><article class="card frame tone-mid"><h4 class="bar-title">Chat</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a chat of two lines">JP  belt motor is out
+       on it, 10 min FK
+[&gt; type a message_ ]</pre></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-pink">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div>
+      </div>
+      <p class="muted status" role="status">Pick one.</p>
+    </div>
+  </section>
+
+  <section class="part" id="keyvalue">
+    <h3>Key and value</h3>
+    <dl class="kv">
+      <dt>Reading</dt><dd>Solo Leveling <span class="progress" role="meter" aria-label="Chapters read" aria-valuemin="0" aria-valuemax="100" aria-valuenow="91" aria-valuetext="163 of 179" data-aui="progress" data-cells="14"><span class="bar" aria-hidden="true"></span></span> <span aria-hidden="true">163/179</span></dd>
+      <dt>Charcoal</dt><dd class="qty">4.2 kg</dd>
+      <dt>Based</dt><dd>Palermo, Buenos Aires</dd>
+    </dl>
+  </section>
+
+  <section class="part" id="checklist">
+    <h3>Checklist</h3>
+    <div class="stack">
+      <ul class="checklist" data-aui="checklist" data-done="All work orders closed. Go home.">
+        <li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span>Replace conveyor belt motor</span></label><div class="meta"><span class="badge b-hot">High</span><span>due today</span></div></li>
+        <li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span>Inspect forklift 07 hydraulics</span></label><div class="meta"><span class="badge b-out">Low</span><span>due Wed</span></div></li>
+      </ul>
+      <div class="progress" data-aui="progress" role="progressbar" aria-label="Work orders done" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+    </div>
+  </section>
+
+  <section class="part" id="stepper">
+    <h3>Stepper</h3>
+    <div class="lift"><div class="card frame tone-mid"><h4 class="bar-title">Asado</h4><div class="body">
+      <div class="stepper" data-aui="stepper" data-min="1" data-max="20"><button class="ibtn" type="button" aria-label="Fewer servings">-</button><span aria-live="polite" aria-atomic="true"><b>6</b> people</span><button class="ibtn" type="button" aria-label="More servings">+</button></div>
+      <dl class="kv"><dt>Tira de asado</dt><dd class="qty" data-each="400" data-unit="g">2.4 kg</dd><dt>Chorizo</dt><dd class="qty" data-each="1">6</dd><dt>Malbec</dt><dd class="qty" data-each="0.25" data-unit="l">1.5 l</dd></dl>
+      <ol class="steps"><li>Light the fire 90 minutes before anyone is hungry.</li><li>Embers, not flames.</li></ol>
+    </div></div></div>
+  </section>
+
+  <section class="part" id="navlist">
+    <h3>Navigation list</h3>
+    <ul class="navlist" data-aui="pick" aria-label="Sections">
+      <li><button type="button" aria-current="page">Work orders <span>12</span></button></li>
+      <li><button type="button">Assets <span>148</span></button></li>
+      <li><button type="button">Parts <span>1,204</span></button></li>
+    </ul>
   </section>
 
   <p class="muted" style="margin-top:calc(var(--r)*3)">From <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>. MIT license, the text is in <a href="README.md">README.md</a>.</p>

@@ -8,7 +8,8 @@
    Then any element with data-aui="NAME" gets that behavior, including
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
    popover, combobox, contextmenu, confirm, otp, calendar, chart, pagination,
-   validate, counter, segment, spinner, skeleton.
+   validate, counter, segment, spinner, skeleton, and for the Blocks
+   checklist, pick and stepper.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
      data-aui-close             closes the dialog or the popover it sits in;
@@ -1209,6 +1210,27 @@ var behaviors={
       get data(){return D}
     };
   },
+  /* a list of checkboxes (.checklist). The share ticked goes into the
+     nearest role="progressbar", before or after it, as a percent (or the
+     one data-progress="id" names). Fires aui:change with { done, total }
+     when a person ticks one; data-done="All done." is a toast when the last
+     one is ticked */
+  checklist:function(el,cx){
+    var bar=near(el,'data-progress','[role="progressbar"]',true);
+    function count(){
+      var b=all('input[type="checkbox"]',el),d=b.filter(function(x){return x.checked}).length;
+      return {done:d,total:b.length};
+    }
+    function draw(){var c=count();if(bar)setProgress(bar,c.total?c.done/c.total*100:0);return c}
+    cx.on(el,'change',function(e){
+      if(e.target.type!=='checkbox')return;
+      var c=draw();if(resetting)return;
+      emit(el,'change',c);
+      var w=el.getAttribute('data-done');if(w&&e.target.checked&&c.done===c.total)toast(w);
+    });
+    draw();
+    return {draw:draw,get done(){return count().done},get total(){return count().total}};
+  },
 
   /* a <nav>: data-pages="9" data-page="3". data-href="?page={n}" draws links
      instead of buttons. Fires aui:change on a pick (buttons only; a link goes) */
@@ -1255,6 +1277,44 @@ var behaviors={
       set:function(n){ask(n);draw()},
       get page(){return cur},
       get pages(){return N}
+    };
+  },
+
+  /* a group where one is the pick: its buttons, links and role="button"
+     cards. A click, or Enter or Space on a role="button", picks one. When
+     one of them has aria-current in the html (the pages of an app) the pick
+     takes that; otherwise each has aria-pressed, "true" on the pick. The
+     nearest role="status" says the pick's data-say. Fires aui:change with
+     { item, index } */
+  pick:function(el,cx){
+    function items(){
+      var xs=all('button,a[href],[role="button"]',el);
+      return xs.filter(function(x){return !xs.some(function(o){return o!==x&&o.contains(x)})});
+    }
+    var first=items().filter(function(x){return x.hasAttribute('aria-current')})[0];
+    var cur=first?(first.getAttribute('aria-current')==='false'?'page':first.getAttribute('aria-current')):'',set=[];
+    if(!cur)items().forEach(function(x){if(!x.hasAttribute('aria-pressed')){x.setAttribute('aria-pressed','false');set.push(x)}});
+    cx.later(function(){set.forEach(function(x){x.removeAttribute('aria-pressed')})});
+    function choose(x,quiet){
+      items().forEach(function(o){
+        if(cur){if(o===x)o.setAttribute('aria-current',cur);else o.removeAttribute('aria-current')}
+        else o.setAttribute('aria-pressed',o===x?'true':'false');
+      });
+      if(quiet)return;
+      var w=x.getAttribute('data-say');if(w)say(el,w);
+      emit(el,'change',{item:x,index:items().indexOf(x)});
+    }
+    function hit(t){var x=t.closest&&t.closest('button,a[href],[role="button"]');return x&&items().indexOf(x)>=0?x:null}
+    cx.on(el,'click',function(e){var x=hit(e.target);if(x&&!x.disabled&&x.getAttribute('aria-disabled')!=='true')choose(x)});
+    cx.on(el,'keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ')return;
+      var x=hit(e.target);if(!x||x!==e.target||x.localName==='button'||x.localName==='a')return;
+      e.preventDefault();choose(x);
+    });
+    return {
+      select:function(i){var x=items()[i];if(x)choose(x,true)},
+      get index(){return items().findIndex(function(x){return cur?x.hasAttribute('aria-current'):x.getAttribute('aria-pressed')==='true'})},
+      get item(){var i=this.index;return i<0?null:items()[i]}
     };
   },
 
@@ -1360,6 +1420,40 @@ var behaviors={
     else if(!el.hasAttribute('aria-hidden')){el.setAttribute('aria-hidden','true');set='aria-hidden'}
     cx.later(function(){if(set)el.removeAttribute(set)});
     every(110,function(){f++;el.textContent=fn()},cx);
+  },
+
+  /* .stepper: a button, the number (an <output> or a <b>) and a button. The
+     first takes one off, the last adds one, from data-min (1) to data-max
+     (99); a button at the end of the range turns off and the focus moves to
+     the other. Every [data-each] in the same .card (or the stepper's
+     parent) shows data-each times the number, in data-unit: g turns into
+     kg from 1000 and ml into l, g and ml round to 10, kg and l to one
+     decimal, and no unit rounds up to a whole count. Fires aui:change
+     with { value } */
+  stepper:function(el,cx){
+    var bs=all('button',el),dn=bs[0],up=bs[bs.length-1],out=el.querySelector('output,b');
+    if(!dn||dn===up||!out)return;
+    var v=parseInt(out.textContent,10);
+    function lim(){return [+(el.getAttribute('data-min')||1),+(el.getAttribute('data-max')||99)]}
+    function amount(q,u){
+      if(u==='g'||u==='ml')return q>=1000?(Math.round(q/100)/10)+' '+(u==='g'?'kg':'l'):(Math.round(q/10)*10)+' '+u;
+      if(u)return (Math.round(q*10)/10)+' '+u;
+      return String(Math.max(1,Math.ceil(q)));
+    }
+    function draw(){
+      var l=lim();v=clamp(isNaN(v)?l[0]:v,l[0],l[1]);
+      out.textContent=v;dn.disabled=v<=l[0];up.disabled=v>=l[1];
+      all('[data-each]',el.closest('.card')||el.parentElement).forEach(function(q){q.textContent=amount(+q.getAttribute('data-each')*v,q.getAttribute('data-unit')||'')});
+    }
+    cx.on(el,'click',function(e){
+      var b=e.target.closest('button');if(!b||b.disabled||(b!==dn&&b!==up))return;
+      v+=b===up?1:-1;draw();
+      if(b.disabled)(b===up?dn:up).focus();
+      emit(el,'change',{value:v});
+    });
+    cx.attr=function(){draw()};
+    draw();
+    return {draw:draw,set:function(n){v=Math.round(+n);draw()},get value(){return v}};
   },
 
   /* a <pre>: a card silhouette with a wave through the ramp */
