@@ -20,7 +20,7 @@ SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
     'index.html':        180*KB,     # 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
-    'ascii-ui.html':     210*KB,     # 198 KB: the download, everything embedded
+    'ascii-ui.html':     215*KB,     # 211.6 KB with the kit charts embedded: the download, everything embedded
     'kit/ascii-ui.css':   13*KB,     # 12 KB with print, forced colors, more contrast, the veil and the motion tokens
     'kit/ascii-ui.js':    32*KB,     # 31.1 KB with charts (bars, line, hbars, heatmap, donut, spark); 25.9 KB before them
     'kit/starter.html':    8*KB,     # 7.2 KB with a Charts part, six charts and their tables
@@ -31,7 +31,7 @@ WEIGHT={                             # gzip -9 bytes
     'assets/reel.mp4':  3900*KB,     # 3.7 MB, 15 s at 720p, H.264 for Safari; a visitor fetches one of the two
     'assets/reel-poster.jpg': 60*KB, # 45 KB, lazy, only near the bottom of Home
 }
-TOTAL=9600*KB                        # every file in site/, raw: 2.02 MB with kit 1.2.0, plus 3.7 MB MP4 and 3.2 MB WebM of reel
+TOTAL=9700*KB                        # every file in site/, raw: 2.02 MB with kit 1.2.0, plus 3.7 MB MP4 and 3.2 MB WebM of reel; 9619 KB with kit 1.3.0 frozen and the charts
 
 bad=[]
 for f,cap in WEIGHT.items():
