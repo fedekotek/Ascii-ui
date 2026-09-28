@@ -1308,21 +1308,9 @@ Limits:
           <tr><th scope="col">ID</th><th scope="col">Service</th><th scope="col">Status</th></tr>
         </thead>
         <tbody>
-          <tr tabindex="0">
-            <td>INC-481</td>
-            <td>api-gateway</td>
-            <td><span class="badge b-hot">Down</span></td>
-          </tr>
-          <tr tabindex="0">
-            <td>INC-480</td>
-            <td>checkout</td>
-            <td><span class="badge b-warn">Degraded</span></td>
-          </tr>
-          <tr tabindex="0">
-            <td>INC-479</td>
-            <td>search</td>
-            <td><span class="badge b-ok">Resolved</span></td>
-          </tr>
+          <tr tabindex="0"><td>INC-481</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td></tr>
+          <tr tabindex="0"><td>INC-480</td><td>checkout</td><td><span class="badge b-warn">Degraded</span></td></tr>
+          <tr tabindex="0"><td>INC-479</td><td>search</td><td><span class="badge b-ok">Resolved</span></td></tr>
         </tbody>
       </table>
     </div>
@@ -2080,6 +2068,182 @@ Limits:
 </div>
 ```
 
+<a id="s-datatable"></a>
+### Data table
+
+- Id: `s-datatable`, address `https://ascii.fedekotek.design#components/datatable`
+- Group: Display
+- In the kit: yes, `kit/starter.html#datatable`
+- Caption: A real table that sorts, filters, picks rows and pages. Take the script away and it is still a table.
+- Behaviors:
+  - `data-aui="datatable"`: sorts by column, filters, picks rows with Shift for a range, pages, says the count
+  - `data-aui="pagination"`: draws the pages from data-pages and data-page
+- CSS blocks:
+  - `field`: `.field .field-label .error .count`
+  - `check`: `.check .switch-track`
+  - `datatable`: `[data-aui="datatable"] .dt-tools .dt-count .dt-sort`
+  - `badge`: `.badge`
+  - `ibtn`: `.ibtn`
+  - `pagination`: `[data-aui="pagination"]`
+  - `table`: `.tablewrap .tbl`
+- Use it for:
+  - Records people compare, sort and act on: incidents, orders, invoices, users.
+  - More rows than fit on a screen. The filter narrows them, the pager splits them.
+  - Acting on several rows at once: the checkboxes pick them, your buttons do the rest.
+- Not for:
+  - A handful of facts that nobody sorts. A plain `.tbl`, the Table block, or a list.
+  - One record at a time. That is a [Card and dialog](https://ascii.fedekotek.design/#components/card).
+  - Picking one value from a list. That is a [Select](https://ascii.fedekotek.design/#components/select) or a [Combobox](https://ascii.fedekotek.design/#components/combobox).
+  - Editing cells in place. The kit does not do that; a form in a [Sheet](https://ascii.fedekotek.design/#components/sheet) does.
+
+Anatomy:
+
+```text
+1 > checkout
+2 2 of 24 rows, 1 selected.
+3 [-] ID ^   SERVICE -  STATUS
+4 [@] INC-493 checkout  RESOLVED
+  [ ] INC-490 checkout  RESOLVED
+5 [<] [1] [>]
+6 Page 1 of 1.
+```
+
+1. **filter** `[data-aui-filter]`: An input in a `.field`, with a `<label>`. It keeps the rows that hold every word typed, in any column, case aside.
+2. **count** `.dt-count`: `role="status"`. The kit writes "2 of 24 rows, 1 selected." after every sort, filter and pick.
+3. **sort** `.dt-sort`: A `<button>` in the `<th>`: the column name, then - unsorted, ^ ascending, v descending. The th says it in `aria-sort`.
+4. **picked** `tr.dt-on`: With `data-select` the kit adds a checkbox to every row and a select-all to the head. A picked row is an ink slab and its box says [@].
+5. **pager** `[data-aui="pagination"]`: A [Pagination](https://ascii.fedekotek.design/#components/pagination) inside the box. With `data-page-size` the kit sets its pages and follows its picks.
+6. **status** `.status`: The pager's own line: "Page 1 of 3."
+
+| State | Looks like | What it means |
+|---|---|---|
+| unsorted | `ID -` | Every sortable column starts with `aria-sort="none"` and a faint -. |
+| sorted | `ID ^` | ^ ascending, v descending. A third press puts the rows back in the order they came. |
+| hover | `ID -` | The - goes full. Mouse only. |
+| focus | `ID ^` | A sort button or a checkbox: a slab in the focus color. |
+| checked, picked | `[@] INC-` | The row is an ink slab, `.dt-on`, and its box says [@]. Characters, not only color. |
+| some picked | `[-]` | The select-all says [-] and is `indeterminate` while some rows that match are picked. |
+| no match | `No rows` | A row across every column: "No rows match." (`data-no-match`). The count says "0 of 24 rows." |
+| empty | `No rows` | No rows at all: "No rows yet." (`data-empty`). The pager goes. |
+| loading | `:=+*##*+` | `aria-busy="true"` on the box: a page of skeleton rows with a wave through the ramp, `aria-hidden`. The count says "Loading rows." Still under reduced motion. |
+| wide | `<< scrol` | Wider than its box: it scrolls inside it, and a line under it says so. |
+| no script | `ID` | A plain table: every row shows, the buttons do nothing, the filter filters nothing. |
+
+| Keys | Does |
+|---|---|
+| `Tab`, `Shift Tab` | To the filter, each sort button, each checkbox, the pager. |
+| `Enter`, `Space` | On a sort button: ascending, then descending, then the order the rows came in. |
+| `Space` | On a checkbox: picks the row or lets it go. On the select-all: every row that matches the filter, on every page. |
+| `Shift Space` | On a checkbox: picks, or lets go, every row from the last one you picked to this one. Shift and a click do the same. |
+
+Accessibility:
+- **role**: A real `<table>` with a `<caption>` and `<th scope="col">`. The sort mark is in `aria-sort` on the th, so a screen reader says "sorted ascending".
+- **name**: Each checkbox is named by its row's first cell: "Select INC-493". The head's is "Select all rows". Give the filter a `<label>`.
+- **state**: `aria-sort` on the head, `checked` and `indeterminate` on the boxes, `aria-busy` on the box while it loads.
+- **live**: The `.dt-count` is `role="status"`: it reads the rows that show and how many are picked. The pager says its page in its own line.
+- **focus**: The focus stays where it was: a sort keeps it on its button, a pick on its box, a new page on the page number.
+- **touch**: Sort buttons and checkboxes are 45px tall. On a phone the table scrolls sideways inside its box, never the page.
+- **paint**: ^ v - and the [@] are paint; `aria-sort` and `checked` say it. The skeleton rows are `aria-hidden`.
+
+| Do | Don't |
+|---|---|
+| Give the first column something that names the row: an ID, a name. The checkboxes read it. | Start the table with a column of icons. |
+| Say what a number is in its column name, and keep the unit out of the cell or the same in every row: "Minutes", "Weight, kg". | Mix 300 g and 1.2 kg in one column. They sort as 300 and 1.2. |
+| Page long tables: `data-page-size` and a pager. | Show 400 rows on a phone. |
+| Set `aria-busy="true"` while the rows are coming, and take it off when they are in. | Leave the old rows up while new ones load. |
+
+| Kind | Name | Does |
+|---|---|---|
+| attr | `data-aui="datatable"` | On the box around the `.tablewrap`. Wires what it finds inside. |
+| attr | `data-select` | Adds a checkbox to every row and a select-all to the head. |
+| attr | `data-page-size="8"` | Rows on a page. Needs a pager inside the box, or right after it. Followed live. |
+| attr | `data-aui="pagination"` | The pager, an empty `<nav>` with an `aria-label`, and a `role="status"` after it for its own line. |
+| attr | `data-pages data-page` | Set by the kit on the pager, from the rows that match. Do not set them yourself. |
+| attr | `data-href` | Leave it off the pager here: a link page loads a new page, and the table would start over. |
+| attr | `data-aui-filter` | On an input inside the box: typing narrows the rows. |
+| attr | `data-sort="num\|date\|text\|none"` | On a `<th>`: how its column sorts. Without it the column says: every cell a number (units and a currency sign aside), every cell a `yyyy-mm-dd` date, or else words. A th with `data-sort` and no button gets one; `none` keeps a th with a button out. |
+| attr | `data-value` | On a `<td>`: what it sorts by instead of its words. `S`, `M`, `L` sort as 1, 2, 3. |
+| attr | `aria-sort="ascending"` | On a `<th>` in the HTML: sorted that way on load. |
+| attr | `aria-busy="true"` | On the box: skeleton rows until it goes. Followed live. |
+| attr | `data-empty data-no-match` | The words for no rows at all ("No rows yet.") and for a filter that leaves none ("No rows match."). |
+| class | `.tablewrap .tbl` | The table and the box that scrolls it: the kit's Table. |
+| class | `.dt-tools .dt-count .dt-sort` | The row above the table, the count, the sort buttons. |
+| class | `.dt-pick .dt-on .dt-empty .dt-skel` | Set by the kit: the checkbox cells, a picked row, the empty row, the skeleton rows. |
+| attr | `data-wide` | Set by the kit on the `.tablewrap` while the table is wider than it: the line under it says it scrolls. |
+| event | `aui:sort` | On the box, when a person sorts. `detail`: `{ column, dir, th }`. `column` counts from 0, the checkboxes aside; `dir` is `ascending`, `descending` or `none`. |
+| event | `aui:select` | On the box, when a person picks or lets go. `detail`: `{ rows, count }`, every picked `<tr>`, the ones a filter hides too. |
+| event | `aui:change` | On the pager, when a person picks a page. `detail`: `{ page }`. The table has moved to it already. |
+| call | `ASCIIUI.pagination(el)` | The pager's own calls. To move the table, click its buttons or `filter()` and `sort()` it: the table owns the page. |
+| call | `ASCIIUI.datatable(el)` | `sort(i, dir)`, `filter(text)`, `select("all" \| "none" \| rows)`, `refresh()`, and `rows` (the ones that match), `selected`, `page`. |
+
+See also: [Pagination](https://ascii.fedekotek.design/#components/pagination), [Toggles](https://ascii.fedekotek.design/#components/toggles), [Skeleton](https://ascii.fedekotek.design/#components/skeleton)
+
+Limits:
+- Rows the page adds to or takes from the `<tbody>` are read again. A new `<tbody>` or a new table is not: take the box off the page and put it back.
+- One column sorts at a time. No column resize, no pinned columns, no cells to edit.
+- No `colspan` in the body: a cell is found by its column's place in the head.
+- The filter looks at the words in the cells, not at `data-value`.
+
+```html
+<div data-aui="datatable" data-select data-page-size="8">
+  <div class="dt-tools">
+    <div class="group">
+      <label class="field-label">Filter incidents</label>
+      <div class="field frame tone-light">
+        <div class="mid">
+          <span class="prompt" aria-hidden="true">&gt;</span>
+          <input type="search" data-aui-filter placeholder="checkout, eu-west, down" autocomplete="off" spellcheck="false">
+        </div>
+      </div>
+    </div>
+    <p class="dt-count muted" role="status"></p>
+  </div>
+  <div class="tablewrap">
+    <table class="tbl">
+      <caption class="vh">Incidents, newest first. Sort by a column, filter by any word, pick rows.</caption>
+      <thead>
+        <tr>
+          <th scope="col"><button class="dt-sort" type="button">ID</button></th>
+          <th scope="col"><button class="dt-sort" type="button">Service</button></th>
+          <th scope="col"><button class="dt-sort" type="button">Status</button></th>
+          <th scope="col"><button class="dt-sort" type="button">Opened</button></th>
+          <th scope="col"><button class="dt-sort" type="button">Minutes</button></th>
+          <th scope="col"><button class="dt-sort" type="button">Region</button></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>INC-512</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 22:29</td><td>3</td><td>us-east</td></tr>
+        <tr><td>INC-511</td><td>webhooks</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 21:37</td><td>48</td><td>ap-south</td></tr>
+        <tr><td>INC-510</td><td>cdn-edge</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 20:02</td><td>7</td><td>sa-east</td></tr>
+        <tr><td>INC-509</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 17:22</td><td>21</td><td>eu-west</td></tr>
+        <tr><td>INC-508</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 16:45</td><td>24</td><td>us-east</td></tr>
+        <tr><td>INC-507</td><td>cdn-edge</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 16:08</td><td>94</td><td>ap-south</td></tr>
+        <tr><td>INC-506</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 12:45</td><td>36</td><td>sa-east</td></tr>
+        <tr><td>INC-505</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:37</td><td>6</td><td>eu-west</td></tr>
+        <tr><td>INC-504</td><td>cdn-edge</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:00</td><td>55</td><td>us-east</td></tr>
+        <tr><td>INC-503</td><td>scheduler</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 08:49</td><td>9</td><td>ap-south</td></tr>
+        <tr><td>INC-502</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:41</td><td>58</td><td>sa-east</td></tr>
+        <tr><td>INC-501</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:04</td><td>31</td><td>eu-west</td></tr>
+        <tr><td>INC-500</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:56</td><td>118</td><td>us-east</td></tr>
+        <tr><td>INC-499</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:04</td><td>4</td><td>ap-south</td></tr>
+        <tr><td>INC-498</td><td>billing</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 02:27</td><td>12</td><td>sa-east</td></tr>
+        <tr><td>INC-497</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 01:50</td><td>62</td><td>eu-west</td></tr>
+        <tr><td>INC-496</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 00:15</td><td>15</td><td>us-east</td></tr>
+        <tr><td>INC-495</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:40</td><td>83</td><td>ap-south</td></tr>
+        <tr><td>INC-494</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:03</td><td>42</td><td>sa-east</td></tr>
+        <tr><td>INC-493</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 21:11</td><td>140</td><td>eu-west</td></tr>
+        <tr><td>INC-492</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 20:34</td><td>11</td><td>us-east</td></tr>
+        <tr><td>INC-491</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 18:26</td><td>18</td><td>ap-south</td></tr>
+        <tr><td>INC-490</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:51</td><td>75</td><td>sa-east</td></tr>
+        <tr><td>INC-489</td><td>auth</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:14</td><td>27</td><td>eu-west</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <nav data-aui="pagination" aria-label="Incident pages"></nav>
+  <p class="muted status" role="status"></p>
+</div>
+```
+
 <a id="s-details"></a>
 ### Details
 
@@ -2151,7 +2315,7 @@ Limits:
 <div>
   <details class="acc">
     <summary>What ships in the kit?</summary>
-    <p>Thirty-two components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
+    <p>Thirty-three components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
   </details>
   <details class="acc">
     <summary>Can I change the characters?</summary>

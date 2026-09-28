@@ -128,7 +128,7 @@ got=re.findall(r'data-bar="([a-z0-9-]+)"',html)
 if got!=BARS: fail('bars','the bars on the page are %s, the one bar is %s'%(got,BARS))
 
 # ---------------------------------------------------------------- counts elsewhere
-N={'thirty-two':32,'thirty-four':34}
+N={'thirty-two':32,'thirty-three':33,'thirty-four':34,'thirty-five':35}
 def num(s): return int(s) if s.isdigit() else N.get(s.lower(),-1)
 def counts(where,text):
     hits=0

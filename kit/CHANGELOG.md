@@ -7,6 +7,9 @@ The kit's versions, newest first. Every version lives at its own address that ne
 <!-- charts: the charts builder writes here -->
 
 <!-- table: the data table builder writes here -->
+Added
+- Data table, `data-aui="datatable"` on the box around a `.tablewrap` and its `.tbl`. A `<button class="dt-sort">` in a `<th>` sorts the column (ascending, descending, then the order the rows came in) and says so in `aria-sort`, with `^`, `v` and `-` as paint. Numbers (units and currency signs aside) and `yyyy-mm-dd` dates sort as values; `data-sort="num|date|text|none"` on the th and `data-value` on a td decide instead. An input with `data-aui-filter` narrows the rows to the ones holding every word, a `.dt-count` says "12 of 40 rows, 3 selected.", and a row across every column says "No rows match." (`data-no-match`) or "No rows yet." (`data-empty`). `data-select` adds a checkbox column drawn like the Toggles, a select-all with an indeterminate `[-]`, Shift for a range, and picked rows as ink slabs. `data-page-size` pages the rows through the Pagination inside the box. `aria-busy="true"` draws skeleton rows. On a phone it scrolls sideways inside its box and says so. `aui:sort`, `aui:select`, `ASCIIUI.datatable(el)`.
+- The checkbox glyph says `[-]` while `indeterminate`.
 
 <!-- icons: the icons builder writes here -->
 

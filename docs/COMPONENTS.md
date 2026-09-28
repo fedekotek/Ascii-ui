@@ -1,8 +1,8 @@
 # Components
 
-34 components in `#view-kit`, sorted by the docs builder at runtime (source order in `index.html` is historical): first by group, then alphabetically inside each group. The groups are `KIT_GROUPS` in js/30: Form, Overlay, Display, Feedback, Navigation. A section missing from that list lands in an Other group at the end. The builder puts a `.grouph` label on the page where each group starts, and the sidebar and menu list the parts under the same groups.
+35 components in `#view-kit`, sorted by the docs builder at runtime (source order in `index.html` is historical): first by group, then alphabetically inside each group. The groups are `KIT_GROUPS` in js/30: Form, Overlay, Display, Feedback, Navigation. A section missing from that list lands in an Other group at the end. The builder puts a `.grouph` label on the page where each group starts, and the sidebar and menu list the parts under the same groups.
 
-32 of the 34 are in the kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`, every one of them on `kit/starter.html`). Command and Picture are site only: Command is this site's Search and Picture is the site's LCD engine. Avatar is in the kit without its picture variant.
+33 of the 35 are in the kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`, every one of them on `kit/starter.html`). Command and Picture are site only: Command is this site's Search and Picture is the site's LCD engine. Avatar is in the kit without its picture variant.
 
 The view opens with a `.dochead` (the COMPONENTS bitmap title, `data-nobars`, and one lede). Get the kit (`s-install`, built by `install()` in js/40) comes right after the lede, then the chip index, then the groups. Rules (`s-rules`) closes the page. The sidebar lists Get the kit and Rules first, as Getting started. Inside the view the section posters are hidden by CSS and each section's `h2` shows as a bold uppercase word instead.
 
@@ -31,6 +31,7 @@ The kit text the Code tab reads is embedded at the end of js/40, in `KIT()`, so 
 | Combobox | Overlay | `s-combobox` | A field that narrows a list as you type. | `combobox` | `combobox`, `pane` | css/20 `.combo .opts`, js/30 "overlays" |
 | Command | Overlay | `s-command` | The command menu; on this site it is Search. | site only | `kbd` | js/80, commands in js/20 "command palette" |
 | Context menu | Overlay | `s-contextmenu` | Right-click, long press or Shift F10 opens a menu where you are. | `contextmenu` | `contextmenu`, `pane`, `dropdown` | css/20 `.ctx`, js/30 "overlays" |
+| Data table | Display | `s-datatable` | Sorts, filters, picks rows and pages a real table. | `datatable` (with `pagination` for the pager) | `datatable`, `table`, `check`, `field`, `pagination` | css/14 `[data-aui="datatable"]`, js/30 "data table" |
 | Details | Display | `s-details` | Native details, [+]/[-] marker, answer decodes. | none | `details` | css/11 `.acc`, js/10 |
 | Dropdown | Overlay | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `dropdown` | `dropdown` | css/14 `.pop .menu`, js/30 `AUI_JS.dropdown` |
 | Empty | Feedback | `s-empty` | Nothing here, plus the next step. | `data-aui-toast` | `card` | css/04 tone-faint |

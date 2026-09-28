@@ -18,8 +18,8 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-TGkTdRieHa89IBDxZJMpXBxETn7pCFm8pdXq5+89tiL+qNoAo1aplC5Aj6ELIUn0" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-GADmYbxQ6DC3/kBoRI3PKf1ojt1HFpgJVslt2smDxPKIVEPn9f10LcX/MhaNe5tE" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
@@ -56,6 +56,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form. A letter is refused: `.invalid` on the group, `aria-invalid` on the box, its brackets turn into `!`, and the status line says "Digits only." (`data-error` for other words). The next digit puts it right. Add `.invalid` yourself for a code the server refused |
 | `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. A new month is said out loud, from a hidden live region inside it. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
 | `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. A page past the end is drawn as the last one and kept, so `data-page="12"` and then `data-pages="20"` lands on 12, in either order. `data-href="?page={n}"` draws links instead of buttons |
+| `data-aui="datatable"` | the box around a `.tablewrap` and its `<table class="tbl">` | a `<th>` with a `<button class="dt-sort">` sorts its column: ascending, descending, then back to the order the rows came in, said in `aria-sort`. `data-select` adds a checkbox column and a select-all, Shift picks a range. An input with `data-aui-filter` narrows the rows, `data-page-size="8"` pages them through the `data-aui="pagination"` inside the box, `aria-busy="true"` draws skeleton rows. The `.dt-count` says "12 of 40 rows, 3 selected." See [Data table](#data-table) |
 | `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range when you leave the field and when the form is sent. From then on it checks as you type too, so a fix clears the message at once; nobody is told a word is wrong before they finish it. A value wrong on load shows its message from the start. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
 | `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
 | `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
@@ -87,6 +88,42 @@ The words come from attributes on the input, and a plain default when there is n
 
 When a form is sent with a bad field, the browser's own bubble is replaced by the message in the page, and the first bad field gets the focus. A form with `novalidate` is stopped the same way.
 
+### Data table
+
+The markup is a plain table, so it reads and prints without the script. The kit finds everything inside the box that holds `data-aui="datatable"`:
+
+```html
+<div data-aui="datatable" data-select data-page-size="8">
+  <div class="dt-tools">
+    <div class="group"><label class="field-label">Filter incidents</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="search" data-aui-filter></div></div></div>
+    <p class="dt-count muted" role="status"></p>
+  </div>
+  <div class="tablewrap">
+    <table class="tbl">
+      <caption class="vh">Incidents, newest first.</caption>
+      <thead><tr><th scope="col"><button class="dt-sort" type="button">ID</button></th><th scope="col"><button class="dt-sort" type="button">Minutes</button></th></tr></thead>
+      <tbody><tr><td>INC-512</td><td>3</td></tr></tbody>
+    </table>
+  </div>
+  <nav data-aui="pagination" aria-label="Incident pages"></nav>
+  <p class="muted status" role="status"></p>
+</div>
+```
+
+| Setting | Does |
+|---|---|
+| `<button class="dt-sort">` in a `<th>` | makes the column sortable. A `<th data-sort>` without a button gets one; `data-sort="none"` keeps a column out |
+| `data-sort="num"`, `"date"`, `"text"` | on a `<th>`: how it sorts. Without it the column decides: every cell a number (a unit or a currency sign next to it is fine: `12 kg`, `$1,240`) sorts as numbers, every cell a `yyyy-mm-dd` date (a time after it is fine) as dates, anything else as words, with `10` after `9`. Empty cells go last either way |
+| `data-value` | on a `<td>`: what it sorts by instead of its words |
+| `aria-sort="ascending"` | on a `<th>` in the HTML: sorted that way on load |
+| `data-aui-filter` | on an input in the box: keeps the rows holding every word typed, in any column, case aside. "No rows match." fills a row across every column (`data-no-match` for other words) |
+| `data-select` | a checkbox in every row, named by the row's first cell ("Select INC-512"), and a select-all in the head that is `indeterminate` while some are picked. It picks every row that matches the filter, on every page. Shift and a click, or Shift and Space, picks the range from the last pick. A picked row is an ink slab (`.dt-on`) and its box says `[@]` |
+| `data-page-size="8"` | rows on a page. The kit sets `data-pages` and `data-page` on the pager inside the box (or right after it) and follows its picks. Without a pager every row shows |
+| `aria-busy="true"` | on the box: the rows step out and a page of skeleton rows (`.dt-skel`, `aria-hidden`) waves through the ramp until it goes. The count says "Loading rows." |
+| `data-empty` | the words for a table with no rows at all: "No rows yet." |
+
+Rows your script adds to or takes from the `<tbody>` are read again: they get their checkbox, the sort and the filter. On a phone the table scrolls sideways inside `.tablewrap`, never the page, and `<< scrolls sideways >>` under it says so (`data-wide`, set by the kit).
+
 ## Events
 
 Every event bubbles, starts with `aui:` and carries its details in `event.detail`. They fire for what a person does, not on load and not for the calls below, so setting a value from your script does not loop back into your listener. A field that is bad on load shows its message and fires nothing; a code filled on load or by `otp(el).value` is accepted and fires nothing.
@@ -101,6 +138,8 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | OTP | `aui:complete` on the `.otp`, when every box holds a digit | `{ value }` |
 | Calendar | `aui:change` on the calendar | `{ date, value }` (`value` is `yyyy-mm-dd`) |
 | Pagination | `aui:change` on the `<nav>`, buttons only (a link just goes) | `{ page }` |
+| Data table | `aui:sort` on the box, when a person sorts | `{ column, dir, th }` (`column` from 0, the checkboxes aside; `dir` is `ascending`, `descending` or `none`) |
+| Data table | `aui:select` on the box, when a person picks or lets go | `{ rows, count }` (every picked `<tr>`, the ones a filter hides too) |
 | Segment | `aui:change` on the `.tgroup`, when a person picks | `{ value, label, input }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
@@ -128,6 +167,7 @@ document.addEventListener('aui:change', e => {
 | `progress(el, pct)` | sets a progress bar |
 | `tabs(el)` | `select(i)`, `index`, `tab` |
 | `pagination(el)` | `set(n)`, `page`, `pages` |
+| `datatable(el)` | `sort(i, dir)` (`i` from 0, `dir` `"ascending"`, `"descending"` or `"none"`), `filter(text)`, `select("all" \| "none" \| rows)`, `refresh()`, `rows` (the ones that match), `selected`, `page` |
 | `calendar(el)` | `set(date)` (a `Date` or `"2026-09-26"`, `null` clears it), `date`, `value` |
 | `dropdown(el)` | `open()`, `close()`, `toggle()`, `isOpen` |
 | `popover(el)` | `open()`, `close()`, `toggle()`, `isOpen` |
@@ -150,7 +190,7 @@ ASCIIUI.calendar(document.querySelector('.cal')).set('2026-12-24');
 
 A component is wired when it lands on the page and torn down when it leaves it: its listeners (on the page, the window and the component), its observers and its animation go with it. Put the same element back and it is wired again. Moving an element in one go does neither. So frameworks that add and remove markup (a router, a list that re-renders) need nothing extra.
 
-Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`. `aria-valuenow` redraws a progress bar.
+Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`. `aria-valuenow` redraws a progress bar. `aria-busy` and `data-page-size` redraw a data table.
 
 `ASCIIUI.destroy(el)` tears one down by hand, with everything inside it. `ASCIIUI.init(el)` wires it again.
 
@@ -174,6 +214,7 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 | Validate | the browser's own checks and bubble |
 | Counter | no count |
 | Calendar, pagination | nothing is drawn: put a date input or plain links in them as a fallback, the script replaces them |
+| Data table | a plain table with every row: the sort buttons and the filter do nothing, no checkboxes, no pages |
 | Spinner, skeleton | nothing moves; the skeleton is empty |
 | Toast | nothing shows |
 
@@ -262,6 +303,7 @@ Current Chromium (Chrome, Edge, Opera, Samsung Internet), Firefox 121 and later,
 - The calendar picks one day, not a range.
 - Popovers, the combobox list and the context menu go to the top layer where the browser has the Popover API. Without it (Safari before 17, Firefox before 125) a panel inside a box that scrolls or clips is cut off at that box's edge, as the dropdown's menu is everywhere.
 - The combobox picks one option, not several.
+- A data table sorts by one column at a time, has no `colspan` in its body, and does not edit cells. A new `<tbody>` is not read: take the box off the page and put it back.
 - Motion runs on `requestAnimationFrame`, only while the element is on screen. With `prefers-reduced-motion` nothing animates.
 
 ## License

@@ -292,6 +292,20 @@ async def starter(b):
     s2=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
     ok('spinner: moves',s1!=s2 and all(s1.split('~~')),[s1,s2])
     ok('skeleton: drawn',await ev("document.querySelector('.skel').textContent.trim().length>20"))
+    # data table by keyboard: Enter and Space on a sort button, Space and Shift Space on the checkboxes
+    dth="document.querySelectorAll('#datatable thead th')"
+    await pg.focus('#datatable .dt-sort'); await pg.keyboard.press('Enter')
+    ok('datatable: Enter sorts up',await ev("%s[1].getAttribute('aria-sort')==='ascending'&&getComputedStyle(%s[1].querySelector('.dt-sort'),'::after').content.includes('^')"%(dth,dth)))
+    await pg.keyboard.press(' ')
+    ok('datatable: Space sorts down',await ev("%s[1].getAttribute('aria-sort')==='descending'"%dth))
+    await pg.keyboard.press(' ')
+    await pg.focus('#datatable tbody tr:not([hidden]) .dt-pick input'); await pg.keyboard.press(' ')
+    await pg.keyboard.press('Tab'); await pg.keyboard.press('Tab'); await pg.keyboard.press('Shift+Space')
+    ok('datatable: Space picks, Shift Space picks the range',await ev("document.querySelectorAll('#datatable tbody tr.dt-on').length===3&&document.querySelector('#datatable thead .dt-pick input').indeterminate&&document.querySelector('#datatable .dt-count').textContent.endsWith('3 selected.')"),
+       await ev("document.querySelector('#datatable .dt-count').textContent"))
+    await pg.fill('#datatable [data-aui-filter]','zzz')
+    ok('datatable: nothing matches says so',await ev("document.querySelector('#datatable .dt-empty').textContent==='No rows match.'"))
+    await pg.fill('#datatable [data-aui-filter]','')
     ok('no duplicate ids',not await ev(DUPES),await ev(DUPES))
     # dark theme via data-theme
     await ev("document.documentElement.setAttribute('data-theme','dark')")
@@ -325,6 +339,7 @@ ALIVE={
  'otp':"el.querySelectorAll('input').length===6",
  'calendar':"el.querySelectorAll('[data-day]').length>=28",
  'pagination':"el.querySelectorAll('button').length>=5",
+ 'datatable':"(()=>{const c=el.querySelector('.dt-count'),th=[...el.querySelectorAll('thead th[aria-sort]')],rows=[...el.querySelectorAll('tbody tr')].filter(r=>!r.matches('.dt-empty,.dt-skel'));return th.length>0&&th.every(t=>t.getAttribute('aria-sort')==='none')&&(!c||/^\\d+ of \\d+ rows?/.test(c.textContent))&&(!el.hasAttribute('data-select')||rows.every(r=>r.querySelector('.dt-pick input[type=checkbox]')))})()",
  'validate':"el.getAttribute('aria-invalid')!==null",
  'counter':"el.closest('.group').querySelector('.count').textContent.includes('/')",
  'spinner':"el.textContent.length>0",
@@ -449,7 +464,13 @@ TWICE_JS="""(name)=>{
     slider:()=>{const i=b.querySelector('input');i.value=100;fire(i,'input');return b.querySelector('output').textContent==='100'&&a.querySelector('output').textContent!=='100'&&b.querySelector('label').control===i&&a.querySelector('label').control===a.querySelector('input')},
     otp:()=>{const i=b.querySelector('input');i.value='5';fire(i,'input');return /^1 of/.test(st(1))&&!/^1 of/.test(st(0))},
     calendar:()=>{const d=new Date().getDate()===15?16:15;b.querySelector('[data-day="'+d+'"]').click();return st(1)!==st(0)&&st(1).includes(String(d))},
-    pagination:()=>{b.querySelector('[aria-label="Next page"]').click();return st(1)==='Page 4 of 9.'&&st(0)==='Page 3 of 9.'},
+    pagination:()=>{if(b.closest('[data-aui=datatable]'))return true;   /* a data table's pager: the data table's own check pages it */
+      b.querySelector('[aria-label="Next page"]').click();return st(1)==='Page 4 of 9.'&&st(0)==='Page 3 of 9.'},
+    datatable:()=>{const s0=st(0),bt=b.querySelectorAll('.dt-sort')[1],i=b.querySelector('[data-aui-filter]');bt.click();
+      i.value='checkout';fire(i,'input');const on=b.querySelector('tbody tr:not([hidden]) .dt-pick input');if(on)on.click();
+      const ok=bt.closest('th').getAttribute('aria-sort')==='ascending'&&a.querySelectorAll('.dt-sort')[1].closest('th').getAttribute('aria-sort')==='none'&&
+        /^2 of \\d+ rows, 1 selected\\.$/.test(st(1))&&st(0)===s0&&!a.querySelector('tr.dt-on')&&a.querySelector('[data-aui-filter]').value==='';
+      i.value='';fire(i,'input');return ok},
     validate:()=>{b.value='';fire(b,'input');fire(b,'blur');const ea=document.getElementById(a.getAttribute('aria-describedby')),eb=document.getElementById(b.getAttribute('aria-describedby'));
       return eb&&ea&&eb!==ea&&eb.textContent.startsWith('Enter')&&!ea.textContent.startsWith('Enter')&&own(1,'.error')===eb},
     counter:()=>{b.value='hi';fire(b,'input');return own(1,'.count').textContent==='2/280'&&own(0,'.count').textContent==='0/280'},
@@ -748,6 +769,78 @@ EDGES=[
     ASCIIUI.combobox($('c')).set(null);type('atlantis');i.blur();$('away').focus();
     if(document.querySelector('.error').textContent!=='Pick one.'||i.getAttribute('aria-invalid')!=='true')bad.push('no error for words that are not an option');
     if(!i.labels.length||i.getAttribute('role')!=='combobox')bad.push('label or role');
+    return bad.length?bad.join(', '):true})()"""),
+ # 1.3.0: the data table. Three on one page: they sort, filter, pick and page on their own
+ ('data table: sort, filter, empty, pick, Shift range, loading, pages, three on one page',
+  '<div id="a" data-aui="datatable" data-select data-page-size="3" data-no-match="Nothing matches."><div class="dt-tools"><div class="group"><label class="field-label">Filter</label><div class="field frame tone-light"><div class="mid"><input type="search" data-aui-filter></div></div></div><p class="dt-count muted" role="status"></p></div>'
+  '<div class="tablewrap"><table class="tbl"><thead><tr><th scope="col"><button class="dt-sort" type="button">Name</button></th><th scope="col"><button class="dt-sort" type="button">Weight</button></th><th scope="col"><button class="dt-sort" type="button">Date</button></th><th scope="col" data-sort="num">Size</th><th scope="col">Note</th></tr></thead><tbody>'
+  '<tr><td>Apple</td><td>1.2 kg</td><td>2026-03-01</td><td data-value="1">S</td><td>x</td></tr>'
+  '<tr><td>banana</td><td>12 kg</td><td>2025-12-24</td><td data-value="3">L</td><td>x</td></tr>'
+  '<tr><td>Cherry</td><td>0.3 kg</td><td>2026-04-10</td><td data-value="3">L</td><td>x</td></tr>'
+  '<tr><td>date</td><td>2 kg</td><td>2026-01-15</td><td data-value="2">M</td><td>x</td></tr>'
+  '<tr><td>Elder</td><td></td><td>2026-02-01</td><td data-value="1">S</td><td>x</td></tr>'
+  '</tbody></table></div><nav data-aui="pagination" aria-label="Pages"></nav><p class="muted status" role="status"></p></div>'
+  '<div id="b" data-aui="datatable" data-select><p class="dt-count muted" role="status"></p><div class="tablewrap"><table class="tbl"><thead><tr><th scope="col"><button class="dt-sort" type="button">Name</button></th></tr></thead><tbody><tr><td>one</td></tr><tr><td>two</td></tr></tbody></table></div></div>'
+  '<div id="c" data-aui="datatable" data-empty="Nothing yet."><p class="dt-count muted" role="status"></p><div class="tablewrap"><table class="tbl"><thead><tr><th scope="col"><button class="dt-sort" type="button">Name</button></th></tr></thead><tbody></tbody></table></div></div>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],A=$('a'),B=$('b'),C=$('c');
+    const data=t=>[...t.querySelectorAll('tbody tr')].filter(r=>!r.matches('.dt-empty,.dt-skel'));
+    const names=t=>data(t).map(r=>r.cells[1].textContent).join(),vis=t=>data(t).filter(r=>!r.hidden).map(r=>r.cells[1].textContent).join();
+    const cnt=t=>t.querySelector('.dt-count').textContent,th=i=>A.querySelectorAll('thead th')[i],sb=i=>A.querySelectorAll('thead th')[i].querySelector('button');
+    const ev=[];A.addEventListener('aui:sort',e=>ev.push('sort:'+e.detail.column+':'+e.detail.dir));A.addEventListener('aui:select',e=>ev.push('select:'+e.detail.count));
+    if(cnt(A)!=='5 of 5 rows.')bad.push('count on load: '+cnt(A));
+    if(vis(A)!=='Apple,banana,Cherry')bad.push('page 1 on load: '+vis(A));
+    if(A.querySelector('[data-aui=pagination]').getAttribute('data-pages')!=='2')bad.push('pager pages: '+A.querySelector('[data-aui=pagination]').getAttribute('data-pages'));
+    if(![...A.querySelectorAll('thead th')].slice(1,5).every(t=>t.getAttribute('aria-sort')==='none'))bad.push('aria-sort none on load');
+    if(th(5).hasAttribute('aria-sort')||th(5).querySelector('button'))bad.push('a th without a button or data-sort became sortable');
+    if(!th(4).querySelector('button.dt-sort'))bad.push('data-sort did not make the th a button');
+    /* numbers sort as numbers (units aside), the empty one last either way */
+    sb(2).click();if(th(2).getAttribute('aria-sort')!=='ascending'||names(A)!=='Cherry,Apple,date,banana,Elder')bad.push('weight up: '+names(A));
+    sb(2).click();if(th(2).getAttribute('aria-sort')!=='descending'||names(A)!=='banana,date,Apple,Cherry,Elder')bad.push('weight down: '+names(A));
+    sb(2).click();if(th(2).getAttribute('aria-sort')!=='none'||names(A)!=='Apple,banana,Cherry,date,Elder')bad.push('third click is not the order it came in: '+names(A));
+    sb(1).click();if(names(A)!=='Apple,banana,Cherry,date,Elder'||th(2).getAttribute('aria-sort')!=='none')bad.push('words: '+names(A));
+    sb(3).click();if(names(A)!=='banana,date,Elder,Apple,Cherry'||th(1).getAttribute('aria-sort')!=='none')bad.push('dates: '+names(A));
+    sb(4).click();if(names(A)!=='Apple,Elder,date,banana,Cherry')bad.push('data-value with data-sort=num, ties in order: '+names(A));
+    if(ev.join()!=='sort:1:ascending,sort:1:descending,sort:1:none,sort:0:ascending,sort:2:ascending,sort:3:ascending')bad.push('aui:sort: '+ev.join());
+    /* filter: every word, the count, the empty row across every column */
+    const f=A.querySelector('[data-aui-filter]'),type=v=>{f.value=v;f.dispatchEvent(new Event('input',{bubbles:true}))};
+    type('ban 12');if(vis(A)!=='banana'||cnt(A)!=='1 of 5 rows.')bad.push('filter: '+vis(A)+' / '+cnt(A));
+    type('zzz');const em=A.querySelector('.dt-empty');
+    if(!em||em.textContent!=='Nothing matches.'||em.firstChild.colSpan!==6||cnt(A)!=='0 of 5 rows.')bad.push('no match: '+(em&&em.textContent)+' / '+cnt(A));
+    type('');if(A.querySelector('.dt-empty')||vis(A)!=='Apple,Elder,date')bad.push('filter cleared: '+vis(A));
+    /* pages: the pager drives the rows */
+    A.querySelector('[aria-label="Next page"]').click();
+    if(vis(A)!=='banana,Cherry'||A.querySelector('.status:last-child').textContent!=='Page 2 of 2.')bad.push('page 2: '+vis(A));
+    A.querySelector('[aria-label="Page 1"]').click();
+    /* picks: a click, a Shift range, the select-all and its indeterminate state */
+    const box=r=>r.querySelector('.dt-pick input'),all=A.querySelector('thead .dt-pick input'),rows=data(A);
+    if(!all||all.getAttribute('aria-label')!=='Select all rows'||box(rows[0]).getAttribute('aria-label')!=='Select Apple')bad.push('checkbox names');
+    box(rows[0]).click();
+    box(rows[2]).dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,shiftKey:true}));box(rows[2]).click();
+    if(data(A).filter(r=>box(r).checked).map(r=>r.cells[1].textContent).join()!=='Apple,Elder,date')bad.push('Shift range: '+data(A).filter(r=>box(r).checked).map(r=>r.cells[1].textContent));
+    if(!all.indeterminate||all.checked)bad.push('select-all is not indeterminate');
+    if(A.querySelectorAll('tr.dt-on').length!==3||cnt(A)!=='5 of 5 rows, 3 selected.')bad.push('picked rows: '+cnt(A));
+    all.click();if(!all.checked||all.indeterminate||data(A).some(r=>!box(r).checked))bad.push('select-all did not pick every row');
+    all.click();if(all.checked||data(A).some(r=>box(r).checked))bad.push('select-all did not clear');
+    if(ev.slice(-4).join()!=='select:1,select:3,select:5,select:0')bad.push('aui:select: '+ev.slice(-4).join());
+    /* loading: skeleton rows while aria-busy, the rows back after */
+    A.setAttribute('aria-busy','true');await w(40);
+    const sk=A.querySelectorAll('.dt-skel');
+    if(sk.length!==3||sk[0].getAttribute('aria-hidden')!=='true'||!sk[0].textContent.trim()||vis(A)!==''||cnt(A)!=='Loading rows.')bad.push('loading: '+sk.length+' / '+cnt(A));
+    A.removeAttribute('aria-busy');await w(40);
+    if(A.querySelector('.dt-skel')||vis(A)!=='Apple,Elder,date')bad.push('after loading: '+vis(A));
+    /* the other two did not move */
+    if(cnt(B)!=='2 of 2 rows.'||B.querySelector('th[aria-sort]:not([aria-sort=none])')||B.querySelector('.dt-on'))bad.push('the second table changed: '+cnt(B));
+    if(cnt(C)!=='0 of 0 rows.'||!C.querySelector('.dt-empty')||C.querySelector('.dt-empty').textContent!=='Nothing yet.')bad.push('no data: '+cnt(C));
+    /* rows the page adds are read, with their checkbox */
+    const tr=document.createElement('tr');tr.innerHTML='<td>three</td>';B.querySelector('tbody').appendChild(tr);await w(20);
+    if(cnt(B)!=='3 of 3 rows.'||!tr.querySelector('.dt-pick input'))bad.push('an added row: '+cnt(B));
+    B.querySelector('.dt-sort').click();B.querySelector('.dt-sort').click();
+    if(names(B)!=='two,three,one')bad.push('second table sorted down: '+names(B));
+    /* the calls */
+    const api=ASCIIUI.datatable(A);api.sort(1,'descending');
+    if(th(2).getAttribute('aria-sort')!=='descending'||names(A)!=='banana,date,Apple,Cherry,Elder')bad.push('sort(1): '+names(A));
+    api.filter('apple');if(api.rows.length!==1||f.value!=='apple')bad.push('filter(): '+api.rows.length);
+    api.select('all');if(api.selected.length!==5)bad.push('select(all): '+api.selected.length);
     return bad.length?bad.join(', '):true})()"""),
 ]
 

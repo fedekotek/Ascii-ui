@@ -10,7 +10,7 @@ does (AUI.usageModel: the words from AUI_DOCS in js/90, and what the kit says
 about itself, read from KIT() in js/40), and checks:
   1. coverage: every component has an entry with all of use, avoid, anatomy,
      states, keys, a11y, dos (do and don't) and see. A component with no entry
-     at all fails when it is one of the thirty-four below (COMPONENTS), and is a
+     at all fails when it is one of the thirty-five below (COMPONENTS), and is a
      note when it is new: its tab says "not written yet" and shows what the
      kit says about it, so nothing is broken while its words are written
   2. every entry belongs to a component on the page, and every {s-id} it names
@@ -46,11 +46,11 @@ from playwright.sync_api import sync_playwright
 
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
 SKIP=('s-install','s-rules','s-foundations')
-# the thirty-four components with words. A new component starts as a note, not a failure
+# the thirty-five components with words. A new component starts as a note, not a failure
 COMPONENTS=('s-button','s-input','s-toggles','s-slider','s-tabs','s-card','s-progress','s-details','s-badge','s-alert',
             's-select','s-skeleton','s-avatar','s-breadcrumb','s-calendar','s-command','s-dropdown','s-empty','s-otp',
             's-kbd','s-pagination','s-picture','s-separator','s-sheet','s-spinner','s-textarea','s-timeline','s-toast',
-            's-togglegroup','s-tooltip','s-popover','s-combobox','s-alertdialog','s-contextmenu')
+            's-togglegroup','s-tooltip','s-popover','s-combobox','s-alertdialog','s-contextmenu','s-datatable')
 REQUIRED=('use','avoid','anatomy','states','keys','a11y','dos','see')
 SITE_ONLY=('s-command','s-picture')
 
@@ -106,7 +106,7 @@ def check(data):
     for i in data['ids']:
         if i not in ids: fails.append('%s: an entry for a component that is not on the page'%i)
     for c in COMPONENTS:
-        if c not in ids: fails.append('%s: one of the thirty-four is not on the page'%c)
+        if c not in ids: fails.append('%s: one of the thirty-five is not on the page'%c)
     for r in rows:
         raw=r.get('raw');i=r['id']
         # 1 coverage

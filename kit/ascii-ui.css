@@ -289,6 +289,43 @@ legend{padding:0;margin-bottom:var(--r)}
 .progress .bar{min-width:24ch;min-height:var(--r)}
 .progress .pct{white-space:pre}
 
+/* ==== datatable: [data-aui="datatable"] .dt-tools .dt-count .dt-sort ==== */
+/* A .tbl that sorts, filters, picks rows and pages. data-aui="datatable" on
+   the box around it. The sort mark is paint: aria-sort on the th says it. */
+[data-aui="datatable"]{display:grid;gap:var(--r);min-width:0;justify-self:stretch}
+.dt-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--r) 2ch}
+.dt-tools .group{flex:1 1 24ch}
+.dt-count{white-space:nowrap}
+.dt-sort{
+  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;background:none;border:0;border-radius:0;
+  margin:-12px -1ch;padding:12px 1ch;cursor:pointer;outline:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+}
+.dt-sort::after{content:" -";content:" -" / "";opacity:.6}
+[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / "";opacity:1}
+[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / "";opacity:1}
+.dt-sort:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.dt-sort:hover::after{opacity:1}}
+/* the checkbox column: the glyph takes the row's color, so it reads on a slab */
+.dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
+.dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
+.dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
+.check input[type="checkbox"]:not([role]):indeterminate + .glyph::before{content:"[-]";content:"[-]" / ""}
+/* a picked row is an ink slab, and its box says [@] */
+.tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
+.tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink)}
+/* stripes count the rows that show, not the ones a filter or a page hid */
+[data-aui="datatable"] .tbl tbody tr:nth-child(even){background:none}
+[data-aui="datatable"] .tbl tbody tr:nth-child(even of :not([hidden],.dt-skel,.dt-empty)){background:color-mix(in srgb,var(--ink) 7%,transparent)}
+[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:var(--ink)}
+.dt-empty td{color:var(--muted);white-space:normal}
+.dt-skel td{color:var(--muted);font-weight:700;overflow:hidden}
+/* wider than its box: it scrolls inside it, and says so under the table */
+[data-aui="datatable"] .tablewrap{position:relative}
+[data-aui="datatable"] .tablewrap[data-wide]::after{
+  content:"<< scrolls sideways >>";content:"<< scrolls sideways >>" / "";
+  display:block;position:sticky;left:0;height:var(--r);color:var(--muted);white-space:nowrap;
+}
+
 /* ==== tabs: .tablist .tab .tabpanel ==== */
 /* The active tab is a slab. data-aui="tabs" on the tablist wires the arrows. */
 .tablist{display:flex;flex-wrap:wrap;position:relative;padding-bottom:var(--r)}
@@ -732,6 +769,8 @@ kbd::after{content:"]";content:"]" / ""}
   body:has(dialog[open]){overflow:visible !important}
   .tablewrap,.progress{overflow:visible !important}
   .skel .f{opacity:1}
+  /* a data table prints the rows it shows, without the controls around them */
+  .dt-tools .field,.dt-pick,.dt-skel,[data-aui="datatable"] [data-aui="pagination"],[data-aui="datatable"] .tablewrap::after{display:none !important}
   /* keep a thing together, and a title with what follows it */
   .lift,.card,.frame,.acc,.cal,.otp,.field,.alert,.tbl tr,.timeline li{break-inside:avoid}
   h1,h2,h3,legend,.field-label{break-after:avoid}
@@ -751,15 +790,16 @@ kbd::after{content:"]";content:"]" / ""}
     .tab[aria-selected="true"],.ibtn[aria-current="page"],.cal-grid button[aria-pressed="true"],
     .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
     .crumbs [aria-current] span,.opts [role="option"][aria-selected="true"],
-    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast > span,.tip,.avatar,.tbl th
+    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast > span,.tip,.avatar,.tbl th,
+    .tbl tbody tr.dt-on,.tbl tbody tr.dt-on td
   ){forced-color-adjust:none !important;background:CanvasText !important;color:Canvas !important}
-  :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
+  :where(.tbl tbody tr[aria-selected="true"] .badge,.tbl tbody tr.dt-on .badge){background:Canvas !important;color:CanvasText !important}
   .tip::after{forced-color-adjust:none;color:CanvasText}
   :where(
     a:focus-visible,.tab:focus-visible,.crumbs a:focus-visible,.cal-grid button:focus-visible,.ibtn:focus-visible,
     .btn-primary:focus-visible .label,.otp input:focus,.tgroup input:focus-visible + span,
     .check input:focus-visible + .glyph,.sheet-x:focus-visible,.toast-x:focus-visible,
-    .menu [role="menuitem"]:focus-visible,.opts [role="option"][data-active]
+    .menu [role="menuitem"]:focus-visible,.opts [role="option"][data-active],.dt-sort:focus-visible
   ){forced-color-adjust:none !important;background:Highlight !important;color:HighlightText !important}
   .acc summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
   :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
