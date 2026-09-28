@@ -1,6 +1,6 @@
 # ascii/ui kit
 
-Version 1.2.1. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
+Version 1.3.0. What changed from version to version is in [CHANGELOG.md](CHANGELOG.md).
 
 The kit is two files, `ascii-ui.css` and `ascii-ui.js`. No package, no build step, no dependencies. `starter.html`, next to this file, is a page that links the two and nothing else, with every component on it. The whole site as one HTML file is a separate download, from the footer of https://ascii.fedekotek.design.
 
@@ -18,21 +18,21 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-25L3QwC4krEBOsCiInpwp5px/Vl6vRvXS+38N/h7IOn5OqGj47Xir+6EGUyAXvUj" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-M27EC9Vn8ZbgJMWGz76YHT3zvCFYns9kWi+93LcdTH3Hysp0UXp6A9tE69XcvWQf" crossorigin="anonymous"></script>
 ```
 
-Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
+Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0, 1.2.1 and 1.3.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
 
 The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a Latin-1 subset, 19 kB, SIL OFL 1.1, the license is `fonts/OFL.txt`). Linked from this site, it comes from here too, and nothing asks Google or anyone else. With your own copies, put the `fonts/` folder next to `ascii-ui.css`, or leave it out: an installed Geist Mono is used first, then the system monospace. `LICENSE.txt` sits next to the two files on the site.
 
 ## Use it in three steps
 
-Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. Command, Picture and the Blocks that need the site's own css say so instead.
+Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. The Blocks have it too (see [Blocks](#blocks)). Command, Picture and a Block with a part the kit cannot draw yet say so instead.
 
 1. Link the two files, as above.
 2. Open a component on https://ascii.fedekotek.design/#components, pick its Code tab and copy the HTML.
-3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the Blocks, and the two components marked site only), it says which, so you know what to write yourself.
+3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the two components marked site only, and a Block still waiting for a part), it says which, so you know what to write yourself.
 
 The HTML has no ids. Each component finds its parts inside the element around it, and ascii-ui.js makes the ids that accessibility needs (a label's `for`, a tab's `aria-controls`), so the same component pasted twice is two working copies.
 
@@ -56,11 +56,16 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form. A letter is refused: `.invalid` on the group, `aria-invalid` on the box, its brackets turn into `!`, and the status line says "Digits only." (`data-error` for other words). The next digit puts it right. Add `.invalid` yourself for a code the server refused |
 | `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. A new month is said out loud, from a hidden live region inside it. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
 | `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. A page past the end is drawn as the last one and kept, so `data-page="12"` and then `data-pages="20"` lands on 12, in either order. `data-href="?page={n}"` draws links instead of buttons |
+| `data-aui="datatable"` | the box around a `.tablewrap` and its `<table class="tbl">` | a `<th>` with a `<button class="dt-sort">` sorts its column: ascending, descending, then back to the order the rows came in, said in `aria-sort`. `data-select` adds a checkbox column and a select-all, Shift picks a range. An input with `data-aui-filter` narrows the rows, `data-page-size="8"` pages them through the `data-aui="pagination"` inside the box, `aria-busy="true"` draws skeleton rows. The `.dt-count` says "12 of 40 rows, 3 selected." See [Data table](#data-table) |
 | `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range when you leave the field and when the form is sent. From then on it checks as you type too, so a fix clears the message at once; nobody is told a word is wrong before they finish it. A value wrong on load shows its message from the start. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
 | `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
 | `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
 | `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill`. The frames are hidden from screen readers: with an `aria-label` the spinner is `role="img"` and read as that word; without one it is `aria-hidden`, so put the wait in words next to it |
 | `data-aui="skeleton"` | a `<pre class="skel">` | a card silhouette with a wave through the ramp |
+| `data-aui="chart"` | a `.chart` around a `<table>` | draws the table in characters, see [Charts](#charts). `data-type="bars"` (the default), `line`, `hbars`, `heatmap`, `donut`; `data-type="spark"` on a `.spark` reads `data-values` instead |
+| `data-aui="checklist"` | a `.checklist` of checkboxes | puts the share ticked, as a percent, into the nearest `role="progressbar"` before or after it (or the one `data-progress="id"` names). `data-done="All done."` is a toast when a person ticks the last one |
+| `data-aui="pick"` | a group of buttons, links or `role="button"` cards | one of them is the pick: a click, or Enter or Space on a `role="button"`. When one has `aria-current` in the HTML (a `.navlist`), the pick takes it; otherwise each gets `aria-pressed`, `"true"` on the pick. The nearest `role="status"` says the pick's `data-say` |
+| `data-aui="stepper"` | a `.stepper`: a button, the number (`<b>` or `<output>`), a button | the first takes one off, the last adds one, from `data-min` (1) to `data-max` (99). At the end of the range that button turns off and the focus moves to the other. Every `[data-each]` in the same `.card` (or the stepper's parent) shows `data-each` times the number, in `data-unit`: `g` becomes `kg` from 1000 and `ml` becomes `l`, `g` and `ml` round to 10, `kg` and `l` to one decimal, no unit rounds up to a whole count |
 | `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it. On a touch screen a `.sheet` also closes on a drag down, by its title or from the top of what it holds: it follows the finger a row at a time and closes past a quarter of its height or on a flick. A `<dialog role="alertdialog">` waits for an answer: a tap around it nudges the card and puts the focus back on the safe button (`autofocus`), and Escape counts as that button |
 | `data-aui-close` | a button in a dialog or a popover | closes it. `data-aui-close="delete"` also sets the dialog's `returnValue`, so its `close` event knows the answer (it is empty after Escape). In a popover inside a dialog, only the popover closes |
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
@@ -87,6 +92,42 @@ The words come from attributes on the input, and a plain default when there is n
 
 When a form is sent with a bad field, the browser's own bubble is replaced by the message in the page, and the first bad field gets the focus. A form with `novalidate` is stopped the same way.
 
+### Data table
+
+The markup is a plain table, so it reads and prints without the script. The kit finds everything inside the box that holds `data-aui="datatable"`:
+
+```html
+<div data-aui="datatable" data-select data-page-size="8">
+  <div class="dt-tools">
+    <div class="group"><label class="field-label">Filter incidents</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="search" data-aui-filter></div></div></div>
+    <p class="dt-count muted" role="status"></p>
+  </div>
+  <div class="tablewrap">
+    <table class="tbl">
+      <caption class="vh">Incidents, newest first.</caption>
+      <thead><tr><th scope="col"><button class="dt-sort" type="button">ID</button></th><th scope="col"><button class="dt-sort" type="button">Minutes</button></th></tr></thead>
+      <tbody><tr><td>INC-512</td><td>3</td></tr></tbody>
+    </table>
+  </div>
+  <nav data-aui="pagination" aria-label="Incident pages"></nav>
+  <p class="muted status" role="status"></p>
+</div>
+```
+
+| Setting | Does |
+|---|---|
+| `<button class="dt-sort">` in a `<th>` | makes the column sortable. A `<th data-sort>` without a button gets one; `data-sort="none"` keeps a column out |
+| `data-sort="num"`, `"date"`, `"text"` | on a `<th>`: how it sorts. Without it the column decides: every cell a number (a unit or a currency sign next to it is fine: `12 kg`, `$1,240`) sorts as numbers, every cell a `yyyy-mm-dd` date (a time after it is fine) as dates, anything else as words, with `10` after `9`. Empty cells go last either way |
+| `data-value` | on a `<td>`: what it sorts by instead of its words |
+| `aria-sort="ascending"` | on a `<th>` in the HTML: sorted that way on load |
+| `data-aui-filter` | on an input in the box: keeps the rows holding every word typed, in any column, case aside. "No rows match." fills a row across every column (`data-no-match` for other words) |
+| `data-select` | a checkbox in every row, named by the row's first cell ("Select INC-512"), and a select-all in the head that is `indeterminate` while some are picked. It picks every row that matches the filter, on every page. Shift and a click, or Shift and Space, picks the range from the last pick. A picked row is an ink slab (`.dt-on`) and its box says `[@]` |
+| `data-page-size="8"` | rows on a page. The kit sets `data-pages` and `data-page` on the pager inside the box (or right after it) and follows its picks. Without a pager every row shows |
+| `aria-busy="true"` | on the box: the rows step out and a page of skeleton rows (`.dt-skel`, `aria-hidden`) waves through the ramp until it goes. The count says "Loading rows." |
+| `data-empty` | the words for a table with no rows at all: "No rows yet." |
+
+Rows your script adds to or takes from the `<tbody>` are read again: they get their checkbox, the sort and the filter. On a phone the table scrolls sideways inside `.tablewrap`, never the page, and `<< scrolls sideways >>` under it says so (`data-wide`, set by the kit).
+
 ## Events
 
 Every event bubbles, starts with `aui:` and carries its details in `event.detail`. They fire for what a person does, not on load and not for the calls below, so setting a value from your script does not loop back into your listener. A field that is bad on load shows its message and fires nothing; a code filled on load or by `otp(el).value` is accepted and fires nothing.
@@ -101,7 +142,13 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | OTP | `aui:complete` on the `.otp`, when every box holds a digit | `{ value }` |
 | Calendar | `aui:change` on the calendar | `{ date, value }` (`value` is `yyyy-mm-dd`) |
 | Pagination | `aui:change` on the `<nav>`, buttons only (a link just goes) | `{ page }` |
+| Data table | `aui:sort` on the box, when a person sorts | `{ column, dir, th }` (`column` from 0, the checkboxes aside; `dir` is `ascending`, `descending` or `none`) |
+| Data table | `aui:select` on the box, when a person picks or lets go | `{ rows, count }` (every picked `<tr>`, the ones a filter hides too) |
 | Segment | `aui:change` on the `.tgroup`, when a person picks | `{ value, label, input }` |
+| Chart | `aui:pick` on the `.chart`, on a click or a key | `{ index, label, values, texts }`; a heatmap: `{ index, row, col, label, column, value, text }` |
+| Checklist | `aui:change` on the list, when a person ticks or unticks one | `{ done, total }` |
+| Pick | `aui:change` on the group, when a person picks | `{ item, index }` |
+| Stepper | `aui:change` on the `.stepper` | `{ value }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
 | Slider, counter | the input's own `input` and `change` | |
@@ -119,7 +166,7 @@ document.addEventListener('aui:change', e => {
 
 | Call | Does |
 |---|---|
-| `version` | `"1.2.1"` |
+| `version` | `"1.3.0"` |
 | `init(root)` | wires everything under `root` (the page when left out). Safe to call again: a component is wired once |
 | `destroy(root)` | tears down the components under `root`, and `root` itself: their listeners, observers and animations go |
 | `get(el)` | the calls of the component on `el`, whatever it is, or `null` |
@@ -128,12 +175,14 @@ document.addEventListener('aui:change', e => {
 | `progress(el, pct)` | sets a progress bar |
 | `tabs(el)` | `select(i)`, `index`, `tab` |
 | `pagination(el)` | `set(n)`, `page`, `pages` |
+| `datatable(el)` | `sort(i, dir)` (`i` from 0, `dir` `"ascending"`, `"descending"` or `"none"`), `filter(text)`, `select("all" \| "none" \| rows)`, `refresh()`, `rows` (the ones that match), `selected`, `page` |
 | `calendar(el)` | `set(date)` (a `Date` or `"2026-09-26"`, `null` clears it), `date`, `value` |
 | `dropdown(el)` | `open()`, `close()`, `toggle()`, `isOpen` |
 | `popover(el)` | `open()`, `close()`, `toggle()`, `isOpen` |
 | `combobox(el)` | `open()`, `close()`, `set(value)` (`null` clears it; `false` when no option has that value), `value`, `label`, `option`, `isOpen` |
 | `contextmenu(el)` | `open(target)` (an element inside it, or `{ x, y }` in the window), `close()`, `isOpen`, `target` |
 | `otp(el)` | `value` (read it or set it), `clear()` |
+| `chart(el)` | `pick(i)` (`-1` lets go), `index`, `draw()` (reads the table again and draws it whole), `data` (what it read: `rows`, `names`, `max`) |
 | `bar(k, n)`, `colorize(str)` | build halftone bars: `k` of `n` cells full, then colored |
 | `tones(map)` | swaps the characters of every frame, bar and spinner |
 | `reduce` | `true` while the system asks for reduced motion. It follows the setting while the page is open |
@@ -146,11 +195,44 @@ ASCIIUI.tabs('#settings [role=tablist]').select(2);
 ASCIIUI.calendar(document.querySelector('.cal')).set('2026-12-24');
 ```
 
+## Charts
+
+A chart is a table you already have. Put it in a `.chart` with `data-aui="chart"`: the first column names the points, every other column is a series, the header row names the series and the caption names the chart. The script draws it in characters above the table, from the ramp, one row of `--r` a line, as wide as its box (it redraws when the box changes width, and when the table changes). The drawing is paint (`aria-hidden`); the table stays, clipped out of sight, so a screen reader reads the numbers as a table. Without the script the table is what shows.
+
+```html
+<div class="stack">
+  <div class="chart" data-aui="chart" data-type="bars" data-pick="3">
+    <table>
+      <caption>Requests per day</caption>
+      <thead><tr><th scope="col">Day</th><th scope="col">Requests</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Mon</th><td>1,204</td></tr>
+        <tr><th scope="row">Tue</th><td>1,482</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted status" role="status"></p>
+</div>
+```
+
+| `data-type` | Draws |
+|---|---|
+| `bars` (default) | a bar per row, growing through the ramp. Two series or more: a bar each, a glyph each (`@ # % + = :`), and a key under it |
+| `line` | a line across the rows, filled under it. Two series or more: a line each, a glyph each, and a key |
+| `hbars` | a halftone bar per row, the first series, with the cell's text at the end |
+| `heatmap` | every cell a point, two characters wide, denser for more. The newest columns (the last ones) stay when the box is too narrow |
+| `donut` | the first series as slices of a ring, a glyph and a color each, with a legend and the share of each |
+| `spark` | on a `<span class="spark">`: `data-values="3 5 2 8"`, one ramp character a value. An image named by its numbers (`data-label` names the trend), unless it is `aria-hidden` |
+
+A cell's number is its `data-value`, or else its text without commas, units and `%`, so `1,204` and `92%` read as they should, and the status line says the text as written. `data-max` and `data-min` set the scale (the top of the axis is otherwise the largest value, rounded up), `data-rows` the height in rows (8), `data-pick` the point picked at first.
+
+The chart takes a Tab stop (`role="group"`, named by the caption). The arrows move the pick (up and down move by row in a heatmap), Home and End go to the ends, Escape lets go, and a click picks the point under it. The pick is said in the nearest `role="status"` (or in a hidden one inside the chart), marked in text as well as in violet (`[Thu]`, `[]` in a heatmap), and fires `aui:pick`. Colors are the tokens: magenta and pink for one series, then deep blue, pink, violet; never cyan, which is focus. It grows in once when it first comes on screen; under reduced motion it is drawn whole.
+
 ## Lifecycle
 
 A component is wired when it lands on the page and torn down when it leaves it: its listeners (on the page, the window and the component), its observers and its animation go with it. Put the same element back and it is wired again. Moving an element in one go does neither. So frameworks that add and remove markup (a router, a list that re-renders) need nothing extra.
 
-Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`. `aria-valuenow` redraws a progress bar.
+Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`, `data-type`, `data-values`, `data-rows`, `data-pick`. `aria-valuenow` redraws a progress bar, and a change to a chart's table redraws the chart. `aria-busy` and `data-page-size` redraw a data table.
 
 `ASCIIUI.destroy(el)` tears one down by hand, with everything inside it. `ASCIIUI.init(el)` wires it again.
 
@@ -160,7 +242,7 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 
 | Component | Without the script |
 |---|---|
-| Button, badge, avatar, card, alert, kbd, separator, timeline, breadcrumb, details, table, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
+| Button, badge, avatar, card, alert, icon, kbd, separator, timeline, breadcrumb, details, table, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
 | Segment | the radios work; the status line stays as the HTML has it |
 | Tooltip | shows on hover and focus (that is CSS); no tap, no Escape |
 | Tabs | the panels show or hide as the HTML has them; the tabs do not switch |
@@ -174,8 +256,41 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 | Validate | the browser's own checks and bubble |
 | Counter | no count |
 | Calendar, pagination | nothing is drawn: put a date input or plain links in them as a fallback, the script replaces them |
+| Data table | a plain table with every row: the sort buttons and the filter do nothing, no checkboxes, no pages |
 | Spinner, skeleton | nothing moves; the skeleton is empty |
+| Chart | the table shows, with its caption: the same numbers, as a table |
+| Sparkline | empty, or its own text when it has some (write the numbers in it, the script replaces them) |
 | Toast | nothing shows |
+| Stat, poster title, pricing, key and value, tags, thumb, profile, nav list | work as they are (the title rows are in the HTML) |
+| Checklist | the boxes tick; the bar next to it stays empty |
+| Meter | the bar stays empty; the number next to it still reads |
+| Pick | the HTML's pick stays; a click changes nothing |
+| Stepper | the number and the amounts stay as the HTML has them |
+
+## Blocks
+
+The Blocks on the site (https://ascii.fedekotek.design/#blocks) are page-sized: a login, a pricing table, a checklist, a portfolio. They are made of the components above and of these pieces, which are in the kit too, so a Block's Code tab prints HTML that runs on the two files and offers Download page (a Block with a part the kit cannot draw yet says so there instead). `kit/starter.html` has each piece under Blocks.
+
+| Class | What it is | In |
+|---|---|---|
+| `.kpis`, `.kpi` | stat tiles: a label, the number, a line for the change. As many in a row as fit, 30 characters each at the least | Stats |
+| `.poster.ptitle` | a title in big pixels made of characters: 14 `<span>` rows in 4 of the page's, colored ink to violet from the top. The kit has no bitmap face, so the rows are in the HTML: the site draws and develops them, the Code tab prints them finished. Keep `aria-hidden` on it and the words next to it in a `.vh` | Stats, 404 |
+| `.grid2`, `.grid3` | cards side by side, as many 37 (or 27) character columns as the box holds, stacked without the room | Cases, Pricing |
+| `.pricing`, `.price`, `.feat`, `.popular`, `.row.full` | plans on a `.grid3`: cards as tall as the row, the feature list takes the slack, the popular plan wears a violet badge on its top rule, the buttons stretch | Pricing |
+| `.checklist`, `.meta` | checkboxes with a grey line under each, struck through when ticked. `data-aui="checklist"` fills the progress bar next to it | Orders |
+| `.navlist` | the pages of an app: buttons or links with a count, the current one (`aria-current`) an ink slab with a `>`. `data-aui="pick"` moves it on a click | Sidebar |
+| `.lift[role="button"]` | a card you pick, in a `data-aui="pick"` group: the pick's title is a slab with a `>` and its rim turns magenta | Cases |
+| `.kv`, `.qty` | a `<dl>` of grey labels and values; `.qty` is an amount, bold and magenta | Now, Profile, Recipe, Build |
+| `.progress[role="meter"]` | a value on the halftone bar next to words, drawn by `data-aui="progress"` from a percent, `data-cells` wide, with `aria-valuetext` for the number | Now, Build |
+| `.stepper`, `.steps` | a number between `[-]` and `[+]`; `data-aui="stepper"` counts and scales the `[data-each]` amounts in its card. `.steps` is a numbered method | Recipe |
+| `.tags`, `.b-violet`, `.b-pink` | a row of badges that only label: violet or pink, since lime confirms and yellow warns | Cases, Build |
+| `.thumb` | a picture slot: an `<img>`, or a `<pre>` of characters with `role="img"` and an `aria-label` | Cases, Profile |
+| `.profile` | a picture beside the words about a person, side by side from 720px | Profile |
+| `a.btn` | a link dressed as a button, for a way out that goes to another page | 404, Profile |
+
+What the site's engine draws the kit prints as a still. The bitmap titles come finished, the LCD pictures of Cases and Profile are drawn in characters (put an `<img>` in the `.thumb` instead), the halftone stats of Build and Now are meters. The toys stay on the site: Reroll in Build, Load portrait in Profile, the 404 title that never settles.
+
+`ASCIIUI.get(el)` on a pick returns `select(i)`, `index` and `item`; on a stepper `set(n)` and `value`; on a checklist `done` and `total`.
 
 ## Theming
 
@@ -231,11 +346,70 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 ```
 
+## Icons
+
+Thirty-nine icons drawn in characters, in CSS only: no icon font, no SVG, no script. Each one comes in two sizes. Inline is one row tall and one to three characters wide, for a line of text or a button's label. Large (`.icon-lg`) is three rows tall and five or six characters wide, for empty states and tiles.
+
+```html
+<!-- it means something on its own: an image with a name -->
+<span class="icon ok" data-icon="check" role="img" aria-label="Done"></span> Export finished.
+
+<!-- next to words that say the same: decoration -->
+<button class="btn frame tone-light" type="button"><span class="mid"><span class="label"><span class="icon" data-icon="download" aria-hidden="true"></span> Export</span></span></button>
+
+<!-- large, for an empty state -->
+<span class="icon icon-lg" data-icon="search" aria-hidden="true"></span>
+```
+
+The characters are CSS content with empty alt text, so a screen reader says the `aria-label` or nothing. Icons take the color of the text around them; `.hot` (acts), `.ok` (confirms), `.warn` (warns) and `.violet` (structure) give one a role color. There is no cyan one: cyan is focus. They are printable ASCII, so they draw in Geist Mono and in any monospace font that stands in for it, and they stay on screen in print and in Windows High Contrast, because they are text. A name the kit does not know draws nothing. To add one, give it both drawings in your own CSS after the kit's, the way the kit writes them: `.icon[data-icon="rocket"]{--i:"^>";--il:"  ^  \A  /_\\ \A /___\\"}` (`\A ` and its one space start a row, every row is as wide as the others, a backslash is written twice). The site's source has the drawing rules in `docs/ICONS.md`.
+
+| `data-icon` | Inline | Large, ch wide | A label to start from |
+|---|---|---|---|
+| `search` | `o\` | 5 | Search |
+| `close` | `[x]` | 5 | Close |
+| `menu` | `[=]` | 5 | Menu |
+| `plus` | `[+]` | 5 | Add |
+| `minus` | `[-]` | 5 | Remove |
+| `check` | `v/` | 5 | Done |
+| `warning` | `/!\` | 5 | Warning |
+| `error` | `(x)` | 5 | Error |
+| `info` | `(i)` | 5 | Information |
+| `help` | `(?)` | 5 | Help |
+| `arrow-up` | `/\|\` | 5 | Up |
+| `arrow-down` | `\\|/` | 5 | Down |
+| `arrow-left` | `<-` | 5 | Back |
+| `arrow-right` | `->` | 5 | Next |
+| `chevron-up` | `^` | 5 | Collapse |
+| `chevron-down` | `v` | 5 | Expand |
+| `chevron-left` | `<` | 5 | Previous |
+| `chevron-right` | `>` | 5 | Next |
+| `external` | `->]` | 5 | Opens in a new tab |
+| `copy` | `[[]` | 5 | Copy |
+| `download` | `_v_` | 5 | Download |
+| `upload` | `_^_` | 5 | Upload |
+| `edit` | `_/` | 5 | Edit |
+| `delete` | `\|_\|` | 5 | Delete |
+| `settings` | `{o}` | 5 | Settings |
+| `user` | `/o\` | 5 | Account |
+| `home` | `[^]` | 5 | Home |
+| `bell` | `/.\` | 5 | Notifications |
+| `lock` | `[o]` | 5 | Locked |
+| `unlock` | `[o/` | 5 | Unlocked |
+| `eye` | `<o>` | 5 | Show |
+| `eye-off` | `<->` | 5 | Hide |
+| `calendar` | `[#]` | 5 | Date |
+| `clock` | `(')` | 5 | Time |
+| `filter` | `\-/` | 5 | Filter |
+| `sort` | `^v` | 5 | Sort |
+| `refresh` | `(<` | 5 | Refresh |
+| `more` | `...` | 5 | More |
+| `star` | `(*)` | 6 | Favorite |
+
 ## Using it next to another framework
 
 The kit uses short, generic class names, so it can meet the same names in Bootstrap, Tailwind components or your own CSS. The classes it styles:
 
-`acc alert area avatar b-hot b-ok b-out b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check combo count crt crumbs ctx danger demo err error f faint field field-label frame full glyph good group heavy hot ibtn info invalid kbds label lift menu mid muted nudge off ok on open opts opts-none otp pane past pct pop progress prompt row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status switch-track tab tablewrap tablist tabpanel tbl tgroup timeline tip toast toast-x today tone-* up vh`
+`acc alert area avatar b-hot b-ok b-out b-pink b-violet b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check checklist combo count crt crumbs ctx danger demo err error f faint feat field field-label frame full glyph good grid2 grid3 group heavy hot ibtn icon icon-lg info invalid kbds kpi kpis kv label lift menu meta mid muted navlist nudge off ok on open opts opts-none otp pane past pct pop popular poster price pricing profile progress prompt ptitle qty row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status stepper steps switch-track tab tablewrap tablist tabpanel tags tbl tgroup thumb timeline tip toast toast-x today tone-* up vh violet warn`
 
 The ones most likely to collide: `btn`, `card`, `alert`, `badge`, `row`, `field`, `label`, `body`, `tab`, `menu`, `progress`, `error`, `muted`, `pane`, and the state classes `on`, `off`, `open`, `up`, `good` and `invalid`. It also sets a few things on elements: `box-sizing` on everything, `body` (font, colors), the margins of headings, paragraphs and lists, `a`, `[hidden]`, `dialog`, `kbd`, `fieldset` and `legend`.
 
@@ -262,6 +436,7 @@ Current Chromium (Chrome, Edge, Opera, Samsung Internet), Firefox 121 and later,
 - The calendar picks one day, not a range.
 - Popovers, the combobox list and the context menu go to the top layer where the browser has the Popover API. Without it (Safari before 17, Firefox before 125) a panel inside a box that scrolls or clips is cut off at that box's edge, as the dropdown's menu is everywhere.
 - The combobox picks one option, not several.
+- A data table sorts by one column at a time, has no `colspan` in its body, and does not edit cells. A new `<tbody>` is not read: take the box off the page and put it back.
 - Motion runs on `requestAnimationFrame`, only while the element is on screen. With `prefers-reduced-motion` nothing animates.
 
 ## License

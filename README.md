@@ -6,11 +6,11 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 
 ## How to use it
 
-1. Link the two kit files in the `<head>` of your page. Pinned to 1.2.1, so they never change under you:
+1. Link the two kit files in the `<head>` of your page. Pinned to 1.3.0, so they never change under you:
 
    ```html
-   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-61faWJddlqmzdFSb2FHUiQkCKJmw9kEf9vvayxyDPDkMyZdwMwT2o4KC5H3IQJ7L" crossorigin="anonymous">
-   <script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-/gb6Yw38b/1ica/aWitS46ktHYko2WLYtpmCAijY19AFcjrLMDhMZLLlhrfQDCLr" crossorigin="anonymous"></script>
+   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-25L3QwC4krEBOsCiInpwp5px/Vl6vRvXS+38N/h7IOn5OqGj47Xir+6EGUyAXvUj" crossorigin="anonymous">
+   <script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-M27EC9Vn8ZbgJMWGz76YHT3zvCFYns9kWi+93LcdTH3Hysp0UXp6A9tE69XcvWQf" crossorigin="anonymous"></script>
    ```
 
    Or the latest, which moves with every version: `https://ascii.fedekotek.design/kit/ascii-ui.css` and `https://ascii.fedekotek.design/kit/ascii-ui.js`. The font (Geist Mono) comes from `kit/fonts/` next to the CSS; nothing asks Google or anyone else.
@@ -18,7 +18,7 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 2. Open https://ascii.fedekotek.design/#components, pick the Code tab on any component and copy its HTML into your page. It works as pasted, twice on one page too.
 3. Or start from the starter page, which already links both and has every kit component on it: https://ascii.fedekotek.design/kit/starter.html
 
-The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 33 of the 35 components are in the kit; Command and Picture need the site's engine. Every component has three tabs on the site: Preview, Code and Usage (when to use it, anatomy, states, keys, accessibility, do and don't).
+The kit's own README, with the `data-aui` attributes, the `window.ASCIIUI` API, versions and pinned URLs, is `kit/README.md` (also at https://ascii.fedekotek.design/kit/README.md). 34 of the 36 components are in the kit; Command and Picture need the site's engine. Every component has three tabs on the site: Preview, Code and Usage (when to use it, anatomy, states, keys, accessibility, do and don't).
 
 There is no package and nothing to install. Copy what you need and own the code. MIT license, see `LICENSE`.
 

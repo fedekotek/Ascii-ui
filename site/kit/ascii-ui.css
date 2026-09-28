@@ -1,4 +1,4 @@
-/*! ascii/ui kit 1.2.1 | MIT | (c) 2026 Fede Kotek */
+/*! ascii/ui kit 1.3.0 | MIT | (c) 2026 Fede Kotek */
 /* ascii-ui.css
    Components in an ASCII skin. Frames, fills and shadows are strings of
    characters; weight comes from how dense the character is.
@@ -272,6 +272,22 @@ legend{padding:0;margin-bottom:var(--r)}
 .check input:focus-visible + .glyph .switch-track::before{background:var(--accent)}
 .check input:focus-visible + .glyph .switch-track::after{color:var(--bg)}
 
+/* ==== chart: .chart .spark ==== */
+/* data-aui="chart" around a <table>. Without the script the table is what
+   shows. With it, ascii-ui.js draws the characters in a .plot above it, one
+   row of var(--r) a line, and keeps the table for screen readers only.
+   data-type="spark" on a .spark is a word-sized trend. */
+.chart{display:block;position:relative;max-width:100%;justify-self:stretch;min-width:0}
+.chart:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chart .plot{display:block;white-space:pre;overflow:hidden;font-weight:700;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.chart table{border-collapse:collapse}
+.chart caption{text-align:left;font-weight:700}
+.chart th,.chart td{padding:0 2ch 0 0;text-align:left;font-weight:inherit}
+.chart td{text-align:right}
+.chart.drawn{overflow:hidden}   /* the table below is as wide as its words: kept out of the page width */
+.chart.drawn table{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.spark{font-weight:700;color:var(--hot);white-space:pre}
+
 /* ==== bar: .bar .slider .slider-track .progress ==== */
 /* Slider and progress are one halftone bar of characters. ascii-ui.js draws
    it (data-aui="slider", data-aui="progress"); a real range input sits on top. */
@@ -288,6 +304,43 @@ legend{padding:0;margin-bottom:var(--r)}
 .progress{display:flex;gap:2ch;align-items:flex-end}
 .progress .bar{min-width:24ch;min-height:var(--r)}
 .progress .pct{white-space:pre}
+
+/* ==== datatable: [data-aui="datatable"] .dt-tools .dt-count .dt-sort ==== */
+/* A .tbl that sorts, filters, picks rows and pages. data-aui="datatable" on
+   the box around it. The sort mark is paint: aria-sort on the th says it. */
+[data-aui="datatable"]{display:grid;gap:var(--r);min-width:0;justify-self:stretch}
+.dt-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--r) 2ch}
+.dt-tools .group{flex:1 1 24ch}
+.dt-count{white-space:nowrap}
+.dt-sort{
+  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;background:none;border:0;border-radius:0;
+  margin:-12px -1ch;padding:12px 1ch;cursor:pointer;outline:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+}
+.dt-sort::after{content:" -";content:" -" / "";opacity:.6}
+[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / "";opacity:1}
+[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / "";opacity:1}
+.dt-sort:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.dt-sort:hover::after{opacity:1}}
+/* the checkbox column: the glyph takes the row's color, so it reads on a slab */
+.dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
+.dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
+.dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
+.check input[type="checkbox"]:not([role]):indeterminate + .glyph::before{content:"[-]";content:"[-]" / ""}
+/* a picked row is an ink slab, and its box says [@] */
+.tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
+.tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink)}
+/* stripes count the rows that show, not the ones a filter or a page hid */
+[data-aui="datatable"] .tbl tbody tr:nth-child(even){background:none}
+[data-aui="datatable"] .tbl tbody tr:nth-child(even of :not([hidden],.dt-skel,.dt-empty)){background:color-mix(in srgb,var(--ink) 7%,transparent)}
+[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:var(--ink)}
+.dt-empty td{color:var(--muted);white-space:normal}
+.dt-skel td{color:var(--muted);font-weight:700;overflow:hidden}
+/* wider than its box: it scrolls inside it, and says so under the table */
+[data-aui="datatable"] .tablewrap{position:relative}
+[data-aui="datatable"] .tablewrap[data-wide]::after{
+  content:"<< scrolls sideways >>";content:"<< scrolls sideways >>" / "";
+  display:block;position:sticky;left:0;height:var(--r);color:var(--muted);white-space:nowrap;
+}
 
 /* ==== tabs: .tablist .tab .tabpanel ==== */
 /* The active tab is a slab. data-aui="tabs" on the tablist wires the arrows. */
@@ -601,6 +654,69 @@ dialog[role="alertdialog"]:has(> .alert)[open]::before{color:rgba(138,90,0,.5);c
 .otp.invalid span::before,.otp.invalid span::after,.otp.invalid input{color:var(--danger)}
 .otp.invalid span::before,.otp.invalid span::after{content:"!";content:"!" / ""}
 
+/* ==== icon: .icon ==== */
+/* Icons drawn in characters, no font of their own and no svg. Pure css.
+     <span class="icon" data-icon="search" role="img" aria-label="Search"></span>
+   Inline: one row tall, one to three characters wide. It sits in a line of
+   text or inside a button's .label. Add .icon-lg for the large one: three
+   rows tall, five or six characters wide, for empty states and tiles.
+   Next to words that say the same, it is decoration: aria-hidden="true" and no
+   label. The characters are paint (empty alt text), so a screen reader says
+   the aria-label or nothing. They take the color of the text; .hot, .ok,
+   .warn and .violet give them a role color. The names are in README.md */
+.icon{
+  --i:"";--il:"";
+  display:inline-block;white-space:pre;font-weight:700;font-style:normal;
+  line-height:var(--r);text-transform:none;letter-spacing:0;
+}
+.icon::before{content:var(--i);content:var(--i) / ""}
+.icon-lg{vertical-align:top}
+.icon-lg::before{content:var(--il);content:var(--il) / "";display:block}
+.icon.hot{color:var(--hot)}
+.icon.ok{color:var(--ok)}
+.icon.warn{color:var(--warn)}
+.icon.violet{color:var(--violet)}
+/* the set: --i is the inline one, --il the large one, rows split by \A */
+.icon[data-icon="search"]{--i:"o\\";--il:" .-. \A (   )\A  `-'\\"}
+.icon[data-icon="close"]{--i:"[x]";--il:"\\   /\A   X  \A /   \\"}
+.icon[data-icon="menu"]{--i:"[=]";--il:"=====\A =====\A ====="}
+.icon[data-icon="plus"]{--i:"[+]";--il:"  |  \A --+--\A   |  "}
+.icon[data-icon="minus"]{--i:"[-]";--il:"     \A -----\A      "}
+.icon[data-icon="check"]{--i:"v/";--il:"    /\A \\  / \A  \\/  "}
+.icon[data-icon="warning"]{--i:"/!\\";--il:"  ^  \A  /!\\ \A /___\\"}
+.icon[data-icon="error"]{--i:"(x)";--il:" .-. \A ( x )\A  '-' "}
+.icon[data-icon="info"]{--i:"(i)";--il:" .-. \A ( i )\A  '-' "}
+.icon[data-icon="help"]{--i:"(?)";--il:" .-. \A ( ? )\A  '-' "}
+.icon[data-icon="arrow-up"]{--i:"/|\\";--il:"  ^  \A  /|\\ \A   |  "}
+.icon[data-icon="arrow-down"]{--i:"\\|/";--il:"  |  \A  \\|/ \A   v  "}
+.icon[data-icon="arrow-left"]{--i:"<-";--il:" /   \A <----\A  \\   "}
+.icon[data-icon="arrow-right"]{--i:"->";--il:"   \\ \A ---->\A    / "}
+.icon[data-icon="chevron-up"]{--i:"^";--il:"     \A   ^  \A  / \\ "}
+.icon[data-icon="chevron-down"]{--i:"v";--il:" \\ / \A   v  \A      "}
+.icon[data-icon="chevron-left"]{--i:"<";--il:"   / \A   <  \A    \\ "}
+.icon[data-icon="chevron-right"]{--i:">";--il:" \\   \A   >  \A  /   "}
+.icon[data-icon="external"]{--i:"->]";--il:".-- ^\A | / |\A '---'"}
+.icon[data-icon="copy"]{--i:"[[]";--il:".--. \A |.--.\A '|  |"}
+.icon[data-icon="download"]{--i:"_v_";--il:"  |  \A  \\|/ \A |_v_|"}
+.icon[data-icon="upload"]{--i:"_^_";--il:"  ^  \A  /|\\ \A |_|_|"}
+.icon[data-icon="edit"]{--i:"_/";--il:"   /7\A   // \A <_/  "}
+.icon[data-icon="delete"]{--i:"|_|";--il:"_.-._\A |:::|\A |___|"}
+.icon[data-icon="settings"]{--i:"{o}";--il:" .^. \A <(o)>\A  'v' "}
+.icon[data-icon="user"]{--i:"/o\\";--il:" .-. \A  '-' \A /___\\"}
+.icon[data-icon="home"]{--i:"[^]";--il:"  ^  \A  / \\ \A |_n_|"}
+.icon[data-icon="bell"]{--i:"/.\\";--il:" .-. \A  | | \A /_o_\\"}
+.icon[data-icon="lock"]{--i:"[o]";--il:" .-. \A  | | \A [_o_]"}
+.icon[data-icon="unlock"]{--i:"[o/";--il:" .-. \A  |   \A [_o_]"}
+.icon[data-icon="eye"]{--i:"<o>";--il:" .-. \A <(o)>\A  '-' "}
+.icon[data-icon="eye-off"]{--i:"<->";--il:" .-/ \A <(/)>\A  /-' "}
+.icon[data-icon="calendar"]{--i:"[#]";--il:".T-T.\A |===|\A |:::|"}
+.icon[data-icon="clock"]{--i:"(')";--il:" .-. \A ( |_)\A  '-' "}
+.icon[data-icon="filter"]{--i:"\\-/";--il:"=====\A  \\ / \A   |  "}
+.icon[data-icon="sort"]{--i:"^v";--il:" ^ | \A  | | \A  | v "}
+.icon[data-icon="refresh"]{--i:"(<";--il:" .-> \A (   )\A  '-' "}
+.icon[data-icon="more"]{--i:"...";--il:"     \A @ @ @\A      "}
+.icon[data-icon="star"]{--i:"(*)";--il:"__/\\__\A \\    /\A /_/\\_\\"}
+
 /* ==== kbd: kbd .kbds ==== */
 kbd{font:inherit;font-weight:700;color:var(--ink)}
 kbd::before{content:"[";content:"[" / ""}   /* paint: a screen reader says the key, not the brackets */
@@ -732,6 +848,8 @@ kbd::after{content:"]";content:"]" / ""}
   body:has(dialog[open]){overflow:visible !important}
   .tablewrap,.progress{overflow:visible !important}
   .skel .f{opacity:1}
+  /* a data table prints the rows it shows, without the controls around them */
+  .dt-tools .field,.dt-pick,.dt-skel,[data-aui="datatable"] [data-aui="pagination"],[data-aui="datatable"] .tablewrap::after{display:none !important}
   /* keep a thing together, and a title with what follows it */
   .lift,.card,.frame,.acc,.cal,.otp,.field,.alert,.tbl tr,.timeline li{break-inside:avoid}
   h1,h2,h3,legend,.field-label{break-after:avoid}
@@ -751,15 +869,16 @@ kbd::after{content:"]";content:"]" / ""}
     .tab[aria-selected="true"],.ibtn[aria-current="page"],.cal-grid button[aria-pressed="true"],
     .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
     .crumbs [aria-current] span,.opts [role="option"][aria-selected="true"],
-    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast > span,.tip,.avatar,.tbl th
+    .badge:not(.b-out),.bar-title,.btn-primary .label,.toast > span,.tip,.avatar,.tbl th,
+    .tbl tbody tr.dt-on,.tbl tbody tr.dt-on td
   ){forced-color-adjust:none !important;background:CanvasText !important;color:Canvas !important}
-  :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
+  :where(.tbl tbody tr[aria-selected="true"] .badge,.tbl tbody tr.dt-on .badge){background:Canvas !important;color:CanvasText !important}
   .tip::after{forced-color-adjust:none;color:CanvasText}
   :where(
     a:focus-visible,.tab:focus-visible,.crumbs a:focus-visible,.cal-grid button:focus-visible,.ibtn:focus-visible,
     .btn-primary:focus-visible .label,.otp input:focus,.tgroup input:focus-visible + span,
     .check input:focus-visible + .glyph,.sheet-x:focus-visible,.toast-x:focus-visible,
-    .menu [role="menuitem"]:focus-visible,.opts [role="option"][data-active]
+    .menu [role="menuitem"]:focus-visible,.opts [role="option"][data-active],.dt-sort:focus-visible
   ){forced-color-adjust:none !important;background:Highlight !important;color:HighlightText !important}
   .acc summary:focus-visible::before{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
   :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
@@ -778,3 +897,159 @@ kbd::after{content:"]";content:"]" / ""}
   .skel .f{opacity:1}
   dialog[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}
 }
+
+/* ==== stat: .kpis .kpi ==== */
+/* Stat tiles: a label, the number (a .ptitle, or plain bold words), and a
+   line under it for the change. .kpis puts as many in a row as fit, 30
+   characters each at the least, and stacks them when there is no room.
+   In a .stack it takes the whole width, not the width of its words. */
+.kpis{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fit,minmax(min(30ch,100%),1fr));justify-self:stretch}
+.kpi{max-width:50ch;min-width:0}
+.kpi .ptitle + *{margin-top:var(--r)}
+
+/* ==== poster: .poster .ptitle ==== */
+/* A title in big pixels made of small characters: a 5 by 7 bitmap face,
+   two characters a pixel, one <span> a row, 14 rows in 4 of the page's.
+   The rows run ink, pink, magenta and violet from the top (--t0 to --t3).
+   The kit has no bitmap face: the html holds the finished rows, as the Code
+   tab prints them. It is paint, so keep aria-hidden on it and put the words
+   in the page too (a .vh next to it). */
+.poster{font-weight:700;white-space:pre;overflow:hidden;-webkit-user-select:none;user-select:none}
+.ptitle{font-size:calc(var(--r)/3);line-height:calc(var(--r)/4);height:calc(var(--r)*4);padding-top:calc(var(--r)/8)}
+.ptitle > span{display:block;color:var(--t3)}
+.ptitle > span:nth-child(-n+12){color:var(--t2)}
+.ptitle > span:nth-child(-n+8){color:var(--t1)}
+.ptitle > span:nth-child(-n+4){color:var(--t0)}
+
+/* ==== grid: .grid2 .grid3 ==== */
+/* Cards side by side: as many 37 character columns as the box holds
+   (.grid2), or 27 (.grid3). Without the room they stack. It measures the
+   box, not the window, so it works in a narrow column as well as a page.
+   In a .stack it takes the whole width. */
+.grid2,.grid3{display:grid;gap:var(--r) 2ch;grid-template-columns:repeat(auto-fit,minmax(min(37ch,100%),1fr));justify-self:stretch}
+.grid3{grid-template-columns:repeat(auto-fit,minmax(min(27ch,100%),1fr))}
+.grid2 > .lift,.grid3 > .lift{max-width:none}
+.stack:has(> :is(.grid2,.grid3)){justify-self:stretch}   /* a stack in a stack would hold it to the width of its words */
+
+/* ==== pricing: .pricing .price .feat .popular ==== */
+/* Plans side by side, on a .grid3. Every card is as tall as the row, the
+   feature list takes the slack and the button stays at the foot. The plan
+   to pick wears the @ rim (tone-heavy) and a .popular badge on its top rule.
+   .row.full stretches its buttons across the card. */
+.pricing > .lift{display:flex;flex-direction:column}
+.pricing .card{flex:1;display:flex;flex-direction:column}
+.pricing .body{flex:1;display:flex;flex-direction:column}
+.pricing .feat{flex:1}
+.price{font-weight:700}
+.price small{font:inherit;font-weight:300;color:var(--muted)}
+.feat{list-style:none;padding:0;margin:var(--r) 0 0}
+.feat li{position:relative;padding-left:2ch;color:var(--muted)}
+.feat li::before{content:"+";content:"+" / "";position:absolute;left:0;color:var(--violet);font-weight:700}   /* a list mark, not a confirmation */
+.popular{position:absolute;top:0;right:2ch;z-index:1}
+.badge.popular{background:var(--violet)}   /* a label, so not lime: lime confirms */
+.row.full .btn{flex:1}
+.row.full .btn .mid{display:flex;justify-content:center}
+
+/* ==== checklist: .checklist .meta ==== */
+/* A list of checkboxes, one .check each, with a .meta line under it. A
+   ticked one is struck through. data-aui="checklist" counts them into the
+   progress bar next to the list. */
+.checklist{list-style:none;padding:0;margin:0;max-width:60ch}
+.checklist li{padding-bottom:var(--r)}
+.checklist .meta{color:var(--muted);padding-left:4ch;display:flex;flex-wrap:wrap;gap:0 1ch}
+.checklist .check input:checked ~ span:not(.glyph){text-decoration:line-through;color:var(--muted)}
+
+/* ==== navlist: .navlist ==== */
+/* The pages of an app, one button or link each, with a count on the right.
+   The current one (aria-current) is an ink slab with a > in front, so it
+   does not rest on color alone. Each is two rows tall and takes the tap a
+   pixel past each edge: 44px. data-aui="pick" moves aria-current on a
+   click; links from your server can carry it instead. */
+.navlist{list-style:none;padding:0;margin:0;width:100%;max-width:32ch}
+.navlist :is(a,button){
+  display:flex;justify-content:space-between;width:100%;position:relative;
+  font:inherit;background:none;border:0;border-radius:0;color:var(--muted);text-decoration:none;text-align:left;
+  padding:calc(var(--r)/2) 1ch;margin:0;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;
+}
+.navlist :is(a,button)::after{content:"";position:absolute;inset:-1px 0}
+.navlist :is(a,button)::before{content:"  ";content:"  " / "";white-space:pre}
+.navlist :is(a,button) span{margin-left:auto;padding-left:2ch}
+.navlist [aria-current]:not([aria-current="false"]){background:var(--ink);color:var(--bg);font-weight:700}
+.navlist [aria-current]:not([aria-current="false"])::before{content:"> ";content:"> " / ""}
+.navlist :is(a,button):focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.navlist :is(a,button):not([aria-current]):hover{color:var(--ink)}}
+@media (forced-colors:active){
+  .navlist [aria-current]:not([aria-current="false"]){forced-color-adjust:none;background:CanvasText;color:Canvas}
+  .navlist :is(a,button):focus-visible{forced-color-adjust:none;background:Highlight;color:HighlightText}
+}
+
+/* ==== pick: [data-aui="pick"] .lift[role="button"] ==== */
+/* data-aui="pick" on a group of buttons, links or cards with role="button":
+   one of them is the pick. A card you can pick is a .lift with
+   role="button" and tabindex="0". The picked card's title is an ink slab
+   with a > in front and its rim turns magenta; the focus turns rim and
+   title the focus color. */
+.lift[role="button"]{cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent}
+.lift[role="button"][aria-pressed="true"] .bar-title{background:var(--ink);color:var(--bg)}
+.lift[role="button"][aria-pressed="true"] .bar-title::before{content:"> ";content:"> " / ""}
+.lift[role="button"][aria-pressed="true"] .card{--frame-color:var(--hot)}
+.lift[role="button"]:focus-visible .card{--frame-color:var(--accent)}
+.lift[role="button"]:focus-visible .bar-title{background:var(--accent);color:var(--bg)}
+@media (forced-colors:active){
+  .lift[role="button"]:focus-visible .bar-title{forced-color-adjust:none;background:Highlight;color:HighlightText}
+}
+
+/* ==== kv: .kv .qty ==== */
+/* A <dl> of labels and values, the labels grey in a column as wide as the
+   longest (10 characters at least). Under 400px the value goes under its
+   label. .qty is an amount: bold, magenta, never broken over two lines. */
+.kv,.card .kv{display:grid;grid-template-columns:minmax(10ch,max-content) minmax(0,1fr);gap:0 1ch}
+.kv dt{color:var(--muted)}
+.qty{font-weight:700;color:var(--hot);white-space:nowrap}
+@media (max-width:399px){
+  .kv,.card .kv{grid-template-columns:1fr}
+  .kv dd{margin-bottom:var(--r)}
+}
+
+/* ==== meter: [role="meter"] ==== */
+/* A value on the halftone bar, next to words: how far into a book, how
+   much of the budget. It is a .progress with role="meter" (a measure, not a
+   task that finishes), drawn by data-aui="progress" from aria-valuenow (a
+   percent), data-cells wide. aria-valuetext says the number in words. */
+[role="meter"].progress{display:inline-flex;gap:1ch;vertical-align:top;max-width:100%}
+[role="meter"].progress .bar{min-width:0;overflow:hidden}
+
+/* ==== stepper: .stepper .steps ==== */
+/* [-] 6 people [+]: a number between two .ibtn. data-aui="stepper" makes
+   them count and scales the amounts (data-each) in the same card. .steps
+   is a numbered method, grey, indented by the width of its numbers. */
+.stepper{display:inline-flex;align-items:center;gap:1ch}
+.stepper + *{margin-top:var(--r)}
+.steps{margin:var(--r) 0 0;padding-left:4ch;color:var(--muted)}
+
+/* ==== tags: .tags .b-violet .b-pink ==== */
+/* A row of badges that label, nothing more. Labels are violet or pink:
+   lime confirms and yellow warns, so a tag that only names a thing wears
+   neither. --on-pink is the ink on a pink slab. */
+.tags{display:flex;flex-wrap:wrap;gap:0 1ch;margin-top:var(--r)}
+.b-violet{background:var(--violet)}
+.b-pink{--on-pink:#111110;background:var(--pink);color:var(--on-pink)}
+
+/* ==== thumb: .thumb ==== */
+/* A picture slot: an <img>, or a <pre> of characters with role="img" and
+   an aria-label. The characters are violet. */
+.thumb{margin:0 0 var(--r)}
+.thumb img{display:block;width:100%;height:auto}
+.thumb pre{font-weight:700;color:var(--violet);white-space:pre;overflow:hidden}
+
+/* ==== profile: .profile ==== */
+/* A picture beside the words about a person: one column on a phone, the
+   picture 28 characters wide from 720px. */
+.profile{display:grid;gap:var(--r) 3ch;grid-template-columns:minmax(0,1fr);justify-self:stretch}
+.profile > * > * + *{margin-top:var(--r)}
+.profile .thumb{margin:0}
+@media (min-width:720px){.profile{grid-template-columns:28ch minmax(0,1fr);align-items:start}}
+
+/* ==== linkbtn: a.btn ==== */
+/* A link dressed as a button, for a way out that goes to another page. */
+a.btn{text-decoration:none}

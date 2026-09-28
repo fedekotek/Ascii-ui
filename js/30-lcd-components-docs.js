@@ -569,8 +569,8 @@ spanSections($('view-charts'));
 /* the charts get Preview and Code too: Code prints the kit's chart, which
    reads a table (js/40, KITIFY). No index and no groups, five is few */
 $('view-charts').querySelectorAll(':scope > section[aria-labelledby]').forEach(docify);
-/* the thirty-five on the page, by what they do, the way a docs site groups them.
-   33 of them are in the kit; Command and Picture are site only */
+/* the thirty-six on the page, by what they do, the way a docs site groups them.
+   34 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[
   ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
   ['Overlay',['s-alertdialog','s-combobox','s-command','s-contextmenu','s-dropdown','s-popover','s-sheet','s-tooltip']],

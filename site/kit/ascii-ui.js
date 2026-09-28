@@ -1,4 +1,4 @@
-/*! ascii/ui kit 1.2.1 | MIT | (c) 2026 Fede Kotek */
+/*! ascii/ui kit 1.3.0 | MIT | (c) 2026 Fede Kotek */
 /* ascii-ui.js
    The behaviors for the components that need a script, wired by data
    attributes. No dependencies. Link it after ascii-ui.css:
@@ -7,8 +7,9 @@
 
    Then any element with data-aui="NAME" gets that behavior, including
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
-   popover, combobox, contextmenu, confirm, otp, calendar, pagination,
-   validate, counter, segment, spinner, skeleton.
+   popover, combobox, contextmenu, confirm, otp, calendar, chart, pagination,
+   datatable, validate, counter, segment, spinner, skeleton, and for the Blocks
+   checklist, pick and stepper.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
      data-aui-close             closes the dialog or the popover it sits in;
@@ -47,7 +48,7 @@
 
    window.ASCIIUI: version, init(root), destroy(root), get(el), validate(form),
    toast(msg, err), progress(el, pct), tabs(el), pagination(el), calendar(el),
-   dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
+   chart(el), datatable(el), dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
    bar(k, n), colorize(str), tones(map), reduce, behaviors. The README has
    the events and the calls for each component.
 
@@ -56,7 +57,7 @@
 (function(){
 'use strict';
 if(window.ASCIIUI)return;   /* linked twice: keep the first */
-var VERSION='1.2.1';
+var VERSION='1.3.0';
 var doc=document;
 
 /* ---- reduced motion, followed live ---- */
@@ -347,6 +348,50 @@ function parseDate(v){
   return d.getMonth()===+m[2]-1?d:null;
 }
 
+/* ---- charts: a grid of cells, each a character, a color and the point it
+   belongs to, so a click finds its point. Each series and slice has its own
+   glyph as well as its own color, so it reads in grey too ---- */
+var RAMP=' .:=+*#%@',GL='@#%+=:',COL=['hot','deep','pink','violet','ink','muted'];
+function Cells(w,h){this.w=w;this.h=h;this.c=[];this.k=[];this.p=[];for(var i=0;i<w*h;i++){this.c.push(' ');this.k.push('');this.p.push(-1)}}
+Cells.prototype.set=function(x,y,ch,k,p,raw){
+  if(x<0||y<0||x>=this.w||y>=this.h)return;
+  var i=y*this.w+x;this.c[i]=raw?ch:tr(ch);this.k[i]=k||'';if(p!=null)this.p[i]=p;
+};
+Cells.prototype.text=function(x,y,s,k,p){for(var i=0;i<s.length;i++)this.set(x+i,y,s.charAt(i),k,p,1)};
+Cells.prototype.hit=function(x0,y0,w,h,p){for(var y=y0;y<y0+h;y++)for(var x=x0;x<x0+w;x++)this.set(x,y,this.c[y*this.w+x],this.k[y*this.w+x],p,1)};
+Cells.prototype.html=function(){
+  var rows=[],y,x,i,cur,run,o;
+  function fl(){if(run)o+=cur?'<span style="color:var(--'+cur+')">'+esc(run)+'</span>':esc(run);run=''}
+  for(y=0;y<this.h;y++){o=cur=run='';for(x=0;x<this.w;x++){i=y*this.w+x;if(this.k[i]!==cur){fl();cur=this.k[i]}run+=this.c[i]}fl();rows.push(o.replace(/\s+$/,''))}
+  return rows.join('\n');
+};
+function txt(c){return c.textContent.replace(/\s+/g,' ').trim()}
+/* a cell's number: data-value, else its text less commas, units and % */
+function num(c){var v=c.getAttribute('data-value');v=parseFloat(v!==null?v:c.textContent.replace(/[^\d.eE+-]/g,''));return isFinite(v)?v:0}
+function short(v){var a=Math.abs(v);return (a>=1e6?(v/1e6).toFixed(1)+'M':a>=1e3?(v/1e3).toFixed(1)+'k':String(Math.round(v*10)/10)).replace('.0','')}
+/* the top of the axis: the largest value rounded up to a fifth of its power of ten */
+function nice(m){if(m<=0)return 1;var p=Math.pow(10,Math.floor(Math.log(m)/Math.LN10));return Math.round(Math.ceil(m/p*5-1e-9)/5*p*1e6)/1e6}
+function attrNum(el,a){var v=el.getAttribute(a);return v===null||v===''||isNaN(+v)?null:+v}
+/* data-type="spark": a word-sized trend, one ramp character a value, from
+   data-values (or its own text). An image named by its numbers, unless the
+   page hides it or names it */
+function spark(el,cx){
+  var was=el.textContent,set=[];
+  function draw(){
+    var v=(el.getAttribute('data-values')||was).split(/[\s,;]+/).map(parseFloat).filter(isFinite);if(!v.length)return;
+    var lo=Math.min.apply(0,v),hi=Math.max.apply(0,v),mn=attrNum(el,'data-min'),mx=attrNum(el,'data-max');
+    if(mn===null)mn=lo;if(mx===null)mx=hi;
+    el.textContent=tr(v.map(function(x){return RAMP.charAt(1+Math.round(clamp(mx>mn?(x-mn)/(mx-mn):1,0,1)*7))}).join(''));
+    if(el.getAttribute('aria-hidden')==='true'||el.hasAttribute('aria-labelledby')||(el.hasAttribute('aria-label')&&!set.length))return;
+    if(!el.hasAttribute('role')){el.setAttribute('role','img');set.push('role')}
+    set.push('aria-label');
+    el.setAttribute('aria-label',(el.getAttribute('data-label')||'Trend')+', '+v.length+' values, from '+v[0]+' to '+v[v.length-1]+', low '+lo+', high '+hi);
+  }
+  cx.later(function(){el.textContent=was;set.forEach(function(a){el.removeAttribute(a)})});
+  draw();
+  return {draw:draw};
+}
+
 /* set while a reset puts fields back, so the fields do not call the empty
    ones errors and the code boxes do not move the focus */
 var resetting=false;
@@ -422,6 +467,203 @@ var behaviors={
     cx.later(function(){mo.disconnect()});
     draw();
     return {draw:draw,set:function(p){setProgress(el,p)},get value(){return +el.getAttribute('aria-valuenow')||0}};
+  },
+
+  /* a box around a plain <table class="tbl"> in a .tablewrap. A <th> with a
+     <button> in it sorts its column: numbers, dates (yyyy-mm-dd) and words
+     each sort as what they are, data-sort="num|date|text" on the th says so
+     outright, data-value on a td sorts by that instead of its words.
+     aria-sort="ascending" on a th in the html sorts on load. An input with
+     data-aui-filter narrows the rows to the ones holding every word typed.
+     data-select adds a column of checkboxes and a select-all; Shift picks a
+     range. data-page-size="8" shows a page at a time and drives the
+     [data-aui="pagination"] inside the box (or right after it).
+     aria-busy="true" on the box draws skeleton rows until it goes. The
+     .dt-count says how many rows show. Fires aui:sort and aui:select */
+  datatable:function(el,cx){
+    var table=el.querySelector('table');if(!table||!table.tHead||!table.tHead.rows.length)return;
+    var body=table.tBodies[0]||table.appendChild(doc.createElement('tbody'));
+    var head=table.tHead.rows[0],wrap=table.parentElement!==el&&table.parentElement.classList.contains('tablewrap')?table.parentElement:null;
+    var count=el.querySelector('.dt-count'),input=el.querySelector('[data-aui-filter]'),pager=el.querySelector('[data-aui="pagination"]');
+    if(!pager&&el.nextElementSibling&&el.nextElementSibling.matches('[data-aui="pagination"]'))pager=el.nextElementSibling;
+    var pick=el.hasAttribute('data-select'),rows=[],shown=[],col=-1,dir='none',q='',page=1,anchor=null,shift=false,seq=0,made=[],all=null,wave=null,blank=null,skels=[];
+    var NUM=/^[-+]?[$€£¥]?\s?\d[\d,]*(\.\d+)?\s?([a-z]{1,3}|%)?$/i,DATE=/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/;
+    function busy(){return el.getAttribute('aria-busy')==='true'}
+    function words(c){return c?(c.hasAttribute('data-value')?c.getAttribute('data-value'):c.textContent).replace(/\s+/g,' ').trim():''}
+    function data(r){return Array.prototype.filter.call(r.cells,function(c){return !c.classList.contains('dt-pick')})}
+    function box(label){
+      var l=doc.createElement('label');l.className='check';
+      l.innerHTML='<input type="checkbox"><span class="glyph" aria-hidden="true"></span>';
+      l.firstChild.setAttribute('aria-label',label);return l;
+    }
+    if(pick){
+      var th=doc.createElement('th');th.scope='col';th.className='dt-pick';th.appendChild(box('Select all rows'));
+      all=th.querySelector('input');head.insertBefore(th,head.firstChild);made.push(th);
+    }
+    /* the sortable columns: a th with a button, or a th with data-sort, which gets one */
+    var cols=[];
+    Array.prototype.forEach.call(head.cells,function(th){
+      if(th.classList.contains('dt-pick')||th.getAttribute('data-sort')==='none')return;
+      var b=th.querySelector('button');
+      if(!b&&th.hasAttribute('data-sort')){
+        b=doc.createElement('button');b.type='button';b.className='dt-sort';
+        while(th.firstChild)b.appendChild(th.firstChild);th.appendChild(b);
+        cx.later(function(){while(b.firstChild)th.appendChild(b.firstChild);b.remove()});
+      }
+      if(b)cols.push({th:th,btn:b});
+    });
+    function at(c){return c.th.cellIndex}
+    /* the rows, in the order they came, each with its checkbox and its words */
+    function read(){
+      rows=Array.prototype.filter.call(body.rows,function(r){return r!==blank&&skels.indexOf(r)<0});
+      rows.forEach(function(r){
+        if(r.__dtI==null)r.__dtI=seq++;
+        if(pick&&!r.__dtBox){
+          var td=doc.createElement('td');td.className='dt-pick';
+          var c=data(r)[0];td.appendChild(box('Select '+(c?words(c):'row')));
+          r.insertBefore(td,r.firstChild);r.__dtBox=td.querySelector('input');
+        }
+        r.__dtText=data(r).map(function(c){return c.textContent}).join(' ').replace(/\s+/g,' ').toLowerCase();
+      });
+    }
+    function kind(i){
+      var c=cols.filter(function(x){return at(x)===i})[0],k=c&&c.th.getAttribute('data-sort');
+      if(k==='num'||k==='date'||k==='text')return k;
+      var vs=rows.map(function(r){return words(r.cells[i])}).filter(Boolean);
+      if(!vs.length)return 'text';
+      if(vs.every(function(v){return NUM.test(v)}))return 'num';
+      if(vs.every(function(v){return DATE.test(v)}))return 'date';
+      return 'text';
+    }
+    function key(v,k){
+      if(v==='')return null;
+      if(k==='num'){var n=parseFloat(v.replace(/[^\d.\-]/g,''));return isNaN(n)?null:n}
+      if(k==='date'){var d=Date.parse(v.replace(' ','T'));return isNaN(d)?null:d}
+      return v;
+    }
+    /* sorted by the column, the ones it cannot read last, ties in the order they came */
+    function order(){
+      var k=col<0?'':kind(col);
+      var list=rows.map(function(r){return {r:r,v:col<0?null:key(words(r.cells[col]),k)}});
+      list.sort(function(a,b){
+        if(col>=0){
+          if(a.v===null&&b.v!==null)return 1;
+          if(b.v===null&&a.v!==null)return -1;
+          if(a.v!==null){var c=k==='text'?String(a.v).localeCompare(String(b.v),undefined,{numeric:true,sensitivity:'base'}):a.v-b.v;if(c)return dir==='descending'?-c:c}
+        }
+        return a.r.__dtI-b.r.__dtI;
+      });
+      rows=list.map(function(x){return x.r});
+      rows.forEach(function(r){body.appendChild(r)});
+    }
+    function hit(r){
+      var w=q.toLowerCase().split(/\s+/).filter(Boolean);
+      return w.every(function(x){return r.__dtText.indexOf(x)>=0});
+    }
+    function picked(){return rows.filter(function(r){return r.__dtBox&&r.__dtBox.checked})}
+    function row(cls){var r=doc.createElement('tr'),td=doc.createElement('td');r.className=cls;td.colSpan=head.cells.length;r.appendChild(td);return r}
+    /* loading: rows of ramp with a wave through them, as many as a page */
+    function drawSkel(){
+      var n=Math.max(8,Math.floor(table.clientWidth/(skels.cw||8.4))-2),W='.:=+*#',f=wave?wave.f++:0,L=[0.9,0.6,0.8,0.5,0.7];
+      skels.forEach(function(r,i){
+        var len=Math.round(n*L[i%L.length]),s='',x;
+        for(x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-f+i*3)*0.35)+1)*2.99));
+        r.firstChild.textContent=tr(s);
+      });
+    }
+    function loading(on){
+      if(on&&!skels.length){
+        var n=clamp(+el.getAttribute('data-page-size')||5,3,10),i,r;
+        for(i=0;i<n;i++){r=row('dt-skel');r.setAttribute('aria-hidden','true');skels.push(r);body.appendChild(r)}
+        skels.cw=chw(el);wave=new Ctx(el,'wave');wave.f=0;every(120,drawSkel,wave);
+      }
+      if(!on&&skels.length){skels.forEach(function(r){r.remove()});skels=[];if(wave){wave.end();wave=null}}
+    }
+    function tell(){
+      if(!count)return;
+      var s=picked().length;
+      count.textContent=busy()?'Loading rows.':shown.length+' of '+rows.length+' row'+(rows.length===1?'':'s')+(s?', '+s+' selected':'')+'.';
+    }
+    function heads(){
+      if(!all)return;
+      var n=shown.filter(function(r){return r.__dtBox.checked}).length;
+      all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;
+      rows.forEach(function(r){r.classList.toggle('dt-on',r.__dtBox.checked)});
+    }
+    function wide(){if(wrap)wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2)}
+    function show(){
+      var b=busy(),size=pager?Math.max(0,Math.floor(+el.getAttribute('data-page-size')||0)):0;
+      shown=rows.filter(hit);
+      var pages=size?Math.max(1,Math.ceil(shown.length/size)):1;page=clamp(page,1,pages);
+      var from=size?(page-1)*size:0,to=size?from+size:shown.length;
+      rows.forEach(function(r){r.hidden=true});
+      shown.forEach(function(r,i){r.hidden=b||i<from||i>=to});
+      loading(b);
+      var msg=b?'':!rows.length?(el.getAttribute('data-empty')||'No rows yet.'):!shown.length?(el.getAttribute('data-no-match')||'No rows match.'):'';
+      if(msg){if(!blank)blank=row('dt-empty');blank.firstChild.colSpan=head.cells.length;blank.firstChild.textContent=msg;body.appendChild(blank)}
+      else if(blank)blank.remove();
+      if(pager&&size){
+        if(pager.getAttribute('data-pages')!==String(pages))pager.setAttribute('data-pages',pages);
+        if(pager.getAttribute('data-page')!==String(page))pager.setAttribute('data-page',page);
+      }
+      if(pager&&size)pager.hidden=b||!rows.length;
+      heads();tell();wide();
+      mo.takeRecords();
+    }
+    function sortBy(i,d){
+      col=d==='ascending'||d==='descending'?i:-1;dir=col<0?'none':d;
+      cols.forEach(function(c){c.th.setAttribute('aria-sort',at(c)===col?dir:'none')});
+      order();show();
+    }
+    /* the rows the page's own script adds or takes away are read again */
+    var mo=new MutationObserver(function(){read();order();show()});
+    var ma=new MutationObserver(function(){show()});
+    cols.forEach(function(c){
+      cx.on(c.btn,'click',function(){
+        var i=at(c),d=col!==i?'ascending':dir==='ascending'?'descending':'none';
+        sortBy(i,d);emit(el,'sort',{column:cols.indexOf(c),dir:dir,th:c.th});
+      });
+    });
+    if(input)cx.on(input,'input',function(){q=input.value;page=1;show()});
+    if(pager)cx.on(pager,'aui:change',function(e){if(e.target===pager){page=e.detail.page;show()}});
+    /* Shift with a click or with Space picks every row between this one and the last one picked */
+    cx.on(table,'pointerdown',function(e){shift=e.shiftKey});
+    cx.on(table,'keydown',function(e){if(e.key===' ')shift=e.shiftKey});
+    cx.on(table,'click',function(e){
+      var i=e.target;if(!pick||i.type!=='checkbox'||!i.closest('.dt-pick'))return;
+      var sh=e.shiftKey||shift;shift=false;
+      if(i===all){shown.forEach(function(r){r.__dtBox.checked=all.checked});anchor=null}
+      else{
+        var r=i.closest('tr'),a=shown.indexOf(anchor),b=shown.indexOf(r),k;
+        if(sh&&a>=0&&b>=0)for(k=Math.min(a,b);k<=Math.max(a,b);k++)shown[k].__dtBox.checked=i.checked;
+        anchor=r;
+      }
+      heads();tell();
+      var p=picked();emit(el,'select',{rows:p,count:p.length});
+    });
+    var ro=window.ResizeObserver&&wrap?new ResizeObserver(wide):null;
+    if(ro)ro.observe(wrap);else cx.on(window,'resize',wide);
+    cx.later(function(){
+      mo.disconnect();ma.disconnect();if(ro)ro.disconnect();loading(false);if(blank)blank.remove();
+      rows.forEach(function(r){r.hidden=false;r.classList.remove('dt-on');if(r.__dtBox){r.__dtBox.closest('td').remove();r.__dtBox=null}});
+      made.forEach(function(m){m.remove()});if(wrap)wrap.removeAttribute('data-wide');if(pager)pager.hidden=false;
+    });
+    read();
+    var first=cols.filter(function(c){var s=c.th.getAttribute('aria-sort');return s==='ascending'||s==='descending'})[0];
+    if(first)sortBy(at(first),first.th.getAttribute('aria-sort'));
+    else{cols.forEach(function(c){c.th.setAttribute('aria-sort','none')});show()}
+    mo.observe(body,{childList:true});
+    ma.observe(el,{attributes:true,attributeFilter:['aria-busy','data-page-size']});
+    function set(fn){read();fn();order();show()}
+    return {
+      sort:function(i,d){var c=cols[i];if(c)sortBy(at(c),d||'ascending')},
+      filter:function(t){q=String(t==null?'':t);if(input)input.value=q;page=1;show()},
+      select:function(which){set(function(){rows.forEach(function(r){if(r.__dtBox)r.__dtBox.checked=which==='all'||Array.isArray(which)&&which.indexOf(r)>=0})})},
+      refresh:function(){set(function(){})},
+      get rows(){return shown.slice()},
+      get selected(){return picked()},
+      get page(){return page}
+    };
   },
 
   /* .pop holding a button[aria-haspopup] and a [role=menu] of [role=menuitem].
@@ -980,6 +1222,213 @@ var behaviors={
     };
   },
 
+  /* around a <table>: the first column names the points, every other column
+     is a series, named by the header row. data-type="bars" (the default),
+     "line", "hbars", "heatmap" (every cell a point) or "donut" (the first
+     series); "spark" is spark() above. data-max and data-min set the scale,
+     data-rows the height, data-pick the first pick. The table stays for
+     screen readers and for a page without the script; the characters above
+     it are paint. Focused, the arrows, Home and End move the pick and Escape
+     lets go, said in the nearest role="status". Fires aui:pick on a click or key */
+  chart:function(el,cx){
+    var type=el.getAttribute('data-type')||'bars',heat=type==='heatmap';
+    if(type==='spark')return spark(el,cx);
+    var tb=el.querySelector('table');if(!tb)return;
+    var plot=doc.createElement('pre'),out=status(el),live=null,set=[],obs=[],D=null,G=null,pick=-1,p=1,cw=0,lastW=-1,vis0=0;
+    plot.className='plot';plot.setAttribute('aria-hidden','true');el.insertBefore(plot,el.firstChild);el.classList.add('drawn');
+    function own(a,v){if(!el.hasAttribute(a)){el.setAttribute(a,v);set.push(a)}}
+    own('tabindex','0');own('role','group');own('aria-roledescription','chart');
+    if(tb.caption&&!el.hasAttribute('aria-label'))own('aria-labelledby',uid(tb.caption,'cap'));
+    if(!out){out=live=doc.createElement('span');live.className='vh';live.setAttribute('role','status');el.appendChild(live)}
+    cx.later(function(){plot.remove();if(live)live.remove();el.classList.remove('drawn');set.forEach(function(a){el.removeAttribute(a)});obs.forEach(function(o){o.disconnect()})});
+    function read(){
+      var head=tb.tHead&&tb.tHead.rows[0],rows=all('tr',tb).filter(function(r){return r.parentNode.localName!=='tfoot'});
+      if(!head&&rows[0]&&!rows[0].querySelector('td'))head=rows[0];
+      var R=rows.filter(function(r){return r!==head&&r.parentNode.localName!=='thead'&&r.cells.length>1}).map(function(r){
+        var c=[].slice.call(r.cells,1);return {l:txt(r.cells[0]),v:c.map(num),t:c.map(txt)}});
+      var v=[].concat.apply([0],R.map(function(r){return r.v})),mn=attrNum(el,'data-min'),mx=attrNum(el,'data-max');
+      if(v.length>1)v.shift();
+      D={rows:R,ns:Math.max.apply(0,R.map(function(r){return r.v.length}).concat(0)),names:head?[].slice.call(head.cells,1).map(txt):[],
+         lo:mn===null?Math.min.apply(0,v):mn,hi:mx===null?Math.max.apply(0,v):mx};
+      D.max=mx===null?nice(D.hi):mx||1;
+      D.tot=R.reduce(function(a,r){return a+Math.max(0,r.v[0]||0)},0)||1;
+    }
+    function cols(){
+      if(!cw){var q=doc.createElement('span');q.textContent='MMMMMMMMMM';q.style.cssText='position:absolute;visibility:hidden';plot.appendChild(q);cw=q.getBoundingClientRect().width/10||8.4;q.remove()}
+      return Math.max(16,Math.floor(plot.clientWidth/cw));
+    }
+    var rows=function(){return clamp(attrNum(el,'data-rows')||8,3,40)};
+    /* the value axis for bars and line: 0, half and the top, dotted across */
+    function axis(w,h){
+      var l=Math.max(short(D.max).length,short(D.max/2).length)+1,g=new Cells(w,h+1+(D.ns>1));
+      [0,.5,1].forEach(function(f){
+        var y=h-1-Math.round(f*(h-1)),s=short(D.max*f);g.text(l-1-s.length,y,s,'muted');
+        for(var x=l;x<w;x+=2)g.set(x,y,'.','muted');
+      });
+      /* two series or more: a key under it */
+      var x=0;if(D.ns>1)D.names.slice(0,D.ns).forEach(function(n,s){g.text(x,h+1,GL.charAt(s%6)+GL.charAt(s%6),COL[s%6]);g.text(x+3,h+1,n);x+=n.length+5});
+      g.l=l;return g;
+    }
+    /* the pick is said in text too, [Thu], not only by color */
+    function tag(g,x,y,s,on,i){if(on)g.text(x-1,y,'['+s+']','ink',i);else g.text(x,y,s,'muted',i)}
+    function bars(w){
+      var R=D.rows,ns=D.ns,h=rows(),g=axis(w,h),l=g.l,gw=Math.max(2,Math.floor((w-l)/(R.length||1))),bw=Math.max(1,Math.floor((gw-1)/ns));
+      R.forEach(function(r,i){
+        var x0=l+i*gw,on=i===pick,s,y,x,k,t,lb=r.l.slice(0,bw*ns);
+        g.hit(x0,0,gw,h+1,i);
+        for(s=0;s<ns;s++){
+          k=Math.round(clamp((r.v[s]||0)/D.max,0,1)*h*p);
+          /* one series grows through the ramp and caps out lighter */
+          for(y=0;y<k;y++){t=k-1-y;for(x=0;x<bw;x++)g.set(x0+s*bw+x,h-1-y,ns>1?GL.charAt(s%6):'*#%@'.charAt(Math.min(t,3)),on?'violet':ns>1?COL[s%6]:t<2?'pink':'hot',i)}
+        }
+        tag(g,x0+Math.max(0,(bw*ns-lb.length)>>1),h,lb,on,i);
+      });
+      return g;
+    }
+    function line(w){
+      var R=D.rows,n=R.length,ns=D.ns,h=rows(),g=axis(w,h),l=g.l,pw=w-l,x,y,s;
+      if(!n)return g;
+      function at(x){return n>1?x*(n-1)/(pw-1):0}
+      function row(v){return h-1-Math.round(clamp(v/D.max,0,1)*(h-1))}
+      var px=l+(n>1?Math.round(pick*(pw-1)/(n-1)):0);
+      for(x=0;x<pw;x++)g.hit(l+x,0,1,h+1,Math.round(at(x)));
+      if(pick>=0)for(y=0;y<h;y++)g.set(px,y,':','muted');
+      for(s=0;s<ns;s++)for(x=0;x<Math.round(pw*p);x++){
+        var t=at(x),i=Math.floor(t),a=R[i].v[s]||0,b=R[Math.min(n-1,i+1)].v[s]||0,yy=row(a+(b-a)*(t-i));
+        /* one series is filled under the line */
+        if(ns<2)for(y=yy+1;y<h;y++)g.set(l+x,y,y-yy<2?':':'.',y-yy<2?'violet':'deep');
+        g.set(l+x,yy,ns>1?GL.charAt(s%6):'*',ns>1?COL[s%6]:'hot');
+      }
+      if(pick>=0&&p>=1){
+        for(s=0;s<ns;s++)g.set(px,row(R[pick].v[s]||0),ns>1?GL.charAt(s%6):'@','violet');
+        tag(g,clamp(px-(R[pick].l.length>>1),1,w-R[pick].l.length-1),h,R[pick].l,1,pick);
+      }else{g.text(l,h,R[0].l,'muted');if(n>1)g.text(Math.max(l+R[0].l.length+1,w-R[n-1].l.length),h,R[n-1].l,'muted')}
+      return g;
+    }
+    function hbars(w){
+      var R=D.rows,lw=0,vw=0;R.forEach(function(r){lw=Math.max(lw,r.l.length);vw=Math.max(vw,(r.t[0]||'').length)});
+      lw=Math.min(lw,16);var n=Math.max(4,w-lw-vw-4),g=new Cells(w,Math.max(1,R.length*2-1));
+      R.forEach(function(r,i){
+        var y=i*2,on=i===pick,s=bar((r.v[0]||0)/D.max*n*p,n),j,c,v=r.t[0]||'';
+        g.hit(0,y,w,1,i);tag(g,1,y,r.l.slice(0,lw),on,i);
+        for(j=0;j<n;j++){c=s.charAt(j);g.set(lw+3+j,y,c,on&&c!=='.'?'violet':HUE[c],i)}
+        g.text(w-v.length,y,v,'ink',i);
+      });
+      return g;
+    }
+    function heatmap(w){
+      var R=D.rows,nc=D.ns,lw=Math.min(12,Math.max.apply(0,R.map(function(r){return r.l.length}).concat(0)))+1,
+          fit=Math.max(1,Math.min(nc,(w-lw)>>1)),c0=vis0=nc-fit,g=new Cells(w,R.length+1),span=D.hi-D.lo;
+      R.forEach(function(r,y){
+        g.text(0,y,r.l.slice(0,lw-1),'muted');
+        for(var c=c0;c<c0+Math.round(fit*p);c++){
+          var f=span>0?clamp(((r.v[c]||0)-D.lo)/span,0,1):1,ch=RAMP.charAt(1+Math.round(f*7)),k=f>2/3?'hot':f>1/3?'pink':'muted',i=y*nc+c,x=lw+(c-c0)*2,on=i===pick;
+          g.set(x,y,on?'[':ch,on?'ink':k,i,on);g.set(x+1,y,on?']':ch,on?'ink':k,i,on);
+        }
+      });
+      /* the first and the last column's names, or only the newest when both do not fit */
+      var a=D.names[c0]||'',b=D.names[nc-1]||'',room=fit*2;
+      if(fit>1&&a.length+b.length+1>room)a='';
+      g.text(lw,R.length,a,'muted');if(fit>1)g.text(Math.max(lw,lw+room-b.length),R.length,b,'muted');
+      return g;
+    }
+    function donut(w){
+      /* a circle on the grid: a row is taller than a character is wide */
+      var R=D.rows,n=R.length,ay=rowh()/cw,Ro=Math.min(10,(w-1)>>1),Rb=Ro-0.6,hh=Math.floor(Rb/ay),h=hh*2+1,
+          lw=Math.max.apply(0,R.map(function(r){return r.l.length}).concat(0))+11,side=w>=2*Ro+4+lw,
+          g=new Cells(w,side?Math.max(h,n*2-1):h+1+n),cum=[],acc=0,x,y,i;
+      R.forEach(function(r){acc+=Math.max(0,r.v[0]||0)/D.tot;cum.push(acc)});
+      for(y=0;y<h;y++)for(x=0;x<=2*Ro;x++){
+        var dx=x-Ro,dy=(y-hh)*ay,d=Math.sqrt(dx*dx+dy*dy),a=(Math.atan2(dy,dx)/Math.PI/2+1.25)%1;
+        if(d<Ro/2||d>Rb||a>p)continue;
+        for(i=0;i<n-1&&a>=cum[i];i++);
+        var on=pick<0||pick===i;g.set(x,y,on?GL.charAt(i%6):d>Ro*0.75?':':'.',on?COL[i%6]:'muted',i);
+      }
+      R.forEach(function(r,i){
+        var on=pick<0||pick===i,k=on?COL[i%6]:'muted',lx=side?2*Ro+4:0,ly=side?Math.max(0,hh-n+1)+i*(h>=n*2-1?2:1):h+1+i,pc=Math.round(Math.max(0,r.v[0]||0)/D.tot*100)+'%';
+        g.hit(lx,ly,lw,1,i);g.text(lx,ly,GL.charAt(i%6)+GL.charAt(i%6),k,i);
+        tag(g,lx+4,ly,r.l,i===pick,i);g.text(lx+lw-pc.length,ly,pc,on?'ink':'muted',i);
+      });
+      return g;
+    }
+    var DRAW={bars:bars,line:line,hbars:hbars,heatmap:heatmap,donut:donut};
+    function draw(){if(!D)read();G=(DRAW[type]||bars)(cols());plot.innerHTML=G.html()}
+    function count(){return heat?D.rows.length*D.ns:D.rows.length}
+    function info(i){
+      var c=heat?i%D.ns:0,r=D.rows[heat?(i-c)/D.ns:i];
+      return heat?{index:i,row:(i-c)/D.ns,col:c,label:r.l,column:D.names[c]||'',value:r.v[c],text:r.t[c]}:{index:i,label:r.l,values:r.v.slice(),texts:r.t.slice()};
+    }
+    function words(i){
+      var o=info(i);
+      if(heat)return o.label+', '+(o.column||'column '+(o.col+1))+': '+o.text;
+      if(type==='donut')return o.label+': '+o.texts[0]+', '+Math.round(Math.max(0,o.values[0])/D.tot*100)+' percent of the total';
+      return o.label+': '+o.texts.map(function(t,s){return (D.names[s]?D.names[s]+' ':'')+t}).join(', ');
+    }
+    function choose(i,user,quiet){
+      if(!D)read();pick=i>=0&&i<count()?i:-1;draw();
+      if(!quiet)out.textContent=pick<0?'':words(pick);
+      if(user&&pick>=0)emit(el,'pick',info(pick));
+    }
+    read();var dp=attrNum(el,'data-pick');if(dp!==null&&dp<count())pick=dp;
+    cx.on(el,'keydown',function(e){
+      if(e.target!==el)return;
+      var n=count(),nc=heat?D.ns:1,k=e.key,c=pick%nc,r=Math.max(0,pick-c),st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-nc,ArrowDown:nc}[k],i;
+      if(!n)return;
+      /* a heatmap starts on the newest column, where the eye starts */
+      if(st)i=pick<0?(heat?nc-1:st>0?0:n-1):nc>1&&st*st===1?r+clamp(c+st,vis0,nc-1):clamp(pick+st,0,n-1);
+      else if(k==='Home')i=nc>1?r+vis0:0;
+      else if(k==='End')i=nc>1?r+nc-1:n-1;
+      else if(k==='Escape'&&pick>=0)i=-1;
+      else return;
+      e.preventDefault();choose(i,1);
+    });
+    cx.on(plot,'click',function(e){
+      var b=plot.getBoundingClientRect(),x=Math.floor((e.clientX-b.left)/cw),y=Math.floor((e.clientY-b.top)/rowh()),
+          i=G&&x>=0&&y>=0&&x<G.w&&y<G.h?G.p[y*G.w+x]:-1;
+      if(i>=0)choose(i===pick?-1:i,1);
+    });
+    /* a new width redraws it, and so does a change to the table */
+    function watch(o,t,opt){obs.push(o);o.observe(t,opt);return o}
+    if(window.ResizeObserver)watch(new ResizeObserver(function(){var w=plot.clientWidth;if(w!==lastW){lastW=w;cw=0;draw()}}),plot);
+    watch(new MutationObserver(function(){D=null;choose(pick,0,1)}),tb,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-value']});
+    if(doc.fonts)doc.fonts.ready.then(function(){if(!cx.dead){cw=0;draw()}});
+    /* it grows in once, when it first comes on screen; under reduced motion it is drawn whole */
+    if(!reduce&&window.IntersectionObserver){
+      p=0;var io=watch(new IntersectionObserver(function(en){
+        if(!en[en.length-1].isIntersecting)return;io.disconnect();
+        var s=0;(function step(){if(cx.dead||p>=1)return;p=reduce?1:++s/10;draw();setTimeout(step,40)})();
+      }),el);
+    }
+    draw();
+    return {
+      draw:function(){p=1;D=null;draw()},
+      pick:function(i){choose(i==null?-1:i)},
+      get index(){return pick},
+      get data(){return D}
+    };
+  },
+  /* a list of checkboxes (.checklist). The share ticked goes into the
+     nearest role="progressbar", before or after it, as a percent (or the
+     one data-progress="id" names). Fires aui:change with { done, total }
+     when a person ticks one; data-done="All done." is a toast when the last
+     one is ticked */
+  checklist:function(el,cx){
+    var bar=near(el,'data-progress','[role="progressbar"]',true);
+    function count(){
+      var b=all('input[type="checkbox"]',el),d=b.filter(function(x){return x.checked}).length;
+      return {done:d,total:b.length};
+    }
+    function draw(){var c=count();if(bar)setProgress(bar,c.total?c.done/c.total*100:0);return c}
+    cx.on(el,'change',function(e){
+      if(e.target.type!=='checkbox')return;
+      var c=draw();if(resetting)return;
+      emit(el,'change',c);
+      var w=el.getAttribute('data-done');if(w&&e.target.checked&&c.done===c.total)toast(w);
+    });
+    draw();
+    return {draw:draw,get done(){return count().done},get total(){return count().total}};
+  },
+
   /* a <nav>: data-pages="9" data-page="3". data-href="?page={n}" draws links
      instead of buttons. Fires aui:change on a pick (buttons only; a link goes) */
   pagination:function(el,cx){
@@ -1025,6 +1474,44 @@ var behaviors={
       set:function(n){ask(n);draw()},
       get page(){return cur},
       get pages(){return N}
+    };
+  },
+
+  /* a group where one is the pick: its buttons, links and role="button"
+     cards. A click, or Enter or Space on a role="button", picks one. When
+     one of them has aria-current in the html (the pages of an app) the pick
+     takes that; otherwise each has aria-pressed, "true" on the pick. The
+     nearest role="status" says the pick's data-say. Fires aui:change with
+     { item, index } */
+  pick:function(el,cx){
+    function items(){
+      var xs=all('button,a[href],[role="button"]',el);
+      return xs.filter(function(x){return !xs.some(function(o){return o!==x&&o.contains(x)})});
+    }
+    var first=items().filter(function(x){return x.hasAttribute('aria-current')})[0];
+    var cur=first?(first.getAttribute('aria-current')==='false'?'page':first.getAttribute('aria-current')):'',set=[];
+    if(!cur)items().forEach(function(x){if(!x.hasAttribute('aria-pressed')){x.setAttribute('aria-pressed','false');set.push(x)}});
+    cx.later(function(){set.forEach(function(x){x.removeAttribute('aria-pressed')})});
+    function choose(x,quiet){
+      items().forEach(function(o){
+        if(cur){if(o===x)o.setAttribute('aria-current',cur);else o.removeAttribute('aria-current')}
+        else o.setAttribute('aria-pressed',o===x?'true':'false');
+      });
+      if(quiet)return;
+      var w=x.getAttribute('data-say');if(w)say(el,w);
+      emit(el,'change',{item:x,index:items().indexOf(x)});
+    }
+    function hit(t){var x=t.closest&&t.closest('button,a[href],[role="button"]');return x&&items().indexOf(x)>=0?x:null}
+    cx.on(el,'click',function(e){var x=hit(e.target);if(x&&!x.disabled&&x.getAttribute('aria-disabled')!=='true')choose(x)});
+    cx.on(el,'keydown',function(e){
+      if(e.key!=='Enter'&&e.key!==' ')return;
+      var x=hit(e.target);if(!x||x!==e.target||x.localName==='button'||x.localName==='a')return;
+      e.preventDefault();choose(x);
+    });
+    return {
+      select:function(i){var x=items()[i];if(x)choose(x,true)},
+      get index(){return items().findIndex(function(x){return cur?x.hasAttribute('aria-current'):x.getAttribute('aria-pressed')==='true'})},
+      get item(){var i=this.index;return i<0?null:items()[i]}
     };
   },
 
@@ -1130,6 +1617,40 @@ var behaviors={
     else if(!el.hasAttribute('aria-hidden')){el.setAttribute('aria-hidden','true');set='aria-hidden'}
     cx.later(function(){if(set)el.removeAttribute(set)});
     every(110,function(){f++;el.textContent=fn()},cx);
+  },
+
+  /* .stepper: a button, the number (an <output> or a <b>) and a button. The
+     first takes one off, the last adds one, from data-min (1) to data-max
+     (99); a button at the end of the range turns off and the focus moves to
+     the other. Every [data-each] in the same .card (or the stepper's
+     parent) shows data-each times the number, in data-unit: g turns into
+     kg from 1000 and ml into l, g and ml round to 10, kg and l to one
+     decimal, and no unit rounds up to a whole count. Fires aui:change
+     with { value } */
+  stepper:function(el,cx){
+    var bs=all('button',el),dn=bs[0],up=bs[bs.length-1],out=el.querySelector('output,b');
+    if(!dn||dn===up||!out)return;
+    var v=parseInt(out.textContent,10);
+    function lim(){return [+(el.getAttribute('data-min')||1),+(el.getAttribute('data-max')||99)]}
+    function amount(q,u){
+      if(u==='g'||u==='ml')return q>=1000?(Math.round(q/100)/10)+' '+(u==='g'?'kg':'l'):(Math.round(q/10)*10)+' '+u;
+      if(u)return (Math.round(q*10)/10)+' '+u;
+      return String(Math.max(1,Math.ceil(q)));
+    }
+    function draw(){
+      var l=lim();v=clamp(isNaN(v)?l[0]:v,l[0],l[1]);
+      out.textContent=v;dn.disabled=v<=l[0];up.disabled=v>=l[1];
+      all('[data-each]',el.closest('.card')||el.parentElement).forEach(function(q){q.textContent=amount(+q.getAttribute('data-each')*v,q.getAttribute('data-unit')||'')});
+    }
+    cx.on(el,'click',function(e){
+      var b=e.target.closest('button');if(!b||b.disabled||(b!==dn&&b!==up))return;
+      v+=b===up?1:-1;draw();
+      if(b.disabled)(b===up?dn:up).focus();
+      emit(el,'change',{value:v});
+    });
+    cx.attr=function(){draw()};
+    draw();
+    return {draw:draw,set:function(n){v=Math.round(+n);draw()},get value(){return v}};
   },
 
   /* a <pre>: a card silhouette with a wave through the ramp */
@@ -1400,7 +1921,7 @@ function validate(root){
   });
   return good;
 }
-var WATCH=['data-aui','data-page','data-pages','data-href','data-value','data-min','data-max','data-week-start','data-locale','data-name','data-kind','data-cells'];
+var WATCH=['data-aui','data-page','data-pages','data-href','data-value','data-min','data-max','data-week-start','data-locale','data-name','data-kind','data-cells','data-type','data-values','data-rows','data-pick'];
 function start(){
   init(doc);
   new MutationObserver(function(ms){ms.forEach(function(m){
@@ -1423,8 +1944,8 @@ if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',start);els
 window.ASCIIUI={
   version:VERSION,init:init,destroy:destroy,get:get,validate:validate,
   toast:toast,progress:setProgress,bar:bar,colorize:colorize,tones:tones,behaviors:behaviors,
-  tabs:typed('tabs'),pagination:typed('pagination'),calendar:typed('calendar'),dropdown:typed('dropdown'),otp:typed('otp'),
-  popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),
+  tabs:typed('tabs'),pagination:typed('pagination'),calendar:typed('calendar'),chart:typed('chart'),dropdown:typed('dropdown'),otp:typed('otp'),
+  popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),datatable:typed('datatable'),
   get reduce(){return reduce}
 };
 })();

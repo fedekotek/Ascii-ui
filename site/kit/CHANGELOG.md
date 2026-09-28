@@ -2,6 +2,30 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.3.0, 2026-09-28
+
+<!-- charts: the charts builder writes here -->
+Added
+- Charts, `data-aui="chart"` on a `.chart` around a `<table>`: `data-type="bars"`, `line`, `hbars`, `heatmap` or `donut`, drawn in ramp characters on the grid, as wide as the box. The table is the data: it shows without the script and stays for screen readers with it. A Tab stop; the arrows, Home, End and Escape move the pick, said in the nearest status line and marked `[Thu]`; a glyph per series and per slice, not only a color. `data-max`, `data-min`, `data-rows`, `data-pick`. `aui:pick`, `ASCIIUI.chart(el)`. It grows in once, not under reduced motion.
+- Sparkline, `data-type="spark"` on a `.spark`: `data-values`, one ramp character a value, an image named by its numbers.
+
+<!-- table: the data table builder writes here -->
+Added
+- Data table, `data-aui="datatable"` on the box around a `.tablewrap` and its `.tbl`. A `<button class="dt-sort">` in a `<th>` sorts the column (ascending, descending, then the order the rows came in) and says so in `aria-sort`, with `^`, `v` and `-` as paint. Numbers (units and currency signs aside) and `yyyy-mm-dd` dates sort as values; `data-sort="num|date|text|none"` on the th and `data-value` on a td decide instead. An input with `data-aui-filter` narrows the rows to the ones holding every word, a `.dt-count` says "12 of 40 rows, 3 selected.", and a row across every column says "No rows match." (`data-no-match`) or "No rows yet." (`data-empty`). `data-select` adds a checkbox column drawn like the Toggles, a select-all with an indeterminate `[-]`, Shift for a range, and picked rows as ink slabs. `data-page-size` pages the rows through the Pagination inside the box. `aria-busy="true"` draws skeleton rows. On a phone it scrolls sideways inside its box and says so. `aui:sort`, `aui:select`, `ASCIIUI.datatable(el)`.
+- The checkbox glyph says `[-]` while `indeterminate`.
+
+<!-- icons: the icons builder writes here -->
+- **Icon.** Thirty-nine icons drawn in characters, CSS only: `<span class="icon" data-icon="search" role="img" aria-label="Search"></span>`. Inline is one row and one to three characters; `.icon-lg` is three rows and five or six characters, for empty states and tiles. Printable ASCII only, so they draw in the kit font and in any monospace that stands in. They take the text color; `.hot`, `.ok`, `.warn` and `.violet` give a role color. The names are in README, Icons. New classes: `icon`, `icon-lg`, `violet`, `warn` (on `.icon` only).
+
+<!-- blocks: the blocks builder writes here -->
+Added
+- The Blocks run on the kit: every Block's Code tab offers Download page, except one with a part the kit cannot draw yet (Stats, until its sparklines are in).
+- Block pieces in the CSS: `.kpis` and `.kpi` (stat tiles), `.poster.ptitle` (a bitmap title held in the HTML as rows of characters), `.grid2` and `.grid3` (cards side by side), `.pricing` with `.price`, `.feat`, `.popular` and `.row.full`, `.checklist` and `.meta`, `.navlist`, `.kv` and `.qty`, `.progress[role="meter"]`, `.stepper` and `.steps`, `.tags` with `.b-violet` and `.b-pink`, `.thumb`, `.profile`, and `a.btn`. README has them under Blocks.
+- Checklist, `data-aui="checklist"`: the share of ticked boxes goes into the progress bar next to the list; `data-done` is a toast when the last one is ticked. `aui:change` with `{ done, total }`.
+- Pick, `data-aui="pick"`: one of a group of buttons, links or cards is the pick, by click, Enter or Space. It moves `aria-current` when the HTML uses it, `aria-pressed` otherwise, and says the pick's `data-say` in the status line. `aui:change` with `{ item, index }`.
+- Stepper, `data-aui="stepper"`: a number between two buttons, `data-min` to `data-max`, that scales the `[data-each]` amounts in its card, in metric (g to kg, ml to l). `aui:change` with `{ value }`.
+- A progress bar with `data-cells` draws that many cells without the 24 character floor when it is a `role="meter"`.
+
 ## 1.2.1, 2026-09-27
 
 Fixed

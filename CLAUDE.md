@@ -6,7 +6,7 @@ A component kit: shadcn-style components wearing a brutalist ASCII skin with a b
 ## Stack
 No frameworks, no bundler, no package manager, no dependencies. Vanilla HTML, one page (`index.html`), 24 stylesheets in `css/` (01 to 22, 25-icons, then 29-print last) and 8 scripts in `js/` (00, 10, 20, 30, 40, 70, 80, 90), both loaded in the order their filenames are numbered. `build.py` (Python 3, standard library only) inlines and minifies them into `dist/ascii-ui.html` and writes `site/`, the deploy output: the single file plus `kit/`. `site/` is what ships (`vercel.json` points Vercel at it). The page makes no external requests: Geist Mono is self-hosted, a subset inlined in the page (`assets/fonts/`) and a copy next to the kit (`kit/fonts/`). QA is Playwright for Python in `qa/`.
 
-The kit is separate from the site: `kit/ascii-ui.css` and `kit/ascii-ui.js` (global `window.ASCIIUI`, wired by `data-aui` attributes), `kit/starter.html` and `kit/README.md` (the kit's reference, API and versions). The site does not load it. The Code tab prints it, from a copy embedded at the end of js/40 (`KIT()`) that `python3 qa/kit.py sync` rewrites. 33 of the 35 components are in the kit; Command and Picture are site only. `llms.txt` is the one-page map for an agent.
+The kit is separate from the site: `kit/ascii-ui.css` and `kit/ascii-ui.js` (global `window.ASCIIUI`, wired by `data-aui` attributes), `kit/starter.html` and `kit/README.md` (the kit's reference, API and versions). The site does not load it. The Code tab prints it, from a copy embedded at the end of js/40 (`KIT()`) that `python3 qa/kit.py sync` rewrites. 34 of the 36 components are in the kit; Command and Picture are site only. `llms.txt` is the one-page map for an agent.
 
 ## Run and test
 ```
@@ -55,7 +55,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching. W
 9. After editing anything in `kit/`, run `python3 qa/kit.py sync`, then `python3 qa/kit.py`. The Code tab reads the synced copy, not the files.
 
 ## How to add a component (short version, the full checklist is in docs/COMPONENTS.md)
-1. `index.html`: a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. `data-span="full"` if it holds a table, a chart or a picture (gallery columns are 66 characters at 1024px, 43 at 1280px, 41 at 1600px, never under 40). Update the count strings ("35 components", "Thirty-five", "33 in the kit", README, llms.txt).
+1. `index.html`: a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. `data-span="full"` if it holds a table, a chart or a picture (gallery columns are 66 characters at 1024px, 43 at 1280px, 41 at 1600px, never under 40). Update the count strings ("36 components", "Thirty-five", "34 in the kit", README, llms.txt).
 2. Its id in a group of `KIT_GROUPS` (js/30: Form, Overlay, Display, Feedback, Navigation). The docs builder sorts, adds Preview/Code tabs, the index and the sidebar.
 3. Site wiring: CSS at the end of css/14 or a new file after css/22 (29-print stays last); JS in js/30.
 4. `KITIFY` in js/40: the `data-aui` attributes the kit needs, set on the Code tab's clone. Or a `SITEONLY` note if the kit cannot run it.

@@ -673,7 +673,7 @@ EDGES=[
   '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
   '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
   """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
-    if(ASCIIUI.version!=='1.2.1')bad.push('version '+ASCIIUI.version);
+    if(ASCIIUI.version!=='1.3.0')bad.push('version '+ASCIIUI.version);
     if(__ev.length)bad.push('aui:change fired on load: '+__ev);
     const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
     if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');

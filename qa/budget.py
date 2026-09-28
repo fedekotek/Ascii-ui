@@ -19,7 +19,7 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
-    'index.html':        180*KB,     # 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
+    'index.html':        200*KB,     # 183 KB at 11.4 with the kit charts, the Blocks, the icons and the data table
     'ascii-ui.html':     235*KB,     # charts, the Blocks, the icons and the data table on the kit: the download, everything embedded (each measured apart at 211 to 215)
     'kit/ascii-ui.css':   20*KB,     # 14.4 KB with the Blocks pieces, plus the charts, the 39 icons and the data table
     'kit/ascii-ui.js':    40*KB,     # 31.1 KB with charts, plus checklist, pick, stepper and about 4 KB of data table
