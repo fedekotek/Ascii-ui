@@ -2,6 +2,16 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## Unreleased
+
+<!-- charts: the charts builder writes here -->
+
+<!-- table: the data table builder writes here -->
+
+<!-- icons: the icons builder writes here -->
+
+<!-- blocks: the blocks builder writes here -->
+
 ## 1.2.1, 2026-09-27
 
 Fixed
