@@ -147,7 +147,7 @@
   :root:root[data-preset="blueprint"]{--muted:#d3e1f9}
   :root:root[data-preset="hotdog"]{--muted:#ffe438}
   body{font-weight:400}
-  .topbar::after,.menu-foot::before,.skel .f,
+  .topbar::after,.menu-set::before,.skel .f,
   [role="tabpanel"] > section[aria-labelledby]::before,
   [role="tabpanel"] > section[aria-labelledby] ~ section[aria-labelledby]::before{opacity:1 !important}
   dialog:not(#menuDlg)[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}

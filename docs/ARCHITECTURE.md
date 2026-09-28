@@ -99,7 +99,7 @@ The kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`) is not loaded by the site. It is
 <div #rebuild>              Rebuild button, shown after a shatter
 <div #hud> <div #track>     VHS timecode, rolling tracking band
 <dialog #sheetDlg .sheet>   bottom sheet demo
-<dialog #menuDlg>           the [=] menu, full screen, below 1024px
+<dialog #menuDlg>           the [=] menu, full screen, below 1024px: find a section, the list, Settings
 <dialog #cmdDlg>            Search (js/80, css/18)
 <dialog #posterDlg>         generated poster / snapshot
 <div #toast>
@@ -122,12 +122,13 @@ All of it lives in `css/17-nav.css` and `js/70-nav.js`, except the view swap its
 **The bar** lives outside `main`, so it spans the window and sticks from the first pixel. Inside it, a container the width of the content column keeps the name aligned with the page, and the rule underneath runs the full width, faint; the view you are in is the only heavy mark on it. Three zones: the name on the left (it is Home), the views in the middle (muted, the current one bold ink), and `.barctl` pinned right. By width:
 
 ```
-under 768     [=] ascii/ui                                        [/]  <)))  -O-
+under 480     [=] ascii/ui  Components v                          [/]  <)))
+480 to 767    [=] ascii/ui  Components v                          [/]  <)))  -O-
 768 to 1023   [=] ascii/ui  Components Blocks Charts Themes      [/]  /\/  <)))  -O-
 1024 and up   ascii/ui  Components Blocks Charts Themes   [ o\ Search   Ctrl K ]  |  /\/  <)))  -O-
 ```
 
-`#cmdBtn` is Search, drawn as a field from 1024px (`Cmd K` on a Mac) and as `[/]` below. Then three glyph buttons: `#glitchBar` (`/\/`, `___` when off), `#soundBar` (`<)))`, `<) x` when off) and `#themeToggle` (`-O-` or `(C`). From 1280px each glyph gets its word next to it. Sound and Theme stay in the bar at every width; Glitch leaves it under 768px and lives in the menu. There is no crumb any more. `qa/breakpoints.py` checks that nothing in the bar overlaps and that the views never scroll out of sight.
+`#cmdBtn` is Search, drawn as a field from 1024px (`Cmd K` on a Mac) and as `[/]` below. Then three glyph buttons: `#glitchBar` (`/\/`, `___` when off), `#soundBar` (`<)))`, `<) x` when off) and `#themeToggle` (`-O-` or `(C`). From 1280px each glyph gets its word next to it. Sound stays in the bar at every width; Glitch leaves it under 768px and Theme under 480px, and both live under Settings in the menu. Under 768px the row of views becomes the view picker (`#viewBtn`, "Components v"): a button that opens a short list of the five views under it (`#viewList`, links, `aria-current="page"` on yours). Arrows move, Enter goes, Escape closes it and the focus goes back to the button; Tab or a tap elsewhere closes it. There is no crumb any more. `qa/breakpoints.py` checks that nothing in the bar overlaps and that the views never scroll out of sight.
 
 **Addresses.** Every view and every section has one: `#components`, `#components/button`, `#themes/labs` (the section heading's id minus `s-` or `o-`; views are home, components, blocks, charts, themes). Old `#play`, `#apps` and `#onepager` links land on `#home`. The view tabs and the sidebar and menu entries are real links, so they can be copied or opened in a new tab. Picking a view or a section pushes a history entry, so Back works; the scroll spy only replaces the current entry as you read, so reading does not fill up Back. Loading an address, Back, Forward and a hand-typed hash all go through `route()`. It is only hashes, so it works from `file://`. Search's `goto` command takes the same names.
 
@@ -141,7 +142,7 @@ under 768     [=] ascii/ui                                        [/]  <)))  -O-
 
 **The sidebar** appears from 1024px. `main` becomes a two column grid there: `26ch` for the sidebar, `4ch` gutter, the rest for the panels, which leaves whole character columns for the gallery beside it (66 at 1024px, 43 at 1280px, 41 at 1600px). Its rows are pinned, because the panels all share one cell and once one row is explicit the others have to be, or the footer flows into the gap. Chrome constrains a sticky grid item to the whole grid, not its row, so a sticky `#sidenav` rode down over the footer; the nav is a plain cell stretched to its row and the list inside it (`.side-in`) is what sticks, so it stops where the row does. Its heading sticks inside the list's own scroll. With a mouse each entry is one 21px row; on a touch screen the rows are 48px.
 
-**The menu** (`[=]`, below 1024px) is the index on small screens: the whole screen, opaque. MENU and `[x]` (Escape too), then the five views as a row of tabs, then the list, one section per 48px row, with `> ` on the one you are reading, then Show grid and Glitch at the foot. The Home tab goes straight to Home; the others only refill the list; the page changes when you pick a section: the view swaps if it has to, the title lands under the bar, then the menu steps out and the focus goes to that section. It comes in and goes out with the same four-step wipe, none with reduced motion. The chip index inside each view starts closed below 1024px, since the menu does its job, and is hidden from 1024px, where the sidebar does.
+**The menu** (`[=]`, below 1024px) is the index on small screens: the whole screen, opaque. It is about the view you are in, nothing else (the views are the picker in the bar, Search is the whole site). MENU and `[x]`, then Find a section (`#menuFind`), a field that narrows the list as you type (Enter goes to the first match, Escape empties it, then closes the menu; nothing found offers Search with the same words), then the list, one section per 48px row, with `> ` on the one you are reading, then Settings folded at the foot (`#menuSet`: Show grid, Glitch, Theme, the credit). Opening it focuses the section you are reading, never the field, so a phone does not raise its keyboard. The page changes when you pick a section: the view swaps if it has to, the title lands under the bar, then the menu steps out and the focus goes to that section. It comes in and goes out with the same four-step wipe, none with reduced motion. The chip index inside each view starts closed below 1024px, since the menu does its job, and is hidden from 1024px, where the sidebar does.
 
 A visually hidden `Skip to content` link is the first thing Tab reaches.
 

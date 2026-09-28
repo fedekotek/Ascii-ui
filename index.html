@@ -83,6 +83,16 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <div class="viewsbar">
       <button id="menuBtn" class="bbtn" type="button" aria-label="Open the menu" aria-haspopup="dialog" aria-expanded="false">[=]</button>
       <button class="brand" id="brand" type="button" title="Home">ascii<span class="slash">/</span>ui</button>
+      <div class="vpick" id="vpick">
+        <button id="viewBtn" class="bbtn vpick-btn" type="button" aria-expanded="false" aria-controls="viewList"><span class="vh">View: </span><span id="viewName">Home</span><span class="vpick-v" aria-hidden="true"> v</span></button>
+        <div class="vpick-pop" id="viewList" hidden><div class="lift"><div class="card frame tone-heavy"><div class="body"><ul aria-label="Views">
+          <li><a class="vpick-a" href="#home" data-v="home">Home</a></li>
+          <li><a class="vpick-a" href="#components" data-v="kit">Components</a></li>
+          <li><a class="vpick-a" href="#blocks" data-v="blocks">Blocks</a></li>
+          <li><a class="vpick-a" href="#charts" data-v="charts">Charts</a></li>
+          <li><a class="vpick-a" href="#themes" data-v="themes">Themes</a></li>
+        </ul></div></div></div></div>
+      </div>
       <div class="tablist views" role="tablist" aria-label="Views" id="views">
         <a class="tab" role="tab" id="v-home" href="#home" aria-controls="view-home" aria-selected="true">Home</a>
         <a class="tab" role="tab" id="v-kit" href="#components" aria-controls="view-kit" aria-selected="false">Components</a>
@@ -1370,18 +1380,24 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
       <h2 id="menuTitle" class="menu-slab">Menu</h2>
       <button class="bbtn menu-x" id="menuX" type="button" aria-label="Close the menu">[x]</button>
     </div>
-    <div class="tablist menu-views" id="menuViews" aria-label="Views"></div>
-    <div class="menu-body" id="menuPanel">
+    <div class="menu-find">
+      <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true"><span class="icon" data-icon="search"></span></span><input id="menuFind" type="search" aria-label="Find a section" placeholder="Find a section" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-describedby="menuOut"></div></div>
+      <p class="menu-out" id="menuOut" role="status" aria-live="polite"></p>
+    </div>
+    <div class="menu-body" id="menuPanel" role="region" aria-labelledby="menuH">
       <h3 class="menu-h" id="menuH"></h3>
       <div id="menuSecs"></div>
+      <div class="menu-none" id="menuNone" hidden><button class="bbtn" id="menuWide" type="button">Search the whole site</button></div>
     </div>
-    <div class="menu-foot">
-      <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
-      <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
-      <button class="bbtn" id="mSearch" type="button">Search</button>
-      <button class="bbtn" id="mTheme" type="button">Theme</button>
-      <p class="menu-credit muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
-    </div>
+    <details class="menu-set" id="menuSet">
+      <summary>Settings</summary>
+      <div class="menu-foot">
+        <label class="check"><input type="checkbox" id="mGrid"><span class="glyph" aria-hidden="true"></span>Show grid</label>
+        <label class="check"><input type="checkbox" role="switch" id="mGl"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+        <button class="bbtn" id="mTheme" type="button">Theme</button>
+        <p class="menu-credit muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+      </div>
+    </details>
   </div>
 </dialog>
 

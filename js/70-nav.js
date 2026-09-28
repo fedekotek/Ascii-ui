@@ -1,6 +1,7 @@
 /* ---- navigation ------------------------------------------------------------
    Everything that moves you around the page: the address, the view links in
-   the bar, the sidebar, the [=] menu, the name, the skip link.
+   the bar (or, on a phone, the view picker), the sidebar, the [=] menu, the
+   name, the skip link.
 
    The address. Every view and every section has one: #components,
    #components/button, #onepager/faq (a section's id minus its s- or o-).
@@ -297,7 +298,7 @@
   window.addEventListener('popstate',onNav);
   window.addEventListener('hashchange',onNav);
 
-  /* ---- the views in the bar ----
+  /* ---- the views in the bar (768px and up; under it, the picker) ----
      Links, so they can be copied or opened in a new tab. Arrows move along
      them and Enter or Space picks, so reading the list does not change the
      page under you. */
@@ -342,6 +343,7 @@
     if(reading)reading.a.setAttribute('aria-current','location');
     stickOf=null;
     spy();
+    pickSync();
     if(md.open&&shown===v)fill(v);
   }
   inner.addEventListener('click',e=>{
@@ -432,42 +434,134 @@
     const m=$('main');m.tabIndex=-1;m.focus();
   });
 
+  /* ---- the view picker (under 768px) ----
+     The five views leave the [=] menu and the bar keeps one control for them:
+     the view you are in and a caret, "Components v". It opens a short list of
+     links under it, like a select. Arrows move, Enter goes, Escape closes and
+     the focus goes back to the button, Tab or a tap elsewhere closes it. */
+  const vbtn=$('viewBtn'),vpop=$('viewList'),vlinks=[].slice.call(vpop.querySelectorAll('a[data-v]'));
+  function pickSync(){
+    const v=current();
+    $('viewName').textContent=LABEL[v];
+    vlinks.forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+  }
+  function pick(on,focus){
+    if(on===!vpop.hidden)return;
+    vpop.hidden=!on;vpop.classList.toggle('open',on);
+    vbtn.setAttribute('aria-expanded',on?'true':'false');
+    if(on){
+      const c=vlinks.find(a=>a.hasAttribute('aria-current'))||vlinks[0];
+      (focus==='last'?vlinks[vlinks.length-1]:c).focus();
+      if(A.live())A.sfx.open();
+    }else if(focus)vbtn.focus();
+  }
+  vbtn.addEventListener('click',()=>pick(vpop.hidden));
+  vbtn.addEventListener('keydown',e=>{
+    if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();pick(true,e.key==='ArrowUp'?'last':null)}
+  });
+  vpop.addEventListener('keydown',e=>{
+    const i=vlinks.indexOf(document.activeElement);
+    let n=null;
+    if(e.key==='ArrowDown')n=vlinks[(i+1)%vlinks.length];
+    else if(e.key==='ArrowUp')n=vlinks[(i-1+vlinks.length)%vlinks.length];
+    else if(e.key==='Home')n=vlinks[0];
+    else if(e.key==='End')n=vlinks[vlinks.length-1];
+    else if(e.key==='Escape'){e.preventDefault();pick(false,true);return}
+    else if(e.key===' '&&i>=0){e.preventDefault();vlinks[i].click();return}
+    if(n){e.preventDefault();n.focus()}
+  });
+  vpop.addEventListener('click',e=>{
+    const a=e.target.closest('a[data-v]');if(!a||mod(e))return;
+    e.preventDefault();
+    const v=a.dataset.v,here=v===current();
+    pick(false,here);tick();
+    /* the view changes under the list: the new view's title takes the focus (js/20) */
+    go(v,null,{push:true,smooth:here,top0:v==='home'});
+  });
+  document.addEventListener('pointerdown',e=>{if(!vpop.hidden&&!e.target.closest('#vpick'))pick(false)});
+  $('vpick').addEventListener('focusout',e=>{if(!vpop.hidden&&e.relatedTarget&&!$('vpick').contains(e.relatedTarget))pick(false)});
+  /* past 768px the views are back in the bar */
+  const narrow=matchMedia('(max-width:767px)'),onNarrow=e=>{if(!e.matches)pick(false)};
+  if(narrow.addEventListener)narrow.addEventListener('change',onNarrow);else if(narrow.addListener)narrow.addListener(onNarrow);
+
   /* ---- the [=] menu ----
-     The whole screen, below 1024px. The row of views only chooses whose
-     sections are listed; the page changes when you pick a section, and then
-     it lands before the menu steps out, so what you see next is the title. */
-  const md=$('menuDlg'),mv=$('menuViews'),ms=$('menuSecs'),mp=$('menuPanel');
+     The whole screen, below 1024px, and only about this view: a field that
+     narrows its sections as you type, the sections in their groups with the
+     one you are reading marked, and the settings folded away at the end.
+     Search (/) is for the whole site. The page changes when you pick a
+     section, and it lands before the menu steps out, so what you see next is
+     the title. */
+  const md=$('menuDlg'),ms=$('menuSecs'),mp=$('menuPanel'),mf=$('menuFind'),mo=$('menuOut'),mnone=$('menuNone');
   let shown=null,mlinks=[],opener=null,focusTo=null;
-  mv.setAttribute('role','tablist');mp.setAttribute('role','tabpanel');
-  mv.innerHTML=VIEWS.map(v=>'<button class="tab" type="button" role="tab" id="mv-'+v+'" data-v="'+v+
-    '" aria-controls="menuPanel" aria-selected="false" tabindex="-1">'+LABEL[v]+'</button>').join('');
-  const mtabs=[].slice.call(mv.querySelectorAll('[role="tab"]'));
 
   function fill(v){
-    shown=v;
-    mtabs.forEach(t=>{const on=t.dataset.v===v;t.setAttribute('aria-selected',on?'true':'false');t.tabIndex=on?0:-1});
-    mp.setAttribute('aria-labelledby','mv-'+v);
+    shown=v;md.dataset.v=v;
     const m=model(v);
     heading($('menuH'),m);
     mlinks=render(ms,m,v,null);
-    mlinks.forEach(l=>{if(reading&&l.sec===reading.sec)l.a.setAttribute('aria-current','location')});
+    mlinks.forEach(l=>{
+      const t=l.sec.querySelector('pre.ptitle[data-text]');
+      l.kw=(name(l.sec)+' '+(t?t.dataset.text:'')).toLowerCase();
+      if(reading&&l.sec===reading.sec)l.a.setAttribute('aria-current','location');
+    });
+    find();
   }
+  /* the links the field narrows: this view's sections, or Home's ways in (js/20) */
+  function rows(){
+    if(shown==='home'){const h=$('menuHome');return h?[].map.call(h.querySelectorAll('a.navlink'),a=>({a:a,kw:a.textContent.toLowerCase()})):[]}
+    return mlinks;
+  }
+  function find(){
+    const q=mf.value.trim().toLowerCase().replace(/\s+/g,' '),all=rows();
+    let n=0;
+    all.forEach(l=>{const on=!q||l.kw.indexOf(q)>=0;l.a.parentNode.classList.toggle('nomatch',!on);if(on)n++});
+    mp.querySelectorAll('.navgroup').forEach(g=>{
+      if(g.id==='menuHome')return;
+      g.classList.toggle('nomatch',!!q&&!g.querySelector('li:not(.nomatch)'));
+    });
+    mnone.hidden=!q||n>0;
+    let say='';
+    if(q&&!n)say='Nothing called '+mf.value.trim().slice(0,32)+' in '+LABEL[shown]+'.';
+    else if(q)say=n+(n===1?' section.':' sections.');
+    if(mo.textContent!==say)mo.textContent=say;
+  }
+  mf.addEventListener('input',find);
+  mf.addEventListener('keydown',e=>{
+    const first=rows().find(l=>!l.a.parentNode.classList.contains('nomatch'));
+    /* Enter goes to the first match, Down walks into the list */
+    if(e.key==='Enter'&&mf.value.trim()&&first){e.preventDefault();first.a.click()}
+    else if(e.key==='ArrowDown'&&first){e.preventDefault();first.a.focus()}
+  });
+  /* nothing here: the same words go to Search, which has the whole site */
+  $('menuWide').addEventListener('click',()=>{
+    const q=mf.value.trim();
+    md.addEventListener('close',function f(){
+      md.removeEventListener('close',f);
+      setTimeout(()=>{
+        if(window.AUI_SEARCH)AUI_SEARCH.open();else $('cmdBtn').click();
+        const inp=$('cmdIn');if(inp&&q){inp.value=q;inp.dispatchEvent(new Event('input',{bubbles:true}))}
+      },0);
+    });
+    closeMenu();
+  });
   function syncControls(){
     $('mGrid').checked=$('gridToggle').checked;
     $('mGl').checked=$('glitchToggle').checked;
   }
   function openMenu(from){
     if(md.open)return;
-    syncControls();fill(current());
+    pick(false);
+    syncControls();mf.value='';fill(current());
     opener=from;focusTo=null;
     md.classList.remove('out');md.showModal();
     $('menuBtn').setAttribute('aria-expanded','true');
     /* start where you are: the section you are reading, in the middle of the
-       list, or else the view */
-    const body=md.querySelector('.menu-body'),cur=ms.querySelector('[aria-current]'),t=mtabs.find(x=>x.dataset.v===shown);
-    mv.scrollLeft=t.offsetLeft-mv.clientWidth/2+t.offsetWidth/2;
-    if(cur){body.scrollTop=cur.offsetTop-body.clientHeight/2;cur.focus({preventScroll:true})}
-    else{body.scrollTop=0;t.focus({preventScroll:true})}
+       list, or else the first entry. Never the field: on a phone that would
+       open the keyboard over the list */
+    const body=md.querySelector('.menu-body'),cur=ms.querySelector('[aria-current]');
+    if(cur){body.scrollTop=cur.offsetTop-body.clientHeight/2}else body.scrollTop=0;
+    const to=cur||[].find.call(mp.querySelectorAll('a.navlink'),a=>a.offsetParent!==null)||$('menuX');
+    to.focus({preventScroll:true});
     if(A.live())A.sfx.open();
   }
   function closeMenu(){
@@ -484,7 +578,12 @@
   }
   $('menuBtn').addEventListener('click',()=>openMenu($('menuBtn')));
   $('menuX').addEventListener('click',closeMenu);
-  md.addEventListener('cancel',e=>{e.preventDefault();closeMenu()});
+  /* Escape empties the field first, then closes */
+  md.addEventListener('cancel',e=>{
+    e.preventDefault();
+    if(mf.value){mf.value='';find();mf.focus();return}
+    closeMenu();
+  });
   /* whatever closed it, focus goes where you went, or back where you were */
   md.addEventListener('close',()=>{
     md.classList.remove('out');
@@ -496,28 +595,6 @@
     else if(md.contains(document.activeElement)||document.activeElement===document.body){
       const t=$('v-'+current()),to=t&&t.offsetParent!==null?t:$('brand');
       if(to)to.focus({preventScroll:true});
-    }
-  });
-  mv.addEventListener('click',e=>{
-    const t=e.target.closest('[role="tab"]');if(!t)return;
-    /* Home has no sections to pick, so its tab goes there */
-    if(t.dataset.v==='home'){tick();go('home',null,{push:true,top0:true,after:closeMenu});return}
-    if(t.dataset.v!==shown){fill(t.dataset.v);md.querySelector('.menu-body').scrollTop=0;tick()}
-  });
-  /* the row only refills the list, so the arrows can pick as they go */
-  mv.addEventListener('keydown',e=>{
-    const i=mtabs.indexOf(document.activeElement);if(i<0)return;
-    let n=null;
-    if(e.key==='ArrowRight')n=mtabs[(i+1)%mtabs.length];
-    else if(e.key==='ArrowLeft')n=mtabs[(i-1+mtabs.length)%mtabs.length];
-    else if(e.key==='Home')n=mtabs[0];
-    else if(e.key==='End')n=mtabs[mtabs.length-1];
-    /* Home's tab goes somewhere when picked, so the arrows only reach it;
-       Enter or Space takes you there */
-    if(n){
-      e.preventDefault();
-      mtabs.forEach(x=>x.tabIndex=x===n?0:-1);n.focus();
-      if(n.dataset.v!=='home')n.click();
     }
   });
   ms.addEventListener('click',e=>{
