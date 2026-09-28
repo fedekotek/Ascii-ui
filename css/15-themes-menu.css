@@ -39,3 +39,17 @@
 .code .h4::before{content:"## ";content:"## " / "";color:var(--hot)}
 .code .dep{color:var(--warn)}
 
+
+/* Signal (Themes): the kit's opt-in effects, one switch each, over a level
+   switch. js/30 wires it with the site's engine; the Code tab prints the kit */
+.sig{max-width:64ch}
+.sig-fx{display:grid;justify-items:start}
+.sig-fx .sig-say{margin-top:0}
+.sig-fx > [data-aui-signal]{margin-top:var(--r)}
+.sig-fx > .frame{justify-self:stretch}
+.sig-fx > .sig-crt + .sig-crt{margin-top:0}
+/* the band, drawn in #fx over its box: a row of - = - a step, as #track does */
+#fx .sig-band{overflow:hidden}
+#fx .sig-band > div{left:0;right:0;top:0;white-space:pre;font-weight:700;color:var(--pink);line-height:var(--r)}
+/* interlace: the scanlines every other pixel, fainter. The kit's is the same */
+:root.crt.interlace{--scanlines:repeating-linear-gradient(to bottom,transparent 0 1px,color-mix(in srgb,var(--scan) 60%,transparent) 1px 2px)}

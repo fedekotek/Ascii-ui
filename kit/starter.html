@@ -56,7 +56,7 @@
   <p class="muted">A page that links ascii-ui.css and ascii-ui.js and nothing else. Below it is every component in the kit, as the Code tab prints it. View the source and take what you need.</p>
   <p class="muted">The three steps are in <a href="README.md">README.md</a>, next to this file. Every component with its code: <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>.</p>
   <nav class="row toc" aria-label="Groups">
-    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a><a href="#charts">Charts</a><a href="#blocks">Blocks</a>
+    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a><a href="#charts">Charts</a><a href="#blocks">Blocks</a><a href="#signal">Signal</a>
   </nav>
 
   <!-- ================= Form ================= -->
@@ -723,6 +723,32 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
     </ul>
   </section>
 
+  <!-- ================= Signal: the bad signal, opt in ================= -->
+  <h2 id="signal">Signal</h2>
+  <p class="muted">The effects, off until an element asks with data-aui-signal. Reduced motion, forced colors and print keep them still.</p>
+
+  <section class="part" id="signal-fx">
+    <h3>Signal</h3>
+    <div class="stack" data-aui-signal-level="normal">
+      <div class="tgroup" role="radiogroup" aria-label="Signal level" id="siglevel">
+        <label><input type="radio" name="siglevel" value="calm"><span>Calm</span></label>
+        <label><input type="radio" name="siglevel" value="normal" checked><span>Normal</span></label>
+        <label><input type="radio" name="siglevel" value="loud"><span>Loud</span></label>
+      </div>
+      <p class="muted">Glitch: a state change inside it breaks up for two frames.</p>
+      <div data-aui-signal="glitch"><button class="btn frame tone-light" type="button" aria-pressed="false" id="sigmute"><span class="mid"><span class="label">Mute alerts</span></span></button></div>
+      <p class="muted">Scramble: the words decode once, when they come on screen.</p>
+      <p data-aui-signal="scramble">Twelve probes, three regions, one pager. Nothing is down.</p>
+      <p class="muted">Band: it rolls through now and then. Rot: four seconds without a touch and the frame decays.</p>
+      <div class="frame tone-mid" data-aui-signal="band rot" data-rot="4"><div class="body"><p>Channel 3. The picture holds, mostly.</p></div></div>
+      <div class="row">
+        <button class="btn frame tone-light" type="button" id="sigband"><span class="mid"><span class="label">Roll the band</span></span></button>
+        <button class="btn frame tone-light" type="button" id="sigscramble"><span class="mid"><span class="label">Scramble again</span></span></button>
+      </div>
+      <label class="check"><input type="checkbox" id="interlace"><span class="glyph" aria-hidden="true"></span>Interlace the scanlines</label>
+    </div>
+  </section>
+
   <p class="muted" style="margin-top:calc(var(--r)*3)">From <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>. MIT license, the text is in <a href="README.md">README.md</a>.</p>
 </main>
 <script>
@@ -735,6 +761,25 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
   /* and the scanlines, off unless asked for: the crt class on <html> */
   document.getElementById('crt').addEventListener('change', function (e) {
     document.documentElement.classList.toggle('crt', e.target.checked);
+    if (!e.target.checked) { document.documentElement.classList.remove('interlace'); document.getElementById('interlace').checked = false; }
+  });
+  /* Signal: the level on its box, the mute button's state (a change the
+     glitch watches), and the calls. Interlace needs the scanlines on */
+  document.getElementById('siglevel').addEventListener('change', function (e) {
+    e.target.closest('[data-aui-signal-level]').setAttribute('data-aui-signal-level', e.target.value);
+  });
+  document.getElementById('sigmute').addEventListener('click', function (e) {
+    var b = e.currentTarget; b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+  });
+  document.getElementById('sigband').addEventListener('click', function () {
+    ASCIIUI.band(document.querySelector('#signal-fx [data-aui-signal~="band"]'));
+  });
+  document.getElementById('sigscramble').addEventListener('click', function () {
+    ASCIIUI.scramble(document.querySelector('#signal-fx [data-aui-signal~="scramble"]'));
+  });
+  document.getElementById('interlace').addEventListener('change', function (e) {
+    document.documentElement.classList.toggle('interlace', e.target.checked);
+    if (e.target.checked) { document.documentElement.classList.add('crt'); document.getElementById('crt').checked = true; }
   });
 </script>
 </body>

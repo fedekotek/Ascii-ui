@@ -567,6 +567,8 @@ spanSections($('view-charts'));
 /* the charts get Preview and Code too: Code prints the kit's chart, which
    reads a table (js/40, KITIFY). No index and no groups, five is few */
 $('view-charts').querySelectorAll(':scope > section[aria-labelledby]').forEach(docify);
+/* Signal in Themes gets Preview and Code too: Code prints the kit's markup */
+{const sg=$('view-themes').querySelector(':scope > section[aria-labelledby="s-signal"]');if(sg)docify(sg)}
 /* the thirty-five on the page, by what they do, the way a docs site groups them.
    33 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[
@@ -989,5 +991,165 @@ setTimeout(markWide,1200);
   /* Enter copies the first one that matches, so type, Enter, paste */
   q.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();const f=narrow()[0];if(f)take(f.b,f.n,f.l);else if(live())sfx.err()});
   narrow();
+})();
+/* ================= Signal (Themes): the kit's opt-in effects =================
+   The kit does these for people's pages (kit/ascii-ui.js, Signal). This is the
+   same thing done by the site's engine, on the clock, for the demo: a switch
+   per effect takes its name in or out of data-aui-signal and runs it once, and
+   the level switch sets data-aui-signal-level on the box. Still under reduced
+   motion, in high contrast and with Glitch off in the bar, and it says so.
+   Nothing runs while the box is off screen */
+(function(){
+  const sec=document.querySelector('section[aria-labelledby="s-signal"]');if(!sec)return;
+  const box=sec.querySelector('.sig'),st=$('sigStatus'),fxl=$('fx');if(!box||!fxl)return;
+  const FORCED=window.matchMedia?matchMedia('(forced-colors:active)'):{matches:false};
+  const S={};['glitch','scramble','band','rot'].forEach(n=>{S[n]=box.querySelector('[data-aui-signal~="'+n+'"]')});
+  const lv=()=>({calm:1,normal:2,loud:3})[box.getAttribute('data-aui-signal-level')]||2;
+  const still=()=>reduce||FORCED.matches||A.glitch()<=0;
+  const why=()=>reduce?'Reduced motion is on, so Signal holds still.':FORCED.matches?'High contrast is on, so Signal holds still.':'Glitch is off in the bar, so Signal holds still.';
+  const say=t=>{if(st)st.textContent=t};
+  const on=n=>{const e=S[n];return !!e&&(' '+(e.getAttribute('data-aui-signal')||'')+' ').includes(' '+n+' ')};
+  const noise=(n,d)=>{let s='';for(let i=0;i<n;i++)s+=Math.random()<d?RAMP.charAt(1+rnd(4)):' ';return A.TR(s)};
+  const WORD=/[A-Za-z0-9À-ɏ]/,NZ='=*#@';
+  let seen=false;
+
+  /* glitch: a character sideways and back, a strip or two of noise a frame each */
+  let gAt=0;
+  function glitch(el){
+    if(still()){say(why());return false}
+    const now=Date.now();if(now-gAt<400)return false;gAt=now;
+    const k=lv(),frames=k===1?1:k===3?3:2,n=k===1?1:k===3?3:2,R=A.ROW,cw=A.CH();let strips=[];
+    const clear=()=>{strips.forEach(s=>s.remove());strips=[]};
+    const frame=f=>{
+      clear();const b=el.getBoundingClientRect(),rows=Math.max(1,Math.round(b.height/R)),cols=Math.ceil(b.width/cw);
+      el.style.translate=(f%2?-1:1)+'ch 0';
+      for(let i=0;i<n;i++){
+        const d=document.createElement('div');
+        d.style.cssText='left:'+Math.round(b.left+(Math.random()<0.5?-cw:cw))+'px;top:'+Math.round(b.top+rnd(rows)*R)+'px;width:'+Math.round(b.width)+'px;height:'+R+'px;line-height:'+R+'px;white-space:pre;overflow:hidden;font-weight:700;opacity:.7;color:var(--'+(Math.random()<0.5?'hot':'pink')+')';
+        d.textContent=noise(cols,0.5);fxl.appendChild(d);strips.push(d);
+      }
+    };
+    frame(0);
+    times(50,frames,f=>{if(f<frames)frame(f);else{clear();el.style.translate=''}},()=>{clear();el.style.translate=''});
+    return true;
+  }
+  /* scramble: noise that is aria-hidden, the words in a visually hidden copy */
+  let sRun=null;
+  function scramble(el){
+    if(still()){say(why());return false}
+    if(sRun)return false;
+    const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),parts=[];let t,total=0;
+    while((t=w.nextNode())){if(!WORD.test(t.nodeValue))continue;
+      const h=document.createElement('span'),v=document.createElement('span');
+      h.setAttribute('aria-hidden','true');h.appendChild(document.createTextNode(''));v.className='vh';v.textContent=t.nodeValue;
+      parts.push({t,h,v,s:t.nodeValue});total+=t.nodeValue.length}
+    if(!parts.length)return false;
+    parts.forEach(p=>{p.t.parentNode.insertBefore(p.v,p.t);p.t.parentNode.replaceChild(p.h,p.t)});
+    const k=lv(),frames=k===1?6:k===3?14:10;
+    const draw=f=>{const shown=total*f/frames;let at=0;
+      parts.forEach(p=>{let o='';for(let j=0;j<p.s.length;j++,at++){const c=p.s.charAt(j);o+=(at<shown||!WORD.test(c))?c:A.TR(NZ.charAt(rnd(4)))}p.h.firstChild.nodeValue=o})};
+    const end=()=>{parts.forEach(p=>{if(p.h.parentNode)p.h.parentNode.replaceChild(p.t,p.h);p.v.remove()});sRun=null};
+    draw(0);sRun=times(40,frames,f=>{if(f<frames)draw(f)},end);
+    return true;
+  }
+  /* band: three rows roll down through the box, a row a step, see-through */
+  let bRun=null;
+  function band(el){
+    if(still()){say(why());return false}
+    if(bRun)return false;
+    const b=el.getBoundingClientRect(),R=A.ROW,cw=A.CH(),k=lv(),cols=Math.ceil(b.width/cw)+1,rows=Math.ceil(b.height/R)+3,step=k===1?90:k===3?50:65;
+    const wrap=document.createElement('div'),row=document.createElement('div'),dash=rep('- ',cols).slice(0,cols);
+    wrap.className='sig-band';wrap.style.cssText='left:'+Math.round(b.left)+'px;top:'+Math.round(b.top)+'px;width:'+Math.round(b.width)+'px;height:'+Math.round(b.height)+'px';
+    row.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
+    row.style.cssText='opacity:'+(k===1?0.2:k===3?0.45:0.32)+';--rows:'+rows+';animation:aui-track '+(rows*step)+'ms steps('+rows+',end) 1 both';
+    wrap.appendChild(row);fxl.appendChild(wrap);
+    /* it rides with its box while the page scrolls */
+    const place=()=>{const r=el.getBoundingClientRect();wrap.style.left=Math.round(r.left)+'px';wrap.style.top=Math.round(r.top)+'px'};
+    window.addEventListener('scroll',place,{passive:true});
+    const end=()=>{window.removeEventListener('scroll',place);wrap.remove();bRun=null};
+    row.addEventListener('animationend',end);bRun=setTimeout(end,rows*step+400);
+    return true;
+  }
+  /* rot: data-rot seconds without a touch, the frame loses characters, two ramp steps a time */
+  let rTask=null,rWait=null,rN=0;
+  function rotStep(el){
+    const f=el.matches('.frame')?el:el.querySelector('.frame');if(!f)return false;
+    const cw=A.CH(),cols=Math.ceil(f.getBoundingClientRect().width/cw)+1,k=lv(),p=k===1?0.12:k===3?0.32:0.22;
+    let H=(f.style.getPropertyValue('--h')||getComputedStyle(f).getPropertyValue('--h')).trim().replace(/^"|"$/g,'').slice(0,cols);
+    if(!H)return false;
+    H=H.replace(/\S/g,c=>{if(Math.random()>p)return c;const i=RAMP.indexOf(c);return i>2?A.TR(RAMP.charAt(i-2)):A.TR('.')});
+    f.style.setProperty('--h','"'+H+'"');f.style.setProperty('--hb','"'+H.split('').reverse().join('')+'"');
+    return true;
+  }
+  function repair(){
+    const f=S.rot&&(S.rot.matches('.frame')?S.rot:S.rot.querySelector('.frame'));
+    if(f&&rN){f.style.removeProperty('--h');f.style.removeProperty('--hb')}rN=0;
+    if(rTask){rTask.stop();rTask=null}
+  }
+  function rotArm(){
+    if(rWait){rWait.stop();rWait=null}
+    repair();
+    if(!on('rot')||!seen||still())return;
+    const secs=Math.max(2,parseFloat(S.rot.getAttribute('data-rot'))||14)*1000,max=[0,2,3,5][lv()];
+    rWait=times(secs,1,()=>{},()=>{rWait=null;
+      if(!on('rot')||still())return;
+      if(rotStep(S.rot))rN=1;
+      rTask=times(1100,max-1,()=>{if(rotStep(S.rot))rN++},()=>{rTask=null});
+    });
+  }
+  ['pointerdown','keydown','wheel'].forEach(t=>document.addEventListener(t,()=>{if(seen&&(rN||rWait))rotArm()},{passive:true,capture:true}));
+  window.addEventListener('scroll',()=>{if(seen&&rN)rotArm()},{passive:true});
+
+  /* the band comes back now and then, only while the box is on screen */
+  let bTask=null;
+  function bandArm(){
+    if(bTask){bTask.stop();bTask=null}
+    if(!on('band')||!seen||still())return;
+    const k=lv(),gap=k===1?18000:k===3?5000:9000;
+    bTask=A.every(gap,()=>{if(on('band'))band(S.band)});
+  }
+  if('IntersectionObserver' in window)new IntersectionObserver(es=>es.forEach(e=>{
+    const was=seen;seen=e.isIntersecting;if(was===seen)return;
+    if(seen){bandArm();rotArm();if(on('scramble')&&!S.scramble._done){S.scramble._done=1;scramble(S.scramble)}}
+    else{if(bTask){bTask.stop();bTask=null}if(rWait){rWait.stop();rWait=null}repair()}
+  })).observe(box);
+
+  /* glitch: a state change inside it, as the kit watches it */
+  if(S.glitch){
+    const btn=S.glitch.querySelector('button');
+    if(btn)btn.addEventListener('click',()=>{const p=btn.getAttribute('aria-pressed')!=='true';btn.setAttribute('aria-pressed',String(p));say(p?'Alerts muted.':'Alerts back on.')});
+    new MutationObserver(ms=>{if(on('glitch')&&ms.some(m=>m.target.getAttribute(m.attributeName)!==m.oldValue))glitch(btn||S.glitch)})
+      .observe(S.glitch,{attributes:true,subtree:true,attributeOldValue:true,attributeFilter:['aria-pressed','aria-selected','aria-expanded','aria-checked','aria-current','open']});
+  }
+
+  /* the switches: one effect each, in or out of data-aui-signal, run once when it comes on */
+  const NAME={glitch:'Glitch',scramble:'Scramble',band:'Band',rot:'Rot'};
+  sec.querySelectorAll('.sig-on input').forEach(i=>i.addEventListener('change',()=>{
+    const n=i.value,e=S[n];if(!e)return;
+    e.setAttribute('data-aui-signal',i.checked?n:'');
+    if(!i.checked){say(NAME[n]+' off.');if(n==='band')bandArm();if(n==='rot')rotArm();return}
+    if(still()){say(why());return}
+    if(n==='glitch'){glitch(S.glitch.querySelector('button')||S.glitch);say('Glitch on. Press Mute alerts.')}
+    if(n==='scramble'){scramble(e);say('Scramble on. It decodes once, when it comes on screen.')}
+    if(n==='band'){band(e);bandArm();say('Band on. It rolls through now and then.')}
+    if(n==='rot'){rotArm();say('Rot on. Four seconds without a touch.')}
+  }));
+  /* the level: calm, normal, loud, on the box */
+  sec.querySelectorAll('.sig-lv input').forEach(i=>i.addEventListener('change',()=>{
+    if(!i.checked)return;box.setAttribute('data-aui-signal-level',i.value);bandArm();
+    say(i.value.charAt(0).toUpperCase()+i.value.slice(1)+'.'+(still()?' '+why():''));
+    if(!still()&&on('band'))band(S.band);
+  }));
+  /* scanlines: the crt class on the root, the same setting as CRT scanlines in Search */
+  const R0=document.documentElement,crtIn=sec.querySelector('.sig-crt input[value="crt"]'),ilIn=sec.querySelector('.sig-crt input[value="interlace"]');
+  const sync=()=>{if(crtIn)crtIn.checked=R0.classList.contains('crt');if(ilIn){ilIn.checked=R0.classList.contains('interlace');ilIn.disabled=!R0.classList.contains('crt')}};
+  if(crtIn)crtIn.addEventListener('change',()=>{
+    R0.classList.toggle('crt',crtIn.checked);if(!crtIn.checked)R0.classList.remove('interlace');
+    try{if(crtIn.checked)localStorage.setItem('aui-crt','1');else localStorage.removeItem('aui-crt')}catch(e){}
+    sync();say(crtIn.checked?'Scanlines on, over the whole page.':'Scanlines off.');
+  });
+  if(ilIn)ilIn.addEventListener('change',()=>{R0.classList.toggle('interlace',ilIn.checked);say(ilIn.checked?'Interlaced: every other line.':'Every fourth line.')});
+  new MutationObserver(sync).observe(R0,{attributes:true,attributeFilter:['class']});
+  sync();
 })();
 })();

@@ -70,6 +70,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
 | `data-aui-reset` | a button in a form or a dialog | puts every field back to what the HTML says (a checkbox checked in the HTML comes back checked), then redraws the bars, outputs, counts and code boxes. Hidden inputs are left alone, and the calendar and the code boxes set their own again (a calendar without `data-value` goes back to nothing picked). Outside a form or a dialog it does nothing and says so in the console |
 | `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
+| `data-aui-signal="glitch"` | any element, next to its own `data-aui` or not | the bad signal, opt in: `glitch`, `scramble`, `band`, `rot`, several with spaces. See [Signal](#signal) |
 | `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
 
 "Nearest" means the smallest element around the component that holds one, and only if no other component stands between them: a status line, a count or an error comes after its component, a progress bar before or after its button. A component without a part of its own finds nothing, it does not borrow the next one's.
@@ -145,6 +146,9 @@ document.addEventListener('aui:change', e => {
 | `chart(el)` | `pick(i)` (`-1` lets go), `index`, `draw()` (reads the table again and draws it whole), `data` (what it read: `rows`, `names`, `max`) |
 | `bar(k, n)`, `colorize(str)` | build halftone bars: `k` of `n` cells full, then colored |
 | `tones(map)` | swaps the characters of every frame, bar and spinner |
+| `glitch(el)`, `scramble(el)`, `band(el)` | runs that effect of [Signal](#signal) once, now, on any element (`band()` with nothing rolls down the window). `true` when it ran, `false` when it held still (reduced motion, forced colors, print, a field with the focus, the level `off`, off screen, or three glitches already this second) |
+| `rot(el)`, `repair(el)` | decays the frames in `el` a step now, and puts them back (`repair()` with nothing puts every one back) |
+| `signal(level)` | `"calm"`, `"normal"`, `"loud"` or `"off"` on the root, as `data-aui-signal-level`; `null` takes it off; with nothing it says the level |
 | `reduce` | `true` while the system asks for reduced motion. It follows the setting while the page is open |
 | `behaviors` | the functions behind each `data-aui` name, to read. Call `init`, not these |
 
@@ -188,11 +192,48 @@ A cell's number is its `data-value`, or else its text without commas, units and 
 
 The chart takes a Tab stop (`role="group"`, named by the caption). The arrows move the pick (up and down move by row in a heatmap), Home and End go to the ends, Escape lets go, and a click picks the point under it. The pick is said in the nearest `role="status"` (or in a hidden one inside the chart), marked in text as well as in violet (`[Thu]`, `[]` in a heatmap), and fires `aui:pick`. Colors are the tokens: magenta and pink for one series, then deep blue, pink, violet; never cyan, which is focus. It grows in once when it first comes on screen; under reduced motion it is drawn whole.
 
+## Signal
+
+The site's effects, the bad signal, for your own pages. All of it is opt in: nothing runs until an element asks with `data-aui-signal`, or a script calls one of the calls below. Several on one element take spaces: `data-aui-signal="glitch rot"`. It needs no `data-aui`, so it rides on any component.
+
+```html
+<div data-aui-signal="glitch">
+  <div role="tablist" class="tablist" data-aui="tabs">...</div>
+</div>
+<p data-aui-signal="scramble">Twelve probes, three regions, one pager.</p>
+<div class="frame tone-mid" data-aui-signal="band rot" data-rot="30"><div class="body">...</div></div>
+```
+
+| `data-aui-signal` | Does |
+|---|---|
+| `glitch` | when a state inside it changes (`aria-selected`, `aria-pressed`, `aria-expanded`, `aria-checked`, `aria-current`, `open`, a checkbox, radio or select), the part that changed goes a character sideways and back, and a strip or two of light characters, knocked a character off, crosses it. Two frames of 50ms (calm one, loud three), each strip one frame. Not in the first quarter second, so the page setting itself up is not a change. `ASCIIUI.glitch(el)` runs it on anything |
+| `scramble` | the words decode into place from the left, once, when it first comes on screen: 10 frames of 40ms (calm 6, loud 14). Only letters and digits are scrambled; spaces and punctuation stay, so every line keeps its width and its breaks. `ASCIIUI.scramble(el)` runs it again |
+| `band` | three rows of `- = -` roll down through the box, a row a step, every 9 seconds or so (calm 18, loud 5), 65ms a step. Pink and see-through, the words under it stay readable. On `<html>` or `<body>` it rolls down the window. `ASCIIUI.band(el)` rolls one now |
+| `rot` | after `data-rot` seconds (14) with no pointer, key, wheel or scroll, the frames in it lose characters, two ramp steps lighter, a step every 1.1s, three steps (calm two, loud five). Any input repairs them at once |
+
+How loud: `--aui-signal` on `:root`, `calm`, `normal` (the default), `loud` or `off`, or `data-aui-signal-level` on the root or on any element around the effect, which wins. `ASCIIUI.signal("loud")` sets it on the root.
+
+```css
+:root { --aui-signal: calm; }
+```
+
+The scanlines are Signal too, and still: `<html class="crt">`, and `<html class="crt interlace">` for every other pixel.
+
+What it promises:
+- **Off by default.** Nothing moves until you ask, and asking is one attribute.
+- **Still when asked to be.** `prefers-reduced-motion`, `forced-colors` (Windows High Contrast) and print switch every effect off, in the CSS and in the script, and a change to them is followed while the page is open. So does a field that takes typing having the focus, and a tab in the background.
+- **Nothing moves.** It is paint: strips and bands on one fixed layer, a `translate`, a frame's string. No box on the page changes place or size, before, during or after.
+- **Nothing in the way.** The layer takes no clicks (`pointer-events: none`) and is `aria-hidden`. A strip covers text for one frame; the band is see-through.
+- **Screen readers get the words.** While a scramble runs, the noise is an `aria-hidden` `<aui-noise>` and the words sit in a visually hidden `<aui-sr>` next to it, so a screen reader reads the words at once, never the noise. Live regions (`role="status"`, `role="alert"`, `aria-live`) are never scrambled. Frames are paint, so rot says nothing.
+- **No flashing.** At most three glitches a second on the whole page (WCAG 2.3.1); a fourth waits.
+- **Colors keep their jobs.** Noise is magenta and pink. Never cyan, which is focus.
+- **It rests.** Its loop asks for a frame only while an effect is drawing. Between them it waits on one timer, and with nothing to do, on nothing. A hidden tab stops it.
+
 ## Lifecycle
 
 A component is wired when it lands on the page and torn down when it leaves it: its listeners (on the page, the window and the component), its observers and its animation go with it. Put the same element back and it is wired again. Moving an element in one go does neither. So frameworks that add and remove markup (a router, a list that re-renders) need nothing extra.
 
-Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`, `data-type`, `data-values`, `data-rows`, `data-pick`. `aria-valuenow` redraws a progress bar, and a change to a chart's table redraws the chart.
+Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`, `data-type`, `data-values`, `data-rows`, `data-pick`, `data-aui-signal`, `data-rot`. `aria-valuenow` redraws a progress bar, and a change to a chart's table redraws the chart.
 
 `ASCIIUI.destroy(el)` tears one down by hand, with everything inside it. `ASCIIUI.init(el)` wires it again.
 
@@ -289,7 +330,7 @@ Motion is steps, never eased: a step is a whole character or a whole row. Every 
 
 ### Scanlines, print, high contrast
 
-Scanlines are off. `<html class="crt">` brings them back, over the page and over an open dialog.
+Scanlines are off. `<html class="crt">` brings them back, over the page and over an open dialog. `<html class="crt interlace">` draws them every other pixel, fainter. Both are still: part of [Signal](#signal), and gone in print and in forced colors.
 
 The kit prints as black characters on white paper: the toast, tooltips, panels and dialogs stay off the paper, a link to another site prints its address, and cards and fields do not split across pages. In Windows High Contrast (`forced-colors`) the picked tab, day, page and option come back as slabs in the system colors, and the focus as `Highlight`. With `prefers-contrast: more`, grey text darkens and body type gets heavier.
 
@@ -396,6 +437,7 @@ Current Chromium (Chrome, Edge, Opera, Samsung Internet), Firefox 121 and later,
 - Popovers, the combobox list and the context menu go to the top layer where the browser has the Popover API. Without it (Safari before 17, Firefox before 125) a panel inside a box that scrolls or clips is cut off at that box's edge, as the dropdown's menu is everywhere.
 - The combobox picks one option, not several.
 - Motion runs on `requestAnimationFrame`, only while the element is on screen. With `prefers-reduced-motion` nothing animates.
+- Signal's scramble swaps the text nodes of its element for two elements while it runs, about half a second. A framework that rewrites that text in the same half second wins, and the scramble lets go. Its noise keeps every line's width in a monospace font; in a proportional one a word can be wider for those frames.
 
 ## License
 

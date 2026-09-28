@@ -10,6 +10,12 @@
    popover, combobox, contextmenu, confirm, otp, calendar, chart, pagination,
    validate, counter, segment, spinner, skeleton, and for the Blocks
    checklist, pick and stepper.
+   Signal, the bad signal, is opt in and rides on any element:
+     data-aui-signal="glitch"   glitches when a state inside it changes
+     data-aui-signal="scramble" decodes its words into place once, on screen
+     data-aui-signal="band"     a band rolls through it now and then
+     data-aui-signal="rot"      its frames decay after data-rot seconds idle
+   --aui-signal (calm, normal, loud, off) or data-aui-signal-level says how loud.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
      data-aui-close             closes the dialog or the popover it sits in;
@@ -49,7 +55,8 @@
    window.ASCIIUI: version, init(root), destroy(root), get(el), validate(form),
    toast(msg, err), progress(el, pct), tabs(el), pagination(el), calendar(el),
    chart(el), dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
-   bar(k, n), colorize(str), tones(map), reduce, behaviors. The README has
+   bar(k, n), colorize(str), tones(map), glitch(el), scramble(el), band(el),
+   rot(el), repair(el), signal(level), reduce, behaviors. The README has
    the events and the calls for each component.
 
    MIT license. Copyright (c) 2026 Fede Kotek. The full text is in LICENSE.txt
@@ -65,6 +72,7 @@ var mq=window.matchMedia?matchMedia('(prefers-reduced-motion: reduce)'):null;
 var reduce=!!(mq&&mq.matches);
 function onReduce(){
   reduce=!!mq.matches;
+  onMedia();
   if(!reduce&&tasks.length&&!raf)raf=requestAnimationFrame(tick);
 }
 if(mq){if(mq.addEventListener)mq.addEventListener('change',onReduce);else if(mq.addListener)mq.addListener(onReduce)}
@@ -398,6 +406,276 @@ var resetting=false;
 /* the first field a failed submit found, focused once the browser is done */
 var toFocus=null;
 function focusLater(el){if(toFocus)return;toFocus=el;setTimeout(function(){var f=toFocus;toFocus=null;if(f&&f.isConnected)f.focus()},0)}
+
+/* ---- Signal: the bad signal, opt in. data-aui-signal="glitch", "scramble",
+   "band" or "rot" (several, with spaces) on any element, or the calls
+   ASCIIUI.glitch(el), scramble(el), band(el), rot(el), repair(el). Nothing
+   runs until asked. It is paint: strips on one fixed layer that takes no
+   clicks and is aria-hidden, a translate, a frame's string. No box on the
+   page moves. It holds still under reduced motion, forced colors and print,
+   while the tab is hidden and while a field has the focus. How loud is
+   --aui-signal on :root (calm, normal, loud, or off), or
+   data-aui-signal-level on the root or on any element around the effect.
+   It keeps its own loop: a frame is asked for only while an effect is
+   drawing, between effects it waits on one timer, and with nothing to do it
+   waits on nothing. At most three glitches a second on the page, so it
+   never flashes more than three times a second (WCAG 2.3.1) ---- */
+var fmq=window.matchMedia?matchMedia('(forced-colors: active)'):null;
+var pmq=window.matchMedia?matchMedia('print'):null;
+var printing=false;
+var SIGLV={off:0,calm:1,normal:2,loud:3};
+function sigLevel(el){
+  el=el&&el.nodeType===1?el:doc.documentElement;
+  var h=el.closest('[data-aui-signal-level]'),v=h?h.getAttribute('data-aui-signal-level'):'';
+  if(!v)v=getComputedStyle(el).getPropertyValue('--aui-signal');
+  v=String(v||'').replace(/["'\s]/g,'').toLowerCase();
+  return Object.prototype.hasOwnProperty.call(SIGLV,v)?SIGLV[v]:2;
+}
+/* a field that takes typing has the focus: the page holds still for it */
+var NOTYPE=/^(checkbox|radio|button|submit|reset|range|color|file|image|hidden)$/;
+function typing(){
+  var a=doc.activeElement;if(!a||a===doc.body)return false;
+  return !!(a.isContentEditable||a.localName==='textarea'||(a.localName==='input'&&!NOTYPE.test(a.type)));
+}
+/* held: nothing moves and the loop asks for nothing, not even a timer */
+function sigHeld(){return reduce||!!(fmq&&fmq.matches)||printing||!!(pmq&&pmq.matches)}
+function sigStill(el){return sigHeld()||doc.hidden||typing()||sigLevel(el)===0}
+function sigEl(el){if(typeof el==='string')el=doc.querySelector(el);return el&&el.nodeType===1?el:null}
+
+/* the loop: jobs are {at, fn}; fn returns the ms to its next turn, or 0 */
+var sq=[],sraf=0,stm=0;
+function snow(){return window.performance?performance.now():Date.now()}
+function sigAt(ms,fn){var j={at:snow()+ms,fn:fn,dead:false};sq.push(j);sigPlan();return j}
+function sigDrop(j){if(!j)return;j.dead=true;var i=sq.indexOf(j);if(i>=0)sq.splice(i,1)}
+function sigPlan(){
+  if(stm){clearTimeout(stm);stm=0}
+  if(sraf||!sq.length||doc.hidden||sigHeld())return;
+  var next=Infinity;sq.forEach(function(j){if(j.at<next)next=j.at});
+  var d=next-snow();
+  if(d<=20)sraf=requestAnimationFrame(sigTick);
+  else stm=setTimeout(function(){stm=0;if(!sraf&&!doc.hidden&&!sigHeld())sraf=requestAnimationFrame(sigTick)},d-16);
+}
+function sigTick(){
+  sraf=0;
+  var t=snow(),due=sq.filter(function(j){return j.at<=t+8});
+  sq=sq.filter(function(j){return due.indexOf(j)<0});
+  due.forEach(function(j){
+    if(j.dead)return;
+    var r=0;try{r=j.fn()}catch(e){console.error(e)}
+    if(r>0&&!j.dead){j.at=t+r;sq.push(j)}
+  });
+  sigPlan();
+}
+/* the effects drawing right now, by the function that ends each one */
+var sigLive=[];
+function sigCalm(){
+  sigLive.slice().forEach(function(f){try{f()}catch(e){}});sigLive=[];
+  rotten.slice().forEach(repair);
+}
+function sigOn(f,on){var i=sigLive.indexOf(f);if(on&&i<0)sigLive.push(f);if(!on&&i>=0)sigLive.splice(i,1)}
+doc.addEventListener('visibilitychange',function(){
+  if(doc.hidden){if(sraf){cancelAnimationFrame(sraf);sraf=0}if(stm){clearTimeout(stm);stm=0}sigCalm()}
+  else sigPlan();
+});
+function onMedia(){
+  if(sigHeld()){if(sraf){cancelAnimationFrame(sraf);sraf=0}if(stm){clearTimeout(stm);stm=0}sigCalm()}
+  else sigPlan();
+}
+[fmq,pmq].forEach(function(q){if(q){if(q.addEventListener)q.addEventListener('change',onMedia);else if(q.addListener)q.addListener(onMedia)}});
+window.addEventListener('beforeprint',function(){printing=true;onMedia()});
+window.addEventListener('afterprint',function(){printing=false;onMedia()});
+
+/* the layer: one per page, and one inside an open modal dialog, which is
+   drawn above the page */
+function layer(host){
+  var L=host.__auiSigL;
+  if(!L||!L.isConnected){L=doc.createElement('div');L.className='aui-sig';L.setAttribute('aria-hidden','true');host.appendChild(L);host.__auiSigL=L}
+  return L;
+}
+function hostOf(el){return (el.closest&&el.closest('dialog[open]'))||doc.body}
+function inView(r){return r.width>0&&r.height>0&&r.bottom>0&&r.top<innerHeight&&r.right>0&&r.left<innerWidth}
+/* noise in place of a letter: these four never add or take away a place
+   where a line can wrap, so the text keeps its lines */
+var SIGN='=*#@';
+function noiseCh(){return tr(SIGN.charAt(Math.floor(Math.random()*SIGN.length)))}
+function noiseRow(n,d){var s='';for(var i=0;i<n;i++)s+=Math.random()<d?tr(RAMP.charAt(1+Math.floor(Math.random()*4))):' ';return s}
+
+/* glitch: two frames (calm one, loud three), 50ms each. The element goes a
+   character sideways and back, and a strip or two of light characters,
+   knocked a character off, crosses it. Each strip lasts one frame. Then
+   everything is where it was */
+var gHist=[];
+function glitch(el){
+  el=sigEl(el);if(!el||sigStill(el))return false;
+  var t=snow();
+  if(el.__auiG&&t-el.__auiG<400)return false;
+  gHist=gHist.filter(function(x){return t-x<1000});
+  if(gHist.length>=3||!inView(el.getBoundingClientRect()))return false;
+  gHist.push(t);el.__auiG=t;
+  var lv=sigLevel(el),frames=lv===1?1:lv===3?3:2,n=lv===1?1:lv===3?3:2,f=0,job=null,
+      L=layer(hostOf(el)),cw=chw(L),R=rowh(),strips=[];
+  function clear(){strips.forEach(function(s){s.remove()});strips=[]}
+  function stop(){clear();el.classList.remove('aui-sig-g');el.style.removeProperty('--aui-sig-x');sigOn(stop,false);sigDrop(job)}
+  function frame(){
+    clear();
+    if(f>=frames||!el.isConnected||sigStill(el)){stop();return 0}
+    var b=el.getBoundingClientRect(),rows=Math.max(1,Math.round(b.height/R)),cols=Math.max(1,Math.ceil(b.width/cw)),i,s;
+    el.style.setProperty('--aui-sig-x',(f%2?-1:1)+'ch');el.classList.add('aui-sig-g');
+    for(i=0;i<n;i++){
+      s=doc.createElement('span');if(Math.random()<0.5)s.className='aui-sig-pk';
+      s.style.cssText='width:'+Math.round(b.width)+'px;height:'+R+'px;transform:translate('+Math.round(b.left+(Math.random()<0.5?-cw:cw))+'px,'+Math.round(b.top+Math.floor(Math.random()*rows)*R)+'px)';
+      s.textContent=noiseRow(cols,0.5);L.appendChild(s);strips.push(s);
+    }
+    f++;return 50;
+  }
+  sigOn(stop,true);
+  if(frame())job=sigAt(50,frame);
+  return true;
+}
+
+/* scramble: the words decode into place from the left, in 10 frames of
+   40ms (calm 6, loud 14). Each piece of text becomes two: the noise, which
+   is aria-hidden, and the final words, visually hidden, so a screen reader
+   reads the words at once and never the noise. Only letters and digits are
+   scrambled; spaces and punctuation stay put, so every line keeps its
+   width and its breaks. Live regions are left alone */
+var SKIP='input,textarea,select,script,style,noscript,svg,canvas,[aria-hidden="true"],.vh,aui-sr,.aui-sig';
+var WORD=/[A-Za-z0-9À-ɏ]/;
+function scramble(el){
+  el=sigEl(el);if(!el||el.__auiS||sigStill(el)||el.closest('[aria-live],[role="status"],[role="alert"],[aria-hidden="true"]'))return false;
+  var w=doc.createTreeWalker(el,NodeFilter.SHOW_TEXT,null),n,nodes=[],total=0;
+  while((n=w.nextNode())&&total<800){
+    if(!WORD.test(n.nodeValue)||n.parentNode.closest(SKIP)||n.parentNode.closest('[aria-live],[role="status"],[role="alert"]'))continue;
+    nodes.push(n);total+=n.nodeValue.length;
+  }
+  if(!nodes.length)return false;
+  var lv=sigLevel(el),frames=lv===1?6:lv===3?14:10,f=0,job=null;
+  var parts=nodes.map(function(n){
+    var h=doc.createElement('aui-noise'),v=doc.createElement('aui-sr');
+    h.setAttribute('aria-hidden','true');h.appendChild(doc.createTextNode(''));v.textContent=n.nodeValue;
+    n.parentNode.insertBefore(v,n);n.parentNode.replaceChild(h,n);
+    return {n:n,h:h,v:v,t:n.nodeValue};
+  });
+  function draw(){
+    var shown=total*f/frames,seen=0;
+    parts.forEach(function(p){
+      var o='',j,c;
+      for(j=0;j<p.t.length;j++,seen++){c=p.t.charAt(j);o+=(seen<shown||!WORD.test(c))?c:noiseCh()}
+      p.h.firstChild.nodeValue=o;
+    });
+  }
+  function stop(){
+    if(el.__auiS!==stop)return;el.__auiS=null;sigOn(stop,false);sigDrop(job);
+    parts.forEach(function(p){if(p.h.parentNode)p.h.parentNode.replaceChild(p.n,p.h);if(p.v.parentNode)p.v.parentNode.removeChild(p.v)});
+  }
+  el.__auiS=stop;sigOn(stop,true);draw();
+  job=sigAt(40,function(){f++;if(f>=frames||!el.isConnected){stop();return 0}draw();return 40});
+  return true;
+}
+
+/* band: three rows of - = - roll down through the box once, a row a step,
+   65ms a step (calm 90, loud 50), pink and see-through: the words under it
+   stay readable. Moved by a css animation, transform only. On the root (or
+   body) it rolls down the window */
+function band(el){
+  el=sigEl(el)||doc.documentElement;
+  var whole=el===doc.documentElement||el===doc.body;
+  if(el.__auiB||sigStill(el))return false;
+  function rect(){return whole?{left:0,top:0,width:innerWidth,height:innerHeight,right:innerWidth,bottom:innerHeight}:el.getBoundingClientRect()}
+  var r=rect();if(!inView(r))return false;
+  var L=layer(whole?doc.body:hostOf(el)),cw=chw(L),R=rowh(),lv=sigLevel(el),
+      cols=Math.ceil(r.width/cw)+1,rows=Math.ceil(r.height/R)+3,step=lv===1?90:lv===3?50:65,
+      box=doc.createElement('span'),row=doc.createElement('span'),dash=rep('- ',cols).slice(0,cols),ac=new AbortController(),tm=0;
+  box.className='aui-sig-band';
+  function place(){var b=rect();box.style.cssText='width:'+Math.round(b.width)+'px;height:'+Math.round(b.height)+'px;transform:translate('+Math.round(b.left)+'px,'+Math.round(b.top)+'px)'}
+  place();
+  row.textContent=tr(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
+  row.style.cssText='--aui-sig-rows:'+rows+';--aui-sig-t:'+(rows*step)+'ms;--aui-sig-o:'+(lv===1?0.2:lv===3?0.45:0.32);
+  box.appendChild(row);L.appendChild(box);
+  if(!whole){window.addEventListener('scroll',place,{capture:true,passive:true,signal:ac.signal});window.addEventListener('resize',place,{signal:ac.signal})}
+  function stop(){if(el.__auiB!==stop)return;el.__auiB=null;sigOn(stop,false);ac.abort();clearTimeout(tm);box.remove()}
+  row.addEventListener('animationend',stop);
+  /* a pass that never says it ended (the tab went away) still goes */
+  tm=setTimeout(stop,rows*step+400);
+  el.__auiB=stop;sigOn(stop,true);
+  return true;
+}
+
+/* rot: after data-rot seconds (14) with no pointer, key, wheel or scroll,
+   the frames in it lose characters, two ramp steps lighter, a step every
+   1.1s, three steps (calm two, loud five). Any input repairs them at once.
+   The frames are paint, so a screen reader hears nothing of it */
+var rotten=[],rotW=[],idleAt=snow();
+function framesIn(el){var l=all('.frame',el);if(el.classList.contains('frame'))l.unshift(el);return l}
+function rotStep(el){
+  var lv=sigLevel(el),p=lv===1?0.12:lv===3?0.32:0.22,inv={},k,n=0,cw=0;
+  for(k in MAP)inv[MAP[k]]=k;
+  framesIn(el).forEach(function(f){
+    if(n>=8)return;
+    /* a frame with the focus in it keeps its focus rim */
+    if(f.matches(':focus-within'))return;
+    var b=f.getBoundingClientRect();if(!inView(b))return;
+    var H=(f.style.getPropertyValue('--h')||getComputedStyle(f).getPropertyValue('--h')).trim().replace(/^"|"$/g,'');
+    if(!H||/[\\"]/.test(H))return;
+    if(!cw)cw=chw(doc.body);
+    H=H.slice(0,Math.min(400,Math.ceil(b.width/cw)+1));
+    if(!f.__auiRot)f.__auiRot={h:f.style.getPropertyValue('--h'),hb:f.style.getPropertyValue('--hb')};
+    H=H.replace(/\S/g,function(c){
+      if(Math.random()>p)return c;
+      var i=RAMP.indexOf(inv[c]||c),o=tr(i>2?RAMP.charAt(i-2):'.');
+      return /[\\"]/.test(o)?c:o;
+    });
+    f.style.setProperty('--h','"'+H+'"');f.style.setProperty('--hb','"'+H.split('').reverse().join('')+'"');
+    n++;
+  });
+  if(n&&rotten.indexOf(el)<0)rotten.push(el);
+  return n>0;
+}
+function rot(el){
+  el=sigEl(el);if(!el||sigStill(el))return false;
+  var ok=rotStep(el);if(ok)el.__auiRotN=(el.__auiRotN||0)+1;
+  return ok;
+}
+function repair(el){
+  if(el===undefined){rotten.slice().forEach(repair);return true}
+  el=sigEl(el);if(!el)return false;
+  framesIn(el).forEach(function(f){
+    var o=f.__auiRot;if(!o)return;f.__auiRot=null;
+    if(o.h)f.style.setProperty('--h',o.h);else f.style.removeProperty('--h');
+    if(o.hb)f.style.setProperty('--hb',o.hb);else f.style.removeProperty('--hb');
+  });
+  el.__auiRotN=0;
+  var i=rotten.indexOf(el);if(i>=0)rotten.splice(i,1);
+  return true;
+}
+function rotWatch(el){
+  var secs=Math.max(2,parseFloat(el.getAttribute('data-rot'))||14)*1000,job=null,
+  w={el:el,arm:function(){if(!job)job=sigAt(secs,check)},end:function(){sigDrop(job);job=null;var i=rotW.indexOf(w);if(i>=0)rotW.splice(i,1);repair(el)}};
+  function check(){
+    var idle=snow()-idleAt;
+    if(idle<secs)return secs-idle;
+    if(sigStill(el)||(el.__auiRotN||0)>=[0,2,3,5][sigLevel(el)]){job=null;return 0}
+    if(!rot(el)){job=null;return 0}
+    return 1100;
+  }
+  rotW.push(w);w.arm();
+  return w;
+}
+function sigTouch(){
+  idleAt=snow();
+  if(rotten.length)repair();
+  rotW.forEach(function(w){w.arm()});
+}
+['pointerdown','pointermove','keydown','wheel','touchstart','scroll'].forEach(function(t){doc.addEventListener(t,sigTouch,{capture:true,passive:true})});
+/* ASCIIUI.signal('loud') sets the level on the root, signal(null) takes it
+   off, signal() says it */
+function signalLevel(v){
+  var r=doc.documentElement;
+  if(v===null)r.removeAttribute('data-aui-signal-level');
+  else if(v!==undefined&&Object.prototype.hasOwnProperty.call(SIGLV,String(v)))r.setAttribute('data-aui-signal-level',String(v));
+  var l=sigLevel(r),k;for(k in SIGLV)if(SIGLV[k]===l)return k;
+  return 'normal';
+}
 
 var behaviors={
   /* role="tablist" with role="tab" buttons, and the role="tabpanel" elements
@@ -1456,6 +1734,53 @@ var behaviors={
     return {draw:draw,set:function(n){v=Math.round(+n);draw()},get value(){return v}};
   },
 
+  /* data-aui-signal on any element (it needs no data-aui of its own):
+     glitch     when a state inside it changes (aria-selected, aria-pressed,
+                aria-expanded, aria-checked, aria-current, open, a checkbox,
+                radio or select), the part that changed glitches
+     scramble   the words decode into place once, when it comes on screen
+     band       a band rolls through it now and then (on <html>: the window)
+     rot        data-rot seconds idle (14) and its frames decay; input repairs
+     Several at once: data-aui-signal="glitch rot". All of it opt in, and
+     still under reduced motion, forced colors and print */
+  signal:function(el,cx){
+    var fx=(el.getAttribute('data-aui-signal')||'glitch').toLowerCase().split(/[\s,]+/).filter(Boolean);
+    function has(n){return fx.indexOf(n)>=0}
+    if(has('glitch')){
+      /* what the page does to itself while it loads is not a change */
+      var born=snow(),mo=new MutationObserver(function(ms){
+        if(snow()-born<250)return;
+        var hit=null,any=null;
+        ms.forEach(function(m){
+          var t=m.target,a=m.attributeName,v=t.getAttribute(a);if(v===m.oldValue)return;
+          any=any||t;if(!hit&&(a==='open'?v!==null:(v&&v!=='false')))hit=t;
+        });
+        var t=hit||any;if(t)glitch(t.getClientRects().length?t:el);
+      });
+      mo.observe(el,{attributes:true,subtree:true,attributeOldValue:true,attributeFilter:['aria-selected','aria-pressed','aria-expanded','aria-checked','aria-current','open']});
+      cx.later(function(){mo.disconnect()});
+      cx.on(el,'change',function(e){
+        var t=e.target;if(!t.matches||!t.matches('input[type="checkbox"],input[type="radio"],select'))return;
+        var l=t.closest('label');glitch(l&&el.contains(l)?l:(t.getClientRects().length?t:el));
+      });
+    }
+    if(has('scramble')){
+      if(window.IntersectionObserver){
+        var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.disconnect();scramble(el)}})});
+        io.observe(el);cx.later(function(){io.disconnect()});
+      }
+      cx.later(function(){if(el.__auiS)el.__auiS()});
+    }
+    if(has('band')){
+      var gap=function(){var lv=sigLevel(el);return (lv===1?18000:lv===3?5000:9000)*(0.7+Math.random()*0.6)};
+      var bj=sigAt(gap(),function(){if(cx.dead)return 0;band(el);return gap()});
+      cx.later(function(){sigDrop(bj);if(el.__auiB)el.__auiB()});
+    }
+    if(has('rot')){var w=rotWatch(el);cx.later(w.end)}
+    return {glitch:function(){return glitch(el)},scramble:function(){return scramble(el)},band:function(){return band(el)},
+      rot:function(){return rot(el)},repair:function(){return repair(el)},get effects(){return fx.slice()}};
+  },
+
   /* a <pre>: a card silhouette with a wave through the ramp */
   skeleton:function(el,cx){
     var W='.:=+*#',t=0,cw=0;
@@ -1683,23 +2008,34 @@ function mount(el){
   return cx.api;
 }
 function unmount(el){var cx=el.__aui;if(!cx)return;el.__aui=null;cx.end()}
-function list(root){
-  var els=all('[data-aui]',root);
-  if(root.nodeType===1&&root.hasAttribute('data-aui'))els.unshift(root);
+function list(root,attr){
+  attr=attr||'data-aui';
+  var els=all('['+attr+']',root);
+  if(root.nodeType===1&&root.hasAttribute(attr))els.unshift(root);
   return els;
 }
+/* data-aui-signal rides on any element, next to its own data-aui: it has a
+   context of its own, el.__auiSig. data-aui="signal" works too */
+function mountSig(el){
+  if(el.__auiSig||el.getAttribute('data-aui')==='signal')return;
+  var cx=new Ctx(el,'signal');el.__auiSig=cx;
+  try{var api=behaviors.signal(el,cx);if(api)cx.api=api}catch(e){console.error('ascii-ui: signal failed',e)}
+}
+function unmountSig(el){var cx=el.__auiSig;if(!cx)return;el.__auiSig=null;cx.end()}
 function init(root){
   root=root||doc;
   link(root);
   list(root).forEach(mount);
+  list(root,'data-aui-signal').forEach(mountSig);
   return root;
 }
 function destroy(root){
   root=root||doc;
   list(root).forEach(unmount);
+  list(root,'data-aui-signal').forEach(unmountSig);
   return root;
 }
-function get(el){return el&&el.__aui?el.__aui.api:null}
+function get(el){return el&&el.__aui?el.__aui.api:el&&el.__auiSig?el.__auiSig.api:null}
 /* ASCIIUI.tabs(el) and the like: the calls for that one component, wiring
    it first if the page has not yet */
 function typed(name){
@@ -1724,7 +2060,7 @@ function validate(root){
   });
   return good;
 }
-var WATCH=['data-aui','data-page','data-pages','data-href','data-value','data-min','data-max','data-week-start','data-locale','data-name','data-kind','data-cells','data-type','data-values','data-rows','data-pick'];
+var WATCH=['data-aui','data-page','data-pages','data-href','data-value','data-min','data-max','data-week-start','data-locale','data-name','data-kind','data-cells','data-type','data-values','data-rows','data-pick','data-aui-signal','data-rot'];
 function start(){
   init(doc);
   new MutationObserver(function(ms){ms.forEach(function(m){
@@ -1738,6 +2074,11 @@ function start(){
     var el=m.target,a=m.attributeName;
     if(!el.isConnected||el.getAttribute(a)===m.oldValue)return;
     if(a==='data-aui'){unmount(el);mount(el);return}
+    if(a==='data-aui-signal'||a==='data-rot'){
+      if(el.getAttribute('data-aui')==='signal'){unmount(el);mount(el)}
+      else{unmountSig(el);if(el.hasAttribute('data-aui-signal'))mountSig(el)}
+      return;
+    }
     var cx=el.__aui;if(!cx)return;
     if(cx.attr)cx.attr(a);else{unmount(el);mount(el)}
   })}).observe(doc.documentElement,{childList:true,subtree:true,attributes:true,attributeOldValue:true,attributeFilter:WATCH});
@@ -1749,6 +2090,7 @@ window.ASCIIUI={
   toast:toast,progress:setProgress,bar:bar,colorize:colorize,tones:tones,behaviors:behaviors,
   tabs:typed('tabs'),pagination:typed('pagination'),calendar:typed('calendar'),chart:typed('chart'),dropdown:typed('dropdown'),otp:typed('otp'),
   popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),
+  glitch:glitch,scramble:scramble,band:band,rot:rot,repair:repair,signal:signalLevel,
   get reduce(){return reduce}
 };
 })();

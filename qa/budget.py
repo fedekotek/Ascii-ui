@@ -19,10 +19,10 @@ ROOT=pathlib.Path(__file__).resolve().parent.parent
 SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
-    'index.html':        180*KB,     # 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
-    'ascii-ui.html':     225*KB,     # charts and the Blocks on the kit: the download, everything embedded (211.6 with charts, 211.2 with blocks, measured apart)
+    'index.html':        184*KB,     # 180.3 KB with the Signal section; 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
+    'ascii-ui.html':     236*KB,     # 233.1 with Signal (kit and site both embedded); charts and the Blocks on the kit: the download, everything embedded (211.6 with charts, 211.2 with blocks, measured apart)
     'kit/ascii-ui.css':   18*KB,     # 14.4 KB with the Blocks pieces, plus the chart block and the 39 icons
-    'kit/ascii-ui.js':    35*KB,     # 31.1 KB with charts, plus about 2 KB for checklist, pick and stepper
+    'kit/ascii-ui.js':    40*KB,     # 38.2 KB with Signal (about 5.7 KB); 31.1 KB with charts, plus about 2 KB for checklist, pick and stepper
     'kit/starter.html':   12*KB,     # 7.2 KB with Charts, 7.9 with Blocks, 7.2 with icons, measured apart
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it

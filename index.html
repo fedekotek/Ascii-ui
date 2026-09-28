@@ -184,9 +184,9 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><span data-fact="blocks">16</span> <span>blocks</span></li>
       <li><span data-fact="charts">5</span> <span>charts</span></li>
       <li><span data-fact="kit-versions">5</span> <span>kit versions published, each still served</span></li>
-      <li><span data-fact="weight-kb">172</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">180</span></span></li>
-      <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">#############################</span><span class="muted">.</span></span></li>
-      <li><span data-fact="kit-kb">42</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
+      <li><span data-fact="weight-kb">180</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">184</span></span></li>
+      <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">##############################</span><span class="muted">.</span></span></li>
+      <li><span data-fact="kit-kb">55</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
     </ul>
     <h4 class="facts-h">What checks it</h4>
     <ul class="facts">
@@ -1182,6 +1182,41 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     <p class="muted status" id="tokensStatus" role="status"></p>
   </section>
 
+
+  <section aria-labelledby="s-signal">
+    <h2 id="s-signal" class="vh">Signal</h2>
+    <pre class="poster ptitle" data-text="SIGNAL" aria-hidden="true"></pre>
+    <p class="muted">The bad signal, for your own pages. Four effects and the scanlines, all off until an element asks with data-aui-signal. Reduced motion, high contrast and print keep every one of them still.</p>
+    <div class="demo stack sig" data-aui-signal-level="normal">
+      <div class="tgroup sig-lv" role="radiogroup" aria-label="Signal level"><label><input type="radio" name="siglv" value="calm"><span>Calm</span></label><label><input type="radio" name="siglv" value="normal" checked><span>Normal</span></label><label><input type="radio" name="siglv" value="loud"><span>Loud</span></label></div>
+      <div class="sig-fx">
+        <label class="check sig-on"><input type="checkbox" role="switch" value="glitch" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
+        <p class="muted sig-say">A state change breaks up for two frames, then sits still. Press the button.</p>
+        <div data-aui-signal="glitch"><button class="btn frame tone-light" type="button" aria-pressed="false"><span class="mid"><span class="label">Mute alerts</span></span></button></div>
+      </div>
+      <div class="sig-fx">
+        <label class="check sig-on"><input type="checkbox" role="switch" value="scramble" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Scramble</label>
+        <p class="muted sig-say">Words decode into place once, when they come on screen. A screen reader gets the words, never the noise.</p>
+        <p data-aui-signal="scramble">Twelve probes, three regions, one pager. Nothing is down.</p>
+      </div>
+      <div class="sig-fx">
+        <label class="check sig-on"><input type="checkbox" role="switch" value="band" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Band</label>
+        <p class="muted sig-say">A tracking band rolls through now and then. It is see-through and takes no clicks.</p>
+        <div class="frame tone-mid" data-aui-signal="band"><div class="body"><p>Channel 3. The picture holds, mostly.</p><p>The band passes. The words stay.</p></div></div>
+      </div>
+      <div class="sig-fx">
+        <label class="check sig-on"><input type="checkbox" role="switch" value="rot" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Rot</label>
+        <p class="muted sig-say">Leave the page alone for four seconds and the frame decays. Touch anything and it is back.</p>
+        <div class="frame tone-mid" data-aui-signal="rot" data-rot="4"><div class="body"><p>Nobody has touched this in a while.</p></div></div>
+      </div>
+      <div class="sig-fx">
+        <label class="check sig-crt"><input type="checkbox" role="switch" value="crt"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Scanlines</label>
+        <label class="check sig-crt"><input type="checkbox" role="switch" value="interlace"><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Interlace</label>
+        <p class="muted sig-say">The crt class on the root, over the whole page. Interlace draws every other line, fainter. Neither moves.</p>
+      </div>
+    </div>
+    <p class="muted status" id="sigStatus" role="status"></p>
+  </section>
 
   <section aria-labelledby="s-labs">
     <h2 id="s-labs" class="vh">Labs</h2>
