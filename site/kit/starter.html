@@ -38,7 +38,7 @@
   main > h2 + .part{margin-top:var(--r)}
   .part > h3{margin-bottom:var(--r)}
   [id]{scroll-margin-top:calc(var(--r)*4)}
-  .icons-all{display:grid;grid-template-columns:repeat(auto-fill,minmax(16ch,1fr));gap:var(--r) 2ch}
+  .icons-all{display:grid;grid-template-columns:repeat(auto-fill,minmax(16ch,1fr));gap:var(--r) 2ch;justify-self:stretch}
 </style>
 </head>
 <body>
@@ -780,7 +780,8 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
         <label><input type="radio" name="siglevel" value="loud"><span>Loud</span></label>
       </div>
       <p class="muted">Glitch: a state change inside it breaks up for two frames.</p>
-      <div data-aui-signal="glitch"><button class="btn frame tone-light" type="button" aria-pressed="false" id="sigmute"><span class="mid"><span class="label">Mute alerts</span></span></button></div>
+      <div data-aui-signal="glitch"><button class="btn frame tone-light" type="button" aria-pressed="false" data-aui-toggle="Alerts muted.|Alerts back on."><span class="mid"><span class="label">Mute alerts</span></span></button></div>
+      <p class="muted status" role="status"></p>
       <p class="muted">Scramble: the words decode once, when they come on screen.</p>
       <p data-aui-signal="scramble">Twelve probes, three regions, one pager. Nothing is down.</p>
       <p class="muted">Band: it rolls through now and then. Rot: four seconds without a touch and the frame decays.</p>
@@ -807,13 +808,10 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
     document.documentElement.classList.toggle('crt', e.target.checked);
     if (!e.target.checked) { document.documentElement.classList.remove('interlace'); document.getElementById('interlace').checked = false; }
   });
-  /* Signal: the level on its box, the mute button's state (a change the
-     glitch watches), and the calls. Interlace needs the scanlines on */
+  /* Signal: the level on its box and the calls (Mute alerts is the kit's
+     data-aui-toggle, a change the glitch watches). Interlace needs the scanlines on */
   document.getElementById('siglevel').addEventListener('change', function (e) {
     e.target.closest('[data-aui-signal-level]').setAttribute('data-aui-signal-level', e.target.value);
-  });
-  document.getElementById('sigmute').addEventListener('click', function (e) {
-    var b = e.currentTarget; b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
   });
   document.getElementById('sigband').addEventListener('click', function () {
     ASCIIUI.band(document.querySelector('#signal-fx [data-aui-signal~="band"]'));

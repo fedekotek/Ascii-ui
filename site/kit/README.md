@@ -18,8 +18,8 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-fq6cVjFPdLkpbLVIvOm7RSSkrdv3Tbnsn0tY3S+fOrxIfxLN42EEekAfgDQTZtJR" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-mc5oUf1dEL1MvZePC7U3b5ilD9oI+Qfi5Tx5VdY6fUxT3R4k0wmBbMsRwSNs9Tn+" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-PVsKFGhvH5P6JvqNhZ40Neu/9zBE5XoUAKklGDs1jVGq6of6rC+P9SaLcDKVFoA4" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-zWLWXMf44ZiHudahDdB25irvp6Lm0TN9/l4r2TlB83GVVnJcRSX2z031lFHBG0T+" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0, 1.2.1 and 1.3.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
@@ -56,7 +56,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="otp"` | `.otp` | advances, goes back on Backspace, takes a paste. The first box gets `autocomplete="one-time-code"`, so a phone offers the code from the message. `data-name="code"` adds a hidden input with the whole code, for the form. A letter is refused: `.invalid` on the group, `aria-invalid` on the box, its brackets turn into `!`, and the status line says "Digits only." (`data-error` for other words). The next digit puts it right. Add `.invalid` yourself for a code the server refused |
 | `data-aui="calendar"` | an empty element | draws the month; arrows by day and week, Page Up and Down by month. A new month is said out loud, from a hidden live region inside it. `data-value="2026-09-26"` picks a day (a day outside `data-min` and `data-max` is not picked; without `data-value` nothing is, today is shown and focused and the hidden input stays empty until a person picks), `data-min` and `data-max` bound it, `data-week-start="0"` starts on Sunday (Monday is the default), `data-locale="de"` names the months and days, `data-name="when"` adds a hidden input with the ISO date |
 | `data-aui="pagination"` | a `<nav>` | draws the pages; `data-pages="9" data-page="3"`. A page past the end is drawn as the last one and kept, so `data-page="12"` and then `data-pages="20"` lands on 12, in either order. `data-href="?page={n}"` draws links instead of buttons |
-| `data-aui="datatable"` | the box around a `.tablewrap` and its `<table class="tbl">` | a `<th>` with a `<button class="dt-sort">` sorts its column: ascending, descending, then back to the order the rows came in, said in `aria-sort`. `data-select` adds a checkbox column and a select-all, Shift picks a range. An input with `data-aui-filter` narrows the rows, `data-page-size="8"` pages them through the `data-aui="pagination"` inside the box, `aria-busy="true"` draws skeleton rows. The `.dt-count` says "12 of 40 rows, 3 selected." See [Data table](#data-table) |
+| `data-aui="datatable"` | the box around a `.tablewrap` and its `<table class="tbl">` | a `<th>` with a `<button class="dt-sort">` sorts its column: ascending, descending, then back to the order the rows came in, said in `aria-sort`. `data-select` adds a checkbox column and a select-all, Shift picks a range. An input with `data-aui-filter` narrows the rows, `data-page-size="8"` pages them through the `data-aui="pagination"` inside the box, `aria-busy="true"` draws skeleton rows, a strip in every column. The columns keep one width through the rows, the loading rows, the empty row, a filter and every page (the width of each column's widest cell), and a column of numbers lines up on the right (`.dt-num`). No rows match: "No rows match." and a Clear the filter button, and no pager. The `.dt-count` says "12 of 40 rows, 3 selected." See [Data table](#data-table) |
 | `data-aui="validate"` | an `<input>` in a `.field` | checks `required`, `type`, `pattern`, the lengths and the range when you leave the field and when the form is sent. From then on it checks as you type too, so a fix clears the message at once; nobody is told a word is wrong before they finish it. A value wrong on load shows its message from the start. Writes the message to the nearest `.error` (or the element `aria-describedby` names) |
 | `data-aui="counter"` | a `<textarea>` | counts against `maxlength`, into the nearest `.count` |
 | `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
@@ -71,7 +71,9 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
 | `data-aui-reset` | a button in a form or a dialog | puts every field back to what the HTML says (a checkbox checked in the HTML comes back checked), then redraws the bars, outputs, counts and code boxes. Hidden inputs are left alone, and the calendar and the code boxes set their own again (a calendar without `data-value` goes back to nothing picked). Outside a form or a dialog it does nothing and says so in the console |
 | `data-aui-fill` | a button | runs the nearest progress bar from 0 to 100, for demos. `data-aui-done` is what it says at the end |
-| `data-aui-signal="glitch"` | any element, next to its own `data-aui` or not | the bad signal, opt in: `glitch`, `scramble`, `band`, `rot`, several with spaces. See [Signal](#signal) |
+| `data-aui-toggle` | a button with `aria-pressed` | a click flips `aria-pressed` and fires `aui:change` with `{ pressed }`. `data-aui-toggle="Alerts muted.\|Alerts back on."` says the words for on and for off in the nearest `role="status"` |
+| `data-aui-signal="glitch"` | any element, next to its own `data-aui` or not | the bad signal, opt in: `glitch`, `scramble`, `band`, `rot`, several with spaces. Empty (`data-aui-signal=""`) is off. See [Signal](#signal) |
+| `data-aui="signal"` | any element | the same as `data-aui-signal` on it, for a page that wires everything with `data-aui`: the effects its `data-aui-signal` names, or `glitch` when it has none |
 | `role="status"` | next to the components above | the nearest one says what happened (the picked date, the page, the code) |
 
 "Nearest" means the smallest element around the component that holds one, and only if no other component stands between them: a status line, a count or an error comes after its component, a progress bar before or after its button. A component without a part of its own finds nothing, it does not borrow the next one's.
@@ -121,10 +123,10 @@ The markup is a plain table, so it reads and prints without the script. The kit 
 | `data-sort="num"`, `"date"`, `"text"` | on a `<th>`: how it sorts. Without it the column decides: every cell a number (a unit or a currency sign next to it is fine: `12 kg`, `$1,240`) sorts as numbers, every cell a `yyyy-mm-dd` date (a time after it is fine) as dates, anything else as words, with `10` after `9`. Empty cells go last either way |
 | `data-value` | on a `<td>`: what it sorts by instead of its words |
 | `aria-sort="ascending"` | on a `<th>` in the HTML: sorted that way on load |
-| `data-aui-filter` | on an input in the box: keeps the rows holding every word typed, in any column, case aside. "No rows match." fills a row across every column (`data-no-match` for other words) |
-| `data-select` | a checkbox in every row, named by the row's first cell ("Select INC-512"), and a select-all in the head that is `indeterminate` while some are picked. It picks every row that matches the filter, on every page. Shift and a click, or Shift and Space, picks the range from the last pick. A picked row is an ink slab (`.dt-on`) and its box says `[@]` |
+| `data-aui-filter` | on an input in the box: keeps the rows holding every word typed, in any column, case aside. "No rows match." fills a row across every column (`data-no-match` for other words), with a Clear the filter button after it (`.dt-clear`), and the pager goes |
+| `data-select` | a checkbox in every row, named by the row's first cell ("Select INC-512"), and a select-all in the head that is `indeterminate` while some are picked. It picks every row that matches the filter, on every page. Shift and a click, or Shift and Space, picks the range from the last pick. A picked row (`.dt-on`) is bold on a darker tint, its box is an ink slab that says `[@]`, and a badge in it keeps its color |
 | `data-page-size="8"` | rows on a page. The kit sets `data-pages` and `data-page` on the pager inside the box (or right after it) and follows its picks. Without a pager every row shows |
-| `aria-busy="true"` | on the box: the rows step out and a page of skeleton rows (`.dt-skel`, `aria-hidden`) waves through the ramp until it goes. The count says "Loading rows." |
+| `aria-busy="true"` | on the box: the rows step out and a page of skeleton rows (`.dt-skel`, `aria-hidden`), a strip in every column, waves through the ramp until it goes. The columns stay where the rows put them. The count says "Loading rows." |
 | `data-empty` | the words for a table with no rows at all: "No rows yet." |
 
 Rows your script adds to or takes from the `<tbody>` are read again: they get their checkbox, the sort and the filter. On a phone the table scrolls sideways inside `.tablewrap`, never the page, and `<< scrolls sideways >>` under it says so (`data-wide`, set by the kit).
@@ -150,6 +152,7 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | Checklist | `aui:change` on the list, when a person ticks or unticks one | `{ done, total }` |
 | Pick | `aui:change` on the group, when a person picks | `{ item, index }` |
 | Stepper | `aui:change` on the `.stepper` | `{ value }` |
+| Toggle | `aui:change` on the `data-aui-toggle` button | `{ pressed }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
 | Slider, counter | the input's own `input` and `change` | |
@@ -250,6 +253,16 @@ The site's effects, the bad signal, for your own pages. All of it is opt in: not
 | `scramble` | the words decode into place from the left, once, when it first comes on screen: 10 frames of 40ms (calm 6, loud 14). Only letters and digits are scrambled; spaces and punctuation stay, so every line keeps its width and its breaks. `ASCIIUI.scramble(el)` runs it again |
 | `band` | three rows of `- = -` roll down through the box, a row a step, every 9 seconds or so (calm 18, loud 5), 65ms a step. Pink and see-through, the words under it stay readable. On `<html>` or `<body>` it rolls down the window. `ASCIIUI.band(el)` rolls one now |
 | `rot` | after `data-rot` seconds (14) with no pointer, key, wheel or scroll, the frames in it lose characters, two ramp steps lighter, a step every 1.1s, three steps (calm two, loud five). Any input repairs them at once |
+| `""` (empty) | off. Take a name out and that effect stops; empty the attribute and they all do |
+
+A glitch answers a change of state, so the thing inside needs one. A plain button can be a toggle with `data-aui-toggle`: the kit flips its `aria-pressed` on a click, which is the change the glitch sees.
+
+```html
+<div data-aui-signal="glitch">
+  <button class="btn frame tone-light" type="button" aria-pressed="false" data-aui-toggle="Alerts muted.|Alerts back on."><span class="mid"><span class="label">Mute alerts</span></span></button>
+</div>
+<p class="muted status" role="status"></p>
+```
 
 How loud: `--aui-signal` on `:root`, `calm`, `normal` (the default), `loud` or `off`, or `data-aui-signal-level` on the root or on any element around the effect, which wins. `ASCIIUI.signal("loud")` sets it on the root.
 
@@ -264,7 +277,7 @@ What it promises:
 - **Still when asked to be.** `prefers-reduced-motion`, `forced-colors` (Windows High Contrast) and print switch every effect off, in the CSS and in the script, and a change to them is followed while the page is open. So does a field that takes typing having the focus, and a tab in the background.
 - **Nothing moves.** It is paint: strips and bands on one fixed layer, a `translate`, a frame's string. No box on the page changes place or size, before, during or after.
 - **Nothing in the way.** The layer takes no clicks (`pointer-events: none`) and is `aria-hidden`. A strip covers text for one frame; the band is see-through.
-- **Screen readers get the words.** While a scramble runs, the noise is an `aria-hidden` `<aui-noise>` and the words sit in a visually hidden `<aui-sr>` next to it, so a screen reader reads the words at once, never the noise. Live regions (`role="status"`, `role="alert"`, `aria-live`) are never scrambled. Frames are paint, so rot says nothing.
+- **Screen readers get the words.** While a scramble runs, the noise is an `aria-hidden` `<aui-noise>` and the words sit in a visually hidden `<aui-sr>` next to it, so a screen reader reads the words at once, never the noise. The noise is CSS content, not text, so a script reading `textContent` mid-decode (a chart's table, a sort, a button label) gets the words, once. Live regions (`role="status"`, `role="alert"`, `aria-live`) are never scrambled. Frames are paint, so rot says nothing.
 - **No flashing.** At most three glitches a second on the whole page (WCAG 2.3.1); a fourth waits.
 - **Colors keep their jobs.** Noise is magenta and pink. Never cyan, which is focus.
 - **It rests.** Its loop asks for a frame only while an effect is drawing. Between them it waits on one timer, and with nothing to do, on nothing. A hidden tab stops it.
@@ -413,7 +426,7 @@ The characters are CSS content with empty alt text, so a screen reader says the 
 | `minus` | `[-]` | 5 | Remove |
 | `check` | `v/` | 5 | Done |
 | `warning` | `/!\` | 5 | Warning |
-| `error` | `(x)` | 5 | Error |
+| `error` | `(!)` | 5 | Error |
 | `info` | `(i)` | 5 | Information |
 | `help` | `(?)` | 5 | Help |
 | `arrow-up` | `/\|\` | 5 | Up |
@@ -425,24 +438,24 @@ The characters are CSS content with empty alt text, so a screen reader says the 
 | `chevron-left` | `<` | 5 | Previous |
 | `chevron-right` | `>` | 5 | Next |
 | `external` | `->]` | 5 | Opens in a new tab |
-| `copy` | `[[]` | 5 | Copy |
+| `copy` | `\|[]` | 5 | Copy |
 | `download` | `_v_` | 5 | Download |
 | `upload` | `_^_` | 5 | Upload |
 | `edit` | `_/` | 5 | Edit |
 | `delete` | `\|_\|` | 5 | Delete |
-| `settings` | `{o}` | 5 | Settings |
+| `settings` | `-\|-` | 5 | Settings |
 | `user` | `/o\` | 5 | Account |
 | `home` | `[^]` | 5 | Home |
 | `bell` | `/.\` | 5 | Notifications |
 | `lock` | `[o]` | 5 | Locked |
 | `unlock` | `[o/` | 5 | Unlocked |
 | `eye` | `<o>` | 5 | Show |
-| `eye-off` | `<->` | 5 | Hide |
-| `calendar` | `[#]` | 5 | Date |
+| `eye-off` | `<\>` | 5 | Hide |
+| `calendar` | `[:]` | 5 | Date |
 | `clock` | `(')` | 5 | Time |
 | `filter` | `\-/` | 5 | Filter |
 | `sort` | `^v` | 5 | Sort |
-| `refresh` | `(<` | 5 | Refresh |
+| `refresh` | `(->` | 5 | Refresh |
 | `more` | `...` | 5 | More |
 | `star` | `(*)` | 6 | Favorite |
 
@@ -478,7 +491,7 @@ Current Chromium (Chrome, Edge, Opera, Samsung Internet), Firefox 121 and later,
 - Popovers, the combobox list and the context menu go to the top layer where the browser has the Popover API. Without it (Safari before 17, Firefox before 125) a panel inside a box that scrolls or clips is cut off at that box's edge, as the dropdown's menu is everywhere.
 - The combobox picks one option, not several.
 - A data table sorts by one column at a time, has no `colspan` in its body, and does not edit cells. A new `<tbody>` is not read: take the box off the page and put it back.
-- Motion runs on `requestAnimationFrame`, only while the element is on screen. With `prefers-reduced-motion` nothing animates.
+- Motion draws on `requestAnimationFrame`, only while the element is on screen: a spinner, a skeleton or a loading table off screen asks for no frames at all, and between two steps a timer waits instead of a frame. A chart grows in on frames too. With `prefers-reduced-motion` nothing animates.
 - Signal's scramble swaps the text nodes of its element for two elements while it runs, about half a second. A framework that rewrites that text in the same half second wins, and the scramble lets go. Its noise keeps every line's width in a monospace font; in a proportional one a word can be wider for those frames.
 
 ## License

@@ -55,7 +55,7 @@ Read `docs/ARCHITECTURE.md` first. Then the doc for the area you are touching. W
 9. After editing anything in `kit/`, run `python3 qa/kit.py sync`, then `python3 qa/kit.py`. The Code tab reads the synced copy, not the files.
 
 ## How to add a component (short version, the full checklist is in docs/COMPONENTS.md)
-1. `index.html`: a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. `data-span="full"` if it holds a table, a chart or a picture (gallery columns are 66 characters at 1024px, 43 at 1280px, 41 at 1600px, never under 40). Update the count strings ("36 components", "Thirty-five", "34 in the kit", README, llms.txt).
+1. `index.html`: a `<section aria-labelledby="s-NAME">` inside `#view-kit` with an `<h2 class="vh">`, a `<pre class="poster ptitle" data-text="NAME">`, a `<p class="muted">` caption, and the demo. `data-span="full"` if it holds a table, a chart or a picture (gallery columns are 66 characters at 1024px, 43 at 1280px, 41 at 1600px, never under 40). Update the count strings ("36 components", "Thirty-six", "34 in the kit", README, llms.txt).
 2. Its id in a group of `KIT_GROUPS` (js/30: Form, Overlay, Display, Feedback, Navigation). The docs builder sorts, adds Preview/Code tabs, the index and the sidebar.
 3. Site wiring: CSS at the end of css/14 or a new file after css/22 (29-print stays last); JS in js/30.
 4. `KITIFY` in js/40: the `data-aui` attributes the kit needs, set on the Code tab's clone. Or a `SITEONLY` note if the kit cannot run it.

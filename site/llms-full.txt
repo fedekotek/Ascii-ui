@@ -2101,7 +2101,7 @@ Anatomy:
 ```text
 1 > checkout
 2 2 of 24 rows, 1 selected.
-3 [-] ID ^   SERVICE -  STATUS
+3 [-] ID ^   SERVICE    STATUS
 4 [@] INC-493 checkout  RESOLVED
   [ ] INC-490 checkout  RESOLVED
 5 [<] [1] [>]
@@ -2110,22 +2110,22 @@ Anatomy:
 
 1. **filter** `[data-aui-filter]`: An input in a `.field`, with a `<label>`. It keeps the rows that hold every word typed, in any column, case aside.
 2. **count** `.dt-count`: `role="status"`. The kit writes "2 of 24 rows, 1 selected." after every sort, filter and pick.
-3. **sort** `.dt-sort`: A `<button>` in the `<th>`: the column name, then - unsorted, ^ ascending, v descending. The th says it in `aria-sort`.
-4. **picked** `tr.dt-on`: With `data-select` the kit adds a checkbox to every row and a select-all to the head. A picked row is an ink slab and its box says [@].
+3. **sort** `.dt-sort`: A `<button>` in the `<th>`: the column name, then ^ ascending or v descending on the sorted column; the others keep the two places blank, so a sort never moves a column. The th says it in `aria-sort`.
+4. **picked** `tr.dt-on`: With `data-select` the kit adds a checkbox to every row and a select-all to the head. A picked row is bold on a darker tint, its box an ink slab that says [@], and a badge in it keeps its color.
 5. **pager** `[data-aui="pagination"]`: A [Pagination](https://ascii.fedekotek.design/#components/pagination) inside the box. With `data-page-size` the kit sets its pages and follows its picks.
 6. **status** `.status`: The pager's own line: "Page 1 of 3."
 
 | State | Looks like | What it means |
 |---|---|---|
-| unsorted | `ID -` | Every sortable column starts with `aria-sort="none"` and a faint -. |
+| unsorted | `ID` | Every sortable column starts with `aria-sort="none"` and no mark: its two places stay blank. |
 | sorted | `ID ^` | ^ ascending, v descending. A third press puts the rows back in the order they came. |
-| hover | `ID -` | The - goes full. Mouse only. |
+| hover | `ID ^` | A faint ^ shows where a press goes. Mouse only. |
 | focus | `ID ^` | A sort button or a checkbox: a slab in the focus color. |
-| checked, picked | `[@] INC-` | The row is an ink slab, `.dt-on`, and its box says [@]. Characters, not only color. |
+| checked, picked | `[@] INC-` | The row is bold on a darker tint, `.dt-on`, and its box is a slab that says [@]. A badge keeps its color. Characters, not only color. |
 | some picked | `[-]` | The select-all says [-] and is `indeterminate` while some rows that match are picked. |
-| no match | `No rows` | A row across every column: "No rows match." (`data-no-match`). The count says "0 of 24 rows." |
+| no match | `No rows` | A row across every column: "No rows match." (`data-no-match`) and a Clear the filter button. The pager goes. The count says "0 of 24 rows." |
 | empty | `No rows` | No rows at all: "No rows yet." (`data-empty`). The pager goes. |
-| loading | `:=+*##*+` | `aria-busy="true"` on the box: a page of skeleton rows with a wave through the ramp, `aria-hidden`. The count says "Loading rows." Still under reduced motion. |
+| loading | `:=+*##*+` | `aria-busy="true"` on the box: a page of skeleton rows, a strip in every column, with a wave through the ramp, `aria-hidden`. The columns stay where the rows put them. The count says "Loading rows." Still under reduced motion. |
 | wide | `<< scrol` | Wider than its box: it scrolls inside it, and a line under it says so. |
 | no script | `ID` | A plain table: every row shows, the buttons do nothing, the filter filters nothing. |
 
@@ -2143,7 +2143,7 @@ Accessibility:
 - **live**: The `.dt-count` is `role="status"`: it reads the rows that show and how many are picked. The pager says its page in its own line.
 - **focus**: The focus stays where it was: a sort keeps it on its button, a pick on its box, a new page on the page number.
 - **touch**: Sort buttons and checkboxes are 45px tall. On a phone the table scrolls sideways inside its box, never the page.
-- **paint**: ^ v - and the [@] are paint; `aria-sort` and `checked` say it. The skeleton rows are `aria-hidden`.
+- **paint**: ^ v and the [@] are paint; `aria-sort` and `checked` say it. The skeleton rows are `aria-hidden`.
 
 | Do | Don't |
 |---|---|
@@ -2169,6 +2169,7 @@ Accessibility:
 | class | `.tablewrap .tbl` | The table and the box that scrolls it: the kit's Table. |
 | class | `.dt-tools .dt-count .dt-sort` | The row above the table, the count, the sort buttons. |
 | class | `.dt-pick .dt-on .dt-empty .dt-skel` | Set by the kit: the checkbox cells, a picked row, the empty row, the skeleton rows. |
+| class | `.dt-num .dt-clear` | Set by the kit: a column of numbers, right-aligned, and the Clear the filter button in the no match row. |
 | attr | `data-wide` | Set by the kit on the `.tablewrap` while the table is wider than it: the line under it says it scrolls. |
 | event | `aui:sort` | On the box, when a person sorts. `detail`: `{ column, dir, th }`. `column` counts from 0, the checkboxes aside; `dir` is `ascending`, `descending` or `none`. |
 | event | `aui:select` | On the box, when a person picks or lets go. `detail`: `{ rows, count }`, every picked `<tr>`, the ones a filter hides too. |
@@ -2330,12 +2331,12 @@ Limits:
 - Id: `s-icon`, address `https://ascii.fedekotek.design#components/icon`
 - Group: Display
 - In the kit: yes, `kit/starter.html#icon`
-- Caption: Thirty-nine icons made of the same characters as the text. One row inline, three rows large. Tap one to copy it.
+- Caption: Thirty-nine icons made of the same characters as the text. Each comes in two sizes: one row, to sit in a line of text, and three rows, for an empty state. Tap one to copy it.
 - Behaviors: none, HTML and CSS only
 - CSS blocks:
   - `icon`: `.icon`
 - Use it for:
-  - A status that has to read at a glance: v/ done, /!\ warning, (x) error, next to the words that say it.
+  - A status that has to read at a glance: v/ done, /!\ warning, (!) error, next to the words that say it.
   - A button or a row whose word is short and common: _v_ Export, [+] New, |_| Delete.
   - The large one on an empty state or a tile, where a picture of the thing helps more than another line of text.
 - Not for:

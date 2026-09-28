@@ -139,6 +139,11 @@ a:focus-visible{outline:0;background:var(--accent);color:var(--bg)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 2ch}
 .stack{display:grid;gap:var(--r);justify-items:start}
+/* a stack in a stack is a box around a component and its parts: it takes the
+   width, so a chart or a table in it can too (what is in it still starts left) */
+.stack > .stack{justify-self:stretch;min-width:0}
+/* a page made from the Code tab says so when this file did not load; here it goes */
+.aui-nokit{display:none !important}
 .demo{margin-top:var(--r)}
 .demo:first-child{margin-top:0}
 .status{min-height:var(--r)}
@@ -227,6 +232,13 @@ legend{padding:0;margin-bottom:var(--r)}
   padding:0;margin:0;flex:1;min-width:0;height:var(--r);caret-color:var(--hot);
 }
 .field select{appearance:none;-webkit-appearance:none;cursor:pointer}
+/* a search field's clear x: the text's color, magenta under a pointer, never the browser's blue */
+.field input[type="search"]::-webkit-search-cancel-button{
+  -webkit-appearance:none;appearance:none;width:1ch;height:1em;margin:0;cursor:pointer;background:var(--muted);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 2l6 6M8 2l-6 6' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M2 2l6 6M8 2l-6 6' stroke='%23000' stroke-width='1.6'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.field input[type="search"]::-webkit-search-cancel-button:hover{background:var(--hot)}
 .field select option{background:var(--bg);color:var(--ink)}
 .field:focus-within{--h:var(--h-heavy);--s:var(--s-heavy);--v:var(--v-heavy);--frame-color:var(--accent)}
 .field.invalid{--h:var(--h-error);--s:var(--s-error);--v:var(--v-error);--frame-color:var(--danger)}
@@ -309,33 +321,45 @@ legend{padding:0;margin-bottom:var(--r)}
 /* A .tbl that sorts, filters, picks rows and pages. data-aui="datatable" on
    the box around it. The sort mark is paint: aria-sort on the th says it. */
 [data-aui="datatable"]{display:grid;gap:var(--r);min-width:0;justify-self:stretch}
+/* the count sits on the field's middle row, the one you type on */
 .dt-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--r) 2ch}
 .dt-tools .group{flex:1 1 24ch}
-.dt-count{white-space:nowrap}
+.dt-count{white-space:nowrap;margin-bottom:var(--r)}
 .dt-sort{
-  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;background:none;border:0;border-radius:0;
+  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;text-align:inherit;background:none;border:0;border-radius:0;
   margin:-12px -1ch;padding:12px 1ch;cursor:pointer;outline:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;
 }
-.dt-sort::after{content:" -";content:" -" / "";opacity:.6}
-[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / "";opacity:1}
-[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / "";opacity:1}
+/* the mark is on the sorted column only; the rest keep its two places blank,
+   so a sort never moves a column. A pointer over one shows where it goes */
+.dt-sort::after{content:"  ";content:"  " / "";white-space:pre}
+[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / ""}
+[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / ""}
 .dt-sort:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover) and (pointer:fine){.dt-sort:hover::after{opacity:1}}
+@media (hover:hover) and (pointer:fine){[aria-sort="none"] > .dt-sort:hover::after{content:" ^";content:" ^" / "";opacity:.6}}
+/* a column of numbers lines up on the right, so a sort by value shows (the kit marks it) */
+.tbl .dt-num{text-align:right}
 /* the checkbox column: the glyph takes the row's color, so it reads on a slab */
 .dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
 .dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
 .dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
 /* some rows picked: the script marks the label (.dt-mixed), since an :indeterminate rule is checked against every box on the page and made pasting a thousand radios twice as slow */
 .check.dt-mixed .glyph::before{content:"[-]";content:"[-]" / ""}
-/* a picked row is an ink slab, and its box says [@] */
-.tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
-.tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink)}
+/* a picked row: its box is a slab that says [@], the row is bold on a
+   darker tint, and a badge keeps its color */
+.tbl tbody tr.dt-on{font-weight:700}
+.tbl tbody tr.dt-on > .dt-pick{background:var(--ink);color:var(--bg)}
 /* stripes count the rows that show, not the ones a filter or a page hid */
 [data-aui="datatable"] .tbl tbody tr:nth-child(even){background:none}
 [data-aui="datatable"] .tbl tbody tr:nth-child(even of :not([hidden],.dt-skel,.dt-empty)){background:color-mix(in srgb,var(--ink) 7%,transparent)}
-[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:var(--ink)}
+[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:color-mix(in srgb,var(--ink) 16%,transparent)}
 .dt-empty td{color:var(--muted);white-space:normal}
 .dt-skel td{color:var(--muted);font-weight:700;overflow:hidden}
+/* no rows match: a way back to all of them */
+.dt-clear{
+  font:inherit;color:var(--ink);background:none;border:0;border-radius:0;padding:12px 0;margin:-12px 0 -12px 1ch;
+  cursor:pointer;outline:0;text-decoration:underline;text-decoration-color:var(--hot);text-underline-offset:3px;
+}
+.dt-clear:focus-visible{background:var(--accent);color:var(--bg)}
 /* wider than its box: it scrolls inside it, and says so under the table */
 [data-aui="datatable"] .tablewrap{position:relative}
 [data-aui="datatable"] .tablewrap[data-wide]::after{
@@ -685,7 +709,7 @@ dialog[role="alertdialog"]:has(> .alert)[open]::before{color:rgba(138,90,0,.5);c
 .icon[data-icon="minus"]{--i:"[-]";--il:"     \A -----\A      "}
 .icon[data-icon="check"]{--i:"v/";--il:"    /\A \\  / \A  \\/  "}
 .icon[data-icon="warning"]{--i:"/!\\";--il:"  ^  \A  /!\\ \A /___\\"}
-.icon[data-icon="error"]{--i:"(x)";--il:" .-. \A ( x )\A  '-' "}
+.icon[data-icon="error"]{--i:"(!)";--il:" .-. \A ( ! )\A  '-' "}
 .icon[data-icon="info"]{--i:"(i)";--il:" .-. \A ( i )\A  '-' "}
 .icon[data-icon="help"]{--i:"(?)";--il:" .-. \A ( ? )\A  '-' "}
 .icon[data-icon="arrow-up"]{--i:"/|\\";--il:"  ^  \A  /|\\ \A   |  "}
@@ -697,25 +721,25 @@ dialog[role="alertdialog"]:has(> .alert)[open]::before{color:rgba(138,90,0,.5);c
 .icon[data-icon="chevron-left"]{--i:"<";--il:"   / \A   <  \A    \\ "}
 .icon[data-icon="chevron-right"]{--i:">";--il:" \\   \A   >  \A  /   "}
 .icon[data-icon="external"]{--i:"->]";--il:".-- ^\A | / |\A '---'"}
-.icon[data-icon="copy"]{--i:"[[]";--il:".--. \A |.--.\A '|  |"}
+.icon[data-icon="copy"]{--i:"|[]";--il:".--. \A |.--.\A '|__|"}
 .icon[data-icon="download"]{--i:"_v_";--il:"  |  \A  \\|/ \A |_v_|"}
 .icon[data-icon="upload"]{--i:"_^_";--il:"  ^  \A  /|\\ \A |_|_|"}
 .icon[data-icon="edit"]{--i:"_/";--il:"   /7\A   // \A <_/  "}
 .icon[data-icon="delete"]{--i:"|_|";--il:"_.-._\A |:::|\A |___|"}
-.icon[data-icon="settings"]{--i:"{o}";--il:" .^. \A <(o)>\A  'v' "}
+.icon[data-icon="settings"]{--i:"-|-";--il:"--|--\A |----\A ---|-"}
 .icon[data-icon="user"]{--i:"/o\\";--il:" .-. \A  '-' \A /___\\"}
 .icon[data-icon="home"]{--i:"[^]";--il:"  ^  \A  / \\ \A |_n_|"}
 .icon[data-icon="bell"]{--i:"/.\\";--il:" .-. \A  | | \A /_o_\\"}
 .icon[data-icon="lock"]{--i:"[o]";--il:" .-. \A  | | \A [_o_]"}
 .icon[data-icon="unlock"]{--i:"[o/";--il:" .-. \A  |   \A [_o_]"}
 .icon[data-icon="eye"]{--i:"<o>";--il:" .-. \A <(o)>\A  '-' "}
-.icon[data-icon="eye-off"]{--i:"<->";--il:" .-/ \A <(/)>\A  /-' "}
-.icon[data-icon="calendar"]{--i:"[#]";--il:".T-T.\A |===|\A |:::|"}
+.icon[data-icon="eye-off"]{--i:"<\\>";--il:"\\.-. \A <(\\)>\A  '-'\\"}
+.icon[data-icon="calendar"]{--i:"[:]";--il:".T-T.\A |===|\A |:::|"}
 .icon[data-icon="clock"]{--i:"(')";--il:" .-. \A ( |_)\A  '-' "}
 .icon[data-icon="filter"]{--i:"\\-/";--il:"=====\A  \\ / \A   |  "}
 .icon[data-icon="sort"]{--i:"^v";--il:" ^ | \A  | | \A  | v "}
-.icon[data-icon="refresh"]{--i:"(<";--il:" .-> \A (   )\A  '-' "}
-.icon[data-icon="more"]{--i:"...";--il:"     \A @ @ @\A      "}
+.icon[data-icon="refresh"]{--i:"(->";--il:" .-> \A (   )\A  '-' "}
+.icon[data-icon="more"]{--i:"...";--il:"     \A o o o\A      "}
 .icon[data-icon="star"]{--i:"(*)";--il:"__/\\__\A \\    /\A /_/\\_\\"}
 
 /* ==== kbd: kbd .kbds ==== */
@@ -1078,6 +1102,8 @@ a.btn{text-decoration:none}
 /* scramble: while the words decode, aui-noise is the paint (aria-hidden) and
    aui-sr holds the words for a screen reader, out of sight */
 aui-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+/* the noise is css content, not text: a script reading the words mid-decode gets the words */
+aui-noise::before{content:attr(data-n);content:attr(data-n) / ""}
 /* band: three rows of characters roll down through the box, a row a step */
 .aui-sig > .aui-sig-band{opacity:1;color:var(--pink)}
 .aui-sig-band > span{display:block;white-space:pre;opacity:var(--aui-sig-o,.32);animation:aui-sig-band var(--aui-sig-t,2.6s) steps(var(--aui-sig-rows,40),end) 1 both}
