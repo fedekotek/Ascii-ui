@@ -1,0 +1,83 @@
+/* ---------- icons ----------
+   The kit's icon block (kit/ascii-ui.css, "icon"), the same rules: the site
+   does not load the kit. qa/kit.py fails when the two tables disagree. Then
+   the Icons section: the rows in use and the browser (js/30 "icons"). */
+.icon{
+  --i:"";--il:"";
+  display:inline-block;white-space:pre;font-weight:700;font-style:normal;
+  line-height:var(--r);text-transform:none;letter-spacing:0;
+}
+.icon::before{content:var(--i);content:var(--i) / ""}
+.icon-lg{vertical-align:top}
+.icon-lg::before{content:var(--il);content:var(--il) / "";display:block}
+.icon.hot{color:var(--hot)}
+.icon.ok{color:var(--ok)}
+.icon.warn{color:var(--warn)}
+.icon.violet{color:var(--violet)}
+
+/* the set: --i is the inline one, --il the large one, rows split by \A */
+.icon[data-icon="search"]{--i:"o\\";--il:" .-. \A (   )\A  `-'\\"}
+.icon[data-icon="close"]{--i:"[x]";--il:"\\   /\A   X  \A /   \\"}
+.icon[data-icon="menu"]{--i:"[=]";--il:"=====\A =====\A ====="}
+.icon[data-icon="plus"]{--i:"[+]";--il:"  |  \A --+--\A   |  "}
+.icon[data-icon="minus"]{--i:"[-]";--il:"     \A -----\A      "}
+.icon[data-icon="check"]{--i:"v/";--il:"    /\A \\  / \A  \\/  "}
+.icon[data-icon="warning"]{--i:"/!\\";--il:"  ^  \A  /!\\ \A /___\\"}
+.icon[data-icon="error"]{--i:"(x)";--il:" .-. \A ( x )\A  '-' "}
+.icon[data-icon="info"]{--i:"(i)";--il:" .-. \A ( i )\A  '-' "}
+.icon[data-icon="help"]{--i:"(?)";--il:" .-. \A ( ? )\A  '-' "}
+.icon[data-icon="arrow-up"]{--i:"/|\\";--il:"  ^  \A  /|\\ \A   |  "}
+.icon[data-icon="arrow-down"]{--i:"\\|/";--il:"  |  \A  \\|/ \A   v  "}
+.icon[data-icon="arrow-left"]{--i:"<-";--il:" /   \A <----\A  \\   "}
+.icon[data-icon="arrow-right"]{--i:"->";--il:"   \\ \A ---->\A    / "}
+.icon[data-icon="chevron-up"]{--i:"^";--il:"     \A   ^  \A  / \\ "}
+.icon[data-icon="chevron-down"]{--i:"v";--il:" \\ / \A   v  \A      "}
+.icon[data-icon="chevron-left"]{--i:"<";--il:"   / \A   <  \A    \\ "}
+.icon[data-icon="chevron-right"]{--i:">";--il:" \\   \A   >  \A  /   "}
+.icon[data-icon="external"]{--i:"->]";--il:".-- ^\A | / |\A '---'"}
+.icon[data-icon="copy"]{--i:"[[]";--il:".--. \A |.--.\A '|  |"}
+.icon[data-icon="download"]{--i:"_v_";--il:"  |  \A  \\|/ \A |_v_|"}
+.icon[data-icon="upload"]{--i:"_^_";--il:"  ^  \A  /|\\ \A |_|_|"}
+.icon[data-icon="edit"]{--i:"_/";--il:"   /7\A   // \A <_/  "}
+.icon[data-icon="delete"]{--i:"|_|";--il:"_.-._\A |:::|\A |___|"}
+.icon[data-icon="settings"]{--i:"{o}";--il:" .^. \A <(o)>\A  'v' "}
+.icon[data-icon="user"]{--i:"/o\\";--il:" .-. \A  '-' \A /___\\"}
+.icon[data-icon="home"]{--i:"[^]";--il:"  ^  \A  / \\ \A |_n_|"}
+.icon[data-icon="bell"]{--i:"/.\\";--il:" .-. \A  | | \A /_o_\\"}
+.icon[data-icon="lock"]{--i:"[o]";--il:" .-. \A  | | \A [_o_]"}
+.icon[data-icon="unlock"]{--i:"[o/";--il:" .-. \A  |   \A [_o_]"}
+.icon[data-icon="eye"]{--i:"<o>";--il:" .-. \A <(o)>\A  '-' "}
+.icon[data-icon="eye-off"]{--i:"<->";--il:" .-/ \A <(/)>\A  /-' "}
+.icon[data-icon="calendar"]{--i:"[#]";--il:".T-T.\A |===|\A |:::|"}
+.icon[data-icon="clock"]{--i:"(')";--il:" .-. \A ( |_)\A  '-' "}
+.icon[data-icon="filter"]{--i:"\\-/";--il:"=====\A  \\ / \A   |  "}
+.icon[data-icon="sort"]{--i:"^v";--il:" ^ | \A  | | \A  | v "}
+.icon[data-icon="refresh"]{--i:"(<";--il:" .-> \A (   )\A  '-' "}
+.icon[data-icon="more"]{--i:"...";--il:"     \A @ @ @\A      "}
+.icon[data-icon="star"]{--i:"(*)";--il:"__/\\__\A \\    /\A /_/\\_\\"}
+
+/* the section */
+.icon-use .row{align-items:flex-start;flex-wrap:nowrap}
+.icon-use a .icon{text-decoration:none}
+.icon-find .group{max-width:40ch}
+.icon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(18ch,1fr));gap:var(--r) 2ch;margin:var(--r) 0}
+.icon-grid:empty{display:none}
+/* a tile is a button: the large one, then the inline one and its name. Four
+   rows, and the whole tile is the tap target */
+.icon-tile{
+  font:inherit;color:var(--ink);background:none;border:0;border-radius:0;padding:0;margin:0;
+  display:grid;justify-items:start;text-align:left;cursor:pointer;outline:0;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;width:100%;
+}
+.icon-tile .nm{color:var(--muted);font-weight:400}
+.icon-tile .ln{white-space:pre}
+.icon-tile:focus-visible,.icon-tile:focus-visible .nm{background:var(--accent);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.icon-tile:hover .icon{color:var(--hot)}}
+/* the last one copied is a slab, so you can see what went */
+.icon-tile.picked .ln{background:var(--ink);color:var(--bg)}
+.icon-tile.picked .nm{color:inherit}
+.icon-tile:focus-visible .ln{background:none;color:inherit}
+.icon-out{font:inherit;color:var(--ink);overflow-wrap:anywhere}
+.icon-none::before{content:": : ";content:": : " / "";color:var(--violet);font-weight:700}
+/* the Search field in the bar: the magnifier before the word */
+.sf-l .icon{margin:0 1ch 0 0;font-weight:inherit}
