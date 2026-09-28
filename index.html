@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
 <meta name="aui-version" content="11.3">
-<meta name="description" content="34 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
+<meta name="description" content="35 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
 <meta name="author" content="Fede Kotek">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
 <meta name="color-scheme" content="light dark">
@@ -17,7 +17,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ascii/ui">
 <meta property="og:title" content="ascii/ui: a design system drawn in ASCII">
-<meta property="og:description" content="34 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
+<meta property="og:description" content="35 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta property="og:url" content="https://ascii.fedekotek.design/">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png">
@@ -27,12 +27,12 @@
 <meta property="og:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ascii/ui: a design system drawn in ASCII">
-<meta name="twitter:description" content="34 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
+<meta name="twitter:description" content="35 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta name="twitter:image" content="https://ascii.fedekotek.design/assets/og.png">
 <meta name="twitter:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 34 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
+ {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 35 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
  {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.2.1","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
  {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
 </script>
@@ -65,6 +65,7 @@
 <link rel="stylesheet" href="css/20-overlays.css">
 <link rel="stylesheet" href="css/21-usage.css">
 <link rel="stylesheet" href="css/22-home.css">
+<link rel="stylesheet" href="css/25-icons.css">
 <link rel="stylesheet" href="css/29-print.css">
 <script src="js/00-tones.js"></script>
 </head>
@@ -90,7 +91,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
         <a class="tab" role="tab" id="v-themes" href="#themes" aria-controls="view-themes" aria-selected="false" tabindex="-1">Themes</a>
       </div>
       <div class="barctl">
-        <button id="cmdBtn" class="bbtn sfield" type="button" aria-label="Search" aria-keyshortcuts="Control+K /" title="Search (/)"><span class="sf-l" aria-hidden="true"><b>[</b> Search...</span><span class="sf-k" aria-hidden="true"><span id="sfKey">Ctrl K</span> <b>]</b></span><span class="sf-g" aria-hidden="true">[/]</span></button>
+        <button id="cmdBtn" class="bbtn sfield" type="button" aria-label="Search" aria-keyshortcuts="Control+K /" title="Search (/)"><span class="sf-l" aria-hidden="true"><b>[</b> <span class="icon" data-icon="search"></span>Search</span><span class="sf-k" aria-hidden="true"><span id="sfKey">Ctrl K</span> <b>]</b></span><span class="sf-g" aria-hidden="true">[/]</span></button>
         <span class="sep" aria-hidden="true">|</span>
         <button id="glitchBar" class="bbtn gbtn" type="button" aria-pressed="true" aria-label="Glitch" title="Glitch"><span class="gl" aria-hidden="true">/\/</span><span class="gw" aria-hidden="true">Glitch</span></button>
         <label class="check bbtn gbtn" id="soundBar" title="Sound"><input type="checkbox" role="switch" id="soundToggle" checked aria-label="Sound"><span class="lbl" aria-hidden="true">&lt;)))</span><span class="gw" aria-hidden="true">Sound</span></label>
@@ -105,13 +106,13 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <header>
     <h1 class="vh">ascii/ui, a design system drawn in ASCII</h1>
     <canvas id="hero" aria-hidden="true"></canvas>
-    <p class="lede demo" id="heroLine">Thirty-four shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
+    <p class="lede demo" id="heroLine">Thirty-five shadcn-style components in an ASCII skin. Frames, fills and shadows are strings of characters. Plain HTML underneath, bad signal on top.</p>
     <p class="muted demo" id="heroWho">For designers and developers who copy a component and own the code.</p>
     <div class="row demo" id="heroGo">
       <button class="btn btn-primary frame tone-heavy" id="heroSee" type="button"><span class="mid"><span class="label">See components</span></span></button>
       <button class="btn frame tone-light" id="heroKit" type="button"><span class="mid"><span class="label">Get the kit</span></span></button>
     </div>
-    <p class="muted hero-facts">0 dependencies. 34 components, 32 in the kit. 2 kit files.</p>
+    <p class="muted hero-facts">0 dependencies. 35 components, 33 in the kit. 2 kit files.</p>
     <div class="row demo" id="heroSw" hidden>
       <label class="check"><input type="checkbox" id="gridToggle"><span class="glyph" aria-hidden="true"></span>Show grid</label>
       <label class="check"><input type="checkbox" role="switch" id="glitchToggle" checked><span class="glyph" aria-hidden="true">[<span class="switch-track"></span>]</span>Glitch</label>
@@ -122,7 +123,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
-  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>34 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
+  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>35 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Icon, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
   <div class="nosig" id="noSig" hidden>
     <pre class="poster ptitle" data-text="NO SIGNAL" data-nobars aria-hidden="true"></pre>
     <pre class="nosig-snow" aria-hidden="true">. ===  ==.=@  ..=+=.==.=:-.+ =::
@@ -135,7 +136,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <section aria-labelledby="s-go">
     <h2 id="s-go" class="band">Where to start</h2>
     <div class="demo tiles">
-      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">34 components, 32 of them in the kit. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">34 components -&gt;</span></span></span></a>
+      <a class="tile frame tone-light" href="#components" data-v="kit"><span class="mid"><span class="tile-in"><b>Components</b><span class="muted">35 components, 33 of them in the kit. Each one has its code, ready to copy.</span><span class="go" aria-hidden="true">35 components -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#blocks" data-v="blocks"><span class="mid"><span class="tile-in"><b>Blocks</b><span class="muted">Components put to work: logins, tables, dashboards.</span><span class="go" aria-hidden="true">16 blocks -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#charts" data-v="charts"><span class="mid"><span class="tile-in"><b>Charts</b><span class="muted">Data drawn with the same nine-step ramp.</span><span class="go" aria-hidden="true">5 charts -&gt;</span></span></span></a>
       <a class="tile frame tone-light" href="#themes" data-v="themes"><span class="mid"><span class="tile-in"><b>Themes</b><span class="muted">Change the colors, the ramp and the tokens.</span><span class="go" aria-hidden="true">6 presets -&gt;</span></span></span></a>
@@ -179,7 +180,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
     <p class="muted">Counted from the repo and the built site. A script recounts them before every release and fails if this page says otherwise.</p>
     <h4 class="facts-h">What it is</h4>
     <ul class="facts">
-      <li><span data-fact="components">34</span> <span>components, <span data-fact="kit">32</span> in the kit</span></li>
+      <li><span data-fact="components">35</span> <span>components, <span data-fact="kit">33</span> in the kit</span></li>
       <li><span data-fact="blocks">16</span> <span>blocks</span></li>
       <li><span data-fact="charts">5</span> <span>charts</span></li>
       <li><span data-fact="kit-versions">5</span> <span>kit versions published, each still served</span></li>
@@ -291,7 +292,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
   </div>
 
   <div id="view-kit" role="tabpanel" aria-labelledby="v-kit" hidden>
-  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">34 components, grouped by what they do. 32 are in the kit, Command and Picture are site only. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
+  <div class="dochead"><pre class="poster ptitle" data-nobars data-text="COMPONENTS" aria-hidden="true"></pre><p class="lede">35 components, grouped by what they do. 33 are in the kit, Command and Picture are site only. Open Code on any of them and take the HTML, the CSS and the JS. New here? <a class="inl" href="#components/install">Get the kit</a>, then read <a class="inl" href="#components/rules">the rules</a>.</p></div>
   <section aria-labelledby="s-rules" data-span="full">
     <h2 id="s-rules" class="vh">Rules</h2>
     <pre class="poster ptitle" data-text="RULES" aria-hidden="true"></pre>
@@ -531,7 +532,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     <pre class="poster ptitle" data-text="DETAILS" aria-hidden="true"></pre>
     <p class="muted">A native details element. The marker flips between [+] and [-] and the answer decodes as it opens.</p>
     <div class="demo">
-      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty-two components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p></details>
+      <details class="acc"><summary>What ships in the kit?</summary><p>Thirty-three components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p></details>
       <details class="acc"><summary>Can I change the characters?</summary><p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p></details>
     </div>
   </section>
@@ -636,6 +637,28 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     <pre class="poster ptitle" data-text="KBD" aria-hidden="true"></pre>
     <p class="muted">Shortcuts, as keys in brackets. These ones work on this page.</p>
     <div class="demo kbds"><span><kbd>/</kbd> search</span><span><kbd>g</kbd> glitch</span><span><kbd>&lt;</kbd> <kbd>&gt;</kbd> move</span><span><kbd>space</kbd> fire</span></div>
+  </section>
+
+  <section aria-labelledby="s-icon" data-span="full">
+    <h2 id="s-icon" class="vh">Icon</h2>
+    <pre class="poster ptitle" data-text="ICONS" aria-hidden="true"></pre>
+    <p class="muted">Thirty-nine icons made of the same characters as the text. One row inline, three rows large. Tap one to copy it.</p>
+    <div class="demo stack icon-use">
+      <p><span class="icon ok" data-icon="check" role="img" aria-label="Done"></span> Export finished. 214 rows, none of them lost.</p>
+      <p><span class="icon warn" data-icon="warning" role="img" aria-label="Warning"></span> The share link stops working in 2 days.</p>
+      <div class="row"><span class="icon icon-lg violet" data-icon="search" aria-hidden="true"></span><p class="muted">No results for "invoice 2019".<br>Check the spelling, or search all time.</p></div>
+    </div>
+    <div class="demo icon-find" id="iconFind">
+      <div class="group">
+        <label class="field-label" for="iconQ">Find an icon</label>
+        <div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true"><span class="icon" data-icon="search"></span></span><input id="iconQ" type="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="trash, gear, arrow" aria-describedby="iconCount"></div></div>
+      </div>
+      <p class="muted" id="iconCount" role="status">39 icons.</p>
+      <div class="icon-grid" id="iconGrid" role="list" aria-label="Icons"></div>
+      <p class="muted icon-none" id="iconNone" hidden></p>
+      <p class="muted">Copies <code class="icon-out" id="iconOut">&lt;span class="icon" data-icon="search" role="img" aria-label="Search"&gt;&lt;/span&gt;</code></p>
+      <p class="muted status" id="iconStatus" role="status"></p>
+    </div>
   </section>
 
   <section aria-labelledby="s-pagination">

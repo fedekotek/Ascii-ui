@@ -1159,6 +1159,54 @@ window.AUI_DOCS={
   limits:['On this site the answer decodes as it opens and a sound plays. The kit opens it plainly.']
 },
 
+'s-icon':{
+  use:['A status that has to read at a glance: v/ done, /!\\ warning, (x) error, next to the words that say it.',
+       'A button or a row whose word is short and common: _v_ Export, [+] New, |_| Delete.',
+       'The large one on an empty state or a tile, where a picture of the thing helps more than another line of text.'],
+  avoid:['The only way to say something. An icon with no word next to it needs an `aria-label`, and most people still guess.',
+         'A control on its own. An icon is text: put it in a {s-button} or a link, and give that the name.',
+         'Decoration in every row of a list. Nobody reads the tenth arrow.',
+         'A key. That is a {s-kbd}.'],
+  anatomy:{
+    draw:['1 v/ Export finished.',
+          '  ^^',
+          '',
+          '2  .-.   No results for',
+          '  (   )  "invoice 2019".',
+          "   `-'\\",
+          '  ^^^^^'],
+    paint:['  oo',
+           '  nn',
+           '',
+           '   vvv',
+           '  vvvvv',
+           '   vvvv',
+           '  nnnnn'],
+    parts:[['.icon','inline','One row tall, one to three characters wide. It sits in the line of text and takes its color. `.ok` here: done is lime.'],
+           ['.icon-lg','large','Three rows tall, five or six characters wide, drawn from the ramp and the box characters. For empty states and tiles.']]},
+  states:[['inline','v/      ','i','One row. The color of the text around it.'],
+          ['role color','/!\\     ','www','`.hot`, `.ok`, `.warn` or `.violet`. Never cyan: cyan is focus.'],
+          ['large',' .-.    ','vvvvv','Three rows. `.icon-lg`.'],
+          ['unknown name','        ','m','Draws nothing. The kit knows the names in its README.'],
+          ['no script','[x]     ','iii','The same. It is CSS.']],
+  keys:[[['Tab'],'Passes it by. An icon is text, not a control.']],
+  a11y:[['name','Alone, it is an image: `role="img"` and an `aria-label` that says what it means (Done), not what it looks like (tick).'],
+        ['paint','Next to a word that says the same, it is decoration: `aria-hidden="true"` and no label, so the word is not read twice.'],
+        ['paint','The characters are CSS content with empty alt text. A screen reader never spells out slashes and brackets.'],
+        ['state','Color is never the only signal: the shape says done, warning or error on its own, in print and in Windows High Contrast too.']],
+  dos:[['Put the word next to it: [+] New.','An icon alone on a button with no name.'],
+       ['One meaning per icon across the product: [x] always closes.','[x] to close here and to delete there.'],
+       ['The large one, once, on an empty state.','Large icons in a list, where they push every row to three.']],
+  api:[['class','.icon','The element, usually a `<span>`. Inline size.'],
+       ['class','.icon-lg','With .icon: the large drawing, three rows.'],
+       ['attr','data-icon','Which one: search, close, check and the other 36 in the README.'],
+       ['class','.hot .ok .warn .violet','A role color. Without one it is the text color.'],
+       ['css','--i --il','The inline and the large drawing. Set both on `.icon[data-icon="yours"]` to add one.']],
+  see:['s-button','s-empty','s-kbd','s-badge'],
+  limits:['Printable ASCII only, so every one draws in the kit font and in any monospace that stands in for it. No curves, no fills finer than a character.',
+          'On this site the browser under the examples copies the markup. The kit has no browser: the list of names is in the README.']
+},
+
 's-kbd':{
   use:['A shortcut, written the way the key looks: [/] search, [g] glitch.',
        'A key name inside a sentence: press [Esc] to close.'],
@@ -1705,7 +1753,7 @@ const LAYOUT=['row','stack','group','demo'];
 const PART={button:['s-button','.btn'],check:['s-toggles','.check'],tabs:['s-tabs','.tablist'],card:['s-card','.card'],dialog:['s-card','dialog'],
   sheet:['s-sheet','dialog.sheet'],alert:['s-alert','.alert'],badge:['s-badge','.badge'],avatar:['s-avatar','.avatar'],crumbs:['s-breadcrumb','.crumbs'],
   calendar:['s-calendar','.cal'],pagination:['s-pagination','[data-aui="pagination"]'],dropdown:['s-dropdown','.menu'],tooltip:['s-tooltip','.tip'],
-  otp:['s-otp','.otp'],kbd:['s-kbd','kbd'],divider:['s-separator','.sepd,.sepl'],spinner:['s-spinner','[data-aui="spinner"]'],segment:['s-togglegroup','.tgroup'],
+  otp:['s-otp','.otp'],icon:['s-icon','.icon'],kbd:['s-kbd','kbd'],divider:['s-separator','.sepd,.sepl'],spinner:['s-spinner','[data-aui="spinner"]'],segment:['s-togglegroup','.tgroup'],
   timeline:['s-timeline','.timeline'],toast:['s-toast','.toast'],details:['s-details','.acc'],skeleton:['s-skeleton','.skel']};
 /* the keys of the object a behavior returns, at its top level only */
 function apiKeys(src){

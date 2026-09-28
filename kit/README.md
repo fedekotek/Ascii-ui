@@ -202,7 +202,7 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 
 | Component | Without the script |
 |---|---|
-| Button, badge, avatar, card, alert, kbd, separator, timeline, breadcrumb, details, table, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
+| Button, badge, avatar, card, alert, icon, kbd, separator, timeline, breadcrumb, details, table, checkbox, radio, switch, select, input, textarea | work as they are (details opens and closes, the controls are native) |
 | Segment | the radios work; the status line stays as the HTML has it |
 | Tooltip | shows on hover and focus (that is CSS); no tap, no Escape |
 | Tabs | the panels show or hide as the HTML has them; the tabs do not switch |
@@ -305,11 +305,70 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 ```
 
+## Icons
+
+Thirty-nine icons drawn in characters, in CSS only: no icon font, no SVG, no script. Each one comes in two sizes. Inline is one row tall and one to three characters wide, for a line of text or a button's label. Large (`.icon-lg`) is three rows tall and five or six characters wide, for empty states and tiles.
+
+```html
+<!-- it means something on its own: an image with a name -->
+<span class="icon ok" data-icon="check" role="img" aria-label="Done"></span> Export finished.
+
+<!-- next to words that say the same: decoration -->
+<button class="btn frame tone-light" type="button"><span class="mid"><span class="label"><span class="icon" data-icon="download" aria-hidden="true"></span> Export</span></span></button>
+
+<!-- large, for an empty state -->
+<span class="icon icon-lg" data-icon="search" aria-hidden="true"></span>
+```
+
+The characters are CSS content with empty alt text, so a screen reader says the `aria-label` or nothing. Icons take the color of the text around them; `.hot` (acts), `.ok` (confirms), `.warn` (warns) and `.violet` (structure) give one a role color. There is no cyan one: cyan is focus. They are printable ASCII, so they draw in Geist Mono and in any monospace font that stands in for it, and they stay on screen in print and in Windows High Contrast, because they are text. A name the kit does not know draws nothing. To add one, give it both drawings in your own CSS after the kit's, the way the kit writes them: `.icon[data-icon="rocket"]{--i:"^>";--il:"  ^  \A  /_\\ \A /___\\"}` (`\A ` and its one space start a row, every row is as wide as the others, a backslash is written twice). The site's source has the drawing rules in `docs/ICONS.md`.
+
+| `data-icon` | Inline | Large, ch wide | A label to start from |
+|---|---|---|---|
+| `search` | `o\` | 5 | Search |
+| `close` | `[x]` | 5 | Close |
+| `menu` | `[=]` | 5 | Menu |
+| `plus` | `[+]` | 5 | Add |
+| `minus` | `[-]` | 5 | Remove |
+| `check` | `v/` | 5 | Done |
+| `warning` | `/!\` | 5 | Warning |
+| `error` | `(x)` | 5 | Error |
+| `info` | `(i)` | 5 | Information |
+| `help` | `(?)` | 5 | Help |
+| `arrow-up` | `/\|\` | 5 | Up |
+| `arrow-down` | `\\|/` | 5 | Down |
+| `arrow-left` | `<-` | 5 | Back |
+| `arrow-right` | `->` | 5 | Next |
+| `chevron-up` | `^` | 5 | Collapse |
+| `chevron-down` | `v` | 5 | Expand |
+| `chevron-left` | `<` | 5 | Previous |
+| `chevron-right` | `>` | 5 | Next |
+| `external` | `->]` | 5 | Opens in a new tab |
+| `copy` | `[[]` | 5 | Copy |
+| `download` | `_v_` | 5 | Download |
+| `upload` | `_^_` | 5 | Upload |
+| `edit` | `_/` | 5 | Edit |
+| `delete` | `\|_\|` | 5 | Delete |
+| `settings` | `{o}` | 5 | Settings |
+| `user` | `/o\` | 5 | Account |
+| `home` | `[^]` | 5 | Home |
+| `bell` | `/.\` | 5 | Notifications |
+| `lock` | `[o]` | 5 | Locked |
+| `unlock` | `[o/` | 5 | Unlocked |
+| `eye` | `<o>` | 5 | Show |
+| `eye-off` | `<->` | 5 | Hide |
+| `calendar` | `[#]` | 5 | Date |
+| `clock` | `(')` | 5 | Time |
+| `filter` | `\-/` | 5 | Filter |
+| `sort` | `^v` | 5 | Sort |
+| `refresh` | `(<` | 5 | Refresh |
+| `more` | `...` | 5 | More |
+| `star` | `(*)` | 6 | Favorite |
+
 ## Using it next to another framework
 
 The kit uses short, generic class names, so it can meet the same names in Bootstrap, Tailwind components or your own CSS. The classes it styles:
 
-`acc alert area avatar b-hot b-ok b-out b-pink b-violet b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check checklist combo count crt crumbs ctx danger demo err error f faint feat field field-label frame full glyph good grid2 grid3 group heavy hot ibtn info invalid kbds kpi kpis kv label lift menu meta mid muted navlist nudge off ok on open opts opts-none otp pane past pct pop popular poster price pricing profile progress prompt ptitle qty row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status stepper steps switch-track tab tablewrap tablist tabpanel tags tbl tgroup thumb timeline tip toast toast-x today tone-* up vh`
+`acc alert area avatar b-hot b-ok b-out b-pink b-violet b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check checklist combo count crt crumbs ctx danger demo err error f faint feat field field-label frame full glyph good grid2 grid3 group heavy hot ibtn icon icon-lg info invalid kbds kpi kpis kv label lift menu meta mid muted navlist nudge off ok on open opts opts-none otp pane past pct pop popular poster price pricing profile progress prompt ptitle qty row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status stepper steps switch-track tab tablewrap tablist tabpanel tags tbl tgroup thumb timeline tip toast toast-x today tone-* up vh violet warn`
 
 The ones most likely to collide: `btn`, `card`, `alert`, `badge`, `row`, `field`, `label`, `body`, `tab`, `menu`, `progress`, `error`, `muted`, `pane`, and the state classes `on`, `off`, `open`, `up`, `good` and `invalid`. It also sets a few things on elements: `box-sizing` on everything, `body` (font, colors), the margins of headings, paragraphs and lists, `a`, `[hidden]`, `dialog`, `kbd`, `fieldset` and `legend`.
 

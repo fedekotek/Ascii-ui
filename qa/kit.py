@@ -973,6 +973,87 @@ async def charts(b):
         os.remove(path)
     return fails,notes
 
+# Icons are pure css, no data-aui: this is their ALIVE check. Every .icon on
+# the page draws in the kit font: something in its ::before, only characters
+# the font has (printable ASCII, the part both Geist Mono subsets hold), an
+# inline one exactly one row tall and a whole number of ch wide (1 to 3), a
+# large one exactly three rows tall and 5 or 6 ch wide, and role="img" only
+# with a label (aria-hidden="true" otherwise)
+ICON_JS="""(async()=>{await document.fonts.ready;
+  const R=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--r')),bad=[];
+  const p=document.createElement('span');p.style.cssText='position:absolute;visibility:hidden;white-space:pre;font:inherit;font-weight:700';p.textContent='M'.repeat(40);document.body.appendChild(p);
+  const ch=p.getBoundingClientRect().width/40;p.remove();
+  if(!document.fonts.check('700 14px "Geist Mono"'))bad.push('Geist Mono is not loaded');
+  document.querySelectorAll('.icon').forEach(e=>{
+    const n=e.getAttribute('data-icon'),lg=e.classList.contains('icon-lg'),c=getComputedStyle(e,'::before').content;
+    const m=/^"((?:[^"\\\\]|\\\\.)*)"/.exec(c||''),txt=m?m[1].replace(/\\\\([0-9a-fA-F]{1,6} ?|[\\s\\S])/g,(x,h)=>/^[0-9a-fA-F]/.test(h)?String.fromCodePoint(parseInt(h,16)):h):'';
+    if(!txt.trim()){bad.push(n+(lg?' large':'')+' draws nothing');return}
+    if(/[^\\x20-\\x7e\\n]/.test(txt))bad.push(n+' uses a character outside ASCII: '+JSON.stringify(txt));
+    const r=e.getBoundingClientRect(),rows=r.height/R,w=r.width/ch;
+    if(lg?Math.abs(rows-3)>0.02:Math.abs(rows-1)>0.02)bad.push(n+(lg?' large':'')+' is '+rows.toFixed(2)+' rows tall');
+    if(Math.abs(w-Math.round(w))>0.02)bad.push(n+(lg?' large':'')+' is '+w.toFixed(2)+'ch wide, not whole characters');
+    else if(lg?(Math.round(w)<5||Math.round(w)>6):(Math.round(w)<1||Math.round(w)>3))bad.push(n+(lg?' large':'')+' is '+Math.round(w)+'ch wide');
+    if(lg&&txt.split('\\n').length!==3)bad.push(n+' large has '+txt.split('\\n').length+' rows of characters');
+    if(e.getAttribute('role')==='img'&&!(e.getAttribute('aria-label')||'').trim())bad.push(n+' is role=img without a label');
+    if(e.getAttribute('role')!=='img'&&e.getAttribute('aria-hidden')!=='true'&&!e.closest('[aria-hidden=true]'))bad.push(n+' is neither role=img with a label nor aria-hidden');
+  });
+  return bad.length?bad.join(', '):true})()"""
+
+# the icon set: the kit's table, the site's copy of it (css/25) and the
+# site's list (js/30) name the same icons with the same drawings, and
+# README lists every one
+ICON_RULE=re.compile(r'^\.icon\[data-icon="([a-z-]+)"\]\{--i:"((?:[^"\\]|\\.)*)";--il:"((?:[^"\\]|\\.)*)"\}$',re.M)
+def icon_names():
+    return [m[0] for m in ICON_RULE.findall(open(os.path.join(KIT,'ascii-ui.css'),encoding='utf-8').read())]
+def icon_sets():
+    fails=[]
+    kit=ICON_RULE.findall(open(os.path.join(KIT,'ascii-ui.css'),encoding='utf-8').read())
+    site=ICON_RULE.findall(open(os.path.join(ROOT,'css','25-icons.css'),encoding='utf-8').read())
+    if len(kit)<30: fails.append('icons: the kit css has %d icons'%len(kit))
+    if kit!=site: fails.append('icons: css/25-icons.css is not the kit table (%s)'%sorted({x[0] for x in set(kit)^set(site)}))
+    j30=open(os.path.join(ROOT,'js','30-lcd-components-docs.js'),encoding='utf-8').read()
+    m=re.search(r'const ICONS=\[([\s\S]*?)\];',j30)
+    js=re.findall(r"\['([a-z-]+)',",m.group(1)) if m else []
+    if js!=[k[0] for k in kit]: fails.append('icons: the ICONS list in js/30 is not the kit table')
+    readme=open(os.path.join(KIT,'README.md'),encoding='utf-8').read()
+    miss=[k[0] for k in kit if '`'+k[0]+'`' not in readme]
+    if miss: fails.append('icons: README does not list %s'%', '.join(miss))
+    return fails
+
+async def icons(b):
+    fails=[];notes=set()
+    body='<main>'+''.join('<p><span class="icon" data-icon="%s" role="img" aria-label="%s"></span> %s <span class="icon icon-lg" data-icon="%s" aria-hidden="true"></span></p>'%(n,n,n,n) for n in icon_names())
+    body+='<button class="btn frame tone-light" type="button"><span class="mid"><span class="label"><span class="icon" data-icon="download" aria-hidden="true"></span> Export</span></span></button>'
+    body+='<button class="btn btn-primary frame tone-heavy" type="button"><span class="mid"><span class="label"><span class="icon" data-icon="check" aria-hidden="true"></span> Save</span></span></button></main>'
+    path=blank_page(body)
+    try:
+        for scheme in ('light','dark'):
+            pg=await b.new_page(viewport={'width':390,'height':844},color_scheme=scheme)
+            errs=[];watch(pg,errs,notes)
+            await pg.goto('file://'+path); await pg.wait_for_timeout(250)
+            r=await pg.evaluate(ICON_JS)
+            if r is not True: fails.append('icons (%s): %s'%(scheme,r))
+            bad=await pg.evaluate(ONE_ROW)
+            if bad: fails.append('icons: a button with an icon is not one row: %s'%bad)
+            if scheme=='light':
+                # an icon inside a button stays as drawn, not uppercased
+                up=await pg.evaluate("getComputedStyle(document.querySelector('.btn .icon'),'::before').textTransform")
+                if up!='none': fails.append('icons: an icon in a button is text-transform %s'%up)
+                ow=await pg.evaluate("document.documentElement.scrollWidth-innerWidth")
+                if ow>0: fails.append('icons: every icon on a 390 page overflows by %dpx'%ow)
+            fails+=['icons: '+e for e in errs]
+            await pg.close()
+        # Windows High Contrast: they are text, so they stay
+        pg=await b.new_page(viewport={'width':390,'height':844})
+        await pg.emulate_media(forced_colors='active')
+        await pg.goto('file://'+path); await pg.wait_for_timeout(250)
+        r=await pg.evaluate(ICON_JS)
+        if r is not True: fails.append('icons (forced colors): %s'%r)
+        await pg.close()
+    finally:
+        os.remove(path)
+    return fails,notes
+
 async def paste(b,sid,html,notes):
     # the Code tab html pasted twice, one after the other, the way a person would
     page=('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -997,6 +1078,9 @@ async def paste(b,sid,html,notes):
         if bad: why.append('button labels over more than one row: %s'%bad)
         r=await pg.evaluate(RADIOS_JS)
         if r is not True: why.append('radios: '+r)
+        if await pg.evaluate("!!document.querySelector('.icon')"):
+            r=await pg.evaluate(ICON_JS)
+            if r is not True: why.append('icons: '+r)
         names=await pg.evaluate("[...new Set([...document.querySelectorAll('[data-aui]')].map(e=>e.dataset.aui))]")
         attrs=await pg.evaluate("['open','close','toast','toast-err','reset','fill'].filter(a=>document.querySelector('[data-aui-'+a+']')).map(a=>'aui-'+a)")
         for n in names:
@@ -1191,8 +1275,10 @@ async def main():
     if s[i:j]!=kit_block(): fails.append('js/40 KIT() is not the kit files: run python3 qa/kit.py sync')
     fails+=sri()
     fails+=pin_check(s)
+    fails+=icon_sets()
     async with async_playwright() as p:
         b=await p.chromium.launch()
+        f,n=await icons(b);fails+=f;notes|=n
         f,n=await starter(b);fails+=f;notes|=n
         f,n=await edges(b);fails+=f;notes|=n
         f,n=await lifecycle(b);fails+=f;notes|=n

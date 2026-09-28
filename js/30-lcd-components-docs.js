@@ -567,12 +567,12 @@ spanSections($('view-charts'));
 /* the charts get Preview and Code too: Code prints the kit's chart, which
    reads a table (js/40, KITIFY). No index and no groups, five is few */
 $('view-charts').querySelectorAll(':scope > section[aria-labelledby]').forEach(docify);
-/* the thirty-four on the page, by what they do, the way a docs site groups them.
-   32 of them are in the kit; Command and Picture are site only */
+/* the thirty-five on the page, by what they do, the way a docs site groups them.
+   33 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[
   ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
   ['Overlay',['s-alertdialog','s-combobox','s-command','s-contextmenu','s-dropdown','s-popover','s-sheet','s-tooltip']],
-  ['Display',['s-avatar','s-badge','s-card','s-details','s-kbd','s-picture','s-separator','s-timeline']],
+  ['Display',['s-avatar','s-badge','s-card','s-details','s-icon','s-kbd','s-picture','s-separator','s-timeline']],
   ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
   ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
 buildView($('view-kit'),'Components',['s-rules','s-foundations'],[],id=>{
@@ -907,5 +907,87 @@ setTimeout(markWide,1200);
   ai.addEventListener('blur',e=>{clearTimeout(aiT);const b=aiBtn||!!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('#adDlg2 button'));aiBtn=false;if(!b&&$('adDlg2').open&&aiWrong(true))aiSay()});
   ai.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();clearTimeout(aiT);if(aiCheck())aiDel.click();else{aiSay();A.jolt();if(live())sfx.err()}});
   $('adOpen2').addEventListener('click',()=>{clearTimeout(aiT);ai.value='';err(aiField,ai,aiOut,'');aiCheck()},true);
+})();
+
+/* ================= icons: the browser in the Icon section =================
+   The drawings are css (css/25, the same table as the kit's icon block). This
+   is the list: name, the label a copy gets, and the other words people type.
+   qa/kit.py fails when it and the css disagree. Type to narrow, a tap or
+   Enter copies the markup; where the clipboard says no (file://) the markup
+   line is selected and the status line says so (A.copy, js/40). */
+(function(){
+  const grid=$('iconGrid');if(!grid)return;
+  const ICONS=[
+  ['search','Search','find magnifier look'],
+  ['close','Close','x dismiss cancel'],
+  ['menu','Menu','hamburger nav list'],
+  ['plus','Add','new create add'],
+  ['minus','Remove','subtract collapse less'],
+  ['check','Done','ok tick yes success confirm'],
+  ['warning','Warning','alert caution hazard'],
+  ['error','Error','fail problem stop'],
+  ['info','Information','about details note'],
+  ['help','Help','question support faq'],
+  ['arrow-up','Up','top raise'],
+  ['arrow-down','Down','bottom lower'],
+  ['arrow-left','Back','previous left'],
+  ['arrow-right','Next','forward right go'],
+  ['chevron-up','Collapse','caret up'],
+  ['chevron-down','Expand','caret down open'],
+  ['chevron-left','Previous','caret left'],
+  ['chevron-right','Next','caret right'],
+  ['external','Opens in a new tab','link out new window'],
+  ['copy','Copy','duplicate clipboard'],
+  ['download','Download','save export get'],
+  ['upload','Upload','import send attach'],
+  ['edit','Edit','pencil write change rename'],
+  ['delete','Delete','trash bin remove'],
+  ['settings','Settings','gear cog preferences options'],
+  ['user','Account','person profile avatar people'],
+  ['home','Home','house start'],
+  ['bell','Notifications','alert notify ring'],
+  ['lock','Locked','private secure closed password'],
+  ['unlock','Unlocked','open public'],
+  ['eye','Show','view visible see password'],
+  ['eye-off','Hide','hidden invisible password'],
+  ['calendar','Date','day month schedule'],
+  ['clock','Time','hour history recent'],
+  ['filter','Filter','funnel narrow'],
+  ['sort','Sort','order asc desc'],
+  ['refresh','Refresh','reload sync again retry'],
+  ['more','More','ellipsis overflow dots actions'],
+  ['star','Favorite','favourite rate bookmark']];
+  A.ICONS=ICONS;
+  const q=$('iconQ'),count=$('iconCount'),none=$('iconNone'),out=$('iconOut'),st=$('iconStatus');
+  const markup=(n,l)=>'<span class="icon" data-icon="'+n+'" role="img" aria-label="'+l+'"></span>';
+  let picked=null;
+  const tiles=ICONS.map(([n,l,w])=>{
+    const li=document.createElement('div');li.setAttribute('role','listitem');
+    const b=document.createElement('button');b.type='button';b.className='icon-tile';b.dataset.icon=n;
+    b.setAttribute('aria-label','Copy '+n);
+    b.innerHTML='<span class="icon icon-lg" data-icon="'+n+'" aria-hidden="true"></span><span class="ln"><span class="icon" data-icon="'+n+'" aria-hidden="true"></span> <span class="nm">'+n+'</span></span>';
+    b.addEventListener('click',()=>take(b,n,l));
+    li.appendChild(b);grid.appendChild(li);
+    return {li,b,n,l,hay:(n+' '+n.replace('-',' ')+' '+l+' '+w).toLowerCase()};
+  });
+  function take(b,n,l){
+    const m=markup(n,l);out.textContent=m;
+    if(picked)picked.classList.remove('picked');picked=b;b.classList.add('picked');
+    if(A.copy)A.copy(m,'the '+n+' icon',out,st);
+    ping(660);
+  }
+  function narrow(){
+    const v=q.value.trim().toLowerCase(),words=v.split(/\s+/).filter(Boolean);
+    let n=0;
+    tiles.forEach(t=>{const on=words.every(x=>t.hay.includes(x));t.li.hidden=!on;if(on)n++});
+    count.textContent=!v?ICONS.length+' icons.':n===1?'1 icon matches.':n+' icons match.';
+    none.hidden=n>0;
+    if(!n)none.textContent='No icon called "'+q.value.trim()+'". Try arrow, lock or eye.';
+    return tiles.filter(t=>!t.li.hidden);
+  }
+  q.addEventListener('input',narrow);
+  /* Enter copies the first one that matches, so type, Enter, paste */
+  q.addEventListener('keydown',e=>{if(e.key!=='Enter')return;e.preventDefault();const f=narrow()[0];if(f)take(f.b,f.n,f.l);else if(live())sfx.err()});
+  narrow();
 })();
 })();

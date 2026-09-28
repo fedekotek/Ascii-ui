@@ -617,6 +617,69 @@ dialog[role="alertdialog"]:has(> .alert)[open]::before{color:rgba(138,90,0,.5);c
 .otp.invalid span::before,.otp.invalid span::after,.otp.invalid input{color:var(--danger)}
 .otp.invalid span::before,.otp.invalid span::after{content:"!";content:"!" / ""}
 
+/* ==== icon: .icon ==== */
+/* Icons drawn in characters, no font of their own and no svg. Pure css.
+     <span class="icon" data-icon="search" role="img" aria-label="Search"></span>
+   Inline: one row tall, one to three characters wide. It sits in a line of
+   text or inside a button's .label. Add .icon-lg for the large one: three
+   rows tall, five or six characters wide, for empty states and tiles.
+   Next to words that say the same, it is decoration: aria-hidden="true" and no
+   label. The characters are paint (empty alt text), so a screen reader says
+   the aria-label or nothing. They take the color of the text; .hot, .ok,
+   .warn and .violet give them a role color. The names are in README.md */
+.icon{
+  --i:"";--il:"";
+  display:inline-block;white-space:pre;font-weight:700;font-style:normal;
+  line-height:var(--r);text-transform:none;letter-spacing:0;
+}
+.icon::before{content:var(--i);content:var(--i) / ""}
+.icon-lg{vertical-align:top}
+.icon-lg::before{content:var(--il);content:var(--il) / "";display:block}
+.icon.hot{color:var(--hot)}
+.icon.ok{color:var(--ok)}
+.icon.warn{color:var(--warn)}
+.icon.violet{color:var(--violet)}
+/* the set: --i is the inline one, --il the large one, rows split by \A */
+.icon[data-icon="search"]{--i:"o\\";--il:" .-. \A (   )\A  `-'\\"}
+.icon[data-icon="close"]{--i:"[x]";--il:"\\   /\A   X  \A /   \\"}
+.icon[data-icon="menu"]{--i:"[=]";--il:"=====\A =====\A ====="}
+.icon[data-icon="plus"]{--i:"[+]";--il:"  |  \A --+--\A   |  "}
+.icon[data-icon="minus"]{--i:"[-]";--il:"     \A -----\A      "}
+.icon[data-icon="check"]{--i:"v/";--il:"    /\A \\  / \A  \\/  "}
+.icon[data-icon="warning"]{--i:"/!\\";--il:"  ^  \A  /!\\ \A /___\\"}
+.icon[data-icon="error"]{--i:"(x)";--il:" .-. \A ( x )\A  '-' "}
+.icon[data-icon="info"]{--i:"(i)";--il:" .-. \A ( i )\A  '-' "}
+.icon[data-icon="help"]{--i:"(?)";--il:" .-. \A ( ? )\A  '-' "}
+.icon[data-icon="arrow-up"]{--i:"/|\\";--il:"  ^  \A  /|\\ \A   |  "}
+.icon[data-icon="arrow-down"]{--i:"\\|/";--il:"  |  \A  \\|/ \A   v  "}
+.icon[data-icon="arrow-left"]{--i:"<-";--il:" /   \A <----\A  \\   "}
+.icon[data-icon="arrow-right"]{--i:"->";--il:"   \\ \A ---->\A    / "}
+.icon[data-icon="chevron-up"]{--i:"^";--il:"     \A   ^  \A  / \\ "}
+.icon[data-icon="chevron-down"]{--i:"v";--il:" \\ / \A   v  \A      "}
+.icon[data-icon="chevron-left"]{--i:"<";--il:"   / \A   <  \A    \\ "}
+.icon[data-icon="chevron-right"]{--i:">";--il:" \\   \A   >  \A  /   "}
+.icon[data-icon="external"]{--i:"->]";--il:".-- ^\A | / |\A '---'"}
+.icon[data-icon="copy"]{--i:"[[]";--il:".--. \A |.--.\A '|  |"}
+.icon[data-icon="download"]{--i:"_v_";--il:"  |  \A  \\|/ \A |_v_|"}
+.icon[data-icon="upload"]{--i:"_^_";--il:"  ^  \A  /|\\ \A |_|_|"}
+.icon[data-icon="edit"]{--i:"_/";--il:"   /7\A   // \A <_/  "}
+.icon[data-icon="delete"]{--i:"|_|";--il:"_.-._\A |:::|\A |___|"}
+.icon[data-icon="settings"]{--i:"{o}";--il:" .^. \A <(o)>\A  'v' "}
+.icon[data-icon="user"]{--i:"/o\\";--il:" .-. \A  '-' \A /___\\"}
+.icon[data-icon="home"]{--i:"[^]";--il:"  ^  \A  / \\ \A |_n_|"}
+.icon[data-icon="bell"]{--i:"/.\\";--il:" .-. \A  | | \A /_o_\\"}
+.icon[data-icon="lock"]{--i:"[o]";--il:" .-. \A  | | \A [_o_]"}
+.icon[data-icon="unlock"]{--i:"[o/";--il:" .-. \A  |   \A [_o_]"}
+.icon[data-icon="eye"]{--i:"<o>";--il:" .-. \A <(o)>\A  '-' "}
+.icon[data-icon="eye-off"]{--i:"<->";--il:" .-/ \A <(/)>\A  /-' "}
+.icon[data-icon="calendar"]{--i:"[#]";--il:".T-T.\A |===|\A |:::|"}
+.icon[data-icon="clock"]{--i:"(')";--il:" .-. \A ( |_)\A  '-' "}
+.icon[data-icon="filter"]{--i:"\\-/";--il:"=====\A  \\ / \A   |  "}
+.icon[data-icon="sort"]{--i:"^v";--il:" ^ | \A  | | \A  | v "}
+.icon[data-icon="refresh"]{--i:"(<";--il:" .-> \A (   )\A  '-' "}
+.icon[data-icon="more"]{--i:"...";--il:"     \A @ @ @\A      "}
+.icon[data-icon="star"]{--i:"(*)";--il:"__/\\__\A \\    /\A /_/\\_\\"}
+
 /* ==== kbd: kbd .kbds ==== */
 kbd{font:inherit;font-weight:700;color:var(--ink)}
 kbd::before{content:"[";content:"[" / ""}   /* paint: a screen reader says the key, not the brackets */

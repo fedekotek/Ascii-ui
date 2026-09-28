@@ -2,12 +2,12 @@
 
 > shadcn-style UI components in a brutalist ASCII skin: frames, fills and shadows are strings of characters, weight is character density, underneath it is plain accessible HTML. Two kit files (CSS and JS, no dependencies, no build step) you link, then paste a component's HTML. Live at https://ascii.fedekotek.design. MIT license.
 
-The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one HTML file by `build.py`) documents and demos the components. The kit (`kit/`) is what people link from their own pages. The site does not load the kit; its Code tab prints the kit's HTML, CSS and JS for each component. 34 components, 32 in the kit (Command and Picture are site only).
+The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one HTML file by `build.py`) documents and demos the components. The kit (`kit/`) is what people link from their own pages. The site does not load the kit; its Code tab prints the kit's HTML, CSS and JS for each component. 35 components, 33 in the kit (Command and Picture are site only).
 
 ## The five views
 
 - [Home](https://ascii.fedekotek.design/#home): the ring (a glitching torus hero), where to start, questions, a game of invaders.
-- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 34 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview, Code and Usage tabs (Usage: when to use it and when not, anatomy, states, keys, accessibility, do and don't), then Rules.
+- [Components](https://ascii.fedekotek.design/#components): Get the kit, then 35 components in five groups (Form, Overlay, Display, Feedback, Navigation), each with Preview, Code and Usage tabs (Usage: when to use it and when not, anatomy, states, keys, accessibility, do and don't), then Rules.
 - [Blocks](https://ascii.fedekotek.design/#blocks): 16 page-sized compositions (login, stats, table, pricing, settings, a portfolio).
 - [Charts](https://ascii.fedekotek.design/#charts): 5 character-grid charts (bars, line, regions, heatmap, donut), each with Preview and Code tabs. In the kit they are `data-aui="chart"` around a `<table>` (`data-type` bars, line, hbars, heatmap, donut, spark), fire `aui:pick`, and show the table without the script.
 - [Themes](https://ascii.fedekotek.design/#themes): presets, color pickers, the ramp editor, tokens to paste, Labs.
@@ -48,6 +48,7 @@ Display:
 - [Badge](https://ascii.fedekotek.design/#components/badge) (Display, kit): A status on a thing, in one word: Operational, Degraded, Down. Not for: something that happened a moment ago. That is a Toast.
 - [Card and dialog](https://ascii.fedekotek.design/#components/card) (Display, kit): Card: one thing and its facts, under a title that says what it is. A project, a person, a plan. Not for: saying that something happened. That is a Toast, and it stops nobody. Runs on `data-aui-open`, `data-aui-close`, `data-aui-toast`.
 - [Details](https://ascii.fedekotek.design/#components/details) (Display, kit): Answers people look for one at a time: questions, fine print, the long version. Not for: anything most people need. Show it.
+- [Icon](https://ascii.fedekotek.design/#components/icon) (Display, kit): A status that has to read at a glance: v/ done, /!\ warning, (x) error, next to the words that say it. Not for: the only way to say something. An icon with no word next to it needs an aria-label, and most people still guess.
 - [Kbd](https://ascii.fedekotek.design/#components/kbd) (Display, kit): A shortcut, written the way the key looks: [/] search, [g] glitch. Not for: a button. A key hint does nothing when tapped.
 - [Picture](https://ascii.fedekotek.design/#components/picture) (Display, site only): A picture on this site: the four scenes, or your own photo, drawn as cells of three subpixels. Not for: a photo people need to see clearly. That is an &lt;img&gt;.
 - [Separator](https://ascii.fedekotek.design/#components/separator) (Display, kit): A break between groups inside one box: settings in a card, items in a menu. Not for: a box around things. That is a Card and dialog.

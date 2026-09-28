@@ -12,6 +12,7 @@ Added
 <!-- table: the data table builder writes here -->
 
 <!-- icons: the icons builder writes here -->
+- **Icon.** Thirty-nine icons drawn in characters, CSS only: `<span class="icon" data-icon="search" role="img" aria-label="Search"></span>`. Inline is one row and one to three characters; `.icon-lg` is three rows and five or six characters, for empty states and tiles. Printable ASCII only, so they draw in the kit font and in any monospace that stands in. They take the text color; `.hot`, `.ok`, `.warn` and `.violet` give a role color. The names are in README, Icons. New classes: `icon`, `icon-lg`, `violet`, `warn` (on `.icon` only).
 
 <!-- blocks: the blocks builder writes here -->
 Added

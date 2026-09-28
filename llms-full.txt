@@ -2151,12 +2151,96 @@ Limits:
 <div>
   <details class="acc">
     <summary>What ships in the kit?</summary>
-    <p>Thirty-two components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
+    <p>Thirty-three components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
   </details>
   <details class="acc">
     <summary>Can I change the characters?</summary>
     <p>Yes. Every frame reads its characters from two custom properties, so a new tone is two strings.</p>
   </details>
+</div>
+```
+
+<a id="s-icon"></a>
+### Icon
+
+- Id: `s-icon`, address `https://ascii.fedekotek.design#components/icon`
+- Group: Display
+- In the kit: yes, `kit/starter.html#icon`
+- Caption: Thirty-nine icons made of the same characters as the text. One row inline, three rows large. Tap one to copy it.
+- Behaviors: none, HTML and CSS only
+- CSS blocks:
+  - `icon`: `.icon`
+- Use it for:
+  - A status that has to read at a glance: v/ done, /!\ warning, (x) error, next to the words that say it.
+  - A button or a row whose word is short and common: _v_ Export, [+] New, |_| Delete.
+  - The large one on an empty state or a tile, where a picture of the thing helps more than another line of text.
+- Not for:
+  - The only way to say something. An icon with no word next to it needs an `aria-label`, and most people still guess.
+  - A control on its own. An icon is text: put it in a [Button](https://ascii.fedekotek.design/#components/button) or a link, and give that the name.
+  - Decoration in every row of a list. Nobody reads the tenth arrow.
+  - A key. That is a [Kbd](https://ascii.fedekotek.design/#components/kbd).
+
+Anatomy:
+
+```text
+1 v/ Export finished.
+  ^^
+
+2  .-.   No results for
+  (   )  "invoice 2019".
+   `-'\
+  ^^^^^
+```
+
+1. **inline** `.icon`: One row tall, one to three characters wide. It sits in the line of text and takes its color. `.ok` here: done is lime.
+2. **large** `.icon-lg`: Three rows tall, five or six characters wide, drawn from the ramp and the box characters. For empty states and tiles.
+
+| State | Looks like | What it means |
+|---|---|---|
+| inline | `v/` | One row. The color of the text around it. |
+| role color | `/!\` | `.hot`, `.ok`, `.warn` or `.violet`. Never cyan: cyan is focus. |
+| large | ` .-.` | Three rows. `.icon-lg`. |
+| unknown name | ` ` | Draws nothing. The kit knows the names in its README. |
+| no script | `[x]` | The same. It is CSS. |
+
+| Keys | Does |
+|---|---|
+| `Tab` | Passes it by. An icon is text, not a control. |
+
+Accessibility:
+- **name**: Alone, it is an image: `role="img"` and an `aria-label` that says what it means (Done), not what it looks like (tick).
+- **paint**: Next to a word that says the same, it is decoration: `aria-hidden="true"` and no label, so the word is not read twice.
+- **paint**: The characters are CSS content with empty alt text. A screen reader never spells out slashes and brackets.
+- **state**: Color is never the only signal: the shape says done, warning or error on its own, in print and in Windows High Contrast too.
+
+| Do | Don't |
+|---|---|
+| Put the word next to it: [+] New. | An icon alone on a button with no name. |
+| One meaning per icon across the product: [x] always closes. | [x] to close here and to delete there. |
+| The large one, once, on an empty state. | Large icons in a list, where they push every row to three. |
+
+| Kind | Name | Does |
+|---|---|---|
+| class | `.icon` | The element, usually a `<span>`. Inline size. |
+| class | `.icon-lg` | With .icon: the large drawing, three rows. |
+| attr | `data-icon` | Which one: search, close, check and the other 36 in the README. |
+| class | `.hot .ok .warn .violet` | A role color. Without one it is the text color. |
+| css | `--i --il` | The inline and the large drawing. Set both on `.icon[data-icon="yours"]` to add one. |
+
+See also: [Button](https://ascii.fedekotek.design/#components/button), [Empty](https://ascii.fedekotek.design/#components/empty), [Kbd](https://ascii.fedekotek.design/#components/kbd), [Badge](https://ascii.fedekotek.design/#components/badge)
+
+Limits:
+- Printable ASCII only, so every one draws in the kit font and in any monospace that stands in for it. No curves, no fills finer than a character.
+- On this site the browser under the examples copies the markup. The kit has no browser: the list of names is in the README.
+
+```html
+<div class="stack">
+  <p><span class="icon ok" data-icon="check" role="img" aria-label="Done"></span> Export finished. 214 rows, none of them lost.</p>
+  <p><span class="icon warn" data-icon="warning" role="img" aria-label="Warning"></span> The share link stops working in 2 days.</p>
+  <div class="row">
+    <span class="icon icon-lg violet" data-icon="search" aria-hidden="true"></span>
+    <p class="muted">No results for "invoice 2019".<br>Check the spelling, or search all time.</p>
+  </div>
 </div>
 ```
 
