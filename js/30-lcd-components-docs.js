@@ -559,6 +559,9 @@ function buildView(panel,label,skip,pin,group){
   return secs;
 }
 spanSections($('view-charts'));
+/* the charts get Preview and Code too: Code prints the kit's chart, which
+   reads a table (js/40, KITIFY). No index and no groups, five is few */
+$('view-charts').querySelectorAll(':scope > section[aria-labelledby]').forEach(docify);
 /* the thirty-four on the page, by what they do, the way a docs site groups them.
    32 of them are in the kit; Command and Picture are site only */
 const KIT_GROUPS=[

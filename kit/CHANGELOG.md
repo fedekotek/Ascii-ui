@@ -5,6 +5,9 @@ The kit's versions, newest first. Every version lives at its own address that ne
 ## Unreleased
 
 <!-- charts: the charts builder writes here -->
+Added
+- Charts, `data-aui="chart"` on a `.chart` around a `<table>`: `data-type="bars"`, `line`, `hbars`, `heatmap` or `donut`, drawn in ramp characters on the grid, as wide as the box. The table is the data: it shows without the script and stays for screen readers with it. A Tab stop; the arrows, Home, End and Escape move the pick, said in the nearest status line and marked `[Thu]`; a glyph per series and per slice, not only a color. `data-max`, `data-min`, `data-rows`, `data-pick`. `aui:pick`, `ASCIIUI.chart(el)`. It grows in once, not under reduced motion.
+- Sparkline, `data-type="spark"` on a `.spark`: `data-values`, one ramp character a value, an image named by its numbers.
 
 <!-- table: the data table builder writes here -->
 

@@ -22,8 +22,8 @@ WEIGHT={                             # gzip -9 bytes
     'index.html':        180*KB,     # 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
     'ascii-ui.html':     210*KB,     # 198 KB: the download, everything embedded
     'kit/ascii-ui.css':   13*KB,     # 12 KB with print, forced colors, more contrast, the veil and the motion tokens
-    'kit/ascii-ui.js':    27*KB,     # 25.5 KB with the toast [x], the sheet swipe, segment and the OTP and calendar words
-    'kit/starter.html':    7*KB,     # 6 KB
+    'kit/ascii-ui.js':    32*KB,     # 31.1 KB with charts (bars, line, hbars, heatmap, donut, spark); 25.9 KB before them
+    'kit/starter.html':    8*KB,     # 7.2 KB with a Charts part, six charts and their tables
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it
     'favicon.ico':         4*KB,

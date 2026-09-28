@@ -61,6 +61,7 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
 | `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill`. The frames are hidden from screen readers: with an `aria-label` the spinner is `role="img"` and read as that word; without one it is `aria-hidden`, so put the wait in words next to it |
 | `data-aui="skeleton"` | a `<pre class="skel">` | a card silhouette with a wave through the ramp |
+| `data-aui="chart"` | a `.chart` around a `<table>` | draws the table in characters, see [Charts](#charts). `data-type="bars"` (the default), `line`, `hbars`, `heatmap`, `donut`; `data-type="spark"` on a `.spark` reads `data-values` instead |
 | `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it. On a touch screen a `.sheet` also closes on a drag down, by its title or from the top of what it holds: it follows the finger a row at a time and closes past a quarter of its height or on a flick. A `<dialog role="alertdialog">` waits for an answer: a tap around it nudges the card and puts the focus back on the safe button (`autofocus`), and Escape counts as that button |
 | `data-aui-close` | a button in a dialog or a popover | closes it. `data-aui-close="delete"` also sets the dialog's `returnValue`, so its `close` event knows the answer (it is empty after Escape). In a popover inside a dialog, only the popover closes |
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
@@ -102,6 +103,7 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | Calendar | `aui:change` on the calendar | `{ date, value }` (`value` is `yyyy-mm-dd`) |
 | Pagination | `aui:change` on the `<nav>`, buttons only (a link just goes) | `{ page }` |
 | Segment | `aui:change` on the `.tgroup`, when a person picks | `{ value, label, input }` |
+| Chart | `aui:pick` on the `.chart`, on a click or a key | `{ index, label, values, texts }`; a heatmap: `{ index, row, col, label, column, value, text }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
 | Slider, counter | the input's own `input` and `change` | |
@@ -134,6 +136,7 @@ document.addEventListener('aui:change', e => {
 | `combobox(el)` | `open()`, `close()`, `set(value)` (`null` clears it; `false` when no option has that value), `value`, `label`, `option`, `isOpen` |
 | `contextmenu(el)` | `open(target)` (an element inside it, or `{ x, y }` in the window), `close()`, `isOpen`, `target` |
 | `otp(el)` | `value` (read it or set it), `clear()` |
+| `chart(el)` | `pick(i)` (`-1` lets go), `index`, `draw()` (reads the table again and draws it whole), `data` (what it read: `rows`, `names`, `max`) |
 | `bar(k, n)`, `colorize(str)` | build halftone bars: `k` of `n` cells full, then colored |
 | `tones(map)` | swaps the characters of every frame, bar and spinner |
 | `reduce` | `true` while the system asks for reduced motion. It follows the setting while the page is open |
@@ -146,11 +149,44 @@ ASCIIUI.tabs('#settings [role=tablist]').select(2);
 ASCIIUI.calendar(document.querySelector('.cal')).set('2026-12-24');
 ```
 
+## Charts
+
+A chart is a table you already have. Put it in a `.chart` with `data-aui="chart"`: the first column names the points, every other column is a series, the header row names the series and the caption names the chart. The script draws it in characters above the table, from the ramp, one row of `--r` a line, as wide as its box (it redraws when the box changes width, and when the table changes). The drawing is paint (`aria-hidden`); the table stays, clipped out of sight, so a screen reader reads the numbers as a table. Without the script the table is what shows.
+
+```html
+<div class="stack">
+  <div class="chart" data-aui="chart" data-type="bars" data-pick="3">
+    <table>
+      <caption>Requests per day</caption>
+      <thead><tr><th scope="col">Day</th><th scope="col">Requests</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Mon</th><td>1,204</td></tr>
+        <tr><th scope="row">Tue</th><td>1,482</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="muted status" role="status"></p>
+</div>
+```
+
+| `data-type` | Draws |
+|---|---|
+| `bars` (default) | a bar per row, growing through the ramp. Two series or more: a bar each, a glyph each (`@ # % + = :`), and a key under it |
+| `line` | a line across the rows, filled under it. Two series or more: a line each, a glyph each, and a key |
+| `hbars` | a halftone bar per row, the first series, with the cell's text at the end |
+| `heatmap` | every cell a point, two characters wide, denser for more. The newest columns (the last ones) stay when the box is too narrow |
+| `donut` | the first series as slices of a ring, a glyph and a color each, with a legend and the share of each |
+| `spark` | on a `<span class="spark">`: `data-values="3 5 2 8"`, one ramp character a value. An image named by its numbers (`data-label` names the trend), unless it is `aria-hidden` |
+
+A cell's number is its `data-value`, or else its text without commas, units and `%`, so `1,204` and `92%` read as they should, and the status line says the text as written. `data-max` and `data-min` set the scale (the top of the axis is otherwise the largest value, rounded up), `data-rows` the height in rows (8), `data-pick` the point picked at first.
+
+The chart takes a Tab stop (`role="group"`, named by the caption). The arrows move the pick (up and down move by row in a heatmap), Home and End go to the ends, Escape lets go, and a click picks the point under it. The pick is said in the nearest `role="status"` (or in a hidden one inside the chart), marked in text as well as in violet (`[Thu]`, `[]` in a heatmap), and fires `aui:pick`. Colors are the tokens: magenta and pink for one series, then deep blue, pink, violet; never cyan, which is focus. It grows in once when it first comes on screen; under reduced motion it is drawn whole.
+
 ## Lifecycle
 
 A component is wired when it lands on the page and torn down when it leaves it: its listeners (on the page, the window and the component), its observers and its animation go with it. Put the same element back and it is wired again. Moving an element in one go does neither. So frameworks that add and remove markup (a router, a list that re-renders) need nothing extra.
 
-Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`. `aria-valuenow` redraws a progress bar.
+Change a setting on a live element and it follows: `data-aui` itself, `data-page`, `data-pages`, `data-href`, `data-value`, `data-min`, `data-max`, `data-week-start`, `data-locale`, `data-name`, `data-kind`, `data-cells`, `data-type`, `data-values`, `data-rows`, `data-pick`. `aria-valuenow` redraws a progress bar, and a change to a chart's table redraws the chart.
 
 `ASCIIUI.destroy(el)` tears one down by hand, with everything inside it. `ASCIIUI.init(el)` wires it again.
 
@@ -175,6 +211,8 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 | Counter | no count |
 | Calendar, pagination | nothing is drawn: put a date input or plain links in them as a fallback, the script replaces them |
 | Spinner, skeleton | nothing moves; the skeleton is empty |
+| Chart | the table shows, with its caption: the same numbers, as a table |
+| Sparkline | empty, or its own text when it has some (write the numbers in it, the script replaces them) |
 | Toast | nothing shows |
 
 ## Theming

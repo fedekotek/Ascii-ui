@@ -79,7 +79,9 @@
     's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors export download variables',
     's-foundations':'tokens color colors grid ramp tone tones states foundations a11y accessibility accessible',
     's-rules':'principles a11y accessibility accessible','s-presets':'amber gameboy blueprint hotdog paper signal preset presets',
-    's-faq':'faq help questions','s-made':'case study process story agents reel video credits about'};
+    's-faq':'faq help questions','s-made':'case study process story agents reel video credits about',
+    's-bars':'bar chart graph histogram column','s-line':'line chart graph trend series','s-regions':'hbars horizontal bar chart',
+    's-heat':'heatmap heat map contribution','s-donut':'pie chart share','s-stats':'sparkline spark kpi trend'};
   const COMMON=['s-button','s-input','s-card','s-select','s-toast'];
 
   let views=[],secGroups=[],bySec=new Map(),byId=new Map(),total=0;

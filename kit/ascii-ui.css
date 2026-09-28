@@ -272,6 +272,22 @@ legend{padding:0;margin-bottom:var(--r)}
 .check input:focus-visible + .glyph .switch-track::before{background:var(--accent)}
 .check input:focus-visible + .glyph .switch-track::after{color:var(--bg)}
 
+/* ==== chart: .chart .spark ==== */
+/* data-aui="chart" around a <table>. Without the script the table is what
+   shows. With it, ascii-ui.js draws the characters in a .plot above it, one
+   row of var(--r) a line, and keeps the table for screen readers only.
+   data-type="spark" on a .spark is a word-sized trend. */
+.chart{display:block;position:relative;max-width:100%;justify-self:stretch;min-width:0}
+.chart:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chart .plot{display:block;white-space:pre;overflow:hidden;font-weight:700;cursor:crosshair;user-select:none;-webkit-user-select:none}
+.chart table{border-collapse:collapse}
+.chart caption{text-align:left;font-weight:700}
+.chart th,.chart td{padding:0 2ch 0 0;text-align:left;font-weight:inherit}
+.chart td{text-align:right}
+.chart.drawn{overflow:hidden}   /* the table below is as wide as its words: kept out of the page width */
+.chart.drawn table{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.spark{font-weight:700;color:var(--hot);white-space:pre}
+
 /* ==== bar: .bar .slider .slider-track .progress ==== */
 /* Slider and progress are one halftone bar of characters. ascii-ui.js draws
    it (data-aui="slider", data-aui="progress"); a real range input sits on top. */

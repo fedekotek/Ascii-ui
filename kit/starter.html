@@ -55,7 +55,7 @@
   <p class="muted">A page that links ascii-ui.css and ascii-ui.js and nothing else. Below it is every component in the kit, as the Code tab prints it. View the source and take what you need.</p>
   <p class="muted">The three steps are in <a href="README.md">README.md</a>, next to this file. Every component with its code: <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>.</p>
   <nav class="row toc" aria-label="Groups">
-    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a>
+    <a href="#form">Form</a><a href="#overlay">Overlay</a><a href="#display">Display</a><a href="#feedback">Feedback</a><a href="#navigation">Navigation</a><a href="#charts">Charts</a>
   </nav>
 
   <!-- ================= Form ================= -->
@@ -526,6 +526,119 @@
       <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>14 comments, 3 of them useful.</p></div>
       <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>Nothing uploaded yet.</p></div>
     </div>
+  </section>
+
+  <!-- ================= Charts ================= -->
+  <h2 id="charts">Charts</h2>
+  <p class="muted">The data is the table inside each one. Without the script the table is what shows. Focus a chart and the arrows move the pick.</p>
+
+  <section class="part" id="chart-bars">
+    <h3>Bars</h3>
+    <div class="stack">
+      <div class="chart" data-aui="chart" data-type="bars" data-pick="3">
+        <table>
+          <caption>Requests per day</caption>
+          <thead><tr><th scope="col">Day</th><th scope="col">Requests</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Mon</th><td>1,204</td></tr>
+            <tr><th scope="row">Tue</th><td>1,482</td></tr>
+            <tr><th scope="row">Wed</th><td>1,390</td></tr>
+            <tr><th scope="row">Thu</th><td>1,710</td></tr>
+            <tr><th scope="row">Fri</th><td>1,655</td></tr>
+            <tr><th scope="row">Sat</th><td>820</td></tr>
+            <tr><th scope="row">Sun</th><td>640</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="chart-line">
+    <h3>Line</h3>
+    <div class="stack">
+      <div class="chart" data-aui="chart" data-type="line">
+        <table>
+          <caption>Signups and cancellations per week</caption>
+          <thead><tr><th scope="col">Week</th><th scope="col">Signups</th><th scope="col">Cancellations</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">W1</th><td>120</td><td>30</td></tr>
+            <tr><th scope="row">W2</th><td>135</td><td>28</td></tr>
+            <tr><th scope="row">W3</th><td>128</td><td>41</td></tr>
+            <tr><th scope="row">W4</th><td>160</td><td>35</td></tr>
+            <tr><th scope="row">W5</th><td>172</td><td>38</td></tr>
+            <tr><th scope="row">W6</th><td>158</td><td>60</td></tr>
+            <tr><th scope="row">W7</th><td>190</td><td>44</td></tr>
+            <tr><th scope="row">W8</th><td>214</td><td>40</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="chart-hbars">
+    <h3>Horizontal bars</h3>
+    <div class="stack">
+      <div class="chart" data-aui="chart" data-type="hbars" data-max="100">
+        <table>
+          <caption>Probe success by region</caption>
+          <thead><tr><th scope="col">Region</th><th scope="col">Success</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">iad</th><td>92%</td></tr>
+            <tr><th scope="row">fra</th><td>81%</td></tr>
+            <tr><th scope="row">gru</th><td>64%</td></tr>
+            <tr><th scope="row">sin</th><td>58%</td></tr>
+            <tr><th scope="row">syd</th><td>33%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="chart-heatmap">
+    <h3>Heatmap</h3>
+    <div class="stack">
+      <div class="chart" data-aui="chart" data-type="heatmap">
+        <table>
+          <caption>Deploys by day, last six weeks</caption>
+          <thead><tr><th scope="col">Day</th><th scope="col">6 weeks ago</th><th scope="col">5 weeks ago</th><th scope="col">4 weeks ago</th><th scope="col">3 weeks ago</th><th scope="col">2 weeks ago</th><th scope="col">This week</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Mon</th><td>4</td><td>6</td><td>3</td><td>8</td><td>5</td><td>7</td></tr>
+            <tr><th scope="row">Tue</th><td>7</td><td>9</td><td>6</td><td>10</td><td>8</td><td>9</td></tr>
+            <tr><th scope="row">Wed</th><td>5</td><td>8</td><td>7</td><td>6</td><td>9</td><td>12</td></tr>
+            <tr><th scope="row">Thu</th><td>6</td><td>7</td><td>9</td><td>7</td><td>6</td><td>8</td></tr>
+            <tr><th scope="row">Fri</th><td>2</td><td>1</td><td>3</td><td>0</td><td>2</td><td>1</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="chart-donut">
+    <h3>Donut</h3>
+    <div class="stack">
+      <div class="chart" data-aui="chart" data-type="donut">
+        <table>
+          <caption>Traffic by source</caption>
+          <thead><tr><th scope="col">Source</th><th scope="col">Share</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">direct</th><td>38%</td></tr>
+            <tr><th scope="row">search</th><td>27%</td></tr>
+            <tr><th scope="row">social</th><td>20%</td></tr>
+            <tr><th scope="row">email</th><td>15%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
+  <section class="part" id="chart-spark">
+    <h3>Sparkline</h3>
+    <p>p95 latency, 182 ms <span class="spark" data-aui="chart" data-type="spark" data-label="p95 latency, last 18 hours" data-values="120 135 128 140 150 162 148 190 260 170 150 148 160 150 152 165 188 182"></span></p>
   </section>
 
   <p class="muted" style="margin-top:calc(var(--r)*3)">From <a href="https://ascii.fedekotek.design/#components">ascii.fedekotek.design</a>. MIT license, the text is in <a href="README.md">README.md</a>.</p>

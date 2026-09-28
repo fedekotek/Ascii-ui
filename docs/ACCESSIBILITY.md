@@ -17,7 +17,7 @@ What follows is what has been checked, how, and what is known not to work. It wa
 
 **Screen readers.**
 - Bitmap titles are `aria-hidden`, with a real, visually hidden `<h2>` for each section.
-- Charts are `role="img"` with a label that says the data, and a status line for the pick. Pictures and the game are labeled.
+- Charts are `role="img"` with a label that says the data, and a status line for the pick. Pictures and the game are labeled. The kit's charts (`data-aui="chart"`) keep their data as a real table, clipped out of sight, and draw the characters `aria-hidden` above it; the chart is a named group with a Tab stop, the arrows move the pick and the nearest status line says it.
 - Messages are read out through a hidden status region, failures through an alert region. The visible toast is hidden from assistive tech so nothing is read twice. Search reads out the result count once typing stops.
 - The kit makes the ids that labels need at runtime, so a component pasted twice is two labeled copies, not one broken one.
 

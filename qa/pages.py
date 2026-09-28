@@ -3,7 +3,7 @@
 
   python3 build.py && python3 qa/pages.py
 
-For every component and block on index.html it opens the Code tab and takes
+For every component, block and chart on index.html it opens the Code tab and takes
 what Download page saves. Command and Picture, and blocks with classes the kit
 does not style, instead end the note above the code with "so there is no page
 to download.", once, and leave the status line empty. Every other component
@@ -53,7 +53,7 @@ async def kit_route(route):
         await route.fulfill(status=404,body='');return
     await route.fulfill(status=200,body=f.read_bytes(),headers={'content-type':TYPES.get(f.suffix,'application/octet-stream'),'access-control-allow-origin':'*'})
 
-SECTIONS="""()=>[...document.querySelectorAll('#view-kit > section[aria-labelledby], #view-blocks > section[aria-labelledby]')]
+SECTIONS="""()=>[...document.querySelectorAll('#view-kit > section[aria-labelledby], #view-blocks > section[aria-labelledby], #view-charts > section[aria-labelledby]')]
   .filter(s=>s.querySelector('.doc-tabs')).map(s=>[s.getAttribute('aria-labelledby'),!!s.closest('#view-blocks')])"""
 OPEN_CODE="""id=>{const s=document.querySelector('section[aria-labelledby="'+id+'"]');s.querySelectorAll('.doc-tabs [role="tab"]')[1].click();
   const p=s.querySelector('.doc-panel:not([hidden])');const out=p.querySelector('.page-out');
@@ -83,8 +83,8 @@ def check_text(sid,name,t,bad):
         links=re.findall(r'<a href="([^"]+)">',intro.group(1))
         for need in ('#components/install',KITURL+'ascii-ui.css',KITURL+'ascii-ui.js'):
             if not any(l.endswith(need) for l in links): bad.append('%s: the intro does not link %s'%(sid,need))
-        if not any(re.search(r'/#(components|blocks)/'+re.escape(slug)+'$',l) for l in links): bad.append(sid+': the intro does not link back to the component')
-    if not re.search(r'<!-- .+from the Code tab of https://ascii\.fedekotek\.design/#(components|blocks)/'+re.escape(slug)+r'\..* -->\n',t):
+        if not any(re.search(r'/#(components|blocks|charts)/'+re.escape(slug)+'$',l) for l in links): bad.append(sid+': the intro does not link back to the component')
+    if not re.search(r'<!-- .+from the Code tab of https://ascii\.fedekotek\.design/#(components|blocks|charts)/'+re.escape(slug)+r'\..* -->\n',t):
         bad.append(sid+': no comment saying where the page came from')
     if '\u2014' in t: bad.append(sid+': an em dash in the page')
 

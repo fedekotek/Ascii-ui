@@ -334,6 +334,8 @@ ALIVE={
  'contextmenu':"(()=>{const m=el.querySelector('[role=menu]'),o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden);el.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));const ok=o(m);ASCIIUI.contextmenu(el).close();return ok&&!o(m)})()",
  'confirm':"el.closest('dialog').querySelector('.btn-danger').disabled",
  'segment':"(()=>{const s=(el.closest('.stack')||document.body).querySelector('[role=status]'),c=el.querySelector('input:checked');return !c||(s&&s.textContent.includes(c.closest('label').textContent.trim()))})()",
+ # a chart draws characters in an aria-hidden .plot, keeps its table for screen readers (clipped, not hidden) and takes a Tab stop; a spark is ramp characters
+ 'chart':"(()=>{const c=ASCIIUI.chart(el);if(!c)return false;if(el.dataset.type==='spark')return /^[.:=+*#%@]+$/.test(el.textContent);c.draw();const pl=el.querySelector('.plot'),t=el.querySelector('table'),r=t.getBoundingClientRect(),s=getComputedStyle(t);return /[@#%*+=]/.test(pl.textContent)&&pl.getAttribute('aria-hidden')==='true'&&s.clipPath.startsWith('inset')&&s.display!=='none'&&s.visibility!=='hidden'&&el.tabIndex===0})()",
 }
 
 async def harvest(b):
@@ -357,12 +359,14 @@ async def harvest(b):
       return [...new Set([...document.querySelectorAll('#view-kit .doc-panel .btn[data-text]')].filter(b=>!b.closest('.copyrow')&&!b.disabled).map(b=>b.getAttribute('data-text')))].filter(t=>!code.has(t))}""")
     await pg.evaluate("document.getElementById('v-blocks').click()"); await pg.wait_for_timeout(1200)
     blocks=await pg.evaluate(READ_CODE,'blocks')
+    await pg.evaluate("document.getElementById('v-charts').click()"); await pg.wait_for_timeout(1200)
+    charts=await pg.evaluate(READ_CODE,'charts')
     await pg.close()
     stirred=[]
     first={r[0]:r for r in out}
     for r in again:
         if first.get(r[0])!=r: stirred.append(r[0])
-    return out,blocks,stirred,lost,errs,notes
+    return out,blocks,charts,stirred,lost,errs,notes
 
 READ_CODE="""(v)=>[...document.querySelectorAll('#view-'+v+' > section[aria-labelledby]')].map(s=>{
     const t=s.querySelectorAll('.doc-tabs .tab')[1];if(!t)return [s.getAttribute('aria-labelledby'),null,null,null,null];t.click();
@@ -468,6 +472,8 @@ TWICE_JS="""(name)=>{
       const ok=o(mb)&&!o(ma)&&mb.contains(document.activeElement);const s0=st(0);document.activeElement.click();return ok&&!o(mb)&&st(0)===s0&&st(1)!==s0},
     segment:()=>{const L=x=>x.closest('label').textContent.trim(),r=[...b.querySelectorAll('input[type=radio]')].filter(x=>!x.checked&&!st(0).includes(L(x)))[0];r.click();
       const w=r.closest('label').textContent.trim();return st(1).includes(w)&&!st(0).includes(w)},
+    chart:()=>{if(b.dataset.type==='spark')return true;const ca=ASCIIUI.chart(a),cb=ASCIIUI.chart(b),ia=ca.index;b.focus();b.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));
+      return cb.index>=0&&ca.index===ia&&!!st(1)&&st(1)!==st(0)},
     confirm:()=>{const w=b.getAttribute('data-match');b.value=w;fire(b,'input');
       return !b.closest('dialog').querySelector('.btn-danger').disabled&&a.closest('dialog').querySelector('.btn-danger').disabled}
   };
@@ -876,6 +882,69 @@ async def lifecycle(b):
         await pg.close();os.remove(path)
     return fails,notes
 
+# the charts on the starter page: each type draws characters, the drawing is
+# paint and the table stays for screen readers, the arrows move the pick,
+# fire aui:pick and say it in the status line, Escape lets go, and a new
+# width redraws it no wider than the box
+CHARTS_JS="""(async()=>{const w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[],key=(el,k)=>el.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true,cancelable:true}));
+  const els=[...document.querySelectorAll('[data-aui=chart]')],types=new Set(els.map(e=>e.dataset.type));
+  ['bars','line','hbars','heatmap','donut','spark'].forEach(t=>{if(!types.has(t))bad.push('the starter has no '+t)});
+  for(const el of els){const t=el.dataset.type;
+    if(t==='spark'){if(!/^[.:=+*#%@]+$/.test(el.textContent)||el.getAttribute('role')!=='img'||!/values/.test(el.getAttribute('aria-label')||''))bad.push('spark: not an image named by its numbers');continue}
+    const c=ASCIIUI.chart(el),pl=el.querySelector('.plot'),tb=el.querySelector('table'),st=el.parentElement.querySelector('[role=status]');
+    el.scrollIntoView();await w(700);
+    if(!/[@#%*+=]/.test(pl.textContent))bad.push(t+': no characters drawn');
+    if(pl.getAttribute('aria-hidden')!=='true')bad.push(t+': the drawing is not aria-hidden');
+    const r=tb.getBoundingClientRect(),cs=getComputedStyle(tb);
+    if(!cs.clipPath.startsWith('inset')||cs.display==='none'||cs.visibility==='hidden'||tb.closest('[aria-hidden=true]'))bad.push(t+': the table is not kept for screen readers');
+    if(el.getAttribute('role')!=='group'||!el.getAttribute('aria-labelledby')||el.tabIndex!==0)bad.push(t+': not a named group with a Tab stop');
+    let got=null;el.addEventListener('aui:pick',e=>{got=e.detail},{once:true});
+    el.focus();const i0=c.index;key(el,'ArrowRight');const i1=c.index;
+    if(i1<0||i1===i0)bad.push(t+': ArrowRight did not move the pick ('+i0+' to '+i1+')');
+    if(!got||got.index!==i1)bad.push(t+': no aui:pick');
+    if(!st||!got||!st.textContent.includes(got.label))bad.push(t+': the status line did not say the pick: '+(st&&st.textContent));
+    if(!pl.textContent.includes('['))bad.push(t+': the pick is not marked in text');
+    key(el,'Escape');if(c.index!==-1)bad.push(t+': Escape did not let go');
+    const before=pl.textContent;el.style.width='30ch';await w(200);
+    const cw=el.querySelector('.plot').getBoundingClientRect().width/30,long=Math.max(...pl.textContent.split('\\n').map(l=>l.length));
+    if(long>30)bad.push(t+': at 30 characters wide a line is '+long);
+    if(t!=='heatmap'&&pl.textContent===before)bad.push(t+': a new width did not redraw it');
+    el.style.width='';
+  }
+  return bad.length?bad.join(', '):true})()"""
+async def charts(b):
+    fails=[];notes=set()
+    pg=await b.new_page(viewport={'width':390,'height':844})
+    errs=[];watch(pg,errs,notes)
+    await pg.goto('file://'+os.path.join(KIT,'starter.html')); await pg.wait_for_timeout(400)
+    r=await pg.evaluate(CHARTS_JS)
+    if r is not True: fails.append('charts: '+r)
+    fails+=['charts: '+e for e in errs]
+    await pg.close()
+    # reduced motion: no growing in, every chart is whole at once, on screen or not
+    pg=await b.new_page(viewport={'width':390,'height':844},reduced_motion='reduce')
+    errs=[];watch(pg,errs,notes)
+    await pg.goto('file://'+os.path.join(KIT,'starter.html')); await pg.wait_for_timeout(300)
+    half=await pg.evaluate("[...document.querySelectorAll('[data-aui=chart]:not([data-type=spark])')].filter(el=>{const t=el.dataset.type,p=el.querySelector('.plot').textContent;return !(t==='donut'?/[#%+]/.test(p.split('\\n')[0]+p.split('\\n')[1]):/[@#%*+=]/.test(p))}).map(el=>el.dataset.type)")
+    if half: fails.append('charts (reduced motion): not drawn whole at once: %s'%half)
+    fails+=['charts (reduced motion): '+e for e in errs]
+    await pg.close()
+    # without the script the table is what shows
+    html=open(os.path.join(KIT,'starter.html'),encoding='utf-8').read()
+    m=re.search(r'<section class="part" id="chart-bars">.*?</section>',html,re.S)
+    path=blank_page(m.group(0)) if m else None
+    if not path: fails.append('charts: no chart-bars part in the starter');return fails,notes
+    try:
+        ctx=await b.new_context(viewport={'width':390,'height':844},java_script_enabled=False)
+        pg=await ctx.new_page()
+        await pg.goto('file://'+path); await pg.wait_for_timeout(200)
+        w=(await (await pg.query_selector('.chart table')).bounding_box())['width']
+        if w<100: fails.append('charts: without the script the table does not show (%dpx wide)'%w)
+        await ctx.close()
+    finally:
+        os.remove(path)
+    return fails,notes
+
 async def paste(b,sid,html,notes):
     # the Code tab html pasted twice, one after the other, the way a person would
     page=('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -1102,7 +1171,10 @@ async def main():
         f,n=await reduced_release(b);fails+=f;notes|=n
         f,n=await tokens(b);fails+=f;notes|=n
         f,n=await polish(b);fails+=f;notes|=n
-        comps,blocks,stirred,lost,errs,n=await harvest(b);notes|=n
+        f,n=await charts(b);fails+=f;notes|=n
+        comps,blocks,charts_,stirred,lost,errs,n=await harvest(b);notes|=n
+        # the charts are kit parts too: pasted twice, as a component is
+        comps=comps+charts_
         fails+=['index.html: '+e for e in errs]
         fails+=['Code tab: %s changed after the demo was hovered and clicked'%s for s in stirred]
         if lost: fails.append('Code tab: labels that do not read as their data-text: %s'%lost)
@@ -1140,7 +1212,7 @@ async def main():
     works=sum(1 for r in rows if r[1]=='yes')
     print('%-16s %-4s %-28s %s'%('component','ok','behaviors',''))
     for r in rows: print('%-16s %-4s %-28s %s'%r)
-    print('%d of %d components work pasted twice into a blank page with the two kit files'%(works,len(rows)))
+    print('%d of %d components and charts work pasted twice into a blank page with the two kit files'%(works,len(rows)))
     if works<12: fails.append('fewer than 12 components pasted clean')
     for n in sorted(notes): print('note: '+n)
     if fails:

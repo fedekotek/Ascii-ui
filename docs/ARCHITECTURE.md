@@ -86,7 +86,7 @@ The kit (`kit/ascii-ui.css`, `kit/ascii-ui.js`) is not loaded by the site. It is
                             is in), Questions (s-faq), How it was made (s-made: the reel, the case study, credits)
   <div id="view-kit">       Components: .dochead, Get the kit (s-install, from js/40), index, five groups of parts, Rules
   <div id="view-blocks">    Blocks: .dochead, filters, index, Login and Stats pinned first, the rest A to Z
-  <div id="view-charts">    Charts (5): .dochead, then the charts
+  <div id="view-charts">    Charts (5): .dochead, then the charts, each with Preview and Code (Code prints the kit's chart)
   <div id="view-themes">    .dochead, Presets, Colors, Ramp, Tokens, Labs (the old One pager toys)
   <footer id="foot">        Invaders (#footGame) on Home only, and #footLine (version, license, kit links, credits)
                             on every view
