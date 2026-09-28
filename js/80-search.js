@@ -74,7 +74,7 @@
     's-separator':'divider rule hr','s-pagination':'pager pages','s-breadcrumb':'crumbs path','s-otp':'otp pin code',
     's-textarea':'multiline','s-calendar':'date datepicker date-picker day month','s-tooltip':'hint','s-toast':'notification snackbar sonner','s-popover':'popup flyout popover',
     's-combobox':'autocomplete typeahead select search combo','s-alertdialog':'confirm are you sure alert-dialog','s-contextmenu':'right click right-click context menu','s-progress':'loading bar',
-    's-skeleton':'loading placeholder','s-spinner':'loading loader','s-kbd':'keyboard key shortcut','s-icon':'icon icons glyph glyphs symbol symbols pictogram',
+    's-skeleton':'loading placeholder','s-datatable':'table grid datagrid data-grid sortable sort filter rows columns','s-spinner':'loading loader','s-kbd':'keyboard key shortcut','s-icon':'icon icons glyph glyphs symbol symbols pictogram',
     's-install':'install copy code kit download export starter css js cdn license mit version single one file offline html',
     's-table':'table data rows columns grid','s-tokens':'foundations tokens grid type typography spacing colors export download variables',
     's-foundations':'tokens color colors grid ramp tone tones states foundations a11y accessibility accessible',

@@ -427,7 +427,9 @@ function pretty(html){
     const pad=rep('  ',d);
     if(n.nodeType===3){const t=n.textContent.trim();if(t)o+=pad+esc(t)+'\n';return}
     if(n.nodeType!==1)return;
-    const breakIt=BLOCKTAG.test(n.tagName)&&n.children.length&&!hasText(n)&&(hasBlock(n)||n.outerHTML.length>100);
+    /* a row of a table body is one line, as a row of data reads: 24 rows are 24 lines, not 200 */
+    const row=n.tagName==='TR'&&n.parentElement&&n.parentElement.tagName==='TBODY';
+    const breakIt=!row&&BLOCKTAG.test(n.tagName)&&n.children.length&&!hasText(n)&&(hasBlock(n)||n.outerHTML.length>100);
     if(!breakIt){o+=pad+n.outerHTML+'\n';return}
     o+=pad+open(n)+'\n';[...n.childNodes].forEach(k=>out(k,d+1));o+=pad+'</'+n.localName+'>\n';
   }
@@ -572,7 +574,7 @@ $('view-charts').querySelectorAll(':scope > section[aria-labelledby]').forEach(d
 const KIT_GROUPS=[
   ['Form',['s-button','s-calendar','s-input','s-otp','s-select','s-slider','s-textarea','s-toggles','s-togglegroup']],
   ['Overlay',['s-alertdialog','s-combobox','s-command','s-contextmenu','s-dropdown','s-popover','s-sheet','s-tooltip']],
-  ['Display',['s-avatar','s-badge','s-card','s-details','s-icon','s-kbd','s-picture','s-separator','s-timeline']],
+  ['Display',['s-avatar','s-badge','s-card','s-datatable','s-details','s-icon','s-kbd','s-picture','s-separator','s-timeline']],
   ['Feedback',['s-alert','s-empty','s-progress','s-skeleton','s-spinner','s-toast']],
   ['Navigation',['s-breadcrumb','s-pagination','s-tabs']]];
 buildView($('view-kit'),'Components',['s-rules','s-foundations'],[],id=>{
@@ -618,6 +620,147 @@ if('MutationObserver' in window){
 markWide();window.AUI_WIDE=markWide;
 window.addEventListener('resize',markWide);
 setTimeout(markWide,1200);
+
+/* ================= data table =================
+   The site's own wiring, with the page's sounds and its own pager. The kit
+   does the same job for people's pages (kit/ascii-ui.js, datatable); this
+   copy runs after the docs builder, so the Code tab's snapshot is the html
+   as written: no checkboxes, no order, no skeleton. The Rows, Loading and
+   Empty picker above it is this demo's, and the Code tab leaves it out. */
+(function(){
+  const el=$('dt');if(!el)return;
+  const table=el.querySelector('table'),body=table.tBodies[0],head=table.tHead.rows[0],wrap=table.parentElement;
+  const count=el.querySelector('.dt-count'),input=$('dtFilter'),pg=$('dtPager'),pst=$('dtPagerStatus');
+  const NUM=/^[-+]?[$€£¥]?\s?\d[\d,]*(\.\d+)?\s?([a-z]{1,3}|%)?$/i,DATE=/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/;
+  const SIZE=+el.getAttribute('data-page-size')||8;
+  /* the table glitches in as one piece. A badge on page 3 gets no entrance of
+     its own: replayed on a view switch while its row is hidden, the entrance
+     never ends and the badge stays invisible */
+  body.querySelectorAll('[data-rv]').forEach(e=>{e.removeAttribute('data-rv');e.classList.remove('in','done')});
+  let rows=[],shown=[],col=-1,dir='none',q='',page=1,anchor=null,shift=false,blank=null,skels=[],wave=null,wf=0,parked=null;
+  const busy=()=>el.getAttribute('aria-busy')==='true';
+  const words=c=>c?(c.hasAttribute('data-value')?c.getAttribute('data-value'):c.textContent).replace(/\s+/g,' ').trim():'';
+  const data=r=>[...r.cells].filter(c=>!c.classList.contains('dt-pick'));
+  function box(label){
+    const l=document.createElement('label');l.className='check';
+    l.innerHTML='<input type="checkbox"><span class="glyph" aria-hidden="true"></span>';
+    l.firstChild.setAttribute('aria-label',label);return l;
+  }
+  const th=document.createElement('th');th.scope='col';th.className='dt-pick';th.appendChild(box('Select all rows'));
+  const all=th.querySelector('input');head.insertBefore(th,head.firstChild);
+  const cols=[...head.cells].filter(c=>c.querySelector('.dt-sort')).map(c=>({th:c,btn:c.querySelector('.dt-sort')}));
+  function read(){
+    rows=[...body.rows].filter(r=>r!==blank&&!skels.includes(r));
+    rows.forEach((r,i)=>{
+      if(r.__dtI==null)r.__dtI=i;
+      if(!r.__dtBox){const td=document.createElement('td');td.className='dt-pick';td.appendChild(box('Select '+words(data(r)[0])));r.insertBefore(td,r.firstChild);r.__dtBox=td.querySelector('input')}
+      r.__dtText=data(r).map(c=>c.textContent).join(' ').replace(/\s+/g,' ').toLowerCase();
+    });
+  }
+  function kind(i){
+    const c=cols.find(x=>x.th.cellIndex===i),k=c&&c.th.getAttribute('data-sort');
+    if(k==='num'||k==='date'||k==='text')return k;
+    const vs=rows.map(r=>words(r.cells[i])).filter(Boolean);
+    if(!vs.length)return 'text';
+    return vs.every(v=>NUM.test(v))?'num':vs.every(v=>DATE.test(v))?'date':'text';
+  }
+  function key(v,k){
+    if(v==='')return null;
+    if(k==='num'){const n=parseFloat(v.replace(/[^\d.\-]/g,''));return isNaN(n)?null:n}
+    if(k==='date'){const d=Date.parse(v.replace(' ','T'));return isNaN(d)?null:d}
+    return v;
+  }
+  function order(){
+    const k=col<0?'':kind(col),list=rows.map(r=>({r,v:col<0?null:key(words(r.cells[col]),k)}));
+    list.sort((a,b)=>{
+      if(col>=0){
+        if(a.v===null&&b.v!==null)return 1;
+        if(b.v===null&&a.v!==null)return -1;
+        if(a.v!==null){const c=k==='text'?String(a.v).localeCompare(String(b.v),undefined,{numeric:true,sensitivity:'base'}):a.v-b.v;if(c)return dir==='descending'?-c:c}
+      }
+      return a.r.__dtI-b.r.__dtI;
+    });
+    rows=list.map(x=>x.r);rows.forEach(r=>body.appendChild(r));
+  }
+  const hit=r=>q.toLowerCase().split(/\s+/).filter(Boolean).every(x=>r.__dtText.includes(x));
+  const picked=()=>rows.filter(r=>r.__dtBox.checked);
+  function row(cls){const r=document.createElement('tr'),td=document.createElement('td');r.className=cls;td.colSpan=head.cells.length;r.appendChild(td);return r}
+  function drawSkel(){
+    const n=Math.max(8,Math.floor(table.clientWidth/(A.CH()||9.6))-2),W='.:=+*#',L=[0.9,0.6,0.8,0.5,0.7];wf++;
+    skels.forEach((r,i)=>{let s='';const len=Math.round(n*L[i%L.length]);for(let x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-wf+i*3)*0.35)+1)*2.99));r.firstChild.textContent=A.TR(s)});
+  }
+  function loading(on){
+    if(on&&!skels.length){
+      for(let i=0;i<SIZE;i++){const r=row('dt-skel');r.setAttribute('aria-hidden','true');skels.push(r);body.appendChild(r)}
+      drawSkel();if(!reduce)wave=every(120,drawSkel,{el:table});
+    }
+    if(!on&&skels.length){skels.forEach(r=>r.remove());skels=[];if(wave){wave.stop();wave=null}}
+  }
+  function tell(){const s=picked().length;count.textContent=busy()?'Loading rows.':shown.length+' of '+rows.length+' row'+(rows.length===1?'':'s')+(s?', '+s+' selected':'')+'.'}
+  function heads(){
+    const n=shown.filter(r=>r.__dtBox.checked).length;
+    all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;
+    rows.forEach(r=>r.classList.toggle('dt-on',r.__dtBox.checked));
+  }
+  /* the Pagination component's pager, drawn here for this table */
+  function drawPager(pages){
+    const side=pg.clientWidth&&pg.clientWidth<374?0:1,ps=[1];
+    for(let p=page-side;p<=page+side;p++)if(p>1&&p<pages)ps.push(p);
+    if(pages>1)ps.push(pages);
+    const item=(p,t,l,off,now)=>'<button class="ibtn" type="button" data-p="'+p+'"'+(off?' disabled':'')+(now?' aria-current="page"':'')+' aria-label="'+l+'">'+t+'</button>';
+    let h=item(page-1,'&lt;','Previous page',page===1),last=0;
+    ps.forEach(p=>{if(p-last>1)h+='<span class="muted" aria-hidden="true">..</span>';h+=item(p,p,'Page '+p,false,p===page);last=p});
+    pg.innerHTML=h+item(page+1,'&gt;','Next page',page===pages);
+    pst.textContent=busy()||!rows.length?'':'Page '+page+' of '+pages+'.';
+  }
+  function show(){
+    const b=busy();shown=rows.filter(hit);
+    const pages=Math.max(1,Math.ceil(shown.length/SIZE));page=clamp(page,1,pages);
+    const from=(page-1)*SIZE,to=from+SIZE;
+    rows.forEach(r=>{r.hidden=true});shown.forEach((r,i)=>{r.hidden=b||i<from||i>=to});
+    loading(b);
+    const msg=b?'':!rows.length?'No incidents yet. Quiet week.':!shown.length?'No rows match.':'';
+    if(msg){if(!blank)blank=row('dt-empty');blank.firstChild.colSpan=head.cells.length;blank.firstChild.textContent=msg;body.appendChild(blank)}
+    else if(blank)blank.remove();
+    pg.hidden=b||!rows.length;drawPager(pages);
+    heads();tell();
+    wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2);
+  }
+  function sortBy(i,d){
+    col=d==='ascending'||d==='descending'?i:-1;dir=col<0?'none':d;
+    cols.forEach(c=>c.th.setAttribute('aria-sort',c.th.cellIndex===col?dir:'none'));
+    order();show();
+  }
+  cols.forEach(c=>c.btn.addEventListener('click',()=>{
+    const i=c.th.cellIndex,d=col!==i?'ascending':dir==='ascending'?'descending':'none';
+    sortBy(i,d);ping(d==='ascending'?660:d==='descending'?440:330);if(A.glitch()>0&&!reduce)B.tear(1);
+  }));
+  input.addEventListener('input',()=>{q=input.value;page=1;show()});
+  pg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;page=+b.dataset.p;show();ping(300+page*60);const c=pg.querySelector('[aria-current]');if(c)c.focus()});
+  table.addEventListener('pointerdown',e=>{shift=e.shiftKey});
+  table.addEventListener('keydown',e=>{if(e.key===' ')shift=e.shiftKey});
+  table.addEventListener('click',e=>{
+    const i=e.target;if(i.type!=='checkbox'||!i.closest('.dt-pick'))return;
+    const sh=e.shiftKey||shift;shift=false;
+    if(i===all){shown.forEach(r=>{r.__dtBox.checked=all.checked});anchor=null}
+    else{
+      const r=i.closest('tr'),a=shown.indexOf(anchor),b=shown.indexOf(r);
+      if(sh&&a>=0&&b>=0)for(let k=Math.min(a,b);k<=Math.max(a,b);k++)shown[k].__dtBox.checked=i.checked;
+      anchor=r;
+    }
+    heads();tell();ping(i.checked?520:390);
+  });
+  /* the demo's own picker: the rows, the wait, or nothing at all */
+  document.querySelectorAll('input[name="dtstate"]').forEach(r=>r.addEventListener('change',()=>{
+    if(!r.checked)return;
+    if(parked&&r.value!=='none'){parked.forEach(x=>body.appendChild(x));parked=null}
+    if(r.value==='none'&&!parked){parked=[...rows];parked.forEach(x=>x.remove())}
+    if(r.value==='loading')el.setAttribute('aria-busy','true');else el.removeAttribute('aria-busy');
+    read();order();show();A.kick();
+  }));
+  read();cols.forEach(c=>c.th.setAttribute('aria-sort','none'));show();
+  window.addEventListener('resize',()=>{if(!pg.hidden)drawPager(Math.max(1,Math.ceil(shown.length/SIZE)))});
+})();
 
 /* ================= overlays: popover, combobox, context menu, alert dialog =================
    The site's own wiring for the four, with the page's sounds. The kit does

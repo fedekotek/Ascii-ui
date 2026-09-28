@@ -230,3 +230,40 @@ figcaption b{color:var(--ink)}
 /* charts and pictures you can drive from the keyboard */
 /* the ring is an outline so Windows High Contrast keeps it (it drops shadows) */
 .chart:focus-visible,figure.pic canvas:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+
+/* ---------- data table (js/30 "data table"; the kit's datatable block says the same) ---------- */
+[data-aui="datatable"]{display:grid;gap:var(--r);min-width:0;justify-self:stretch}
+.dt-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--r) 2ch}
+.dt-tools .group{flex:1 1 24ch}
+.dt-count{white-space:nowrap}
+.dt-sort{
+  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;background:none;border:0;border-radius:0;
+  margin:-12px -1ch;padding:12px 1ch;cursor:pointer;outline:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;
+}
+.dt-sort::after{content:" -";content:" -" / "";opacity:.6}
+[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / "";opacity:1}
+[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / "";opacity:1}
+.dt-sort:focus-visible{background:var(--accent);color:var(--bg)}
+@media (hover:hover) and (pointer:fine){.dt-sort:hover::after{opacity:1}}
+.dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
+.dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
+.dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
+.check input[type="checkbox"]:not([role]):indeterminate + .glyph::before{content:"[-]";content:"[-]" / ""}
+.tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
+.tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink);box-shadow:none}
+[data-aui="datatable"] .tbl tbody tr{cursor:default}
+[data-aui="datatable"] .tbl tbody tr:nth-child(even){background:none}
+[data-aui="datatable"] .tbl tbody tr:nth-child(even of :not([hidden],.dt-skel,.dt-empty)){background:color-mix(in srgb,var(--ink) 7%,transparent)}
+[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:var(--ink)}
+.dt-empty td{color:var(--muted);white-space:normal}
+.dt-skel td{color:var(--muted);font-weight:700;overflow:hidden}
+/* the Blocks table drops its fourth column on a phone; this one scrolls instead */
+@media (max-width:479px){[data-aui="datatable"] .tbl th:nth-child(4),[data-aui="datatable"] .tbl td:nth-child(4){display:table-cell}}
+[data-aui="datatable"] .tablewrap{position:relative}
+[data-aui="datatable"] .tablewrap[data-wide]::after{
+  content:"<< scrolls sideways >>";content:"<< scrolls sideways >>" / "";
+  display:block;position:sticky;left:0;height:var(--r);color:var(--muted);white-space:nowrap;
+}
+[data-aui="datatable"] [data-aui="pagination"]{display:flex;flex-wrap:wrap;align-items:center;gap:var(--r) 0}
+[data-aui="datatable"] [data-aui="pagination"] .muted{padding:0 1ch}
+[data-aui="datatable"] [data-aui="pagination"] .ibtn{padding:12px 1ch}

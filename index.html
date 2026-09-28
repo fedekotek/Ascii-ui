@@ -123,7 +123,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
   <nav id="sidenav" aria-label="Sections"></nav>
 
   <div id="view-home" role="tabpanel" aria-labelledby="v-home">
-  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>35 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Details, Icon, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
+  <noscript><section aria-labelledby="s-nojs"><h2 id="s-nojs" class="band">Without JavaScript</h2><p>ascii/ui is a design system drawn in ASCII: frames, fills and shadows are strings of characters, and underneath it is plain HTML. This page draws its frames, titles and charts with a script, so without one it is mostly words. The kit needs none to look right: <a href="kit/starter.html">every kit component on one page</a>. Also <a href="kit/README.md">the kit reference</a>, <a href="kit/CHANGELOG.md">the changelog</a> and <a href="llms.txt">llms.txt</a>.</p><p>36 components. Form: Button, Calendar, Input, Input OTP, Select, Slider, Textarea, Toggle group, Toggles. Overlay: Alert dialog, Combobox, Command, Context menu, Dropdown, Popover, Sheet, Tooltip. Display: Avatar, Badge, Card and dialog, Data table, Details, Icon, Kbd, Picture, Separator, Timeline. Feedback: Alert, Empty, Progress, Skeleton, Spinner, Toast. Navigation: Breadcrumb, Pagination, Tabs.</p></section></noscript>
   <div class="nosig" id="noSig" hidden>
     <pre class="poster ptitle" data-text="NO SIGNAL" data-nobars aria-hidden="true"></pre>
     <pre class="nosig-snow" aria-hidden="true">. ===  ==.=@  ..=+=.==.=:-.+ =::
@@ -714,6 +714,55 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     <pre class="poster ptitle" data-text="TIMELINE" aria-hidden="true"></pre>
     <p class="muted">Events in order. Nodes are @, the wire is colons.</p>
     <ol class="demo timeline"><li><b>Shipped</b><span>Search v2 went to 100 percent of accounts.</span></li><li class="past"><b>In review</b><span>14 comments in Figma, 3 of them useful.</span></li><li class="past"><b>Kickoff</b><span>One problem statement, zero solutions. As it should be.</span></li></ol>
+  </section>
+
+  <section aria-labelledby="s-datatable" data-span="full">
+    <h2 id="s-datatable" class="vh">Data table</h2>
+    <pre class="poster ptitle" data-text="DATA" aria-hidden="true"></pre>
+    <p class="muted">A real table that sorts, filters, picks rows and pages. Take the script away and it is still a table.</p>
+    <div class="demo stack">
+      <div class="tgroup" role="radiogroup" aria-label="Demo data"><label><input type="radio" name="dtstate" value="rows" checked><span>24 rows</span></label><label><input type="radio" name="dtstate" value="loading"><span>Loading</span></label><label><input type="radio" name="dtstate" value="none"><span>Empty</span></label></div>
+      <div id="dt" data-aui="datatable" data-select data-page-size="8">
+        <div class="dt-tools">
+          <div class="group"><label class="field-label" for="dtFilter">Filter incidents</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input id="dtFilter" type="search" data-aui-filter placeholder="checkout, eu-west, down" autocomplete="off" spellcheck="false"></div></div></div>
+          <p class="dt-count muted" role="status"></p>
+        </div>
+        <div class="tablewrap">
+          <table class="tbl">
+            <caption class="vh">Incidents, newest first. Sort by a column, filter by any word, pick rows.</caption>
+            <thead><tr><th scope="col"><button class="dt-sort" type="button">ID</button></th><th scope="col"><button class="dt-sort" type="button">Service</button></th><th scope="col"><button class="dt-sort" type="button">Status</button></th><th scope="col"><button class="dt-sort" type="button">Opened</button></th><th scope="col"><button class="dt-sort" type="button">Minutes</button></th><th scope="col"><button class="dt-sort" type="button">Region</button></th></tr></thead>
+            <tbody>
+              <tr><td>INC-512</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 22:29</td><td>3</td><td>us-east</td></tr>
+              <tr><td>INC-511</td><td>webhooks</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 21:37</td><td>48</td><td>ap-south</td></tr>
+              <tr><td>INC-510</td><td>cdn-edge</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 20:02</td><td>7</td><td>sa-east</td></tr>
+              <tr><td>INC-509</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 17:22</td><td>21</td><td>eu-west</td></tr>
+              <tr><td>INC-508</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 16:45</td><td>24</td><td>us-east</td></tr>
+              <tr><td>INC-507</td><td>cdn-edge</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 16:08</td><td>94</td><td>ap-south</td></tr>
+              <tr><td>INC-506</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 12:45</td><td>36</td><td>sa-east</td></tr>
+              <tr><td>INC-505</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:37</td><td>6</td><td>eu-west</td></tr>
+              <tr><td>INC-504</td><td>cdn-edge</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:00</td><td>55</td><td>us-east</td></tr>
+              <tr><td>INC-503</td><td>scheduler</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 08:49</td><td>9</td><td>ap-south</td></tr>
+              <tr><td>INC-502</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:41</td><td>58</td><td>sa-east</td></tr>
+              <tr><td>INC-501</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:04</td><td>31</td><td>eu-west</td></tr>
+              <tr><td>INC-500</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:56</td><td>118</td><td>us-east</td></tr>
+              <tr><td>INC-499</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:04</td><td>4</td><td>ap-south</td></tr>
+              <tr><td>INC-498</td><td>billing</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 02:27</td><td>12</td><td>sa-east</td></tr>
+              <tr><td>INC-497</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 01:50</td><td>62</td><td>eu-west</td></tr>
+              <tr><td>INC-496</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 00:15</td><td>15</td><td>us-east</td></tr>
+              <tr><td>INC-495</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:40</td><td>83</td><td>ap-south</td></tr>
+              <tr><td>INC-494</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:03</td><td>42</td><td>sa-east</td></tr>
+              <tr><td>INC-493</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 21:11</td><td>140</td><td>eu-west</td></tr>
+              <tr><td>INC-492</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 20:34</td><td>11</td><td>us-east</td></tr>
+              <tr><td>INC-491</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 18:26</td><td>18</td><td>ap-south</td></tr>
+              <tr><td>INC-490</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:51</td><td>75</td><td>sa-east</td></tr>
+              <tr><td>INC-489</td><td>auth</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:14</td><td>27</td><td>eu-west</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <nav id="dtPager" data-aui="pagination" aria-label="Incident pages"></nav>
+        <p class="muted status" id="dtPagerStatus" role="status"></p>
+      </div>
+    </div>
   </section>
 
   <section aria-labelledby="s-toast">

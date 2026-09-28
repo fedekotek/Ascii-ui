@@ -434,6 +434,50 @@
     </dialog>
   </section>
 
+  <section class="part" id="datatable">
+    <h3>Data table</h3>
+    <div data-aui="datatable" data-select data-page-size="8">
+      <div class="dt-tools">
+        <div class="group"><label class="field-label">Filter incidents</label><div class="field frame tone-light"><div class="mid"><span class="prompt" aria-hidden="true">&gt;</span><input type="search" data-aui-filter placeholder="checkout, eu-west, down" autocomplete="off" spellcheck="false"></div></div></div>
+        <p class="dt-count muted" role="status"></p>
+      </div>
+      <div class="tablewrap">
+        <table class="tbl">
+          <caption class="vh">Incidents, newest first. Sort by a column, filter by any word, pick rows.</caption>
+          <thead><tr><th scope="col"><button class="dt-sort" type="button">ID</button></th><th scope="col"><button class="dt-sort" type="button">Service</button></th><th scope="col"><button class="dt-sort" type="button">Status</button></th><th scope="col"><button class="dt-sort" type="button">Opened</button></th><th scope="col"><button class="dt-sort" type="button">Minutes</button></th><th scope="col"><button class="dt-sort" type="button">Region</button></th></tr></thead>
+          <tbody>
+            <tr><td>INC-512</td><td>api-gateway</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 22:29</td><td>3</td><td>us-east</td></tr>
+            <tr><td>INC-511</td><td>webhooks</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 21:37</td><td>48</td><td>ap-south</td></tr>
+            <tr><td>INC-510</td><td>cdn-edge</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 20:02</td><td>7</td><td>sa-east</td></tr>
+            <tr><td>INC-509</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 17:22</td><td>21</td><td>eu-west</td></tr>
+            <tr><td>INC-508</td><td>webhooks</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 16:45</td><td>24</td><td>us-east</td></tr>
+            <tr><td>INC-507</td><td>cdn-edge</td><td><span class="badge b-hot">Down</span></td><td>2026-09-27 16:08</td><td>94</td><td>ap-south</td></tr>
+            <tr><td>INC-506</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 12:45</td><td>36</td><td>sa-east</td></tr>
+            <tr><td>INC-505</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:37</td><td>6</td><td>eu-west</td></tr>
+            <tr><td>INC-504</td><td>cdn-edge</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 10:00</td><td>55</td><td>us-east</td></tr>
+            <tr><td>INC-503</td><td>scheduler</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 08:49</td><td>9</td><td>ap-south</td></tr>
+            <tr><td>INC-502</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:41</td><td>58</td><td>sa-east</td></tr>
+            <tr><td>INC-501</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 06:04</td><td>31</td><td>eu-west</td></tr>
+            <tr><td>INC-500</td><td>scheduler</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:56</td><td>118</td><td>us-east</td></tr>
+            <tr><td>INC-499</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 03:04</td><td>4</td><td>ap-south</td></tr>
+            <tr><td>INC-498</td><td>billing</td><td><span class="badge b-warn">Degraded</span></td><td>2026-09-27 02:27</td><td>12</td><td>sa-east</td></tr>
+            <tr><td>INC-497</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 01:50</td><td>62</td><td>eu-west</td></tr>
+            <tr><td>INC-496</td><td>search</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-27 00:15</td><td>15</td><td>us-east</td></tr>
+            <tr><td>INC-495</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:40</td><td>83</td><td>ap-south</td></tr>
+            <tr><td>INC-494</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 22:03</td><td>42</td><td>sa-east</td></tr>
+            <tr><td>INC-493</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 21:11</td><td>140</td><td>eu-west</td></tr>
+            <tr><td>INC-492</td><td>billing</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 20:34</td><td>11</td><td>us-east</td></tr>
+            <tr><td>INC-491</td><td>notifications</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 18:26</td><td>18</td><td>ap-south</td></tr>
+            <tr><td>INC-490</td><td>checkout</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:51</td><td>75</td><td>sa-east</td></tr>
+            <tr><td>INC-489</td><td>auth</td><td><span class="badge b-ok">Resolved</span></td><td>2026-09-26 16:14</td><td>27</td><td>eu-west</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <nav data-aui="pagination" aria-label="Incident pages"></nav>
+      <p class="muted status" role="status"></p>
+    </div>
+  </section>
+
   <section class="part" id="details">
     <h3>Details</h3>
     <details class="acc"><summary>What ships in the kit?</summary><p>Two files, ascii-ui.css and ascii-ui.js. No build step, no dependencies.</p></details>

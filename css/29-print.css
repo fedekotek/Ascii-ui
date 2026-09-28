@@ -69,6 +69,9 @@
   .acc::details-content{content-visibility:visible !important;display:contents}
   .acc > summary::before{content:"" !important;display:none !important}
   .acc{break-inside:avoid}
+  /* a data table prints the rows it shows, without the controls around them */
+  .dt-tools .field,.dt-pick,.dt-skel,[data-aui="datatable"] [data-aui="pagination"],[data-aui="datatable"] .tablewrap::after,
+  [aria-labelledby="s-datatable"] .tgroup{display:none !important}
 }
 
 /* ---- Windows High Contrast (forced colors) -----------------------------------
@@ -90,6 +93,7 @@
     .tablist:not(#views):not(.doc-tabs) .tab[aria-selected="true"],.menu-views .tab[aria-selected="true"],
     .chip[aria-pressed="true"],.ibtn[aria-current="page"],.cal-grid button[aria-pressed="true"],
     .tgroup input:checked + span,.tbl tbody tr[aria-selected="true"],.tbl tbody tr[aria-selected="true"] td,
+    .tbl tbody tr.dt-on,.tbl tbody tr.dt-on td,
     .crumbs [aria-current] span,.side button[aria-current="page"],
     .badge:not(.b-out),.bar-title,.btn-primary .label,.toast span,.tip,.avatar,.menu-slab,
     .tbl th,.ftbl thead th,
@@ -99,13 +103,13 @@
   .u-slab{box-shadow:none !important}   /* the drawing's two colour edges would be the only colour left */
   /* an option or an item that cannot be picked says so in the system's own gray */
   :where(.opts [role="option"][aria-disabled="true"],.menu [role="menuitem"][aria-disabled="true"],.menu [role="menuitem"]:disabled,.opts-none){color:GrayText !important}
-  :where(.tbl tbody tr[aria-selected="true"] .badge){background:Canvas !important;color:CanvasText !important}
+  :where(.tbl tbody tr[aria-selected="true"] .badge,.tbl tbody tr.dt-on .badge){background:Canvas !important;color:CanvasText !important}
   .tip::after{forced-color-adjust:none;color:CanvasText}
   /* where the focus is */
   :where(
     .tab:focus-visible,.chip:focus-visible,.crumbs a:focus-visible,.cal-grid button:focus-visible,
     .btn-primary:focus-visible .label,.ibtn:focus-visible,.otp input:focus,.tgroup input:focus-visible + span,.side button:focus-visible,
-    .check input:focus-visible + .glyph,
+    .check input:focus-visible + .glyph,.dt-sort:focus-visible,
     .linkbtn:focus-visible,.inl:focus-visible,.skip:focus,.bbtn:focus-visible,.brand:focus-visible,
     #soundBar:has(#soundToggle:focus-visible),.navlink:focus-visible,.sheet-x:focus-visible,
     .menu [role="menuitem"]:focus-visible,#cases .lift:focus-visible .bar-title,

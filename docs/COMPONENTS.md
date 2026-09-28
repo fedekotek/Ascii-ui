@@ -31,6 +31,7 @@ The kit text the Code tab reads is embedded at the end of js/40, in `KIT()`, so 
 | Combobox | Overlay | `s-combobox` | A field that narrows a list as you type. | `combobox` | `combobox`, `pane` | css/20 `.combo .opts`, js/30 "overlays" |
 | Command | Overlay | `s-command` | The command menu; on this site it is Search. | site only | `kbd` | js/80, commands in js/20 "command palette" |
 | Context menu | Overlay | `s-contextmenu` | Right-click, long press or Shift F10 opens a menu where you are. | `contextmenu` | `contextmenu`, `pane`, `dropdown` | css/20 `.ctx`, js/30 "overlays" |
+| Data table | Display | `s-datatable` | Sorts, filters, picks rows and pages a real table. | `datatable` (with `pagination` for the pager) | `datatable`, `table`, `check`, `field`, `pagination` | css/14 `[data-aui="datatable"]`, js/30 "data table" |
 | Details | Display | `s-details` | Native details, [+]/[-] marker, answer decodes. | none | `details` | css/11 `.acc`, js/10 |
 | Dropdown | Overlay | `s-dropdown` | Button opens a menu, arrows move, Escape closes. | `dropdown` | `dropdown` | css/14 `.pop .menu`, js/30 `AUI_JS.dropdown` |
 | Empty | Feedback | `s-empty` | Nothing here, plus the next step. | `data-aui-toast` | `card` | css/04 tone-faint |

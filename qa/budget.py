@@ -20,10 +20,10 @@ SITE=ROOT/'site'
 KB=1024
 WEIGHT={                             # gzip -9 bytes
     'index.html':        180*KB,     # 168 KB at 11.2 with Usage, Download page and tokens.json: minified, kit text fetched on first use, font inlined
-    'ascii-ui.html':     225*KB,     # charts and the Blocks on the kit: the download, everything embedded (211.6 with charts, 211.2 with blocks, measured apart)
-    'kit/ascii-ui.css':   18*KB,     # 14.4 KB with the Blocks pieces, plus the chart block and the 39 icons
-    'kit/ascii-ui.js':    35*KB,     # 31.1 KB with charts, plus about 2 KB for checklist, pick and stepper
-    'kit/starter.html':   12*KB,     # 7.2 KB with Charts, 7.9 with Blocks, 7.2 with icons, measured apart
+    'ascii-ui.html':     235*KB,     # charts, the Blocks, the icons and the data table on the kit: the download, everything embedded (each measured apart at 211 to 215)
+    'kit/ascii-ui.css':   20*KB,     # 14.4 KB with the Blocks pieces, plus the charts, the 39 icons and the data table
+    'kit/ascii-ui.js':    40*KB,     # 31.1 KB with charts, plus checklist, pick, stepper and about 4 KB of data table
+    'kit/starter.html':   14*KB,     # Charts, Blocks, icons and a 24 row data table, measured apart at 7 to 8 each
     'kit/fonts/geist-mono-latin.woff2': 20*KB,   # 19 KB, woff2 does not compress further
     'assets/og.png':     100*KB,     # 65 KB, only link previews fetch it
     'favicon.ico':         4*KB,

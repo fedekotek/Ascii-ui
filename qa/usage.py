@@ -50,7 +50,7 @@ SKIP=('s-install','s-rules','s-foundations')
 COMPONENTS=('s-button','s-input','s-toggles','s-slider','s-tabs','s-card','s-progress','s-details','s-badge','s-alert',
             's-select','s-skeleton','s-avatar','s-breadcrumb','s-calendar','s-command','s-dropdown','s-empty','s-otp',
             's-icon','s-kbd','s-pagination','s-picture','s-separator','s-sheet','s-spinner','s-textarea','s-timeline','s-toast',
-            's-togglegroup','s-tooltip','s-popover','s-combobox','s-alertdialog','s-contextmenu')
+            's-togglegroup','s-tooltip','s-popover','s-combobox','s-alertdialog','s-contextmenu','s-datatable')
 REQUIRED=('use','avoid','anatomy','states','keys','a11y','dos','see')
 SITE_ONLY=('s-command','s-picture')
 

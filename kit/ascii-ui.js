@@ -8,7 +8,7 @@
    Then any element with data-aui="NAME" gets that behavior, including
    elements added later. The names: tabs, slider, progress, dropdown, tooltip,
    popover, combobox, contextmenu, confirm, otp, calendar, chart, pagination,
-   validate, counter, segment, spinner, skeleton, and for the Blocks
+   datatable, validate, counter, segment, spinner, skeleton, and for the Blocks
    checklist, pick and stepper.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
@@ -48,7 +48,7 @@
 
    window.ASCIIUI: version, init(root), destroy(root), get(el), validate(form),
    toast(msg, err), progress(el, pct), tabs(el), pagination(el), calendar(el),
-   chart(el), dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
+   chart(el), datatable(el), dropdown(el), popover(el), combobox(el), contextmenu(el), otp(el),
    bar(k, n), colorize(str), tones(map), reduce, behaviors. The README has
    the events and the calls for each component.
 
@@ -467,6 +467,203 @@ var behaviors={
     cx.later(function(){mo.disconnect()});
     draw();
     return {draw:draw,set:function(p){setProgress(el,p)},get value(){return +el.getAttribute('aria-valuenow')||0}};
+  },
+
+  /* a box around a plain <table class="tbl"> in a .tablewrap. A <th> with a
+     <button> in it sorts its column: numbers, dates (yyyy-mm-dd) and words
+     each sort as what they are, data-sort="num|date|text" on the th says so
+     outright, data-value on a td sorts by that instead of its words.
+     aria-sort="ascending" on a th in the html sorts on load. An input with
+     data-aui-filter narrows the rows to the ones holding every word typed.
+     data-select adds a column of checkboxes and a select-all; Shift picks a
+     range. data-page-size="8" shows a page at a time and drives the
+     [data-aui="pagination"] inside the box (or right after it).
+     aria-busy="true" on the box draws skeleton rows until it goes. The
+     .dt-count says how many rows show. Fires aui:sort and aui:select */
+  datatable:function(el,cx){
+    var table=el.querySelector('table');if(!table||!table.tHead||!table.tHead.rows.length)return;
+    var body=table.tBodies[0]||table.appendChild(doc.createElement('tbody'));
+    var head=table.tHead.rows[0],wrap=table.parentElement!==el&&table.parentElement.classList.contains('tablewrap')?table.parentElement:null;
+    var count=el.querySelector('.dt-count'),input=el.querySelector('[data-aui-filter]'),pager=el.querySelector('[data-aui="pagination"]');
+    if(!pager&&el.nextElementSibling&&el.nextElementSibling.matches('[data-aui="pagination"]'))pager=el.nextElementSibling;
+    var pick=el.hasAttribute('data-select'),rows=[],shown=[],col=-1,dir='none',q='',page=1,anchor=null,shift=false,seq=0,made=[],all=null,wave=null,blank=null,skels=[];
+    var NUM=/^[-+]?[$€£¥]?\s?\d[\d,]*(\.\d+)?\s?([a-z]{1,3}|%)?$/i,DATE=/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/;
+    function busy(){return el.getAttribute('aria-busy')==='true'}
+    function words(c){return c?(c.hasAttribute('data-value')?c.getAttribute('data-value'):c.textContent).replace(/\s+/g,' ').trim():''}
+    function data(r){return Array.prototype.filter.call(r.cells,function(c){return !c.classList.contains('dt-pick')})}
+    function box(label){
+      var l=doc.createElement('label');l.className='check';
+      l.innerHTML='<input type="checkbox"><span class="glyph" aria-hidden="true"></span>';
+      l.firstChild.setAttribute('aria-label',label);return l;
+    }
+    if(pick){
+      var th=doc.createElement('th');th.scope='col';th.className='dt-pick';th.appendChild(box('Select all rows'));
+      all=th.querySelector('input');head.insertBefore(th,head.firstChild);made.push(th);
+    }
+    /* the sortable columns: a th with a button, or a th with data-sort, which gets one */
+    var cols=[];
+    Array.prototype.forEach.call(head.cells,function(th){
+      if(th.classList.contains('dt-pick')||th.getAttribute('data-sort')==='none')return;
+      var b=th.querySelector('button');
+      if(!b&&th.hasAttribute('data-sort')){
+        b=doc.createElement('button');b.type='button';b.className='dt-sort';
+        while(th.firstChild)b.appendChild(th.firstChild);th.appendChild(b);
+        cx.later(function(){while(b.firstChild)th.appendChild(b.firstChild);b.remove()});
+      }
+      if(b)cols.push({th:th,btn:b});
+    });
+    function at(c){return c.th.cellIndex}
+    /* the rows, in the order they came, each with its checkbox and its words */
+    function read(){
+      rows=Array.prototype.filter.call(body.rows,function(r){return r!==blank&&skels.indexOf(r)<0});
+      rows.forEach(function(r){
+        if(r.__dtI==null)r.__dtI=seq++;
+        if(pick&&!r.__dtBox){
+          var td=doc.createElement('td');td.className='dt-pick';
+          var c=data(r)[0];td.appendChild(box('Select '+(c?words(c):'row')));
+          r.insertBefore(td,r.firstChild);r.__dtBox=td.querySelector('input');
+        }
+        r.__dtText=data(r).map(function(c){return c.textContent}).join(' ').replace(/\s+/g,' ').toLowerCase();
+      });
+    }
+    function kind(i){
+      var c=cols.filter(function(x){return at(x)===i})[0],k=c&&c.th.getAttribute('data-sort');
+      if(k==='num'||k==='date'||k==='text')return k;
+      var vs=rows.map(function(r){return words(r.cells[i])}).filter(Boolean);
+      if(!vs.length)return 'text';
+      if(vs.every(function(v){return NUM.test(v)}))return 'num';
+      if(vs.every(function(v){return DATE.test(v)}))return 'date';
+      return 'text';
+    }
+    function key(v,k){
+      if(v==='')return null;
+      if(k==='num'){var n=parseFloat(v.replace(/[^\d.\-]/g,''));return isNaN(n)?null:n}
+      if(k==='date'){var d=Date.parse(v.replace(' ','T'));return isNaN(d)?null:d}
+      return v;
+    }
+    /* sorted by the column, the ones it cannot read last, ties in the order they came */
+    function order(){
+      var k=col<0?'':kind(col);
+      var list=rows.map(function(r){return {r:r,v:col<0?null:key(words(r.cells[col]),k)}});
+      list.sort(function(a,b){
+        if(col>=0){
+          if(a.v===null&&b.v!==null)return 1;
+          if(b.v===null&&a.v!==null)return -1;
+          if(a.v!==null){var c=k==='text'?String(a.v).localeCompare(String(b.v),undefined,{numeric:true,sensitivity:'base'}):a.v-b.v;if(c)return dir==='descending'?-c:c}
+        }
+        return a.r.__dtI-b.r.__dtI;
+      });
+      rows=list.map(function(x){return x.r});
+      rows.forEach(function(r){body.appendChild(r)});
+    }
+    function hit(r){
+      var w=q.toLowerCase().split(/\s+/).filter(Boolean);
+      return w.every(function(x){return r.__dtText.indexOf(x)>=0});
+    }
+    function picked(){return rows.filter(function(r){return r.__dtBox&&r.__dtBox.checked})}
+    function row(cls){var r=doc.createElement('tr'),td=doc.createElement('td');r.className=cls;td.colSpan=head.cells.length;r.appendChild(td);return r}
+    /* loading: rows of ramp with a wave through them, as many as a page */
+    function drawSkel(){
+      var n=Math.max(8,Math.floor(table.clientWidth/(skels.cw||8.4))-2),W='.:=+*#',f=wave?wave.f++:0,L=[0.9,0.6,0.8,0.5,0.7];
+      skels.forEach(function(r,i){
+        var len=Math.round(n*L[i%L.length]),s='',x;
+        for(x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-f+i*3)*0.35)+1)*2.99));
+        r.firstChild.textContent=tr(s);
+      });
+    }
+    function loading(on){
+      if(on&&!skels.length){
+        var n=clamp(+el.getAttribute('data-page-size')||5,3,10),i,r;
+        for(i=0;i<n;i++){r=row('dt-skel');r.setAttribute('aria-hidden','true');skels.push(r);body.appendChild(r)}
+        skels.cw=chw(el);wave=new Ctx(el,'wave');wave.f=0;every(120,drawSkel,wave);
+      }
+      if(!on&&skels.length){skels.forEach(function(r){r.remove()});skels=[];if(wave){wave.end();wave=null}}
+    }
+    function tell(){
+      if(!count)return;
+      var s=picked().length;
+      count.textContent=busy()?'Loading rows.':shown.length+' of '+rows.length+' row'+(rows.length===1?'':'s')+(s?', '+s+' selected':'')+'.';
+    }
+    function heads(){
+      if(!all)return;
+      var n=shown.filter(function(r){return r.__dtBox.checked}).length;
+      all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;
+      rows.forEach(function(r){r.classList.toggle('dt-on',r.__dtBox.checked)});
+    }
+    function wide(){if(wrap)wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2)}
+    function show(){
+      var b=busy(),size=pager?Math.max(0,Math.floor(+el.getAttribute('data-page-size')||0)):0;
+      shown=rows.filter(hit);
+      var pages=size?Math.max(1,Math.ceil(shown.length/size)):1;page=clamp(page,1,pages);
+      var from=size?(page-1)*size:0,to=size?from+size:shown.length;
+      rows.forEach(function(r){r.hidden=true});
+      shown.forEach(function(r,i){r.hidden=b||i<from||i>=to});
+      loading(b);
+      var msg=b?'':!rows.length?(el.getAttribute('data-empty')||'No rows yet.'):!shown.length?(el.getAttribute('data-no-match')||'No rows match.'):'';
+      if(msg){if(!blank)blank=row('dt-empty');blank.firstChild.colSpan=head.cells.length;blank.firstChild.textContent=msg;body.appendChild(blank)}
+      else if(blank)blank.remove();
+      if(pager&&size){
+        if(pager.getAttribute('data-pages')!==String(pages))pager.setAttribute('data-pages',pages);
+        if(pager.getAttribute('data-page')!==String(page))pager.setAttribute('data-page',page);
+      }
+      if(pager&&size)pager.hidden=b||!rows.length;
+      heads();tell();wide();
+      mo.takeRecords();
+    }
+    function sortBy(i,d){
+      col=d==='ascending'||d==='descending'?i:-1;dir=col<0?'none':d;
+      cols.forEach(function(c){c.th.setAttribute('aria-sort',at(c)===col?dir:'none')});
+      order();show();
+    }
+    /* the rows the page's own script adds or takes away are read again */
+    var mo=new MutationObserver(function(){read();order();show()});
+    var ma=new MutationObserver(function(){show()});
+    cols.forEach(function(c){
+      cx.on(c.btn,'click',function(){
+        var i=at(c),d=col!==i?'ascending':dir==='ascending'?'descending':'none';
+        sortBy(i,d);emit(el,'sort',{column:cols.indexOf(c),dir:dir,th:c.th});
+      });
+    });
+    if(input)cx.on(input,'input',function(){q=input.value;page=1;show()});
+    if(pager)cx.on(pager,'aui:change',function(e){if(e.target===pager){page=e.detail.page;show()}});
+    /* Shift with a click or with Space picks every row between this one and the last one picked */
+    cx.on(table,'pointerdown',function(e){shift=e.shiftKey});
+    cx.on(table,'keydown',function(e){if(e.key===' ')shift=e.shiftKey});
+    cx.on(table,'click',function(e){
+      var i=e.target;if(!pick||i.type!=='checkbox'||!i.closest('.dt-pick'))return;
+      var sh=e.shiftKey||shift;shift=false;
+      if(i===all){shown.forEach(function(r){r.__dtBox.checked=all.checked});anchor=null}
+      else{
+        var r=i.closest('tr'),a=shown.indexOf(anchor),b=shown.indexOf(r),k;
+        if(sh&&a>=0&&b>=0)for(k=Math.min(a,b);k<=Math.max(a,b);k++)shown[k].__dtBox.checked=i.checked;
+        anchor=r;
+      }
+      heads();tell();
+      var p=picked();emit(el,'select',{rows:p,count:p.length});
+    });
+    var ro=window.ResizeObserver&&wrap?new ResizeObserver(wide):null;
+    if(ro)ro.observe(wrap);else cx.on(window,'resize',wide);
+    cx.later(function(){
+      mo.disconnect();ma.disconnect();if(ro)ro.disconnect();loading(false);if(blank)blank.remove();
+      rows.forEach(function(r){r.hidden=false;r.classList.remove('dt-on');if(r.__dtBox){r.__dtBox.closest('td').remove();r.__dtBox=null}});
+      made.forEach(function(m){m.remove()});if(wrap)wrap.removeAttribute('data-wide');if(pager)pager.hidden=false;
+    });
+    read();
+    var first=cols.filter(function(c){var s=c.th.getAttribute('aria-sort');return s==='ascending'||s==='descending'})[0];
+    if(first)sortBy(at(first),first.th.getAttribute('aria-sort'));
+    else{cols.forEach(function(c){c.th.setAttribute('aria-sort','none')});show()}
+    mo.observe(body,{childList:true});
+    ma.observe(el,{attributes:true,attributeFilter:['aria-busy','data-page-size']});
+    function set(fn){read();fn();order();show()}
+    return {
+      sort:function(i,d){var c=cols[i];if(c)sortBy(at(c),d||'ascending')},
+      filter:function(t){q=String(t==null?'':t);if(input)input.value=q;page=1;show()},
+      select:function(which){set(function(){rows.forEach(function(r){if(r.__dtBox)r.__dtBox.checked=which==='all'||Array.isArray(which)&&which.indexOf(r)>=0})})},
+      refresh:function(){set(function(){})},
+      get rows(){return shown.slice()},
+      get selected(){return picked()},
+      get page(){return page}
+    };
   },
 
   /* .pop holding a button[aria-haspopup] and a [role=menu] of [role=menuitem].
@@ -1748,7 +1945,7 @@ window.ASCIIUI={
   version:VERSION,init:init,destroy:destroy,get:get,validate:validate,
   toast:toast,progress:setProgress,bar:bar,colorize:colorize,tones:tones,behaviors:behaviors,
   tabs:typed('tabs'),pagination:typed('pagination'),calendar:typed('calendar'),chart:typed('chart'),dropdown:typed('dropdown'),otp:typed('otp'),
-  popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),
+  popover:typed('popover'),combobox:typed('combobox'),contextmenu:typed('contextmenu'),datatable:typed('datatable'),
   get reduce(){return reduce}
 };
 })();
