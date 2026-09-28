@@ -214,7 +214,6 @@ const KITIFY={
     HEAT.map((r,i)=>[DAYS7[i]].concat(r.split(' ').map(v=>v+'%')))),
   's-donut':c=>chartOf(c,'donut','Traffic by source, percent',['Source','Share'],[['direct','38%'],['search','27%'],['social','20%'],['email','15%']]),
   /* the sparklines of the Stats block are the kit's spark: the site's numbers are ramp steps 0 to 7 */
-  's-stats':c=>c.querySelectorAll('.spark[data-spark]').forEach(s=>{set(s,{'data-aui':'chart','data-type':'spark','data-values':s.getAttribute('data-spark').replace(/,/g,' '),'data-min':'0','data-max':'7'});s.removeAttribute('data-spark');s.textContent=''}),
   's-input':c=>set(q1(c,'#slug'),{'data-aui':'validate',required:'',pattern:'[a-z0-9\\-]+','data-error-required':'Enter a link for this project.','data-error-pattern':'Use lowercase letters, numbers and hyphens.'}),
   's-slider':c=>{set(q1(c,'.slider'),{'data-aui':'slider'});const b=q1(c,'.bar');if(b)b.removeAttribute('id')},
   's-progress':c=>{set(q1(c,'#bar'),{'data-aui':'progress','aria-valuenow':'0'});set(q1(c,'#exportBtn'),{'data-aui-fill':'','data-aui-done':'Exported report.'})},
@@ -265,7 +264,7 @@ const KITIFY={
   /* the picture avatar is the site's LCD; the kit's avatar takes initials or an <img> */
   's-avatar':c=>c.querySelectorAll('.avatar:has(canvas)').forEach(a=>a.remove()),
   /* the Blocks */
-  's-stats':c=>c.querySelectorAll('pre.ptitle').forEach(posterOf),
+  's-stats':c=>{c.querySelectorAll('pre.ptitle').forEach(posterOf);c.querySelectorAll('.spark[data-spark]').forEach(s=>{set(s,{'data-aui':'chart','data-type':'spark','data-values':s.getAttribute('data-spark').replace(/,/g,' '),'data-min':'0','data-max':'7'});s.removeAttribute('data-spark');s.textContent=''})},   /* the finished titles (blocks) and the sparklines as kit sparks (charts) */
   's-lost':c=>{const d=q1(c,'.lost');if(d)d.className='stack';posterOf(q1(c,'#lostTitle'));linkOf(q1(c,'#lostHome'),'/')},
   's-pricing':c=>c.querySelectorAll('.pricing .btn').forEach(b=>{const t=b.closest('.card').querySelector('.bar-title');set(b,{'data-aui-toast':(t?t.textContent.trim():'That')+' plan selected.'})}),
   's-workorders':c=>{
