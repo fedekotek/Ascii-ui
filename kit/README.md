@@ -18,8 +18,8 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-25L3QwC4krEBOsCiInpwp5px/Vl6vRvXS+38N/h7IOn5OqGj47Xir+6EGUyAXvUj" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-M27EC9Vn8ZbgJMWGz76YHT3zvCFYns9kWi+93LcdTH3Hysp0UXp6A9tE69XcvWQf" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-+QfkIsVjWozljQNoLnoa9jZULpQWuq8DbETEP/LWGvWMZE6qALVb5PwVoRftl8is" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-ovde7N+uZoCYTvOuTmSjLwJt0YtWHPszmHs2/6pKhYryzbhMk8RfAwaYEziaK49w" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0, 1.2.1 and 1.3.0 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.

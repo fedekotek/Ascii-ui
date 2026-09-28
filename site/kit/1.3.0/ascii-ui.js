@@ -587,7 +587,7 @@ var behaviors={
     function heads(){
       if(!all)return;
       var n=shown.filter(function(r){return r.__dtBox.checked}).length;
-      all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;
+      all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;var mx=all.closest('.check');if(mx)mx.classList.toggle('dt-mixed',all.indeterminate);
       rows.forEach(function(r){r.classList.toggle('dt-on',r.__dtBox.checked)});
     }
     function wide(){if(wrap)wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2)}

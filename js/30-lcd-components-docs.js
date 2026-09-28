@@ -699,7 +699,7 @@ setTimeout(markWide,1200);
   function tell(){const s=picked().length;count.textContent=busy()?'Loading rows.':shown.length+' of '+rows.length+' row'+(rows.length===1?'':'s')+(s?', '+s+' selected':'')+'.'}
   function heads(){
     const n=shown.filter(r=>r.__dtBox.checked).length;
-    all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;
+    all.checked=!!n&&n===shown.length;all.indeterminate=!!n&&n<shown.length;const mx=all.closest('.check');if(mx)mx.classList.toggle('dt-mixed',all.indeterminate);
     rows.forEach(r=>r.classList.toggle('dt-on',r.__dtBox.checked));
   }
   /* the Pagination component's pager, drawn here for this table */

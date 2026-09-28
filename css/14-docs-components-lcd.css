@@ -248,7 +248,8 @@ figcaption b{color:var(--ink)}
 .dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
 .dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
 .dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
-.check input[type="checkbox"]:not([role]):indeterminate + .glyph::before{content:"[-]";content:"[-]" / ""}
+/* some rows picked: the script marks the label (.dt-mixed), since an :indeterminate rule is checked against every box on the page and made pasting a thousand radios twice as slow */
+.check.dt-mixed .glyph::before{content:"[-]";content:"[-]" / ""}
 .tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
 .tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink);box-shadow:none}
 [data-aui="datatable"] .tbl tbody tr{cursor:default}
