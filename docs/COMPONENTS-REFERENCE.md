@@ -2351,7 +2351,7 @@ Limits:
 <div>
   <details class="acc">
     <summary>What ships in the kit?</summary>
-    <p>Thirty-three components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
+    <p>Thirty-four components in two files, one CSS and one JS. No build step. Link them once, then copy any component.</p>
   </details>
   <details class="acc">
     <summary>Can I change the characters?</summary>
