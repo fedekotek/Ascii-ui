@@ -322,7 +322,7 @@ async def starter(b):
     ok('datatable: Space picks, Shift Space picks the range',await ev("document.querySelectorAll('#datatable tbody tr.dt-on').length===3&&document.querySelector('#datatable thead .dt-pick input').indeterminate&&document.querySelector('#datatable .dt-count').textContent.endsWith('3 selected.')"),
        await ev("document.querySelector('#datatable .dt-count').textContent"))
     await pg.fill('#datatable [data-aui-filter]','zzz')
-    ok('datatable: nothing matches says so',await ev("document.querySelector('#datatable .dt-empty').textContent==='No rows match.'"))
+    ok('datatable: nothing matches says so, with a way back',await ev("(()=>{const e=document.querySelector('#datatable .dt-empty td');return e.firstChild.nodeValue==='No rows match.'&&!!e.querySelector('button.dt-clear')&&document.querySelector('#datatable [data-aui=pagination]').hidden})()"))
     await pg.fill('#datatable [data-aui-filter]','')
     ok('no duplicate ids',not await ev(DUPES),await ev(DUPES))
     # dark theme via data-theme
@@ -358,7 +358,8 @@ ALIVE={
  'calendar':"el.querySelectorAll('[data-day]').length>=28",
  'pagination':"el.querySelectorAll('button').length>=5",
  'datatable':"(()=>{const c=el.querySelector('.dt-count'),th=[...el.querySelectorAll('thead th[aria-sort]')],rows=[...el.querySelectorAll('tbody tr')].filter(r=>!r.matches('.dt-empty,.dt-skel'));return th.length>0&&th.every(t=>t.getAttribute('aria-sort')==='none')&&(!c||/^\\d+ of \\d+ rows?/.test(c.textContent))&&(!el.hasAttribute('data-select')||rows.every(r=>r.querySelector('.dt-pick input[type=checkbox]')))})()",
- 'validate':"el.getAttribute('aria-invalid')!==null",
+ # a verdict already (a value on load), or, empty, its error line found and named in aria-describedby
+ 'validate':"el.getAttribute('aria-invalid')!==null||(()=>{const d=document.getElementById(el.getAttribute('aria-describedby')||'');return !!d&&d.classList.contains('error')})()",
  'counter':"el.closest('.group').querySelector('.count').textContent.includes('/')",
  'spinner':"el.textContent.length>0",
  'skeleton':"el.textContent.trim().length>20",
@@ -839,7 +840,11 @@ EDGES=[
     const f=A.querySelector('[data-aui-filter]'),type=v=>{f.value=v;f.dispatchEvent(new Event('input',{bubbles:true}))};
     type('ban 12');if(vis(A)!=='banana'||cnt(A)!=='1 of 5 rows.')bad.push('filter: '+vis(A)+' / '+cnt(A));
     type('zzz');const em=A.querySelector('.dt-empty');
-    if(!em||em.textContent!=='Nothing matches.'||em.firstChild.colSpan!==6||cnt(A)!=='0 of 5 rows.')bad.push('no match: '+(em&&em.textContent)+' / '+cnt(A));
+    if(!em||em.firstChild.firstChild.nodeValue!=='Nothing matches.'||em.firstChild.colSpan!==6||cnt(A)!=='0 of 5 rows.')bad.push('no match: '+(em&&em.textContent)+' / '+cnt(A));
+    /* no match: a way back, and no pager for nothing */
+    const pgr=A.querySelector('[data-aui=pagination]');if(pgr&&!pgr.hidden)bad.push('no match: the pager still shows');
+    const clr=em&&em.querySelector('.dt-clear');if(!clr)bad.push('no match: no Clear the filter');
+    else{clr.click();if(f.value!==''||A.querySelector('.dt-empty')||vis(A)!=='Apple,Elder,date')bad.push('Clear the filter: '+vis(A));type('zzz')}
     type('');if(A.querySelector('.dt-empty')||vis(A)!=='Apple,Elder,date')bad.push('filter cleared: '+vis(A));
     /* pages: the pager drives the rows */
     A.querySelector('[aria-label="Next page"]').click();

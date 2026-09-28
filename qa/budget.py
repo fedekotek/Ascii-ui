@@ -31,7 +31,12 @@ WEIGHT={                             # gzip -9 bytes
     'assets/reel.mp4':  3900*KB,     # 3.7 MB, 15 s at 720p, H.264 for Safari; a visitor fetches one of the two
     'assets/reel-poster.jpg': 60*KB, # 45 KB, lazy, only near the bottom of Home
 }
-TOTAL=9900*KB                        # every file in site/, raw: 2 MB of site and kit, 3.7 MB MP4 and 3.2 MB WebM of reel, and a frozen copy of every kit version
+# every file in site/, raw: 2 MB of site and kit, 3.7 MB MP4 and 3.2 MB WebM of
+# reel, and a frozen copy of every kit version. Raised from 9900 at kit 1.3.0 on
+# purpose: the frozen kit/1.3.0/ (about 200 KB, charts, icons, data table and
+# Signal) took site/ to about 9960 KB. Frozen copies never go away, so each
+# release is meant to grow this by about its own size; raise it by that, not more
+TOTAL=10300*KB
 
 bad=[]
 for f,cap in WEIGHT.items():

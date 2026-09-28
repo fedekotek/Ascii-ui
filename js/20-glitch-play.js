@@ -420,7 +420,11 @@ if(!reduce){
   trk.addEventListener('animationend',()=>{trk.style.visibility='hidden';trk.style.animation='none';trkRun=false});
   every(9000,()=>{
     /* a pass that never reported its end (hidden mid-way) does not block the next */
-    if(trkRun&&Date.now()-trkAt<6000)return;trkAt=Date.now();
+    if(trkRun&&Date.now()-trkAt<6000)return;
+    /* not over the icon sheet: on a grid of small drawings a band makes a whole row unreadable */
+    const ig=$('iconGrid'),ir=ig&&ig.getClientRects().length?ig.getBoundingClientRect():null;
+    if(ir&&ir.bottom>0&&ir.top<window.innerHeight)return;
+    trkAt=Date.now();
     const cols=Math.ceil(window.innerWidth/A.CH())+1,rows=Math.ceil(window.innerHeight/A.ROW)+3,dash=rep('- ',cols).slice(0,cols);
     trk.textContent=A.TR(dash+'\n'+rep('= ',cols).slice(0,cols)+'\n'+dash);
     trk.style.setProperty('--rows',rows);trk.style.visibility='visible';trkRun=true;

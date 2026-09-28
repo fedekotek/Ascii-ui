@@ -11,7 +11,7 @@ Added
 
 <!-- table: the data table builder writes here -->
 Added
-- Data table, `data-aui="datatable"` on the box around a `.tablewrap` and its `.tbl`. A `<button class="dt-sort">` in a `<th>` sorts the column (ascending, descending, then the order the rows came in) and says so in `aria-sort`, with `^`, `v` and `-` as paint. Numbers (units and currency signs aside) and `yyyy-mm-dd` dates sort as values; `data-sort="num|date|text|none"` on the th and `data-value` on a td decide instead. An input with `data-aui-filter` narrows the rows to the ones holding every word, a `.dt-count` says "12 of 40 rows, 3 selected.", and a row across every column says "No rows match." (`data-no-match`) or "No rows yet." (`data-empty`). `data-select` adds a checkbox column drawn like the Toggles, a select-all with an indeterminate `[-]`, Shift for a range, and picked rows as ink slabs. `data-page-size` pages the rows through the Pagination inside the box. `aria-busy="true"` draws skeleton rows. On a phone it scrolls sideways inside its box and says so. `aui:sort`, `aui:select`, `ASCIIUI.datatable(el)`.
+- Data table, `data-aui="datatable"` on the box around a `.tablewrap` and its `.tbl`. A `<button class="dt-sort">` in a `<th>` sorts the column (ascending, descending, then the order the rows came in) and says so in `aria-sort`, with `^` and `v` as paint, on the sorted column only. Numbers (units and currency signs aside) and `yyyy-mm-dd` dates sort as values; `data-sort="num|date|text|none"` on the th and `data-value` on a td decide instead. An input with `data-aui-filter` narrows the rows to the ones holding every word, a `.dt-count` says "12 of 40 rows, 3 selected.", and a row across every column says "No rows match." (`data-no-match`) or "No rows yet." (`data-empty`). `data-select` adds a checkbox column drawn like the Toggles, a select-all with an indeterminate `[-]`, Shift for a range, and picked rows bold on a tint, their box a slab. `data-page-size` pages the rows through the Pagination inside the box. `aria-busy="true"` draws skeleton rows. On a phone it scrolls sideways inside its box and says so. `aui:sort`, `aui:select`, `ASCIIUI.datatable(el)`.
 - The checkbox glyph says `[-]` while `indeterminate`.
 
 <!-- icons: the icons builder writes here -->
@@ -31,6 +31,19 @@ Added
 - **Signal**, the bad signal, opt in. `data-aui-signal` on any element, next to its own `data-aui` or not: `glitch` (a state change inside it, `aria-selected`, `aria-pressed`, `aria-expanded`, `aria-checked`, `aria-current`, `open` or a checkbox, breaks up for two frames), `scramble` (the words decode into place once, on screen), `band` (a band of `- = -` rolls through now and then; on `<html>` down the window) and `rot` (`data-rot` seconds idle and its frames decay; any input repairs them). Several at once with spaces. How loud: `--aui-signal: calm | normal | loud | off` on `:root`, or `data-aui-signal-level` on any element around it. The calls: `ASCIIUI.glitch(el)`, `scramble(el)`, `band(el)`, `rot(el)`, `repair(el)` and `signal(level)`. README has it under Signal.
 - It is paint: strips and bands on one fixed layer that takes no clicks and is `aria-hidden`, a `translate`, a frame's string. No box moves. A scramble keeps its words for a screen reader (`<aui-sr>`) and hides the noise (`<aui-noise>`); live regions are left alone. At most three glitches a second on the page. Noise is magenta and pink, never cyan. Still under reduced motion, forced colors and print, while a field has the focus and in a background tab. Its loop asks for a frame only while an effect draws.
 - `<html class="crt interlace">`: the scanlines every other pixel, fainter.
+- `data-aui-signal=""` is off. `data-aui="signal"` works as well as the attribute alone (glitch when it names no effect).
+- `data-aui-toggle` on a button with `aria-pressed`: a click flips it (the change a glitch answers), fires `aui:change` with `{ pressed }`, and `data-aui-toggle="On.|Off."` says the words in its status line.
+- A scramble's noise is CSS content, so a script reading `textContent` mid-decode (a chart, a sort, a progress button's label) gets the words.
+
+<!-- fixes before release -->
+Changed
+- Data table: the columns keep one width through the rows, the loading rows, the empty row, a filter and every page. The skeleton has a strip in every column. A column of numbers lines up on the right (`.dt-num`). A picked row is bold on a darker tint with its box as the slab, and a badge in it keeps its color. The sort mark shows on the sorted column only. The count sits on the field's typing row. No rows match: a Clear the filter button, and no pager.
+- Pagination: a gap of one page shows that page instead of `..`.
+- Heatmap: Up and Down keep the column and stop at the top and the bottom row.
+- Icons redrawn so each reads as its own thing: `error` is `(!)`, `settings` is sliders `-|-`, `eye-off` is `<\>`, `copy` is `|[]`, `calendar` is `[:]` (`[#]` is the site's section link), `refresh` is `(->`, and a large `more` is `o o o`.
+- A `.stack` inside a `.stack` takes the width, so a chart in a page made from the Code tab fills it. `.aui-nokit` is hidden by the kit: a downloaded page says so when the kit did not load.
+- A search field's clear x is the text's color, magenta under a pointer.
+- The spinner and skeleton clock sleeps while its elements are off screen and between steps; a chart grows in on `requestAnimationFrame`.
 
 ## 1.2.1, 2026-09-27
 

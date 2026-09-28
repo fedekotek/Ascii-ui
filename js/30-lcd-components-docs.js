@@ -687,16 +687,56 @@ setTimeout(markWide,1200);
   const hit=r=>q.toLowerCase().split(/\s+/).filter(Boolean).every(x=>r.__dtText.includes(x));
   const picked=()=>rows.filter(r=>r.__dtBox.checked);
   function row(cls){const r=document.createElement('tr'),td=document.createElement('td');r.className=cls;td.colSpan=head.cells.length;r.appendChild(td);return r}
+  /* the columns keep one width through rows, loading, empty, a filter and
+     every page: each th gets its widest cell across all the rows, in
+     characters, measured when the rows change (the kit does the same) */
+  let widths=[];
+  function fit(){
+    if(!rows.length||!table.getClientRects().length)return;
+    const cw=A.CH()||9.6,hid=rows.filter(r=>r.hidden),extra=skels.concat(blank?[blank]:[]);
+    [...head.cells].forEach(th=>{if(!th.classList.contains('dt-pick'))th.style.width=''});
+    rows.forEach(r=>{r.hidden=false});extra.forEach(r=>{r.hidden=true});
+    table.style.tableLayout='';table.style.width='max-content';table.style.minWidth='0';
+    widths=[...head.cells].map(th=>{const w=th.getBoundingClientRect().width,cs=getComputedStyle(th);return w?Math.ceil((w-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/cw-0.05):0});
+    table.style.minWidth='';
+    hid.forEach(r=>{r.hidden=true});extra.forEach(r=>{r.hidden=false});
+    [...head.cells].forEach((th,i)=>{if(widths[i]&&!th.classList.contains('dt-pick'))th.style.width=widths[i]+'ch'});
+    /* fixed: the head's widths hold whatever rows show; wider than the box, it scrolls in it */
+    table.style.tableLayout='fixed';table.style.width='100%';
+    wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2);
+  }
+  /* a column of numbers lines up on the right */
+  function nums(){
+    table.querySelectorAll('.dt-num').forEach(c=>c.classList.remove('dt-num'));
+    if(rows.length)cols.forEach(c=>{const i=c.th.cellIndex;if(kind(i)!=='num')return;[c.th,...rows.map(r=>r.cells[i])].forEach(x=>x&&x.classList.add('dt-num'))});
+  }
+  /* loading: a strip of ramp in every column, as long as the column or shorter */
   function drawSkel(){
-    const n=Math.max(8,Math.floor(table.clientWidth/(A.CH()||9.6))-2),W='.:=+*#',L=[0.9,0.6,0.8,0.5,0.7];wf++;
-    skels.forEach((r,i)=>{let s='';const len=Math.round(n*L[i%L.length]);for(let x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-wf+i*3)*0.35)+1)*2.99));r.firstChild.textContent=A.TR(s)});
+    const W='.:=+*#',L=[0.9,0.6,0.8,0.5,0.7];wf++;
+    skels.forEach((r,i)=>[...r.cells].forEach((td,j)=>{
+      if(td.classList.contains('dt-pick'))return;
+      const n=widths[j]||(words(head.cells[j]).length+2),len=Math.max(1,Math.round(n*L[(i+j)%L.length]));let s='';
+      for(let x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-wf+i*3+j*5)*0.35)+1)*2.99));
+      td.textContent=A.TR(s);
+    }));
+  }
+  function skelRow(){
+    const r=document.createElement('tr');r.className='dt-skel';r.setAttribute('aria-hidden','true');
+    [...head.cells].forEach(th=>{const td=document.createElement('td');if(th.classList.contains('dt-pick'))td.className='dt-pick';r.appendChild(td)});
+    return r;
   }
   function loading(on){
     if(on&&!skels.length){
-      for(let i=0;i<SIZE;i++){const r=row('dt-skel');r.setAttribute('aria-hidden','true');skels.push(r);body.appendChild(r)}
+      for(let i=0;i<SIZE;i++){const r=skelRow();skels.push(r);body.appendChild(r)}
       drawSkel();if(!reduce)wave=every(120,drawSkel,{el:table});
     }
     if(!on&&skels.length){skels.forEach(r=>r.remove());skels=[];if(wave){wave.stop();wave=null}}
+  }
+  /* no rows match: a way back to all of them */
+  function clearBtn(){
+    const b=document.createElement('button');b.type='button';b.className='dt-clear';b.textContent='Clear the filter';
+    b.addEventListener('click',()=>{q='';page=1;input.value='';input.focus();show();ping(520)});
+    return b;
   }
   function tell(){const s=picked().length;count.textContent=busy()?'Loading rows.':shown.length+' of '+rows.length+' row'+(rows.length===1?'':'s')+(s?', '+s+' selected':'')+'.'}
   function heads(){
@@ -711,9 +751,11 @@ setTimeout(markWide,1200);
     if(pages>1)ps.push(pages);
     const item=(p,t,l,off,now)=>'<button class="ibtn" type="button" data-p="'+p+'"'+(off?' disabled':'')+(now?' aria-current="page"':'')+' aria-label="'+l+'">'+t+'</button>';
     let h=item(page-1,'&lt;','Previous page',page===1),last=0;
-    ps.forEach(p=>{if(p-last>1)h+='<span class="muted" aria-hidden="true">..</span>';h+=item(p,p,'Page '+p,false,p===page);last=p});
+    /* a gap of one page is that page: .. would take its place for nothing */
+    const all2=ps.reduce((o,p)=>{if(o.length&&p-o[o.length-1]===2)o.push(p-1);o.push(p);return o},[]);
+    all2.forEach(p=>{if(p-last>1)h+='<span class="muted" aria-hidden="true">..</span>';h+=item(p,p,'Page '+p,false,p===page);last=p});
     pg.innerHTML=h+item(page+1,'&gt;','Next page',page===pages);
-    pst.textContent=busy()||!rows.length?'':'Page '+page+' of '+pages+'.';
+    pst.textContent=busy()||!shown.length?'':'Page '+page+' of '+pages+'.';
   }
   function show(){
     const b=busy();shown=rows.filter(hit);
@@ -722,9 +764,14 @@ setTimeout(markWide,1200);
     rows.forEach(r=>{r.hidden=true});shown.forEach((r,i)=>{r.hidden=b||i<from||i>=to});
     loading(b);
     const msg=b?'':!rows.length?'No incidents yet. Quiet week.':!shown.length?'No rows match.':'';
-    if(msg){if(!blank)blank=row('dt-empty');blank.firstChild.colSpan=head.cells.length;blank.firstChild.textContent=msg;body.appendChild(blank)}
+    if(msg){
+      if(!blank)blank=row('dt-empty');const cell=blank.firstChild;cell.colSpan=head.cells.length;cell.textContent=msg;
+      if(rows.length&&q&&!b)cell.appendChild(clearBtn());
+      body.appendChild(blank);
+    }
     else if(blank)blank.remove();
-    pg.hidden=b||!rows.length;drawPager(pages);
+    /* nothing to page through: no pager */
+    pg.hidden=b||!shown.length;drawPager(pages);
     heads();tell();
     wrap.toggleAttribute('data-wide',wrap.scrollWidth>wrap.clientWidth+2);
   }
@@ -758,9 +805,12 @@ setTimeout(markWide,1200);
     if(parked&&r.value!=='none'){parked.forEach(x=>body.appendChild(x));parked=null}
     if(r.value==='none'&&!parked){parked=[...rows];parked.forEach(x=>x.remove())}
     if(r.value==='loading')el.setAttribute('aria-busy','true');else el.removeAttribute('aria-busy');
-    read();order();show();A.kick();
+    read();nums();order();show();fit();A.kick();
   }));
-  read();cols.forEach(c=>c.th.setAttribute('aria-sort','none'));show();
+  read();nums();cols.forEach(c=>c.th.setAttribute('aria-sort','none'));show();fit();
+  if(document.fonts)document.fonts.ready.then(fit);
+  /* built while its view was hidden: measured when it first shows */
+  if(!widths.length&&'IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es[es.length-1].isIntersecting)fit();if(widths.length)io.disconnect()});io.observe(table)}
   window.addEventListener('resize',()=>{if(!pg.hidden)drawPager(Math.max(1,Math.ceil(shown.length/SIZE)))});
 })();
 
@@ -1087,7 +1137,7 @@ setTimeout(markWide,1200);
   ['upload','Upload','import send attach'],
   ['edit','Edit','pencil write change rename'],
   ['delete','Delete','trash bin remove'],
-  ['settings','Settings','gear cog preferences options'],
+  ['settings','Settings','gear cog sliders adjust preferences options'],
   ['user','Account','person profile avatar people'],
   ['home','Home','house start'],
   ['bell','Notifications','alert notify ring'],
@@ -1103,7 +1153,7 @@ setTimeout(markWide,1200);
   ['more','More','ellipsis overflow dots actions'],
   ['star','Favorite','favourite rate bookmark']];
   A.ICONS=ICONS;
-  const q=$('iconQ'),count=$('iconCount'),none=$('iconNone'),out=$('iconOut'),st=$('iconStatus');
+  const q=$('iconQ'),count=$('iconCount'),out=$('iconOut'),st=$('iconStatus');
   const markup=(n,l)=>'<span class="icon" data-icon="'+n+'" role="img" aria-label="'+l+'"></span>';
   let picked=null;
   const tiles=ICONS.map(([n,l,w])=>{
@@ -1113,7 +1163,7 @@ setTimeout(markWide,1200);
     b.innerHTML='<span class="icon icon-lg" data-icon="'+n+'" aria-hidden="true"></span><span class="ln"><span class="icon" data-icon="'+n+'" aria-hidden="true"></span> <span class="nm">'+n+'</span></span>';
     b.addEventListener('click',()=>take(b,n,l));
     li.appendChild(b);grid.appendChild(li);
-    return {li,b,n,l,hay:(n+' '+n.replace('-',' ')+' '+l+' '+w).toLowerCase()};
+    return {li,b,n,l,hay:(n+' '+n.replace('-',' ')+' '+l+' '+w).toLowerCase().split(/\s+/)};
   });
   function take(b,n,l){
     const m=markup(n,l);out.textContent=m;
@@ -1124,10 +1174,11 @@ setTimeout(markWide,1200);
   function narrow(){
     const v=q.value.trim().toLowerCase(),words=v.split(/\s+/).filter(Boolean);
     let n=0;
-    tiles.forEach(t=>{const on=words.every(x=>t.hay.includes(x));t.li.hidden=!on;if(on)n++});
-    count.textContent=!v?ICONS.length+' icons.':n===1?'1 icon matches.':n+' icons match.';
-    none.hidden=n>0;
-    if(!n)none.textContent='No icon called "'+q.value.trim()+'". Try arrow, lock or eye.';
+    /* a word matches from its start: arrow finds the arrows, not narrow (filter) */
+    tiles.forEach(t=>{const on=words.every(x=>t.hay.some(h=>h.startsWith(x)));t.li.hidden=!on;if(on)n++});
+    /* one line: the count, or when nothing matches, what to try instead */
+    count.textContent=!v?ICONS.length+' icons.':!n?'No icon called "'+q.value.trim()+'". Try arrow, lock or eye.':n===1?'1 icon matches.':n+' icons match.';
+    count.classList.toggle('icon-none',!n);
     return tiles.filter(t=>!t.li.hidden);
   }
   q.addEventListener('input',narrow);
@@ -1277,11 +1328,25 @@ setTimeout(markWide,1200);
     if(n==='band'){band(e);bandArm();say('Band on. It rolls through now and then.')}
     if(n==='rot'){rotArm();say('Rot on. Four seconds without a touch.')}
   }));
-  /* the level: calm, normal, loud, on the box */
+  /* the level: calm, normal, loud, on the box. The status line says what it
+     changed, since a still frame of each looks the same */
+  const LV={calm:'Calm: one frame of glitch, six steps of scramble, a slower, fainter band every 18 seconds or so, two steps of rot.',
+    normal:'Normal: two frames of glitch, ten steps of scramble, a band every 9 seconds or so, three steps of rot.',
+    loud:'Loud: three frames of glitch, fourteen steps of scramble, a faster, brighter band every 5 seconds or so, five steps of rot.'};
   sec.querySelectorAll('.sig-lv input').forEach(i=>i.addEventListener('change',()=>{
     if(!i.checked)return;box.setAttribute('data-aui-signal-level',i.value);bandArm();
-    say(i.value.charAt(0).toUpperCase()+i.value.slice(1)+'.'+(still()?' '+why():''));
-    if(!still()&&on('band'))band(S.band);
+    say(LV[i.value]+(still()?' '+why():''));
+    if(still())return;
+    if(on('band'))band(S.band);
+    if(on('glitch'))glitch(S.glitch.querySelector('button')||S.glitch);
+  }));
+  /* the two buttons fire one on demand, so nobody waits for now and then */
+  sec.querySelectorAll('.sig-go').forEach(b=>b.addEventListener('click',()=>{
+    const n=b.dataset.go;
+    if(!on(n)){say(NAME[n]+' is off. Switch it on first.');return}
+    if(still()){say(why());return}
+    if(n==='scramble'){if(!scramble(S.scramble))say('Scramble is still decoding.');else say('Scrambled.')}
+    if(n==='band'){if(!band(S.band))say('The band is still rolling.');else say('The band rolls through.')}
   }));
   /* scanlines: the crt class on the root, the same setting as CRT scanlines in Search */
   const R0=document.documentElement,crtIn=sec.querySelector('.sig-crt input[value="crt"]'),ilIn=sec.querySelector('.sig-crt input[value="interlace"]');

@@ -26,14 +26,16 @@ The site does not load the kit, so the table is written twice. Change both, or `
 2. **Inline is one row, one to three characters.** It sits in a line of text and in a button label, so it cannot be taller than the line. Three is the most a word can live next to. Two or three is the rule; the four chevrons are the one-character exception, because a chevron is one stroke and `>` is already it.
 3. **Large is exactly three rows, five or six characters, every row the same width.** Pad with spaces. Five is the default; six only when the shape needs an even middle (the star). Three rows is what an empty state or a tile can give it without becoming a picture.
 4. **A small grammar, so they read as one set.**
-   - Square brackets are a thing you act on or a box: `[x]` close, `[=]` menu, `[+]` add, `[-]` remove, `[#]` calendar, `[o]` lock, `[^]` home, `[[]` copy.
-   - Round brackets are a state or a note: `(x)` error, `(i)` info, `(?)` help, `(*)` favorite, `(')` time.
-   - The hazard triangle `/!\` is the one warning. Nothing else uses `!`.
+   - Square brackets are a thing you act on or a box: `[x]` close, `[=]` menu, `[+]` add, `[-]` remove, `[:]` calendar (a page of days), `[o]` lock, `[^]` home, `|[]` copy (a sheet on top of another).
+   - Round brackets are a state or a note: `(!)` error, `(i)` info, `(?)` help, `(*)` favorite, `(')` time.
+   - `!` is trouble and nothing else: the triangle `/!\` warns, the circle `(!)` is an error. `x` is only close, so an error never reads as a way out.
+   - No two icons share a shape with a different mark in it when the mark is all that tells them apart at a glance: settings is three sliders (`-|-`), not a gear in brackets next to the eye `<o>` and the lock `[o]`; the eye struck through is `<\>`, not `<->`, which is an arrow.
+   - `[#]` is not an icon: on the site it is the section's link, after every title.
    - Arrows have a shaft (`<-`, `->`, `/|\`, `\|/`); chevrons do not (`<`, `>`, `^`, `v`).
    - An underscore is a floor: `_v_` lands, `_^_` leaves, `_/` is a pencil on the line, `|_|` is a bin.
    - Large circles are ` .-. `, `(   )`, ` '-' `. Anything round uses that same circle (error, info, help, clock, search, refresh).
-5. **Weight from the ramp.** The large ones use the ramp (` .:=+*#%@`) for fill and weight, and `|`, `-`, `_`, `/`, `\`, `(`, `)`, `[`, `]`, `<`, `>`, `^`, `v`, `.`, `'` and the backtick for lines. A fill is a ramp character (`:::` in the bin, `===` in the calendar head, `@ @ @` for more), never a run of slabs.
-6. **The same meaning in both sizes.** The large one is the inline one drawn bigger, not a different idea: `/!\` and its triangle, `(x)` and its circle.
+5. **Weight from the ramp.** The large ones use the ramp (` .:=+*#%@`) for fill and weight, and `|`, `-`, `_`, `/`, `\`, `(`, `)`, `[`, `]`, `<`, `>`, `^`, `v`, `.`, `'` and the backtick for lines. A fill is a ramp character (`:::` in the bin, `===` in the calendar head), never a run of slabs. Dots drawn bigger are round: `...` large is `o o o`.
+6. **The same meaning in both sizes.** The large one is the inline one drawn bigger, not a different idea: `/!\` and its triangle, `(!)` and its circle, `[:]` and its page of days.
 7. **One meaning per icon.** `[x]` closes. It never deletes; that is `|_|`. If a meaning needs a new shape, add an icon; do not stretch an old one.
 8. **Color is the text's.** An icon takes `currentColor`. `.hot` acts, `.ok` confirms, `.warn` warns, `.violet` is structure. Never cyan: cyan is focus. The shape has to say it without the color (a warning is a triangle in print too).
 9. **Say it, or hide it.** Alone, `role="img"` and an `aria-label` that says what it means ("Done", not "tick"). Next to its word, `aria-hidden="true"` and no label. The characters are CSS content with empty alt text (`content:var(--i) / ""`), so a screen reader never spells out the slashes.

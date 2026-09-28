@@ -15,6 +15,7 @@
      data-aui-signal="scramble" decodes its words into place once, on screen
      data-aui-signal="band"     a band rolls through it now and then
      data-aui-signal="rot"      its frames decay after data-rot seconds idle
+     data-aui-signal=""         off
    --aui-signal (calm, normal, loud, off) or data-aui-signal-level says how loud.
    Buttons take these instead:
      data-aui-open              opens the nearest <dialog> (a card or a .sheet)
@@ -26,6 +27,9 @@
                                 longer words and holds while it is pointed at
      data-aui-reset             puts the fields of its form or dialog back to how the html has them
      data-aui-fill              runs the nearest progress bar from 0 to 100, for demos
+     data-aui-toggle            flips the button's aria-pressed and fires aui:change;
+                                data-aui-toggle="Muted.|Back on." says the words
+                                for on and for off in its status line
    The nearest role="status" says what happened (the code, the page, the date).
 
    No ids needed. Each component finds its parts inside the element around it,
@@ -46,8 +50,9 @@
    settings on a live element and it follows. ASCIIUI.destroy(el) tears one
    down by hand, with everything inside it.
 
-   Everything that moves runs on requestAnimationFrame and stops when the
-   element leaves the page. prefers-reduced-motion leaves every frame still,
+   Everything that moves draws on requestAnimationFrame (a timer only waits
+   out the time between two steps) and stops when the element leaves the
+   page; a spinner or a skeleton off screen asks for no frames at all. prefers-reduced-motion leaves every frame still,
    and a change to that setting is followed while the page is open. The
    times and steps of the css animations are the --aui-* tokens in
    ascii-ui.css. A .sheet can be dragged down to close on a touch screen.
@@ -73,7 +78,7 @@ var reduce=!!(mq&&mq.matches);
 function onReduce(){
   reduce=!!mq.matches;
   onMedia();
-  if(!reduce&&tasks.length&&!raf)raf=requestAnimationFrame(tick);
+  if(!reduce&&tasks.length)tickPlan();
 }
 if(mq){if(mq.addEventListener)mq.addEventListener('change',onReduce);else if(mq.addListener)mq.addListener(onReduce)}
 
@@ -264,28 +269,48 @@ function colorize(txt){
 
 /* ---- one clock for everything that moves. A task runs every ms while its
    element is on the page; it is dropped when the element goes or its
-   component is torn down. Under reduced motion it draws once and stays. ---- */
-var tasks=[],raf=0;
+   component is torn down. Under reduced motion it draws once and stays.
+   It sleeps when it can: a frame is asked for only when a task on screen is
+   due, a timer waits out the time between, and with every task off screen
+   (or the tab hidden) it waits on nothing until one comes back ---- */
+var tasks=[],raf=0,tickTm=0;
+var tickIO=window.IntersectionObserver?new IntersectionObserver(function(es){
+  es.forEach(function(e){e.target.__auiSeen=e.isIntersecting});tickPlan();
+}):null;
 function every(ms,fn,cx){
   fn();
   var t={ms:ms,fn:fn,cx:cx,el:cx.el,at:0};
   tasks.push(t);
+  if(tickIO){if(t.el.__auiSeen===undefined)t.el.__auiSeen=false;tickIO.observe(t.el)}
   /* let go on teardown, not on the next frame: under reduced motion there is
      no next frame, and the element would be held for good */
-  cx.later(function(){var i=tasks.indexOf(t);if(i>=0)tasks.splice(i,1)});
-  if(!raf&&!reduce)raf=requestAnimationFrame(tick);
+  cx.later(function(){var i=tasks.indexOf(t);if(i>=0)tasks.splice(i,1);tickLet(t.el)});
+  tickPlan();
+}
+function tickLet(el){if(tickIO&&!tasks.some(function(x){return x.el===el}))tickIO.unobserve(el)}
+function seen(t){return !tickIO||t.el.__auiSeen}
+function tickPlan(){
+  if(tickTm){clearTimeout(tickTm);tickTm=0}
+  if(raf||reduce||doc.hidden)return;
+  var now=snow(),next=Infinity;
+  tasks.forEach(function(t){if(!t.cx.dead&&seen(t))next=Math.min(next,t.at+t.ms)});
+  if(next===Infinity)return;
+  var d=next-now;
+  if(d<=20)raf=requestAnimationFrame(tick);
+  else tickTm=setTimeout(function(){tickTm=0;if(!raf&&!doc.hidden&&!reduce)raf=requestAnimationFrame(tick)},d-16);
 }
 function tick(now){
-  raf=0;
-  tasks=tasks.filter(function(t){return !t.cx.dead&&t.el.isConnected});
+  raf=0;now=snow();
+  tasks=tasks.filter(function(t){var ok=!t.cx.dead&&t.el.isConnected;if(!ok)tickLet(t.el);return ok});
   if(!tasks.length||reduce)return;
   if(!doc.hidden)tasks.forEach(function(t){
-    if(now-t.at<t.ms)return;t.at=now;
+    if(!seen(t)||now-t.at<t.ms-8)return;t.at=now;
     var r=t.el.getBoundingClientRect();
     if(r.bottom>0&&r.top<innerHeight&&r.width)try{t.fn()}catch(e){t.el.isConnected&&console.error(e)}
   });
-  raf=requestAnimationFrame(tick);
+  tickPlan();
 }
+doc.addEventListener('visibilitychange',function(){if(doc.hidden){if(raf){cancelAnimationFrame(raf);raf=0}if(tickTm){clearTimeout(tickTm);tickTm=0}}else tickPlan()});
 
 /* ---- toast. While a modal dialog is open the page behind it is inert, so
    the toast goes inside that dialog: on top, and read out ---- */
@@ -538,7 +563,10 @@ function glitch(el){
    is aria-hidden, and the final words, visually hidden, so a screen reader
    reads the words at once and never the noise. Only letters and digits are
    scrambled; spaces and punctuation stay put, so every line keeps its
-   width and its breaks. Live regions are left alone */
+   width and its breaks. Live regions are left alone. The noise is css
+   content (aui-noise::before, from its data-n), not text, so a script that
+   reads the words mid-decode (a chart, a sort, a button label) gets the
+   words, once */
 var SKIP='input,textarea,select,script,style,noscript,svg,canvas,[aria-hidden="true"],.vh,aui-sr,.aui-sig';
 var WORD=/[A-Za-z0-9À-ɏ]/;
 function scramble(el){
@@ -552,7 +580,7 @@ function scramble(el){
   var lv=sigLevel(el),frames=lv===1?6:lv===3?14:10,f=0,job=null;
   var parts=nodes.map(function(n){
     var h=doc.createElement('aui-noise'),v=doc.createElement('aui-sr');
-    h.setAttribute('aria-hidden','true');h.appendChild(doc.createTextNode(''));v.textContent=n.nodeValue;
+    h.setAttribute('aria-hidden','true');v.textContent=n.nodeValue;
     n.parentNode.insertBefore(v,n);n.parentNode.replaceChild(h,n);
     return {n:n,h:h,v:v,t:n.nodeValue};
   });
@@ -561,7 +589,7 @@ function scramble(el){
     parts.forEach(function(p){
       var o='',j,c;
       for(j=0;j<p.t.length;j++,seen++){c=p.t.charAt(j);o+=(seen<shown||!WORD.test(c))?c:noiseCh()}
-      p.h.firstChild.nodeValue=o;
+      p.h.setAttribute('data-n',o);
     });
   }
   function stop(){
@@ -840,22 +868,70 @@ var behaviors={
     }
     function picked(){return rows.filter(function(r){return r.__dtBox&&r.__dtBox.checked})}
     function row(cls){var r=doc.createElement('tr'),td=doc.createElement('td');r.className=cls;td.colSpan=head.cells.length;r.appendChild(td);return r}
-    /* loading: rows of ramp with a wave through them, as many as a page */
-    function drawSkel(){
-      var n=Math.max(8,Math.floor(table.clientWidth/(skels.cw||8.4))-2),W='.:=+*#',f=wave?wave.f++:0,L=[0.9,0.6,0.8,0.5,0.7];
-      skels.forEach(function(r,i){
-        var len=Math.round(n*L[i%L.length]),s='',x;
-        for(x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-f+i*3)*0.35)+1)*2.99));
-        r.firstChild.textContent=tr(s);
+    /* The columns keep one width through rows, loading, empty, a filter and
+       every page: each th gets the width, in characters, of its widest cell
+       across all the rows. Measured when the rows change, never from the
+       ones that happen to show. With no rows yet the head decides */
+    var widths=[],was=Array.prototype.map.call(head.cells,function(th){return th.style.width}),tlw=[table.style.tableLayout,table.style.width];
+    function fit(){
+      if(!rows.length||!table.getClientRects().length)return;
+      var cw=chw(el),hid=rows.filter(function(r){return r.hidden}),extra=skels.concat(blank?[blank]:[]);
+      Array.prototype.forEach.call(head.cells,function(th,i){if(!th.classList.contains('dt-pick'))th.style.width=was[i]||''});
+      rows.forEach(function(r){r.hidden=false});extra.forEach(function(r){r.hidden=true});
+      table.style.tableLayout='';table.style.width='max-content';table.style.minWidth='0';
+      widths=Array.prototype.map.call(head.cells,function(th){
+        var w=th.getBoundingClientRect().width,cs=getComputedStyle(th);
+        return w?Math.ceil((w-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight))/cw-0.05):0;
       });
+      table.style.minWidth='';
+      hid.forEach(function(r){r.hidden=true});extra.forEach(function(r){r.hidden=false});
+      Array.prototype.forEach.call(head.cells,function(th,i){if(widths[i]&&!was[i]&&!th.classList.contains('dt-pick'))th.style.width=widths[i]+'ch'});
+      /* fixed: the head's widths hold whatever rows show. The box's width at
+         least; wider than that, it scrolls inside .tablewrap */
+      table.style.tableLayout='fixed';table.style.width='100%';
+      wide();
+    }
+    /* a column of numbers is marked, so it lines up on the right */
+    var numd=[];
+    function nums(){
+      numd.forEach(function(c){c.classList.remove('dt-num')});numd=[];
+      if(!rows.length)return;
+      cols.forEach(function(c){
+        var i=at(c);if(kind(i)!=='num')return;
+        [c.th].concat(rows.map(function(r){return r.cells[i]})).forEach(function(x){if(x&&!x.classList.contains('dt-num')){x.classList.add('dt-num');numd.push(x)}});
+      });
+    }
+    /* loading: rows of ramp with a wave through them, as many as a page, a
+       strip in every column, each as long as the column is wide or shorter */
+    function drawSkel(){
+      var W='.:=+*#',f=wave?wave.f++:0,L=[0.9,0.6,0.8,0.5,0.7];
+      skels.forEach(function(r,i){
+        Array.prototype.forEach.call(r.cells,function(td,j){
+          if(td.classList.contains('dt-pick'))return;
+          var th=head.cells[j],n=widths[j]||(th?words(th).length+2:6),len=Math.max(1,Math.round(n*L[(i+j)%L.length])),s='',x;
+          for(x=0;x<len;x++)s+=W.charAt(Math.floor((Math.sin((x-f+i*3+j*5)*0.35)+1)*2.99));
+          td.textContent=tr(s);
+        });
+      });
+    }
+    function skelRow(){
+      var r=doc.createElement('tr');r.className='dt-skel';r.setAttribute('aria-hidden','true');
+      Array.prototype.forEach.call(head.cells,function(th){var td=doc.createElement('td');if(th.classList.contains('dt-pick'))td.className='dt-pick';r.appendChild(td)});
+      return r;
     }
     function loading(on){
       if(on&&!skels.length){
         var n=clamp(+el.getAttribute('data-page-size')||5,3,10),i,r;
-        for(i=0;i<n;i++){r=row('dt-skel');r.setAttribute('aria-hidden','true');skels.push(r);body.appendChild(r)}
-        skels.cw=chw(el);wave=new Ctx(el,'wave');wave.f=0;every(120,drawSkel,wave);
+        for(i=0;i<n;i++){r=skelRow();skels.push(r);body.appendChild(r)}
+        wave=new Ctx(el,'wave');wave.f=0;every(120,drawSkel,wave);
       }
       if(!on&&skels.length){skels.forEach(function(r){r.remove()});skels=[];if(wave){wave.end();wave=null}}
+    }
+    /* no rows match: the words, and a way back to all of them */
+    function clearBtn(){
+      var b=doc.createElement('button');b.type='button';b.className='dt-clear';b.textContent='Clear the filter';
+      b.addEventListener('click',function(){q='';page=1;if(input){input.value='';input.focus()}show()});
+      return b;
     }
     function tell(){
       if(!count)return;
@@ -878,13 +954,19 @@ var behaviors={
       shown.forEach(function(r,i){r.hidden=b||i<from||i>=to});
       loading(b);
       var msg=b?'':!rows.length?(el.getAttribute('data-empty')||'No rows yet.'):!shown.length?(el.getAttribute('data-no-match')||'No rows match.'):'';
-      if(msg){if(!blank)blank=row('dt-empty');blank.firstChild.colSpan=head.cells.length;blank.firstChild.textContent=msg;body.appendChild(blank)}
+      if(msg){
+        if(!blank)blank=row('dt-empty');
+        var cell=blank.firstChild;cell.colSpan=head.cells.length;cell.textContent=msg;
+        if(rows.length&&q&&!b)cell.appendChild(clearBtn());
+        body.appendChild(blank);
+      }
       else if(blank)blank.remove();
       if(pager&&size){
         if(pager.getAttribute('data-pages')!==String(pages))pager.setAttribute('data-pages',pages);
         if(pager.getAttribute('data-page')!==String(page))pager.setAttribute('data-page',page);
       }
-      if(pager&&size)pager.hidden=b||!rows.length;
+      /* nothing to page through: no pager */
+      if(pager&&size)pager.hidden=b||!shown.length;
       heads();tell();wide();
       mo.takeRecords();
     }
@@ -894,7 +976,7 @@ var behaviors={
       order();show();
     }
     /* the rows the page's own script adds or takes away are read again */
-    var mo=new MutationObserver(function(){read();order();show()});
+    var mo=new MutationObserver(function(){read();nums();order();show();fit()});
     var ma=new MutationObserver(function(){show()});
     cols.forEach(function(c){
       cx.on(c.btn,'click',function(){
@@ -924,15 +1006,22 @@ var behaviors={
     cx.later(function(){
       mo.disconnect();ma.disconnect();if(ro)ro.disconnect();loading(false);if(blank)blank.remove();
       rows.forEach(function(r){r.hidden=false;r.classList.remove('dt-on');if(r.__dtBox){r.__dtBox.closest('td').remove();r.__dtBox=null}});
+      numd.forEach(function(c){c.classList.remove('dt-num')});
+      Array.prototype.forEach.call(head.cells,function(th,i){if(th.classList.contains('dt-pick'))return;th.style.width=was[i]||'';if(!th.getAttribute('style'))th.removeAttribute('style')});
+      table.style.tableLayout=tlw[0];table.style.width=tlw[1];if(!table.getAttribute('style'))table.removeAttribute('style');
       made.forEach(function(m){m.remove()});if(wrap)wrap.removeAttribute('data-wide');if(pager)pager.hidden=false;
     });
-    read();
+    read();nums();
     var first=cols.filter(function(c){var s=c.th.getAttribute('aria-sort');return s==='ascending'||s==='descending'})[0];
     if(first)sortBy(at(first),first.th.getAttribute('aria-sort'));
     else{cols.forEach(function(c){c.th.setAttribute('aria-sort','none')});show()}
     mo.observe(body,{childList:true});
     ma.observe(el,{attributes:true,attributeFilter:['aria-busy','data-page-size']});
-    function set(fn){read();fn();order();show()}
+    fit();
+    if(doc.fonts)doc.fonts.ready.then(function(){if(!cx.dead)fit()});
+    /* hidden when it was wired (a closed tab, a dialog): measured when it shows */
+    if(!widths.length&&window.IntersectionObserver){var fio=new IntersectionObserver(function(es){if(es[es.length-1].isIntersecting&&!widths.length)fit();if(widths.length)fio.disconnect()});fio.observe(table);cx.later(function(){fio.disconnect()})}
+    function set(fn){read();fn();nums();order();show();fit()}
     return {
       sort:function(i,d){var c=cols[i];if(c)sortBy(at(c),d||'ascending')},
       filter:function(t){q=String(t==null?'':t);if(input)input.value=q;page=1;show()},
@@ -1653,7 +1742,8 @@ var behaviors={
       var n=count(),nc=heat?D.ns:1,k=e.key,c=pick%nc,r=Math.max(0,pick-c),st={ArrowLeft:-1,ArrowRight:1,ArrowUp:-nc,ArrowDown:nc}[k],i;
       if(!n)return;
       /* a heatmap starts on the newest column, where the eye starts */
-      if(st)i=pick<0?(heat?nc-1:st>0?0:n-1):nc>1&&st*st===1?r+clamp(c+st,vis0,nc-1):clamp(pick+st,0,n-1);
+      /* in a heatmap Up and Down keep the column, and stop at the top and the bottom row */
+      if(st)i=pick<0?(heat?nc-1:st>0?0:n-1):nc>1&&st*st===1?r+clamp(c+st,vis0,nc-1):nc>1?clamp(r+(st>0?nc:-nc),0,n-nc)+Math.max(c,vis0):clamp(pick+st,0,n-1);
       else if(k==='Home')i=nc>1?r+vis0:0;
       else if(k==='End')i=nc>1?r+nc-1:n-1;
       else if(k==='Escape'&&pick>=0)i=-1;
@@ -1670,11 +1760,19 @@ var behaviors={
     if(window.ResizeObserver)watch(new ResizeObserver(function(){var w=plot.clientWidth;if(w!==lastW){lastW=w;cw=0;draw()}}),plot);
     watch(new MutationObserver(function(){D=null;choose(pick,0,1)}),tb,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['data-value']});
     if(doc.fonts)doc.fonts.ready.then(function(){if(!cx.dead){cw=0;draw()}});
+    /* printed before it came on screen: drawn whole, not as empty axes */
+    cx.on(window,'beforeprint',function(){if(p<1){p=1;draw()}});
     /* it grows in once, when it first comes on screen; under reduced motion it is drawn whole */
     if(!reduce&&window.IntersectionObserver){
       p=0;var io=watch(new IntersectionObserver(function(en){
         if(!en[en.length-1].isIntersecting)return;io.disconnect();
-        var s=0;(function step(){if(cx.dead||p>=1)return;p=reduce?1:++s/10;draw();setTimeout(step,40)})();
+        /* ten steps, 40ms apart, each drawn on a frame */
+        var s=0,t0=0;requestAnimationFrame(function step(t){
+          if(cx.dead||p>=1)return;if(!t0)t0=t;
+          var k=reduce?10:Math.min(10,1+Math.floor((t-t0)/40));
+          if(k!==s){s=k;p=s/10;draw()}
+          if(p<1)requestAnimationFrame(step);
+        });
       }),el);
     }
     draw();
@@ -1730,6 +1828,8 @@ var behaviors={
       var side=el.clientWidth&&el.clientWidth<374?0:1,pages=[1],p,last=0;
       for(p=cur-side;p<=cur+side;p++)if(p>1&&p<N)pages.push(p);
       if(N>1)pages.push(N);
+      /* a gap of one page is that page: .. would take its place for nothing */
+      pages=pages.reduce(function(o,q){if(o.length&&q-o[o.length-1]===2)o.push(q-1);o.push(q);return o},[]);
       var h=item(cur-1,'&lt;','Previous page',cur===1);
       pages.forEach(function(q){if(q-last>1)h+='<span class="muted" aria-hidden="true">..</span>';h+=item(q,q,'Page '+q,false,q===cur);last=q});
       el.innerHTML=h+item(cur+1,'&gt;','Next page',cur===N);
@@ -1941,7 +2041,10 @@ var behaviors={
      Several at once: data-aui-signal="glitch rot". All of it opt in, and
      still under reduced motion, forced colors and print */
   signal:function(el,cx){
-    var fx=(el.getAttribute('data-aui-signal')||'glitch').toLowerCase().split(/[\s,]+/).filter(Boolean);
+    /* the names in data-aui-signal; empty is off. data-aui="signal" with no
+       data-aui-signal at all is glitch */
+    var raw=el.getAttribute('data-aui-signal');if(raw===null)raw='glitch';
+    var fx=raw.toLowerCase().split(/[\s,]+/).filter(Boolean);
     function has(n){return fx.indexOf(n)>=0}
     if(has('glitch')){
       /* what the page does to itself while it loads is not a change */
@@ -2069,7 +2172,7 @@ function runFill(target,btn){
     p=Math.min(100,p+3+Math.floor(Math.random()*7));f++;
     setProgress(target,p);
     label.textContent=(reduce?'* ':'|/-\\'.charAt(f%4)+' ')+text;
-    if(p<100){setTimeout(step,130);return}
+    if(p<100){setTimeout(function(){requestAnimationFrame(step)},130);return}
     btn.disabled=false;label.textContent=text;
     var done=btn.getAttribute('data-aui-done')||'Done.',s=status(btn);
     if(s)s.textContent=done;else toast(done);
@@ -2116,8 +2219,15 @@ function resetBox(t){
   emit(box,'reset',{});
 }
 doc.addEventListener('click',function(e){
-  var t=e.target.closest&&e.target.closest('[data-aui-open],[data-aui-close],[data-aui-toast],[data-aui-toast-err],[data-aui-reset],[data-aui-fill]');
+  var t=e.target.closest&&e.target.closest('[data-aui-open],[data-aui-close],[data-aui-toast],[data-aui-toast-err],[data-aui-reset],[data-aui-fill],[data-aui-toggle]');
   if(!t||t.disabled)return;
+  /* a toggle button: aria-pressed flips, and the words for on|off go to its status line */
+  if(t.hasAttribute('data-aui-toggle')){
+    var on=t.getAttribute('aria-pressed')!=='true',w=(t.getAttribute('data-aui-toggle')||'').split('|');
+    t.setAttribute('aria-pressed',on?'true':'false');
+    if(w[0])say(t,on?w[0]:(w[1]||''));
+    emit(t,'change',{pressed:on});
+  }
   if(t.hasAttribute('data-aui-reset')){if(t.form)e.preventDefault();resetBox(t)}
   /* the nearest of a dialog and a popover pane: in a pane inside a dialog,
      only the pane goes (the popover closes its own) */

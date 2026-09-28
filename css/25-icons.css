@@ -23,7 +23,7 @@
 .icon[data-icon="minus"]{--i:"[-]";--il:"     \A -----\A      "}
 .icon[data-icon="check"]{--i:"v/";--il:"    /\A \\  / \A  \\/  "}
 .icon[data-icon="warning"]{--i:"/!\\";--il:"  ^  \A  /!\\ \A /___\\"}
-.icon[data-icon="error"]{--i:"(x)";--il:" .-. \A ( x )\A  '-' "}
+.icon[data-icon="error"]{--i:"(!)";--il:" .-. \A ( ! )\A  '-' "}
 .icon[data-icon="info"]{--i:"(i)";--il:" .-. \A ( i )\A  '-' "}
 .icon[data-icon="help"]{--i:"(?)";--il:" .-. \A ( ? )\A  '-' "}
 .icon[data-icon="arrow-up"]{--i:"/|\\";--il:"  ^  \A  /|\\ \A   |  "}
@@ -35,25 +35,25 @@
 .icon[data-icon="chevron-left"]{--i:"<";--il:"   / \A   <  \A    \\ "}
 .icon[data-icon="chevron-right"]{--i:">";--il:" \\   \A   >  \A  /   "}
 .icon[data-icon="external"]{--i:"->]";--il:".-- ^\A | / |\A '---'"}
-.icon[data-icon="copy"]{--i:"[[]";--il:".--. \A |.--.\A '|  |"}
+.icon[data-icon="copy"]{--i:"|[]";--il:".--. \A |.--.\A '|__|"}
 .icon[data-icon="download"]{--i:"_v_";--il:"  |  \A  \\|/ \A |_v_|"}
 .icon[data-icon="upload"]{--i:"_^_";--il:"  ^  \A  /|\\ \A |_|_|"}
 .icon[data-icon="edit"]{--i:"_/";--il:"   /7\A   // \A <_/  "}
 .icon[data-icon="delete"]{--i:"|_|";--il:"_.-._\A |:::|\A |___|"}
-.icon[data-icon="settings"]{--i:"{o}";--il:" .^. \A <(o)>\A  'v' "}
+.icon[data-icon="settings"]{--i:"-|-";--il:"--|--\A |----\A ---|-"}
 .icon[data-icon="user"]{--i:"/o\\";--il:" .-. \A  '-' \A /___\\"}
 .icon[data-icon="home"]{--i:"[^]";--il:"  ^  \A  / \\ \A |_n_|"}
 .icon[data-icon="bell"]{--i:"/.\\";--il:" .-. \A  | | \A /_o_\\"}
 .icon[data-icon="lock"]{--i:"[o]";--il:" .-. \A  | | \A [_o_]"}
 .icon[data-icon="unlock"]{--i:"[o/";--il:" .-. \A  |   \A [_o_]"}
 .icon[data-icon="eye"]{--i:"<o>";--il:" .-. \A <(o)>\A  '-' "}
-.icon[data-icon="eye-off"]{--i:"<->";--il:" .-/ \A <(/)>\A  /-' "}
-.icon[data-icon="calendar"]{--i:"[#]";--il:".T-T.\A |===|\A |:::|"}
+.icon[data-icon="eye-off"]{--i:"<\\>";--il:"\\.-. \A <(\\)>\A  '-'\\"}
+.icon[data-icon="calendar"]{--i:"[:]";--il:".T-T.\A |===|\A |:::|"}
 .icon[data-icon="clock"]{--i:"(')";--il:" .-. \A ( |_)\A  '-' "}
 .icon[data-icon="filter"]{--i:"\\-/";--il:"=====\A  \\ / \A   |  "}
 .icon[data-icon="sort"]{--i:"^v";--il:" ^ | \A  | | \A  | v "}
-.icon[data-icon="refresh"]{--i:"(<";--il:" .-> \A (   )\A  '-' "}
-.icon[data-icon="more"]{--i:"...";--il:"     \A @ @ @\A      "}
+.icon[data-icon="refresh"]{--i:"(->";--il:" .-> \A (   )\A  '-' "}
+.icon[data-icon="more"]{--i:"...";--il:"     \A o o o\A      "}
 .icon[data-icon="star"]{--i:"(*)";--il:"__/\\__\A \\    /\A /_/\\_\\"}
 
 /* the section */

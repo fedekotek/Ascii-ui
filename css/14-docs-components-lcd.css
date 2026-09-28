@@ -233,30 +233,41 @@ figcaption b{color:var(--ink)}
 
 /* ---------- data table (js/30 "data table"; the kit's datatable block says the same) ---------- */
 [data-aui="datatable"]{display:grid;gap:var(--r);min-width:0;justify-self:stretch}
+/* the count sits on the field's middle row, the one you type on */
 .dt-tools{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--r) 2ch}
 .dt-tools .group{flex:1 1 24ch}
-.dt-count{white-space:nowrap}
+.dt-count{white-space:nowrap;margin-bottom:var(--r)}
 .dt-sort{
-  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;background:none;border:0;border-radius:0;
+  font:inherit;font-weight:inherit;color:inherit;text-transform:inherit;text-align:inherit;background:none;border:0;border-radius:0;
   margin:-12px -1ch;padding:12px 1ch;cursor:pointer;outline:0;white-space:nowrap;-webkit-tap-highlight-color:transparent;
 }
-.dt-sort::after{content:" -";content:" -" / "";opacity:.6}
-[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / "";opacity:1}
-[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / "";opacity:1}
+/* the mark is on the sorted column only; the rest keep its two places blank, so a sort never moves a column */
+.dt-sort::after{content:"  ";content:"  " / "";white-space:pre}
+[aria-sort="ascending"] > .dt-sort::after{content:" ^";content:" ^" / ""}
+[aria-sort="descending"] > .dt-sort::after{content:" v";content:" v" / ""}
 .dt-sort:focus-visible{background:var(--accent);color:var(--bg)}
-@media (hover:hover) and (pointer:fine){.dt-sort:hover::after{opacity:1}}
+@media (hover:hover) and (pointer:fine){[aria-sort="none"] > .dt-sort:hover::after{content:" ^";content:" ^" / "";opacity:.6}}
+/* a column of numbers lines up on the right, so a sort by value shows */
+.tbl .dt-num{text-align:right}
 .dt-pick{width:5ch;-webkit-user-select:none;user-select:none}
 .dt-pick .check .glyph,.dt-pick .check input:checked + .glyph{color:inherit}
 .dt-pick .check input:focus-visible + .glyph{background:var(--accent);color:var(--bg)}
 /* some rows picked: the script marks the label (.dt-mixed), since an :indeterminate rule is checked against every box on the page and made pasting a thousand radios twice as slow */
 .check.dt-mixed .glyph::before{content:"[-]";content:"[-]" / ""}
-.tbl tbody tr.dt-on{background:var(--ink);color:var(--bg);font-weight:700}
-.tbl tbody tr.dt-on .badge{background:var(--bg);color:var(--ink);box-shadow:none}
+/* a picked row: its box is a slab that says [@], the row is bold on a darker tint, a badge keeps its color */
+.tbl tbody tr.dt-on{font-weight:700}
+.tbl tbody tr.dt-on > .dt-pick{background:var(--ink);color:var(--bg)}
 [data-aui="datatable"] .tbl tbody tr{cursor:default}
 [data-aui="datatable"] .tbl tbody tr:nth-child(even){background:none}
 [data-aui="datatable"] .tbl tbody tr:nth-child(even of :not([hidden],.dt-skel,.dt-empty)){background:color-mix(in srgb,var(--ink) 7%,transparent)}
-[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:var(--ink)}
+[data-aui="datatable"] .tbl tbody tr.dt-on:nth-child(n){background:color-mix(in srgb,var(--ink) 16%,transparent)}
 .dt-empty td{color:var(--muted);white-space:normal}
+/* no rows match: a way back to all of them */
+.dt-clear{
+  font:inherit;color:var(--ink);background:none;border:0;border-radius:0;padding:12px 0;margin:-12px 0 -12px 1ch;
+  cursor:pointer;outline:0;text-decoration:underline;text-decoration-color:var(--hot);text-underline-offset:3px;
+}
+.dt-clear:focus-visible{background:var(--accent);color:var(--bg)}
 .dt-skel td{color:var(--muted);font-weight:700;overflow:hidden}
 /* the Blocks table drops its fourth column on a phone; this one scrolls instead */
 @media (max-width:479px){[data-aui="datatable"] .tbl th:nth-child(4),[data-aui="datatable"] .tbl td:nth-child(4){display:table-cell}}

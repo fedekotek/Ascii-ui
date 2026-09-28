@@ -48,6 +48,7 @@
 .sig-fx > [data-aui-signal]{margin-top:var(--r)}
 .sig-fx > .frame{justify-self:stretch}
 .sig-fx > .sig-crt + .sig-crt{margin-top:0}
+.sig-fx > .sig-go{margin-top:var(--r);justify-self:start}
 /* the band, drawn in #fx over its box: a row of - = - a step, as #track does */
 #fx .sig-band{overflow:hidden}
 #fx .sig-band > div{left:0;right:0;top:0;white-space:pre;font-weight:700;color:var(--pink);line-height:var(--r)}
