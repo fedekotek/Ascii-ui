@@ -328,16 +328,17 @@ $('sayHi').addEventListener('click',()=>{
   document.body.appendChild(a);a.click();a.remove();A.say('Opening fedekotek.design in a new tab.');
 });
 (function(){
-  const st=$('caseStatus'),D={Reporting:'Reporting: led at MaintainX. Dashboards for plant managers, built mobile first.',Search:'Search: global search across work orders, assets and parts.',Automations:'Automations: triggers and actions for maintenance teams, no code.',Chat:'Chat: messaging for frontline teams, tied to the work order.'};
+  /* each card's one line is its data-say, which the kit's pick reads too */
+  const st=$('caseStatus');
   document.querySelectorAll('#cases [data-case]').forEach(c=>{
     c.setAttribute('aria-pressed','false');
     /* the status line is a screen away on a phone, so the card shows it was
        picked and the toast says what it is */
-    const go=()=>{st.textContent=D[c.dataset.case];document.querySelectorAll('#cases [data-case]').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));A.say(D[c.dataset.case]);A.kick();ping(520);const l=lcdOf(c.querySelector('canvas'));if(l){l.sect.forEach(s=>{s.swap=4;s.shift=rnd(9)-4});l.draw()}};
+    const go=()=>{st.textContent=c.dataset.say;document.querySelectorAll('#cases [data-case]').forEach(x=>x.setAttribute('aria-pressed',x===c?'true':'false'));A.say(c.dataset.say);A.kick();ping(520);const l=lcdOf(c.querySelector('canvas'));if(l){l.sect.forEach(s=>{s.swap=4;s.shift=rnd(9)-4});l.draw()}};
     c.addEventListener('click',go);c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}});
   });
 })();
-$('nowRead').innerHTML=A.colorize(A.barRow(Math.round(163/179*14),false,14))+' <span class="muted">163/179</span>';
+(function(){const r=$('nowRead'),v=+r.dataset.value,m=+r.dataset.max;r.innerHTML=A.colorize(A.barRow(Math.round(v/m*14),false,14))+' <span class="muted">'+v+'/'+m+'</span>'})();
 if(!reduce)every(140,()=>{$('nowPull').textContent='|/-\\'[Date.now()/140&3]+' loading'},{gate:()=>A.G.on&&$('nowPull')&&inView($('nowPull'))});else $('nowPull').textContent='loading';
 (function(){
   const ING=[['Tira de asado',400,'g'],['Vacío',220,'g'],['Chorizo',1,'u'],['Provoleta',0.34,'u'],['Coarse salt',12,'g'],['Charcoal',700,'g'],['Malbec',0.25,'l']];let n=6;
@@ -345,9 +346,13 @@ if(!reduce)every(140,()=>{$('nowPull').textContent='|/-\\'[Date.now()/140&3]+' l
   function draw(){$('srvN').textContent=n;$('ing').innerHTML=ING.map(i=>'<li><span>'+i[0]+'</span><span class="qty">'+fmt(i[1]*n,i[2])+'</span></li>').join('');$('srvDown').disabled=n<=1;$('srvUp').disabled=n>=20}
   $('srvDown').addEventListener('click',()=>{n=Math.max(1,n-1);draw();ping(330)});
   $('srvUp').addEventListener('click',()=>{n=Math.min(20,n+1);draw();ping(520)});draw();
+  /* the Code tab (js/40) prints the list for the kit's stepper, as it is at 6 */
+  A.recipe={ing:ING,serves:n,fmt:fmt};
 })();
 (function(){
   const S=[['Life',2840,4000,0],['Shield',1120,4000,0],['Evasion',61,100,1],['Crit',38,100,1],['DPS',412,900,2]];
+  /* the Code tab (js/40) prints the stats as they are before any reroll */
+  A.build=S.map(s=>s.slice());
   function draw(){
     let h='',t='';
     S.forEach(s=>{const v=s[3]===1?s[1]+'%':(s[3]===2?s[1]+'k':s[1].toLocaleString('en-US'));h+='<span style="color:var(--muted)">'+s[0].padEnd(8,' ')+'</span>'+A.colorize(A.barRow(Math.round(s[1]/s[2]*10),false,10))+' '+v+'\n';t+=s[0]+' '+v+'. '});

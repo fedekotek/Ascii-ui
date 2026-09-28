@@ -11,6 +11,13 @@ The kit's versions, newest first. Every version lives at its own address that ne
 <!-- icons: the icons builder writes here -->
 
 <!-- blocks: the blocks builder writes here -->
+Added
+- The Blocks run on the kit: every Block's Code tab offers Download page, except one with a part the kit cannot draw yet (Stats, until its sparklines are in).
+- Block pieces in the CSS: `.kpis` and `.kpi` (stat tiles), `.poster.ptitle` (a bitmap title held in the HTML as rows of characters), `.grid2` and `.grid3` (cards side by side), `.pricing` with `.price`, `.feat`, `.popular` and `.row.full`, `.checklist` and `.meta`, `.navlist`, `.kv` and `.qty`, `.progress[role="meter"]`, `.stepper` and `.steps`, `.tags` with `.b-violet` and `.b-pink`, `.thumb`, `.profile`, and `a.btn`. README has them under Blocks.
+- Checklist, `data-aui="checklist"`: the share of ticked boxes goes into the progress bar next to the list; `data-done` is a toast when the last one is ticked. `aui:change` with `{ done, total }`.
+- Pick, `data-aui="pick"`: one of a group of buttons, links or cards is the pick, by click, Enter or Space. It moves `aria-current` when the HTML uses it, `aria-pressed` otherwise, and says the pick's `data-say` in the status line. `aui:change` with `{ item, index }`.
+- Stepper, `data-aui="stepper"`: a number between two buttons, `data-min` to `data-max`, that scales the `[data-each]` amounts in its card, in metric (g to kg, ml to l). `aui:change` with `{ value }`.
+- A progress bar with `data-cells` draws that many cells without the 24 character floor when it is a `role="meter"`.
 
 ## 1.2.1, 2026-09-27
 

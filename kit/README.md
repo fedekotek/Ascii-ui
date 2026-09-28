@@ -18,8 +18,8 @@ Latest, which follows every new version:
 Pinned, which never changes under you. The `integrity` attribute is the file's fingerprint: if a single byte of it changes on the way, the browser refuses to run it. It works only on a pinned address (the latest one changes with every version), and it needs `crossorigin`:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-61faWJddlqmzdFSb2FHUiQkCKJmw9kEf9vvayxyDPDkMyZdwMwT2o4KC5H3IQJ7L" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-/gb6Yw38b/1ica/aWitS46ktHYko2WLYtpmCAijY19AFcjrLMDhMZLLlhrfQDCLr" crossorigin="anonymous"></script>
 ```
 
 Every version stays at its own address: 1.0.0, 1.1.0, 1.1.1, 1.2.0 and 1.2.1 are there, and [CHANGELOG.md](CHANGELOG.md) lists them. Or download the two files from the Get the kit section of the site and link your own copies. Both files say their version and license in their first line, and `ASCIIUI.version` says it in the console.
@@ -28,11 +28,11 @@ The font is Geist Mono, from `fonts/geist-mono-latin.woff2` next to the CSS (a L
 
 ## Use it in three steps
 
-Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. Command, Picture and the Blocks that need the site's own css say so instead.
+Or skip all three: Download page, under Copy on any Code tab, saves that one component as a whole page (`ascii-ui-NAME.html`), already linked to the pinned kit with its integrity. Open page shows the same page in a new tab. The Blocks have it too (see [Blocks](#blocks)). Command, Picture and a Block with a part the kit cannot draw yet say so instead.
 
 1. Link the two files, as above.
 2. Open a component on https://ascii.fedekotek.design/#components, pick its Code tab and copy the HTML.
-3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the Blocks, and the two components marked site only), it says which, so you know what to write yourself.
+3. Paste it into your page. Done. The CSS and JS printed under the HTML are already in the two files; they are there so you can read them. When a Code tab uses a class the kit does not style (the two components marked site only, and a Block still waiting for a part), it says which, so you know what to write yourself.
 
 The HTML has no ids. Each component finds its parts inside the element around it, and ascii-ui.js makes the ids that accessibility needs (a label's `for`, a tab's `aria-controls`), so the same component pasted twice is two working copies.
 
@@ -61,6 +61,9 @@ Anything with `data-aui="NAME"` gets that behavior when the page loads, and so d
 | `data-aui="segment"` | a `.tgroup` (`role="radiogroup"`) | writes the pick into the nearest `role="status"`, on load and on every pick: the label's words, or `data-say="{label} view."` around them |
 | `data-aui="spinner"` | any `<b>` or `<span>` | `data-kind="classic"`, `ramp`, `bounce`, `dots` or `fill`. The frames are hidden from screen readers: with an `aria-label` the spinner is `role="img"` and read as that word; without one it is `aria-hidden`, so put the wait in words next to it |
 | `data-aui="skeleton"` | a `<pre class="skel">` | a card silhouette with a wave through the ramp |
+| `data-aui="checklist"` | a `.checklist` of checkboxes | puts the share ticked, as a percent, into the nearest `role="progressbar"` before or after it (or the one `data-progress="id"` names). `data-done="All done."` is a toast when a person ticks the last one |
+| `data-aui="pick"` | a group of buttons, links or `role="button"` cards | one of them is the pick: a click, or Enter or Space on a `role="button"`. When one has `aria-current` in the HTML (a `.navlist`), the pick takes it; otherwise each gets `aria-pressed`, `"true"` on the pick. The nearest `role="status"` says the pick's `data-say` |
+| `data-aui="stepper"` | a `.stepper`: a button, the number (`<b>` or `<output>`), a button | the first takes one off, the last adds one, from `data-min` (1) to `data-max` (99). At the end of the range that button turns off and the focus moves to the other. Every `[data-each]` in the same `.card` (or the stepper's parent) shows `data-each` times the number, in `data-unit`: `g` becomes `kg` from 1000 and `ml` becomes `l`, `g` and `ml` round to 10, `kg` and `l` to one decimal, no unit rounds up to a whole count |
 | `data-aui-open` | a button | opens the nearest `<dialog>`, a card or a `.sheet`. Escape and a tap on the page around it close it. On a touch screen a `.sheet` also closes on a drag down, by its title or from the top of what it holds: it follows the finger a row at a time and closes past a quarter of its height or on a flick. A `<dialog role="alertdialog">` waits for an answer: a tap around it nudges the card and puts the focus back on the safe button (`autofocus`), and Escape counts as that button |
 | `data-aui-close` | a button in a dialog or a popover | closes it. `data-aui-close="delete"` also sets the dialog's `returnValue`, so its `close` event knows the answer (it is empty after Escape). In a popover inside a dialog, only the popover closes |
 | `data-aui-toast="Saved."` | a button | shows a lime toast. `data-aui-toast-err` shows a yellow one. The mark (`@@`, `!!`) is `aria-hidden`; good news is a `role="status"`, an error a `role="alert"`, read at once. `[x]` puts it away and the focus goes back. It stays `--aui-toast` (3.6s) at least, 60ms a character for longer words, 15s at most, and holds while a pointer or the focus is on it. While a modal dialog is open the toast goes inside it, so it sits on top and is read out |
@@ -102,6 +105,9 @@ Every event bubbles, starts with `aui:` and carries its details in `event.detail
 | Calendar | `aui:change` on the calendar | `{ date, value }` (`value` is `yyyy-mm-dd`) |
 | Pagination | `aui:change` on the `<nav>`, buttons only (a link just goes) | `{ page }` |
 | Segment | `aui:change` on the `.tgroup`, when a person picks | `{ value, label, input }` |
+| Checklist | `aui:change` on the list, when a person ticks or unticks one | `{ done, total }` |
+| Pick | `aui:change` on the group, when a person picks | `{ item, index }` |
+| Stepper | `aui:change` on the `.stepper` | `{ value }` |
 | Validate | `aui:invalid` and `aui:valid` on the input, when the verdict changes | `{ message, validity }` |
 | Reset | `aui:reset` on the form or dialog, after the fields are back | `{}` |
 | Slider, counter | the input's own `input` and `change` | |
@@ -176,6 +182,36 @@ The HTML is real HTML, so most of it works with ascii-ui.js missing or blocked. 
 | Calendar, pagination | nothing is drawn: put a date input or plain links in them as a fallback, the script replaces them |
 | Spinner, skeleton | nothing moves; the skeleton is empty |
 | Toast | nothing shows |
+| Stat, poster title, pricing, key and value, tags, thumb, profile, nav list | work as they are (the title rows are in the HTML) |
+| Checklist | the boxes tick; the bar next to it stays empty |
+| Meter | the bar stays empty; the number next to it still reads |
+| Pick | the HTML's pick stays; a click changes nothing |
+| Stepper | the number and the amounts stay as the HTML has them |
+
+## Blocks
+
+The Blocks on the site (https://ascii.fedekotek.design/#blocks) are page-sized: a login, a pricing table, a checklist, a portfolio. They are made of the components above and of these pieces, which are in the kit too, so a Block's Code tab prints HTML that runs on the two files and offers Download page (a Block with a part the kit cannot draw yet says so there instead). `kit/starter.html` has each piece under Blocks.
+
+| Class | What it is | In |
+|---|---|---|
+| `.kpis`, `.kpi` | stat tiles: a label, the number, a line for the change. As many in a row as fit, 30 characters each at the least | Stats |
+| `.poster.ptitle` | a title in big pixels made of characters: 14 `<span>` rows in 4 of the page's, colored ink to violet from the top. The kit has no bitmap face, so the rows are in the HTML: the site draws and develops them, the Code tab prints them finished. Keep `aria-hidden` on it and the words next to it in a `.vh` | Stats, 404 |
+| `.grid2`, `.grid3` | cards side by side, as many 37 (or 27) character columns as the box holds, stacked without the room | Cases, Pricing |
+| `.pricing`, `.price`, `.feat`, `.popular`, `.row.full` | plans on a `.grid3`: cards as tall as the row, the feature list takes the slack, the popular plan wears a violet badge on its top rule, the buttons stretch | Pricing |
+| `.checklist`, `.meta` | checkboxes with a grey line under each, struck through when ticked. `data-aui="checklist"` fills the progress bar next to it | Orders |
+| `.navlist` | the pages of an app: buttons or links with a count, the current one (`aria-current`) an ink slab with a `>`. `data-aui="pick"` moves it on a click | Sidebar |
+| `.lift[role="button"]` | a card you pick, in a `data-aui="pick"` group: the pick's title is a slab with a `>` and its rim turns magenta | Cases |
+| `.kv`, `.qty` | a `<dl>` of grey labels and values; `.qty` is an amount, bold and magenta | Now, Profile, Recipe, Build |
+| `.progress[role="meter"]` | a value on the halftone bar next to words, drawn by `data-aui="progress"` from a percent, `data-cells` wide, with `aria-valuetext` for the number | Now, Build |
+| `.stepper`, `.steps` | a number between `[-]` and `[+]`; `data-aui="stepper"` counts and scales the `[data-each]` amounts in its card. `.steps` is a numbered method | Recipe |
+| `.tags`, `.b-violet`, `.b-pink` | a row of badges that only label: violet or pink, since lime confirms and yellow warns | Cases, Build |
+| `.thumb` | a picture slot: an `<img>`, or a `<pre>` of characters with `role="img"` and an `aria-label` | Cases, Profile |
+| `.profile` | a picture beside the words about a person, side by side from 720px | Profile |
+| `a.btn` | a link dressed as a button, for a way out that goes to another page | 404, Profile |
+
+What the site's engine draws the kit prints as a still. The bitmap titles come finished, the LCD pictures of Cases and Profile are drawn in characters (put an `<img>` in the `.thumb` instead), the halftone stats of Build and Now are meters. The toys stay on the site: Reroll in Build, Load portrait in Profile, the 404 title that never settles.
+
+`ASCIIUI.get(el)` on a pick returns `select(i)`, `index` and `item`; on a stepper `set(n)` and `value`; on a checklist `done` and `total`.
 
 ## Theming
 
@@ -235,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 The kit uses short, generic class names, so it can meet the same names in Bootstrap, Tailwind components or your own CSS. The classes it styles:
 
-`acc alert area avatar b-hot b-ok b-out b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check combo count crt crumbs ctx danger demo err error f faint field field-label frame full glyph good group heavy hot ibtn info invalid kbds label lift menu mid muted nudge off ok on open opts opts-none otp pane past pct pop progress prompt row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status switch-track tab tablewrap tablist tabpanel tbl tgroup timeline tip toast toast-x today tone-* up vh`
+`acc alert area avatar b-hot b-ok b-out b-pink b-violet b-warn badge bar bar-title body btn btn-danger btn-primary cal cal-grid cal-head card check checklist combo count crt crumbs ctx danger demo err error f faint feat field field-label frame full glyph good grid2 grid3 group heavy hot ibtn info invalid kbds kpi kpis kv label lift menu meta mid muted navlist nudge off ok on open opts opts-none otp pane past pct pop popular poster price pricing profile progress prompt ptitle qty row sepd sepl shade sheet sheet-x skel slider slider-track sm spins stack status stepper steps switch-track tab tablewrap tablist tabpanel tags tbl tgroup thumb timeline tip toast toast-x today tone-* up vh`
 
 The ones most likely to collide: `btn`, `card`, `alert`, `badge`, `row`, `field`, `label`, `body`, `tab`, `menu`, `progress`, `error`, `muted`, `pane`, and the state classes `on`, `off`, `open`, `up`, `good` and `invalid`. It also sets a few things on elements: `box-sizing` on everything, `body` (font, colors), the margins of headings, paragraphs and lists, `a`, `[hidden]`, `dialog`, `kbd`, `fieldset` and `legend`.
 

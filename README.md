@@ -9,8 +9,8 @@ Live: https://ascii.fedekotek.design (Vercel deploys `main` on every push). The 
 1. Link the two kit files in the `<head>` of your page. Pinned to 1.2.1, so they never change under you:
 
    ```html
-   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-ZHTaaRXXL6BInLsx2TDMfJR25fXH4INZ9qqjTzACeCdYwcxaZ7m3Uc7YDv8KjTi6" crossorigin="anonymous">
-   <script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-fUykAdiWa73RXAYsHWycOPsd3p9xB0keaQNLd19TQbM7r5bRrYGAhwH+aEHxfkqb" crossorigin="anonymous"></script>
+   <link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.css" integrity="sha384-61faWJddlqmzdFSb2FHUiQkCKJmw9kEf9vvayxyDPDkMyZdwMwT2o4KC5H3IQJ7L" crossorigin="anonymous">
+   <script defer src="https://ascii.fedekotek.design/kit/1.2.1/ascii-ui.js" integrity="sha384-/gb6Yw38b/1ica/aWitS46ktHYko2WLYtpmCAijY19AFcjrLMDhMZLLlhrfQDCLr" crossorigin="anonymous"></script>
    ```
 
    Or the latest, which moves with every version: `https://ascii.fedekotek.design/kit/ascii-ui.css` and `https://ascii.fedekotek.design/kit/ascii-ui.js`. The font (Geist Mono) comes from `kit/fonts/` next to the CSS; nothing asks Google or anyone else.

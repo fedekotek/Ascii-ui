@@ -15,7 +15,9 @@ Checks:
    errors, no duplicate ids, every label has its control, it has size, button
    labels sit on one row, the behaviors it names come alive in both copies, and
    the second copy works without touching the first (tabs, dialogs, progress,
-   status lines, counters, errors, menus, tooltips)
+   status lines, counters, errors, menus, tooltips). Every Block whose html
+   has no class the kit does not style goes through the same paste, with the
+   checklist, pick and stepper behaviors
 4. edge pages: parts that are missing or far away, radios in two forms keep
    their names, validation on blur and submit with its words and events,
    data-aui-reset, a toast over a modal dialog, the OTP, calendar and
@@ -292,6 +294,22 @@ async def starter(b):
     s2=await ev("[...document.querySelectorAll('[data-aui=spinner]')].map(b=>b.textContent).join('~~')")
     ok('spinner: moves',s1!=s2 and all(s1.split('~~')),[s1,s2])
     ok('skeleton: drawn',await ev("document.querySelector('.skel').textContent.trim().length>20"))
+    # the Blocks' pieces: css that lays them out, and the three behaviors
+    ok('stat: tiles in a grid, the title rows colored',await ev("getComputedStyle(document.querySelector('#stat .kpis')).display==='grid'&&getComputedStyle(document.querySelector('#stat .ptitle > span')).color!==getComputedStyle(document.querySelector('#stat .ptitle > span:last-child')).color&&document.querySelector('#stat .ptitle').scrollWidth<=document.querySelector('#stat .ptitle').clientWidth+1"))
+    ok('pricing: the popular badge sits on the rule',await ev("getComputedStyle(document.querySelector('#pricing .popular')).position==='absolute'"))
+    ok('keyvalue: a two column list and a meter',await ev("getComputedStyle(document.querySelector('#keyvalue .kv')).display==='grid'&&document.querySelector('#keyvalue [role=meter] .bar').textContent.length===14"))
+    await pg.click('#cards .lift:nth-child(2)')
+    ok('pick: a card is picked and the status says so',await ev("document.querySelector('#cards .lift:nth-child(2)').getAttribute('aria-pressed')==='true'&&document.querySelector('#cards .lift').getAttribute('aria-pressed')==='false'&&document.querySelector('#cards [role=status]').textContent.startsWith('Chat')"))
+    await pg.focus('#cards .lift'); await pg.keyboard.press('Enter')
+    ok('pick: Enter picks the focused card',await ev("document.querySelector('#cards .lift').getAttribute('aria-pressed')==='true'&&document.querySelector('#cards [role=status]').textContent.startsWith('Search')"))
+    await pg.click('#navlist li:nth-child(3) button')
+    ok('pick: aria-current follows the click',await ev("document.querySelector('#navlist li:nth-child(3) button').getAttribute('aria-current')==='page'&&document.querySelectorAll('#navlist [aria-current]').length===1"))
+    await pg.click('#checklist input:not(:checked)'); await pg.wait_for_timeout(100)
+    ok('checklist: the bar counts, the last one toasts',await ev("document.querySelector('#checklist [role=progressbar]').getAttribute('aria-valuenow')==='100'&&document.querySelector('.toast.on span').textContent.includes('Go home')"))
+    await pg.click('#stepper [aria-label=\"More servings\"]')
+    ok('stepper: counts and scales, in metric',await ev("document.querySelector('#stepper b').textContent==='7'&&document.querySelector('#stepper [data-each]').textContent==='2.8 kg'&&document.querySelectorAll('#stepper [data-each]')[2].textContent==='1.8 l'"))
+    await ev("ASCIIUI.get(document.querySelector('#stepper .stepper')).set(1)")
+    ok('stepper: the bottom of the range turns [-] off',await ev("document.querySelector('#stepper [aria-label=\"Fewer servings\"]').disabled&&document.querySelector('#stepper [data-each]').textContent==='400 g'"))
     ok('no duplicate ids',not await ev(DUPES),await ev(DUPES))
     # dark theme via data-theme
     await ev("document.documentElement.setAttribute('data-theme','dark')")
@@ -319,7 +337,7 @@ async def ev_on(pg,js): return await pg.evaluate(js)
 ALIVE={
  'tabs':"el.querySelectorAll('[role=tab][aria-selected=true]').length===1",
  'slider':"el.querySelector('.bar').textContent.length===24",
- 'progress':"el.querySelector('.bar').textContent.length===24",
+ 'progress':"el.querySelector('.bar').textContent.length===(+el.getAttribute('data-cells')||24)",
  'dropdown':"(()=>{el.querySelector('[aria-haspopup]').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));const ok=!el.querySelector('[role=menu]').hidden;return ok})()",
  'tooltip':"(()=>{el.querySelector('button').click();return el.classList.contains('on')})()",
  'otp':"el.querySelectorAll('input').length===6",
@@ -334,6 +352,10 @@ ALIVE={
  'contextmenu':"(()=>{const m=el.querySelector('[role=menu]'),o=(x=>x.matches('[popover]')?x.matches(':popover-open'):!x.hidden);el.dispatchEvent(new KeyboardEvent('keydown',{key:'F10',shiftKey:true,bubbles:true}));const ok=o(m);ASCIIUI.contextmenu(el).close();return ok&&!o(m)})()",
  'confirm':"el.closest('dialog').querySelector('.btn-danger').disabled",
  'segment':"(()=>{const s=(el.closest('.stack')||document.body).querySelector('[role=status]'),c=el.querySelector('input:checked');return !c||(s&&s.textContent.includes(c.closest('label').textContent.trim()))})()",
+ # the Blocks: a checklist fills its bar, a pick marks what is clicked, a stepper counts and scales
+ 'checklist':"(()=>{const p=(el.closest('.stack')||document.body).querySelector('[role=progressbar]'),n=el.querySelectorAll('input[type=checkbox]').length,d=el.querySelectorAll('input:checked').length;return !!p&&p.getAttribute('aria-valuenow')===String(Math.round(d/n*100))&&p.querySelector('.bar').textContent.length===24})()",
+ 'pick':"(()=>{const x=[...el.querySelectorAll('button,[role=button]')].pop();x.click();return x.getAttribute('aria-current')==='page'||x.getAttribute('aria-pressed')==='true'})()",
+ 'stepper':"(()=>{const o=el.querySelector('b,output'),v=+o.textContent,q=(el.closest('.card')||el.parentElement).querySelector('[data-each]'),t=q&&q.textContent,u=[...el.querySelectorAll('button')].pop();u.click();const ok=+o.textContent===v+1&&(!q||q.textContent!==t);el.querySelector('button').click();return ok&&+o.textContent===v&&(!q||q.textContent===t)})()",
 }
 
 async def harvest(b):
@@ -469,7 +491,13 @@ TWICE_JS="""(name)=>{
     segment:()=>{const L=x=>x.closest('label').textContent.trim(),r=[...b.querySelectorAll('input[type=radio]')].filter(x=>!x.checked&&!st(0).includes(L(x)))[0];r.click();
       const w=r.closest('label').textContent.trim();return st(1).includes(w)&&!st(0).includes(w)},
     confirm:()=>{const w=b.getAttribute('data-match');b.value=w;fire(b,'input');
-      return !b.closest('dialog').querySelector('.btn-danger').disabled&&a.closest('dialog').querySelector('.btn-danger').disabled}
+      return !b.closest('dialog').querySelector('.btn-danger').disabled&&a.closest('dialog').querySelector('.btn-danger').disabled},
+    checklist:()=>{const bar=i=>own(i,'[role=progressbar]').getAttribute('aria-valuenow'),a0=bar(0),x=b.querySelector('input:not(:checked)');x.click();
+      return bar(1)!==a0&&bar(0)===a0},
+    pick:()=>{const I=e=>[...e.querySelectorAll('button,[role=button]')],on=x=>x.getAttribute('aria-current')==='page'||x.getAttribute('aria-pressed')==='true';
+      I(b)[0].click();return on(I(b)[0])&&!on(I(a)[0])&&on(I(a)[I(a).length-1])},
+    stepper:()=>{const v=e=>e.querySelector('b,output').textContent,q=e=>(e.closest('.card')||e.parentElement).querySelector('[data-each]').textContent,va=v(a),qa=q(a);
+      [...b.querySelectorAll('button')].pop().click();return v(b)!==va&&q(b)!==qa&&v(a)===va&&q(a)===qa}
   };
   return T[name]?(T[name]()?true:'the second copy did not work on its own'):true;
 }"""
@@ -1136,11 +1164,20 @@ async def main():
             else: kind=''
             rows.append((sid,'yes' if not why else 'NO',', '.join(names) or '-',kind))
             fails+=[sid+': '+w for w in why]
+        # the Blocks that run on the kit alone (no class it does not style) go through the same paste
+        brows=[]
+        for sid,html,js,css,note in blocks:
+            if html is None or classes_in(html)-K: continue
+            names,why=await paste(b,sid,html,notes)
+            brows.append((sid,'yes' if not why else 'NO',', '.join(names) or '-',''))
+            fails+=[sid+': '+w for w in why]
         await b.close()
     works=sum(1 for r in rows if r[1]=='yes')
     print('%-16s %-4s %-28s %s'%('component','ok','behaviors',''))
     for r in rows: print('%-16s %-4s %-28s %s'%r)
     print('%d of %d components work pasted twice into a blank page with the two kit files'%(works,len(rows)))
+    for r in brows: print('%-16s %-4s %-28s %s'%r)
+    print('%d of %d blocks on the kit work pasted twice'%(sum(1 for r in brows if r[1]=='yes'),len(brows)))
     if works<12: fails.append('fewer than 12 components pasted clean')
     for n in sorted(notes): print('note: '+n)
     if fails:
