@@ -121,6 +121,10 @@
   :where(.check input:focus-visible + .glyph .switch-track)::before{forced-color-adjust:none;background:HighlightText !important}
   :where(.check input:focus-visible + .glyph .switch-track)::after{forced-color-adjust:none;color:HighlightText !important}
   :where(.navlink:focus-visible,.brand:focus-visible) *,.navlink:focus-visible::before{forced-color-adjust:none;color:HighlightText !important}
+  /* in the [=] menu the focus is the row of text, not the 45px target around it */
+  #menuSecs .navlink:focus-visible{background:none !important}
+  #menuSecs :is(.navlink,.navtog):focus-visible .nl{forced-color-adjust:none;background:Highlight !important;color:HighlightText !important}
+  #menuSecs :is(.navlink,.navtog):focus-visible .nl *,#menuSecs :is(.navlink,.navtog):focus-visible .nl::before{color:HighlightText !important}
   .slider:has(input:focus-visible) > label{forced-color-adjust:none}
   .slider:has(input:focus-visible) > label::first-line{background:Highlight;color:HighlightText}
   /* rings on the canvases and charts, in the system focus colour */
@@ -147,7 +151,7 @@
   :root:root[data-preset="blueprint"]{--muted:#d3e1f9}
   :root:root[data-preset="hotdog"]{--muted:#ffe438}
   body{font-weight:400}
-  .topbar::after,.menu-foot::before,.skel .f,
+  .topbar::after,.menu-set::before,.skel .f,
   [role="tabpanel"] > section[aria-labelledby]::before,
   [role="tabpanel"] > section[aria-labelledby] ~ section[aria-labelledby]::before{opacity:1 !important}
   dialog:not(#menuDlg)[open]::before{color:color-mix(in srgb,var(--hot) 70%,transparent)}

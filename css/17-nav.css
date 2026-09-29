@@ -180,7 +180,6 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   padding:0 1ch;margin:0;cursor:pointer;outline:0;line-height:var(--r);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent;
 }
-#menuSecs .navlink{padding:12px 1ch}
 @media (pointer:coarse){#sidenav .navlink{padding:12px 1ch}}
 /* a link reached by Tab is not left under the sticky heading */
 #sidenav .side-in{scroll-padding-top:calc(var(--r)*2)}
@@ -237,13 +236,16 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
 /* ---- the [=] menu -----------------------------------------------------------
    Below 1024px this is the index: the whole screen, opaque, in rows.
      MENU                                  [x]
-     Components Blocks Charts ...              (scrolls sideways)
-     Components 30
-       Button
-     > Card                                    (the one you are reading)
-     [ ] Show grid  [@@..] Glitch  [@@..] Sound  [Light]
-   Picking a view up top only refills the list; the page changes when you pick
-   a section. It comes in and goes out with the same four steps. */
+     [ o\ Find a section                   ]   (narrows this view's list)
+     Components 36
+      [+] FORM 9                               (folded groups, below)
+      [-] DISPLAY 10
+          Avatar
+        > Card                                 (the one you are reading)
+     [+] Settings                              (grid, glitch, theme, credit)
+   The views are not in here: under 768px they are the picker in the bar
+   ("Components v"), above it the row of views. The page changes when you
+   pick a section. It comes in and goes out with the same four steps. */
 #menuDlg{
   position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;
   padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
@@ -263,22 +265,11 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
   background:var(--hot);color:var(--bg);text-transform:uppercase;
 }
 .menu-x{padding:calc(var(--r)/2) 1ch;margin-right:-1ch}
-.menu-views{flex:none;overflow-x:auto;scrollbar-width:none;margin-top:var(--r)}
-.menu-views::-webkit-scrollbar{display:none}
-.menu-views .tab{flex:none;white-space:nowrap;padding:calc(var(--r)/2) 1ch;text-transform:none;line-height:var(--r)}
-/* on a phone the seven views wrap to two rows rather than scroll sideways and
-   cut a word in half; the menu has the height */
-@media (max-width:767px){.menu-views{flex-wrap:wrap;overflow:visible}}
-/* at 360 the five names and their side space were a character too wide, so
-   Themes went to a row of its own. Half a character each side fits them */
-@media (max-width:479px){.menu-views .tab{padding-inline:.5ch}}
 .menu-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;position:relative;padding:var(--r) 0}
 .menu-h{font:inherit;font-weight:700;color:var(--ink);margin:0 0 var(--r);line-height:var(--r)}
-.menu-foot{
-  flex:none;display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 3ch;
-  position:relative;padding:var(--r) 0 calc(var(--r)/2);
-}
-.menu-foot::before{
+.menu-set{flex:none;position:relative;padding:var(--r) 0 calc(var(--r)/2)}
+.menu-foot{display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 3ch;padding-top:calc(var(--r)/2)}
+.menu-set::before{
   content:var(--h-faint);content:var(--h-faint) / "";position:absolute;left:0;right:0;top:0;height:var(--r);
   overflow:hidden;white-space:nowrap;color:var(--muted);opacity:.5;
 }
@@ -455,7 +446,6 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
 .acc summary{padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px);margin-top:calc(var(--r)/-2 - 1px);margin-bottom:calc(var(--r)/-2 - 1px)}
 .sheet-x{padding-left:calc(1ch + 1px);padding-right:calc(1ch + 1px)}
 .menu-x{padding:calc(var(--r)/2 + 1px) calc(1ch + 1px);margin:-1px calc(-1ch - 1px) -1px 0}
-.menu-views .tab{padding-top:calc(var(--r)/2 + 1px);padding-bottom:calc(var(--r)/2 + 1px)}
 /* seven columns that never push the page sideways, however big the text */
 @media (max-width:1023px){.cal-grid{grid-template-columns:repeat(7,minmax(0,5ch))}}
 /* the ramp editor on a phone: four slots a row, each a thumb wide, rather
@@ -470,8 +460,8 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
 
 /* ---- the menu on Home lists the ways in (js/20 fills #menuHome) ---------- */
 #menuHome{display:none}
-#menuDlg:has(#mv-home[aria-selected="true"]) #menuHome{display:block}
-#menuDlg:has(#mv-home[aria-selected="true"]) #menuH .navcount{display:none}
+#menuDlg[data-v="home"] #menuHome{display:block}
+#menuDlg[data-v="home"] #menuH .navcount{display:none}
 #menuHome .navlink{padding:12px 1ch}
 
 /* ---- Themes > Labs: the headline you type is the one poster that shows ----
@@ -495,3 +485,79 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
   .topbar{position:relative}
   html{scroll-padding-top:env(safe-area-inset-top,0px)}
 }
+
+/* ---- the view picker, under 768px ------------------------------------------
+     [=] ascii/ui  Components v                [/]  <)))
+                 +--------------+
+                 | Home         |
+                 |>Components   |   (the view you are in)
+                 | Blocks ...   |
+   The row of views does not fit a phone, so the bar keeps the one you are in
+   and a caret. It opens a short list under it, like a select. Under 480px the
+   bar has no room for the theme glyph as well: it is under Settings in [=]. */
+.vpick{display:none;position:relative}
+@media (max-width:767px){.vpick{display:block}}
+@media (max-width:479px){#themeToggle{display:none}}
+.vpick-v{color:var(--hot)}
+.vpick-btn[aria-expanded="true"] .vpick-v,.vpick-btn:focus-visible .vpick-v{color:inherit}
+.vpick-pop{position:absolute;left:-2ch;top:calc(var(--r)*2);z-index:45;width:20ch;background:var(--bg);box-shadow:0 0 0 1ch var(--bg)}
+.vpick-pop.open .lift{animation:glitchin .3s steps(1) both}
+.vpick-pop ul{list-style:none;margin:0;padding:0}
+.vpick-a{display:block;color:var(--muted);text-decoration:none;padding:calc(var(--r)/2 + 1px) 1ch;margin:-1px -1ch;line-height:var(--r);outline:0;-webkit-tap-highlight-color:transparent}
+.vpick-a[aria-current]{color:var(--ink);font-weight:700}
+.vpick-a[aria-current]::before{content:">";content:">" / "";color:var(--hot);margin-left:-1ch}
+.vpick-a:focus-visible{background:var(--accent);color:var(--bg)}
+.vpick-a:focus-visible::before{color:inherit}
+@media (hover:hover) and (pointer:fine){.vpick-a:hover{background:var(--ink);color:var(--bg)}}
+
+/* ---- the [=] menu: find a section, and the settings folded ------------------ */
+.menu-find{flex:none;margin-top:var(--r)}
+.menu-find .field{max-width:none}
+.menu-out{margin:0;line-height:var(--r);color:var(--muted)}
+.nomatch{display:none!important}
+.menu-none{padding-top:var(--r)}
+.menu-none .bbtn::before{content:"[ ";content:"[ " / "";color:var(--muted)}
+.menu-none .bbtn::after{content:" ]";content:" ]" / "";color:var(--muted)}
+.menu-none .bbtn:focus-visible::before,.menu-none .bbtn:focus-visible::after{color:inherit}
+.menu-set summary{
+  list-style:none;cursor:pointer;display:flex;gap:1ch;font-weight:700;line-height:var(--r);
+  padding:calc(var(--r)/2 + 1px) 0;margin:calc(var(--r)/-2 - 1px) 0;outline:0;-webkit-tap-highlight-color:transparent;
+}
+.menu-set summary::-webkit-details-marker{display:none}
+.menu-set summary::before{content:"[+]";content:"[+]" / "";color:var(--hot)}
+.menu-set[open] summary::before{content:"[-]";content:"[-]" / "";color:var(--ink)}
+.menu-set summary:focus-visible{background:var(--accent);color:var(--bg)}
+.menu-set summary:focus-visible::before{color:inherit}
+@media (hover:hover) and (pointer:fine){.menu-set summary:hover{color:var(--hot)}}
+
+/* ---- the [=] menu's list: one row per section, groups that fold ----------
+     [-] FORM 9
+         Button
+       > Card                (the one you are reading)
+     [+] OVERLAY 7
+   Each row is 21px of text in a 45px target (12px above and below, reaching
+   into the neighbours). The text (.nl) is positioned, so it is drawn and hit
+   above every neighbour's reach: a tap on a word opens that word, a tap past
+   the ends of the list still finds the nearest row. */
+/* flow-root: the negative margins would otherwise collapse into each other and
+   leave 12px of air per row */
+#menuSecs .navgroup,#menuSecs .navgroup li{display:flow-root}
+#menuSecs .navgroup + .navgroup{margin-top:0}
+#menuSecs .navgroup:has(> ul:not([hidden])) + .navgroup{margin-top:var(--r)}
+#menuSecs .navlink,.navtog{padding:12px 0;margin:-12px 0;overflow:visible;background:none}
+#menuSecs .navlink::before,#menuSecs .navlink::after{content:none}
+#menuSecs .nl{display:block;position:relative;padding:0 1ch;line-height:var(--r);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menuSecs .navlink .nl::before{content:"  ";content:"  " / "";white-space:pre}
+#menuSecs .navlink[aria-current] .nl::before{content:"> ";content:"> " / "";color:var(--hot)}
+#menuSecs .navlink:is([href$="/command"],[href$="/picture"]) .nl::after{content:" site only";color:var(--violet);font-weight:400}
+#menuSecs .navlink:focus-visible .nl,.navtog:focus-visible .nl{background:var(--accent);color:var(--bg)}
+#menuSecs .navlink:focus-visible .nl::before,#menuSecs .navlink:focus-visible .nl::after,.navtog:focus-visible .nl::before,.navtog:focus-visible .navcount{color:inherit}
+.navtog{
+  display:block;width:100%;text-align:left;font:inherit;color:var(--muted);text-transform:uppercase;
+  border:0;border-radius:0;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;
+}
+.navtog .nl::before{content:"[+] ";content:"[+] " / "";color:var(--hot)}
+.navtog[aria-expanded="true"] .nl::before{content:"[-] ";content:"[-] " / "";color:var(--ink)}
+.navtog[aria-expanded="true"]{color:var(--ink)}
+.navtog .navcount{text-transform:none}
+@media (hover:hover) and (pointer:fine){.navtog:hover{color:var(--hot)}#menuSecs .navlink:hover{color:var(--ink)}}

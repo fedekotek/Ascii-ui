@@ -70,12 +70,17 @@ async def phone(b,w,h,bad):
         secs=await pg.evaluate("(v=>AUI_NAV.model(v).groups.flatMap(g=>g.items).map(s=>s.getAttribute('aria-labelledby')))('"+v+"')")
         if QUICK and len(secs)>3: secs=[secs[0],secs[len(secs)//2],secs[-1]]
         for s in secs:
-            # open from [=], pick the view in the row, pick the section at once
+            # pick the view in the bar's picker, then open [=] and pick the section
+            x,y=await center(pg,'#viewBtn');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(200)
+            x,y=await center(pg,'#viewList a[data-v="'+v+'"]');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(700)
             x,y=await center(pg,'#menuBtn');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(260)
-            await pg.evaluate("(v=>{const t=document.getElementById('mv-'+v),r=t.parentNode;r.scrollLeft=t.offsetLeft-20})('"+v+"')")
-            x,y=await center(pg,'#mv-'+v);await pg.touchscreen.tap(x,y)
             slug=s.split('-',1)[1]
             sel='#menuSecs a[href$="/'+slug+'"]'
+            # a folded group opens by its heading first, tapped like a thumb would
+            tog=await pg.evaluate("(sel=>{const u=document.querySelector(sel).closest('ul');if(!u.hidden)return '';const b=document.querySelector('#menuSecs [aria-controls=\"'+u.id+'\"]');b.scrollIntoView({block:'center'});return '#'+u.id})('"+sel+"')")
+            if tog:
+                x,y=await center(pg,'#menuSecs [aria-controls="'+tog[1:]+'"]');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(120)
+                if await pg.evaluate("document.querySelector('"+tog+"').hidden"): fails.append(f"{v}/{slug}: its group did not open")
             await pg.evaluate("(sel=>{const a=document.querySelector(sel),b=a.closest('.menu-body');b.scrollTop=a.offsetTop-b.clientHeight/2})('"+sel+"')")
             x,y=await center(pg,sel);await pg.touchscreen.tap(x,y)
             await settle(pg,900)
