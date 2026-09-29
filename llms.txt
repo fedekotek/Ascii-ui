@@ -1,6 +1,6 @@
 # ascii/ui
 
-> shadcn-style UI components in a brutalist ASCII skin: frames, fills and shadows are strings of characters, weight is character density, underneath it is plain accessible HTML. Two kit files (CSS and JS, no dependencies, no build step) you link, then paste a component's HTML. Live at https://ascii.fedekotek.design. MIT license.
+> shadcn-style UI components in a brutalist ASCII skin: frames, fills and shadows are strings of characters, weight is character density, underneath it is plain accessible HTML. Two kit files (CSS and JS, no dependencies, no build step) you link, then paste a component's HTML. Live at https://ascii.fedekotek.design. Source at https://github.com/fedekotek/Ascii-ui. MIT license.
 
 The repo holds two things. The site (`index.html`, `css/`, `js/`, built into one HTML file by `build.py`) documents and demos the components. The kit (`kit/`) is what people link from their own pages. The site does not load the kit; its Code tab prints the kit's HTML, CSS and JS for each component. 36 components, 34 in the kit (Command and Picture are site only).
 
@@ -34,7 +34,7 @@ Form:
 Overlay:
 
 - [Alert dialog](https://ascii.fedekotek.design/#components/alertdialog) (Overlay, kit): A question before something that cannot be undone: delete a project, drop a workspace, revoke every key. Not for: anything that can be undone. Do it, say so in a Toast, and offer a way back. Runs on `data-aui="confirm"`, `data-aui-open`, `data-aui-close`, `data-aui-toast-err`.
-- [Combobox](https://ascii.fedekotek.design/#components/combobox) (Overlay, kit): One value from a long list people search by name: a region, a city, a person, a project. Not for: five to fifteen options people read through. That is a Select: native, and a phone shows its own picker. Runs on `data-aui="combobox"` and fires `aui:change`, `aui:change`.
+- [Combobox](https://ascii.fedekotek.design/#components/combobox) (Overlay, kit): One value from a long list people search by name: a region, a city, a person, a project. Not for: five to fifteen options people read through. That is a Select: native, and a phone shows its own picker. Runs on `data-aui="combobox"` and fires `aui:change`.
 - [Command](https://ascii.fedekotek.design/#components/command) (Overlay, site only): Jumping anywhere on a big site or app by typing: a page, a setting, a command. Not for: the main navigation. Most people never press /. Keep the links on screen.
 - [Context menu](https://ascii.fedekotek.design/#components/contextmenu) (Overlay, kit): Actions on a row or an item, where people look for them with the right mouse button: open, copy, assign, delete. Not for: the only way to do something. Put it in a Dropdown or on a Button too: a right-click cannot be seen. Runs on `data-aui="contextmenu"` and fires `aui:select`.
 - [Dropdown](https://ascii.fedekotek.design/#components/dropdown) (Overlay, kit): A handful of actions on one thing that do not need to be on screen all the time: duplicate, copy a link, archive. Not for: a value for a form. That is a Select: it is sent with the form and a phone shows its own picker. Runs on `data-aui="dropdown"`, `data-aui-toast`, `data-aui-toast-err` and fires `aui:select`.
@@ -76,7 +76,7 @@ Navigation:
 
 - [ascii-ui.css](https://ascii.fedekotek.design/kit/ascii-ui.css): tokens, frame strings, one block per part. Latest.
 - [ascii-ui.js](https://ascii.fedekotek.design/kit/ascii-ui.js): the behaviors, wired by `data-aui` attributes; `window.ASCIIUI`. Latest.
-- Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js`. 1.0.0, 1.1.0, 1.1.1, 1.2.0, 1.2.1 and 1.3.0 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
+- Pinned copies live under a version path that never changes, `https://ascii.fedekotek.design/kit/1.3.1/ascii-ui.css` and `https://ascii.fedekotek.design/kit/1.3.1/ascii-ui.js`. 1.0.0, 1.1.0, 1.1.1, 1.2.0, 1.2.1, 1.3.0 and 1.3.1 are there; the [kit CHANGELOG](https://ascii.fedekotek.design/kit/CHANGELOG.md) lists every version and what changed.
 - [starter.html](https://ascii.fedekotek.design/kit/starter.html): a page that links the two files and nothing else, with every kit component on it.
 - [tokens.json](https://ascii.fedekotek.design/kit/tokens.json): the tokens for design tools (W3C design tokens format, `$value`/`$type`/`$description`; Tokens Studio, Figma Variables importers). Sets `global` (grid, type, ramp, frame tones, motion), `light` and `dark` (colors), plus `$themes`. Default preset; Themes > Download tokens.json makes it for any preset. Not pinned to a kit version.
 - [kit README](https://ascii.fedekotek.design/kit/README.md): the reference for the kit: install, attributes, `window.ASCIIUI` API, events, lifecycle, theming, versions, changelog.

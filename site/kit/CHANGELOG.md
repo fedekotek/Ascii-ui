@@ -2,32 +2,25 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.3.1, 2026-09-29
+
+Fixed
+- Pagination: a `data-href` that starts with `javascript:`, `data:` or `vbscript:` (spaced out or not) is not a link. The pages draw as buttons instead. It only mattered on a page that puts text a visitor typed into `data-href`, but a kit should not turn an attribute into a way to run script.
+
 ## 1.3.0, 2026-09-28
 
-<!-- charts: the charts builder writes here -->
 Added
 - Charts, `data-aui="chart"` on a `.chart` around a `<table>`: `data-type="bars"`, `line`, `hbars`, `heatmap` or `donut`, drawn in ramp characters on the grid, as wide as the box. The table is the data: it shows without the script and stays for screen readers with it. A Tab stop; the arrows, Home, End and Escape move the pick, said in the nearest status line and marked `[Thu]`; a glyph per series and per slice, not only a color. `data-max`, `data-min`, `data-rows`, `data-pick`. `aui:pick`, `ASCIIUI.chart(el)`. It grows in once, not under reduced motion.
 - Sparkline, `data-type="spark"` on a `.spark`: `data-values`, one ramp character a value, an image named by its numbers.
-
-<!-- table: the data table builder writes here -->
-Added
 - Data table, `data-aui="datatable"` on the box around a `.tablewrap` and its `.tbl`. A `<button class="dt-sort">` in a `<th>` sorts the column (ascending, descending, then the order the rows came in) and says so in `aria-sort`, with `^` and `v` as paint, on the sorted column only. Numbers (units and currency signs aside) and `yyyy-mm-dd` dates sort as values; `data-sort="num|date|text|none"` on the th and `data-value` on a td decide instead. An input with `data-aui-filter` narrows the rows to the ones holding every word, a `.dt-count` says "12 of 40 rows, 3 selected.", and a row across every column says "No rows match." (`data-no-match`) or "No rows yet." (`data-empty`). `data-select` adds a checkbox column drawn like the Toggles, a select-all with an indeterminate `[-]`, Shift for a range, and picked rows bold on a tint, their box a slab. `data-page-size` pages the rows through the Pagination inside the box. `aria-busy="true"` draws skeleton rows. On a phone it scrolls sideways inside its box and says so. `aui:sort`, `aui:select`, `ASCIIUI.datatable(el)`.
 - The checkbox glyph says `[-]` while `indeterminate`.
-
-<!-- icons: the icons builder writes here -->
 - **Icon.** Thirty-nine icons drawn in characters, CSS only: `<span class="icon" data-icon="search" role="img" aria-label="Search"></span>`. Inline is one row and one to three characters; `.icon-lg` is three rows and five or six characters, for empty states and tiles. Printable ASCII only, so they draw in the kit font and in any monospace that stands in. They take the text color; `.hot`, `.ok`, `.warn` and `.violet` give a role color. The names are in README, Icons. New classes: `icon`, `icon-lg`, `violet`, `warn` (on `.icon` only).
-
-<!-- blocks: the blocks builder writes here -->
-Added
 - The Blocks run on the kit: every Block's Code tab offers Download page, except one with a part the kit cannot draw yet (Stats, until its sparklines are in).
 - Block pieces in the CSS: `.kpis` and `.kpi` (stat tiles), `.poster.ptitle` (a bitmap title held in the HTML as rows of characters), `.grid2` and `.grid3` (cards side by side), `.pricing` with `.price`, `.feat`, `.popular` and `.row.full`, `.checklist` and `.meta`, `.navlist`, `.kv` and `.qty`, `.progress[role="meter"]`, `.stepper` and `.steps`, `.tags` with `.b-violet` and `.b-pink`, `.thumb`, `.profile`, and `a.btn`. README has them under Blocks.
 - Checklist, `data-aui="checklist"`: the share of ticked boxes goes into the progress bar next to the list; `data-done` is a toast when the last one is ticked. `aui:change` with `{ done, total }`.
 - Pick, `data-aui="pick"`: one of a group of buttons, links or cards is the pick, by click, Enter or Space. It moves `aria-current` when the HTML uses it, `aria-pressed` otherwise, and says the pick's `data-say` in the status line. `aui:change` with `{ item, index }`.
 - Stepper, `data-aui="stepper"`: a number between two buttons, `data-min` to `data-max`, that scales the `[data-each]` amounts in its card, in metric (g to kg, ml to l). `aui:change` with `{ value }`.
 - A progress bar with `data-cells` draws that many cells without the 24 character floor when it is a `role="meter"`.
-
-<!-- signal -->
-Added
 - **Signal**, the bad signal, opt in. `data-aui-signal` on any element, next to its own `data-aui` or not: `glitch` (a state change inside it, `aria-selected`, `aria-pressed`, `aria-expanded`, `aria-checked`, `aria-current`, `open` or a checkbox, breaks up for two frames), `scramble` (the words decode into place once, on screen), `band` (a band of `- = -` rolls through now and then; on `<html>` down the window) and `rot` (`data-rot` seconds idle and its frames decay; any input repairs them). Several at once with spaces. How loud: `--aui-signal: calm | normal | loud | off` on `:root`, or `data-aui-signal-level` on any element around it. The calls: `ASCIIUI.glitch(el)`, `scramble(el)`, `band(el)`, `rot(el)`, `repair(el)` and `signal(level)`. README has it under Signal.
 - It is paint: strips and bands on one fixed layer that takes no clicks and is `aria-hidden`, a `translate`, a frame's string. No box moves. A scramble keeps its words for a screen reader (`<aui-sr>`) and hides the noise (`<aui-noise>`); live regions are left alone. At most three glitches a second on the page. Noise is magenta and pink, never cyan. Still under reduced motion, forced colors and print, while a field has the focus and in a background tab. Its loop asks for a frame only while an effect draws.
 - `<html class="crt interlace">`: the scanlines every other pixel, fainter.
@@ -35,7 +28,6 @@ Added
 - `data-aui-toggle` on a button with `aria-pressed`: a click flips it (the change a glitch answers), fires `aui:change` with `{ pressed }`, and `data-aui-toggle="On.|Off."` says the words in its status line.
 - A scramble's noise is CSS content, so a script reading `textContent` mid-decode (a chart, a sort, a progress button's label) gets the words.
 
-<!-- fixes before release -->
 Changed
 - Data table: the columns keep one width through the rows, the loading rows, the empty row, a filter and every page. The skeleton has a strip in every column. A column of numbers lines up on the right (`.dt-num`). A picked row is bold on a darker tint with its box as the slab, and a badge in it keeps its color. The sort mark shows on the sorted column only. The count sits on the field's typing row. No rows match: a Clear the filter button, and no pager.
 - Pagination: a gap of one page shows that page instead of `..`.

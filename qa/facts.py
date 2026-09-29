@@ -215,7 +215,7 @@ try: tracked=subprocess.run(['git','-C',str(ROOT),'ls-files'],capture_output=Tru
 except (OSError,subprocess.SubprocessError): tracked=[]
 files={ROOT/f for f in tracked if f}|{p for d in ('site','dist') for p in (ROOT/d).rglob('*')}
 for p in sorted(files):
-    if not p.is_file() or p.suffix not in TEXT or 'archive' in p.relative_to(ROOT).parts: continue
+    if not p.is_file() or p.suffix not in TEXT: continue
     t=p.read_text(encoding='utf-8',errors='ignore')
     if p.name=='usage.py': t=t.replace("'%s' in w"%DASH,'')   # its own dash check
     if DASH in t:

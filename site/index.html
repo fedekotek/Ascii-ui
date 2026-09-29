@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-U8YGsnfeIWVD945wjLctmLA7osmZ2hPa0cAO7gfu7QE=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-sFKn0d8hjzWAWiAHO2FDMxlkJsU7tglExcUeHECr86E=' 'sha256-a/Ad0NLifrij9cecq84NwZxEwaL8foeHvxBzHmnoGX4=' 'sha256-KPzL/HsffDs5uYCIoatksTOPQ8Rol50OH9XCaoRbxSs=' 'sha256-stth20bKNWfNNZeq3jN1ilFyJQE/iia7Gl+BA7ndS2k=' 'sha256-HzPTZaGQ7BEw7kpmL/pcMl65Hb1WSJ9b92WIApvw/pg=' 'sha256-jXI/XCtH9IeVSqTfQ7CQ3Lhv017GLmTyO2Y0klMyUrA=' 'self' https://ascii.fedekotek.design/kit/1.3.0/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.3.0/; font-src data: https://ascii.fedekotek.design/kit/1.3.0/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-U8YGsnfeIWVD945wjLctmLA7osmZ2hPa0cAO7gfu7QE=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-1jIzdoa570+HiaobN2xKU/DZxIgm4ov509nZgpBgMD0=' 'sha256-K0+9JI/lxfcb8rm+L2f/RA75kh1iMp+EzG5m5iQoimU=' 'sha256-a/Ad0NLifrij9cecq84NwZxEwaL8foeHvxBzHmnoGX4=' 'sha256-BuwsqdAVSZX1ElsKgkONyg8uiKUyq3BsDnEWmvPTWlQ=' 'sha256-stth20bKNWfNNZeq3jN1ilFyJQE/iia7Gl+BA7ndS2k=' 'sha256-HzPTZaGQ7BEw7kpmL/pcMl65Hb1WSJ9b92WIApvw/pg=' 'sha256-jXI/XCtH9IeVSqTfQ7CQ3Lhv017GLmTyO2Y0klMyUrA=' 'self' https://ascii.fedekotek.design/kit/1.3.1/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.3.1/; font-src data: https://ascii.fedekotek.design/kit/1.3.1/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
-<meta name="aui-version" content="11.4">
+<meta name="aui-version" content="11.5">
 <meta name="description" content="36 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
 <meta name="author" content="Fede Kotek">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
@@ -21,7 +21,7 @@
 <meta property="og:description" content="36 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
 <meta property="og:url" content="https://ascii.fedekotek.design/">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png?v=be07825a">
+<meta property="og:image" content="https://ascii.fedekotek.design/assets/og.png?v=a47eb66c">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -29,12 +29,12 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="ascii/ui: a design system drawn in ASCII">
 <meta name="twitter:description" content="36 components in plain HTML and CSS, drawn in characters. Two kit files, no dependencies. Copy the code and own it.">
-<meta name="twitter:image" content="https://ascii.fedekotek.design/assets/og.png?v=be07825a">
+<meta name="twitter:image" content="https://ascii.fedekotek.design/assets/og.png?v=a47eb66c">
 <meta name="twitter:image:alt" content="ascii/ui in big letters made of @, % and # characters, over the line A design system drawn in ASCII, and a row of buttons, a field, toggles and status badges drawn in characters.">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 36 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
- {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.3.0","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png?v=be07825a","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
+ {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","codeRepository":"https://github.com/fedekotek/Ascii-ui","version":"1.3.1","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png?v=a47eb66c","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
  {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
 </script>
 <!-- Geist Mono, a subset of the characters this page uses. build.py inlines it,
@@ -225,7 +225,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><span data-fact="components">36</span> <span>components, <span data-fact="kit">34</span> in the kit</span></li>
       <li><span data-fact="blocks">16</span> <span>blocks</span></li>
       <li><span data-fact="charts">5</span> <span>charts</span></li>
-      <li><span data-fact="kit-versions">6</span> <span>kit versions published, each still served</span></li>
+      <li><span data-fact="kit-versions">7</span> <span>kit versions published, each still served</span></li>
       <li><span data-fact="weight-kb">190</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">200</span></span></li>
       <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">################################</span><span class="muted">.</span></span></li>
       <li><span data-fact="kit-kb">62</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
@@ -329,7 +329,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     </ul>
 
     <h3 class="lab-h">Credits</h3>
-    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.4</span>, with kit <span data-fact="kit-version">1.3.0</span>.</p>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.5</span>, with kit <span data-fact="kit-version">1.3.1</span>.</p>
   </section>
   </div>
 
@@ -1368,7 +1368,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.4. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+    <p class="foot" id="footLine">ascii/ui v11.5. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
   </footer>
 </main>
 
@@ -2413,7 +2413,7 @@ function barText(k,jit){return barRow(k,jit)}
 var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'violet','=':'violet',':':'ink','.':'muted'};
 function colorize(txt){
 var out='',cur='',run='',i,c,k;
-function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run+'</span>';run=''}
+function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';run=''}
 for(i=0;i<txt.length;i++){
 c=txt.charAt(i);
 if(c==='\n'){flush();out+='\n';continue}
@@ -3130,7 +3130,7 @@ A.backdropClose($('posterDlg'));
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
 const cmdDlg=$('cmdDlg');
-function out(s){const o=$('cmdOut');if(o)o.innerHTML=s}
+function out(s){const o=$('cmdOut');if(o)o.textContent=s}
 function openCmd(){if(window.AUI3&&AUI3.openCmd!==openCmd)AUI3.openCmd();else if(!cmdDlg.open)cmdDlg.showModal()}
 const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badge',table:'.tablewrap',stat:'.stat'};
 async function run(line){
@@ -3144,14 +3144,14 @@ else if(c==='goto'||c==='cd'){
 const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
 if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
 else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
-else out('no such view: '+esc(n))}
+else out('no such view: '+n)}
 else if(c==='rm'){
 const what=a[a.length-1].toLowerCase();
 if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
 else if(reduce)out('reduced motion is on. nothing shatters.');
 else{
 const sel=what==='all'?Object.values(RM).join(','):RM[what];
-if(!sel)out('rm: cannot remove '+esc(what));
+if(!sel)out('rm: cannot remove '+what);
 else{
 const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!e.closest('dialog,#rebuild')&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
 const pick=what==='all'?els:els.slice(0,1);
@@ -3165,13 +3165,13 @@ else if(c==='tear'){cmdDlg.close();B.tear(5)}
 else if(c==='jolt'){cmdDlg.close();A.jolt()}
 else if(c==='boot'){cmdDlg.close();B.boot(true)}
 else if(c==='poster'){cmdDlg.close();openPoster()}
-else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
+else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+n+': '+sig())}}
 else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
 else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
 else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
 else if(c==='tilt')out(await askTilt());
 else if(c==='sudo')out('nice try.');
-else out('command not found: '+esc(c));
+else out('command not found: '+c);
 }
 const INV=(function(){
 const cv=$('inv'),x=cv.getContext('2d'),COLS=64,ROWS=46;
@@ -5073,7 +5073,7 @@ setTimeout(()=>URL.revokeObjectURL(url),4000);
 tell(out,msg||'Saved as '+name+'.');
 }catch(e){tell(out,'This browser will not save files from a page. Take '+name+' from the kit folder instead.',true)}
 }
-const PIN={v:'1.3.0',css:'sha384-PVsKFGhvH5P6JvqNhZ40Neu/9zBE5XoUAKklGDs1jVGq6of6rC+P9SaLcDKVFoA4',js:'sha384-zWLWXMf44ZiHudahDdB25irvp6Lm0TN9/l4r2TlB83GVVnJcRSX2z031lFHBG0T+'};
+const PIN={v:'1.3.1',css:'sha384-nMp404g1UoxxVcmJD1V3bgpAfQk48PlKCW+HVg4NU2VzD+5SYF5eZJkeEscr0kZ4',js:'sha384-UTy6GWe6+tYqnegxxNBJvGaQQh/n4ukhDN66ggJiSA34qcVypmZD2gjSVaI1Qxn+'};
 const PAGE_OUT=['s-command','s-picture'];
 A.pageOf=function(sec,html,ex){
 const id=sec.getAttribute('aria-labelledby')||'',slug=id.replace(/^[so]-/,''),block=!!sec.closest('#view-blocks');
@@ -5284,7 +5284,7 @@ else download('ascii-ui.js',K.js,'text/javascript',out);
 });
 })();
 syncPickers();
-function kitS(){return kitS.s||(kitS.s={v:'1.3.0',b:{css:76469,js:137613},t:null,p:null})}
+function kitS(){return kitS.s||(kitS.s={v:'1.3.1',b:{css:76469,js:137881},t:null,p:null})}
 function kitStub(k){const S=kitS();return (k==='js'?"var VERSION='"+S.v+"';":'').padEnd(S.b[k],' ')}
 function KIT(){const S=kitS();return {get css(){return S.t?S.t.css:kitStub('css')},get js(){return S.t?S.t.js:kitStub('js')}}}
 function kitLoad(){

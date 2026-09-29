@@ -1,4 +1,4 @@
-/*! ascii/ui kit 1.3.0 | MIT | (c) 2026 Fede Kotek */
+/*! ascii/ui kit 1.3.1 | MIT | (c) 2026 Fede Kotek */
 /* ascii-ui.js
    The behaviors for the components that need a script, wired by data
    attributes. No dependencies. Link it after ascii-ui.css:
@@ -69,7 +69,7 @@
 (function(){
 'use strict';
 if(window.ASCIIUI)return;   /* linked twice: keep the first */
-var VERSION='1.3.0';
+var VERSION='1.3.1';
 var doc=document;
 
 /* ---- reduced motion, followed live ---- */
@@ -1812,7 +1812,10 @@ var behaviors={
        drawn as the last one and kept, so data-page="12" and then
        data-pages="20" lands on 12, in either order */
     var N,href,want,cur;
-    function read(){N=Math.max(1,+el.getAttribute('data-pages')||9);href=el.getAttribute('data-href')}
+    /* a link that runs script is not a page: javascript:, data: and vbscript:
+       draw buttons instead, however the scheme is spaced out */
+    function safe(h){return h&&/^(?:javascript|data|vbscript):/i.test(h.replace(/[\u0000-\u0020\u007f]/g,''))?null:h}
+    function read(){N=Math.max(1,+el.getAttribute('data-pages')||9);href=safe(el.getAttribute('data-href'))}
     function ask(p){want=Math.max(1,Math.round(+p)||1);cur=clamp(want,1,N)}
     read();ask(el.getAttribute('data-page'));
     function item(p,text,label,off,now){

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
-<meta name="aui-version" content="11.4">
+<meta name="aui-version" content="11.5">
 <meta name="description" content="36 UI components drawn in ASCII. Frames, fills and shadows are strings of characters. Plain HTML and CSS, two kit files, no dependencies, MIT.">
 <meta name="author" content="Fede Kotek">
 <link rel="canonical" href="https://ascii.fedekotek.design/">
@@ -33,7 +33,7 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"WebSite","@id":"https://ascii.fedekotek.design/#website","url":"https://ascii.fedekotek.design/","name":"ascii/ui","alternateName":["ASCII UI","asciiui"],"description":"A design system drawn in ASCII: 36 UI components in plain HTML and CSS.","inLanguage":"en","publisher":{"@id":"https://fedekotek.design/#person"}},
- {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","version":"1.3.0","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
+ {"@type":"SoftwareSourceCode","@id":"https://ascii.fedekotek.design/#kit","name":"ascii/ui kit","description":"UI components drawn in ASCII characters. Two files, ascii-ui.css and ascii-ui.js, no dependencies, no build step.","url":"https://ascii.fedekotek.design/","codeRepository":"https://github.com/fedekotek/Ascii-ui","version":"1.3.1","programmingLanguage":["HTML","CSS","JavaScript"],"runtimePlatform":"Web browser","license":"https://opensource.org/licenses/MIT","isAccessibleForFree":true,"keywords":"ASCII, design system, UI components, CSS, HTML, shadcn, monospace, brutalist","image":"https://ascii.fedekotek.design/assets/og.png","author":{"@id":"https://fedekotek.design/#person"},"isPartOf":{"@id":"https://ascii.fedekotek.design/#website"}},
  {"@type":"Person","@id":"https://fedekotek.design/#person","name":"Fede Kotek","url":"https://fedekotek.design"}]}
 </script>
 <!-- Geist Mono, a subset of the characters this page uses. build.py inlines it,
@@ -193,7 +193,7 @@ if(s||matchMedia('(prefers-reduced-motion: reduce)').matches)document.getElement
       <li><span data-fact="components">36</span> <span>components, <span data-fact="kit">34</span> in the kit</span></li>
       <li><span data-fact="blocks">16</span> <span>blocks</span></li>
       <li><span data-fact="charts">5</span> <span>charts</span></li>
-      <li><span data-fact="kit-versions">6</span> <span>kit versions published, each still served</span></li>
+      <li><span data-fact="kit-versions">7</span> <span>kit versions published, each still served</span></li>
       <li><span data-fact="weight-kb">190</span> <span>kB gzip on first visit, cap <span data-fact="weight-cap">200</span></span></li>
       <li class="facts-bar" aria-hidden="true"><span></span><span><span data-bar="weight-kb" data-per="6" data-of="weight-cap">################################</span><span class="muted">.</span></span></li>
       <li><span data-fact="kit-kb">62</span> <span>kB gzip for the <span data-fact="kit-files">2</span> kit files</span></li>
@@ -297,7 +297,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
     </ul>
 
     <h3 class="lab-h">Credits</h3>
-    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.4</span>, with kit <span data-fact="kit-version">1.3.0</span>.</p>
+    <p class="muted">Designed by <a class="inl" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code. This is v<span data-fact="version">11.5</span>, with kit <span data-fact="kit-version">1.3.1</span>.</p>
   </section>
   </div>
 
@@ -1336,7 +1336,7 @@ v11.2   <span style="color:var(--violet)" aria-hidden="true">##########</span>  
       <canvas id="inv" class="demo" tabindex="0" role="application" aria-roledescription="game" aria-label="Space invaders game. Arrow keys move, space fires." aria-describedby="invStatus"></canvas>
       <p class="vh" id="invStatus" role="status">Tap or press space to start.</p>
     </section>
-    <p class="foot" id="footLine">ascii/ui v11.4. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
+    <p class="foot" id="footLine">ascii/ui v11.5. MIT license. <span id="footKitPart"><a class="inl" id="footLink" href="#components/install">Link the kit</a> (two files), open the <a class="inl" id="footKit" href="kit/starter.html">starter page</a>, or </span><a class="inl" id="footDl" href="dist/ascii-ui.html" download="ascii-ui.html">download the whole site as one file</a>. Designed by <a class="inl" id="footWho" href="https://fedekotek.design" rel="author">Fede Kotek</a>. Built with Claude Code.</p>
   </footer>
 </main>
 

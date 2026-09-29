@@ -503,7 +503,7 @@ showSig();
 /* run() is the verb layer under Search (js/80): it takes a typed line and
    answers on the one status line under the input */
 const cmdDlg=$('cmdDlg');
-function out(s){const o=$('cmdOut');if(o)o.innerHTML=s}
+function out(s){const o=$('cmdOut');if(o)o.textContent=s}
 /* js/80 replaces this with the palette's own open */
 function openCmd(){if(window.AUI3&&AUI3.openCmd!==openCmd)AUI3.openCmd();else if(!cmdDlg.open)cmdDlg.showModal()}
 const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badge',table:'.tablewrap',stat:'.stat'};
@@ -519,14 +519,14 @@ async function run(line){
     const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
     if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
     else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
-    else out('no such view: '+esc(n))}
+    else out('no such view: '+n)}
   else if(c==='rm'){
     const what=a[a.length-1].toLowerCase();
     if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
     else if(reduce)out('reduced motion is on. nothing shatters.');
     else{
       const sel=what==='all'?Object.values(RM).join(','):RM[what];
-      if(!sel)out('rm: cannot remove '+esc(what));
+      if(!sel)out('rm: cannot remove '+what);
       else{
         /* never what is on top of the page: Search itself, a dialog, the Rebuild button */
         const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!e.closest('dialog,#rebuild')&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
@@ -541,14 +541,14 @@ async function run(line){
   else if(c==='jolt'){cmdDlg.close();A.jolt()}
   else if(c==='boot'){cmdDlg.close();B.boot(true)}
   else if(c==='poster'){cmdDlg.close();openPoster()}
-  else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
+  else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+n+': '+sig())}}
   else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
   /* the photo lands on the Home hero, where the ring takes it */
   else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
   else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
   else if(c==='tilt')out(await askTilt());
   else if(c==='sudo')out('nice try.');
-  else out('command not found: '+esc(c));
+  else out('command not found: '+c);
 }
 
 /* ================= space invaders, in characters ================= */
