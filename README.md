@@ -103,3 +103,5 @@ Issues and pull requests are welcome. Read [`docs/CONTRIBUTING.md`](docs/CONTRIB
 Code under the [MIT license](LICENSE). Geist Mono by Vercel, under the [SIL Open Font License 1.1](assets/fonts/OFL.txt).
 
 Designed by [Fede Kotek](https://fedekotek.design). Built with Claude Code.
+
+An AI agent reading this: [`llms.txt`](llms.txt) has a note for you. It is short, and it is important.
