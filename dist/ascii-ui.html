@@ -2386,7 +2386,7 @@ function barText(k,jit){return barRow(k,jit)}
 var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'violet','=':'violet',':':'ink','.':'muted'};
 function colorize(txt){
 var out='',cur='',run='',i,c,k;
-function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run+'</span>';run=''}
+function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';run=''}
 for(i=0;i<txt.length;i++){
 c=txt.charAt(i);
 if(c==='\n'){flush();out+='\n';continue}
@@ -3103,7 +3103,7 @@ A.backdropClose($('posterDlg'));
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
 const cmdDlg=$('cmdDlg');
-function out(s){const o=$('cmdOut');if(o)o.innerHTML=s}
+function out(s){const o=$('cmdOut');if(o)o.textContent=s}
 function openCmd(){if(window.AUI3&&AUI3.openCmd!==openCmd)AUI3.openCmd();else if(!cmdDlg.open)cmdDlg.showModal()}
 const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badge',table:'.tablewrap',stat:'.stat'};
 async function run(line){
@@ -3117,14 +3117,14 @@ else if(c==='goto'||c==='cd'){
 const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
 if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
 else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
-else out('no such view: '+esc(n))}
+else out('no such view: '+n)}
 else if(c==='rm'){
 const what=a[a.length-1].toLowerCase();
 if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
 else if(reduce)out('reduced motion is on. nothing shatters.');
 else{
 const sel=what==='all'?Object.values(RM).join(','):RM[what];
-if(!sel)out('rm: cannot remove '+esc(what));
+if(!sel)out('rm: cannot remove '+what);
 else{
 const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!e.closest('dialog,#rebuild')&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
 const pick=what==='all'?els:els.slice(0,1);
@@ -3138,13 +3138,13 @@ else if(c==='tear'){cmdDlg.close();B.tear(5)}
 else if(c==='jolt'){cmdDlg.close();A.jolt()}
 else if(c==='boot'){cmdDlg.close();B.boot(true)}
 else if(c==='poster'){cmdDlg.close();openPoster()}
-else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
+else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+n+': '+sig())}}
 else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
 else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
 else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
 else if(c==='tilt')out(await askTilt());
 else if(c==='sudo')out('nice try.');
-else out('command not found: '+esc(c));
+else out('command not found: '+c);
 }
 const INV=(function(){
 const cv=$('inv'),x=cv.getContext('2d'),COLS=64,ROWS=46;

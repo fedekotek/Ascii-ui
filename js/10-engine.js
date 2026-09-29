@@ -1175,7 +1175,7 @@
   var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'violet','=':'violet',':':'ink','.':'muted'};
   function colorize(txt){
     var out='',cur='',run='',i,c,k;
-    function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run+'</span>';run=''}
+    function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';run=''}
     for(i=0;i<txt.length;i++){
       c=txt.charAt(i);
       if(c==='\n'){flush();out+='\n';continue}

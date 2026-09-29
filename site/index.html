@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-U8YGsnfeIWVD945wjLctmLA7osmZ2hPa0cAO7gfu7QE=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-G5M0SQx75WD2eXLmeWKcPsUYmMNfi2cA0FdQkskWoLk=' 'sha256-sFKn0d8hjzWAWiAHO2FDMxlkJsU7tglExcUeHECr86E=' 'sha256-a/Ad0NLifrij9cecq84NwZxEwaL8foeHvxBzHmnoGX4=' 'sha256-KPzL/HsffDs5uYCIoatksTOPQ8Rol50OH9XCaoRbxSs=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-HzPTZaGQ7BEw7kpmL/pcMl65Hb1WSJ9b92WIApvw/pg=' 'sha256-jXI/XCtH9IeVSqTfQ7CQ3Lhv017GLmTyO2Y0klMyUrA=' 'self' https://ascii.fedekotek.design/kit/1.3.0/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.3.0/; font-src data: https://ascii.fedekotek.design/kit/1.3.0/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PvrzuoK/ZsRm6EqxfAhMxl1CGOsIQrzM/1e5d2p6AZU=' 'sha256-U8YGsnfeIWVD945wjLctmLA7osmZ2hPa0cAO7gfu7QE=' 'sha256-ZscmgMYKh/PxUb1c8BIFXf0KklT5jcWBqG0y+rZ/wR4=' 'sha256-1jIzdoa570+HiaobN2xKU/DZxIgm4ov509nZgpBgMD0=' 'sha256-K0+9JI/lxfcb8rm+L2f/RA75kh1iMp+EzG5m5iQoimU=' 'sha256-a/Ad0NLifrij9cecq84NwZxEwaL8foeHvxBzHmnoGX4=' 'sha256-KPzL/HsffDs5uYCIoatksTOPQ8Rol50OH9XCaoRbxSs=' 'sha256-+MIrvR4k7/YJJXPxY8v6wBsXRazAua1C3D1G8ntwQHQ=' 'sha256-HzPTZaGQ7BEw7kpmL/pcMl65Hb1WSJ9b92WIApvw/pg=' 'sha256-jXI/XCtH9IeVSqTfQ7CQ3Lhv017GLmTyO2Y0klMyUrA=' 'self' https://ascii.fedekotek.design/kit/1.3.0/; style-src 'unsafe-inline' https://ascii.fedekotek.design/kit/1.3.0/; font-src data: https://ascii.fedekotek.design/kit/1.3.0/; img-src 'self' data: blob:; connect-src 'self'; media-src 'self'; worker-src 'none'; frame-src 'none'; manifest-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ascii/ui: an ASCII design system in plain HTML and CSS</title>
 <meta name="aui-version" content="11.4">
@@ -2397,7 +2397,7 @@ function barText(k,jit){return barRow(k,jit)}
 var BC={'@':'hot','%':'hot','#':'pink','*':'pink','+':'violet','=':'violet',':':'ink','.':'muted'};
 function colorize(txt){
 var out='',cur='',run='',i,c,k;
-function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run+'</span>';run=''}
+function flush(){if(run)out+='<span style="color:var(--'+cur+')">'+run.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';run=''}
 for(i=0;i<txt.length;i++){
 c=txt.charAt(i);
 if(c==='\n'){flush();out+='\n';continue}
@@ -3114,7 +3114,7 @@ A.backdropClose($('posterDlg'));
 $('posterReroll').addEventListener('click',()=>{SEED=(Math.random()*4294967296)>>>0;showSig();openPoster();A.kick()});
 showSig();
 const cmdDlg=$('cmdDlg');
-function out(s){const o=$('cmdOut');if(o)o.innerHTML=s}
+function out(s){const o=$('cmdOut');if(o)o.textContent=s}
 function openCmd(){if(window.AUI3&&AUI3.openCmd!==openCmd)AUI3.openCmd();else if(!cmdDlg.open)cmdDlg.showModal()}
 const RM={button:'.btn',card:'.lift',chart:'.chart',title:'.ptitle',badge:'.badge',table:'.tablewrap',stat:'.stat'};
 async function run(line){
@@ -3128,14 +3128,14 @@ else if(c==='goto'||c==='cd'){
 const n=(a[1]||'components').replace(/^[#\/]+/,'').toLowerCase(),V={components:'kit'},v=n.split('/')[0];
 if(window.AUI_NAV&&AUI_NAV.route('#'+n,true)){cmdDlg.close()}
 else if($('v-'+(V[v]||v))){cmdDlg.close();B.show(V[v]||v)}
-else out('no such view: '+esc(n))}
+else out('no such view: '+n)}
 else if(c==='rm'){
 const what=a[a.length-1].toLowerCase();
 if(a.length<2||a[1]!=='-rf'){out('usage: rm -rf button|card|chart|title|all')}
 else if(reduce)out('reduced motion is on. nothing shatters.');
 else{
 const sel=what==='all'?Object.values(RM).join(','):RM[what];
-if(!sel)out('rm: cannot remove '+esc(what));
+if(!sel)out('rm: cannot remove '+what);
 else{
 const els=[...document.querySelectorAll(sel)].filter(e=>inView(e)&&!e._dead&&!e.closest('dialog,#rebuild')&&!(what==='all'&&e.closest('.lift')&&!e.matches('.lift')));
 const pick=what==='all'?els:els.slice(0,1);
@@ -3149,13 +3149,13 @@ else if(c==='tear'){cmdDlg.close();B.tear(5)}
 else if(c==='jolt'){cmdDlg.close();A.jolt()}
 else if(c==='boot'){cmdDlg.close();B.boot(true)}
 else if(c==='poster'){cmdDlg.close();openPoster()}
-else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+esc(n)+': '+sig())}}
+else if(c==='sign'){const n=a.slice(1).join(' ');if(!n)out('usage: sign NAME');else{SEED=fnv(n.toLowerCase());showSig();out('code for '+n+': '+sig())}}
 else if(c==='invaders'){cmdDlg.close();A.goTo('home',$('inv'),'center',()=>setTimeout(()=>INV.start(),400))}
 else if(c==='photo'){cmdDlg.close();$('photoFile').click();A.goTo('home',$('hero'),'start')}
 else if(c==='ring'||c==='torus'){toTorus();out('ring restored')}
 else if(c==='tilt')out(await askTilt());
 else if(c==='sudo')out('nice try.');
-else out('command not found: '+esc(c));
+else out('command not found: '+c);
 }
 const INV=(function(){
 const cv=$('inv'),x=cv.getContext('2d'),COLS=64,ROWS=46;
