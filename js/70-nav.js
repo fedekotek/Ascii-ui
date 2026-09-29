@@ -492,8 +492,25 @@
      section, and it lands before the menu steps out, so what you see next is
      the title. */
   const md=$('menuDlg'),ms=$('menuSecs'),mp=$('menuPanel'),mf=$('menuFind'),mo=$('menuOut'),mnone=$('menuNone');
-  let shown=null,mlinks=[],opener=null,focusTo=null;
+  let shown=null,mlinks=[],mgroups=[],lastQ='',opener=null,focusTo=null;
 
+  /* a row is one row of text in a 44px target: the target reaches 12px into
+     its neighbours, and the text (.nl, positioned) is drawn and hit above
+     every neighbour's reach, so a tap on a word always opens that word */
+  function core(el,text){
+    const s=document.createElement('span');s.className='nl';s.textContent=text;
+    el.textContent='';el.appendChild(s);return s;
+  }
+  /* The groups fold. A view with more than one group and more than a
+     screenful of sections gets a [+] button per group heading, and opens
+     short: only the group holding the section you are reading (or the first
+     one) is open. Charts and Themes are one group each and stay open, with
+     no button, since folding the only list there is would hide it. */
+  function fold(g,open){
+    g.open=open;
+    if(g.b)g.b.setAttribute('aria-expanded',open?'true':'false');
+    g.ul.hidden=!open;
+  }
   function fill(v){
     shown=v;md.dataset.v=v;
     const m=model(v);
@@ -503,8 +520,30 @@
       const t=l.sec.querySelector('pre.ptitle[data-text]');
       l.kw=(name(l.sec)+' '+(t?t.dataset.text:'')).toLowerCase();
       if(reading&&l.sec===reading.sec)l.a.setAttribute('aria-current','location');
+      core(l.a,l.a.textContent);
     });
+    const wraps=[].slice.call(ms.querySelectorAll('.navgroup')),labels=wraps.filter(w=>w.querySelector('.navlabel'));
+    const folds=labels.length>1&&mlinks.length>12;
+    mgroups=wraps.map((w,i)=>{
+      const ul=w.querySelector('ul'),p=w.querySelector('.navlabel'),g={w:w,ul:ul,b:null,open:true};
+      if(folds&&p){
+        const b=document.createElement('button');
+        b.type='button';b.className='navtog';ul.id='menuG'+i;
+        b.setAttribute('aria-controls',ul.id);
+        const s=core(b,p.textContent+' '),c=document.createElement('span');
+        c.className='navcount';c.textContent=ul.children.length;s.appendChild(c);g.c=c;
+        b.addEventListener('click',()=>{fold(g,!g.open);if(A.live())A.tone('square',g.open?520:390,0,0.04,0.3)});
+        p.replaceWith(b);g.b=b;
+      }
+      return g;
+    });
+    shut();
     find();
+  }
+  /* the default: the group you are reading in, or the first, open */
+  function shut(){
+    const cur=ms.querySelector('[aria-current]'),home=cur?mgroups.find(g=>g.w.contains(cur)):mgroups.find(g=>g.b);
+    mgroups.forEach(g=>fold(g,!g.b||g===home));
   }
   /* the links the field narrows: this view's sections, or Home's ways in (js/20) */
   function rows(){
@@ -519,6 +558,12 @@
       if(g.id==='menuHome')return;
       g.classList.toggle('nomatch',!!q&&!g.querySelector('li:not(.nomatch)'));
     });
+    /* a word opens every group it is found in; no word, back to the default */
+    if(q)mgroups.forEach(g=>fold(g,!g.w.classList.contains('nomatch')));
+    else if(lastQ)shut();
+    lastQ=q;
+    /* a folded heading counts what it holds, or what it holds that matches */
+    mgroups.forEach(g=>{if(g.c)g.c.textContent=q?g.ul.querySelectorAll('li:not(.nomatch)').length:g.ul.children.length});
     mnone.hidden=!q||n>0;
     let say='';
     if(q&&!n)say='Nothing called '+mf.value.trim().slice(0,32)+' in '+LABEL[shown]+'.';
@@ -527,10 +572,12 @@
   }
   mf.addEventListener('input',find);
   mf.addEventListener('keydown',e=>{
-    const first=rows().find(l=>!l.a.parentNode.classList.contains('nomatch'));
-    /* Enter goes to the first match, Down walks into the list */
+    const first=rows().find(l=>!l.a.parentNode.classList.contains('nomatch')&&l.a.offsetParent!==null);
+    /* Enter goes to the first match, Down walks into the list (to the first
+       row you can see: a group heading when its group is folded) */
+    const top=[].find.call(ms.querySelectorAll('a.navlink,button.navtog'),x=>x.offsetParent!==null);
     if(e.key==='Enter'&&mf.value.trim()&&first){e.preventDefault();first.a.click()}
-    else if(e.key==='ArrowDown'&&first){e.preventDefault();first.a.focus()}
+    else if(e.key==='ArrowDown'&&(top||first)){e.preventDefault();(top||first.a).focus()}
   });
   /* nothing here: the same words go to Search, which has the whole site */
   $('menuWide').addEventListener('click',()=>{

@@ -76,6 +76,11 @@ async def phone(b,w,h,bad):
             x,y=await center(pg,'#menuBtn');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(260)
             slug=s.split('-',1)[1]
             sel='#menuSecs a[href$="/'+slug+'"]'
+            # a folded group opens by its heading first, tapped like a thumb would
+            tog=await pg.evaluate("(sel=>{const u=document.querySelector(sel).closest('ul');if(!u.hidden)return '';const b=document.querySelector('#menuSecs [aria-controls=\"'+u.id+'\"]');b.scrollIntoView({block:'center'});return '#'+u.id})('"+sel+"')")
+            if tog:
+                x,y=await center(pg,'#menuSecs [aria-controls="'+tog[1:]+'"]');await pg.touchscreen.tap(x,y);await pg.wait_for_timeout(120)
+                if await pg.evaluate("document.querySelector('"+tog+"').hidden"): fails.append(f"{v}/{slug}: its group did not open")
             await pg.evaluate("(sel=>{const a=document.querySelector(sel),b=a.closest('.menu-body');b.scrollTop=a.offsetTop-b.clientHeight/2})('"+sel+"')")
             x,y=await center(pg,sel);await pg.touchscreen.tap(x,y)
             await settle(pg,900)

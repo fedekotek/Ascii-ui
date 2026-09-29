@@ -180,7 +180,6 @@ html{scroll-padding-top:calc(var(--r)*3 + env(safe-area-inset-top,0px))}
   padding:0 1ch;margin:0;cursor:pointer;outline:0;line-height:var(--r);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent;
 }
-#menuSecs .navlink{padding:12px 1ch}
 @media (pointer:coarse){#sidenav .navlink{padding:12px 1ch}}
 /* a link reached by Tab is not left under the sticky heading */
 #sidenav .side-in{scroll-padding-top:calc(var(--r)*2)}
@@ -239,8 +238,10 @@ dialog.sheet .card::before,dialog.sheet .card::after{background:var(--bg)}
      MENU                                  [x]
      [ o\ Find a section                   ]   (narrows this view's list)
      Components 36
-       Button
-     > Card                                    (the one you are reading)
+      [+] FORM 9                               (folded groups, below)
+      [-] DISPLAY 10
+          Avatar
+        > Card                                 (the one you are reading)
      [+] Settings                              (grid, glitch, theme, credit)
    The views are not in here: under 768px they are the picker in the bar
    ("Components v"), above it the row of views. The page changes when you
@@ -528,3 +529,35 @@ dialog.sheet{padding-left:max(1ch,var(--sal));padding-right:max(1ch,var(--sar))}
 .menu-set summary:focus-visible{background:var(--accent);color:var(--bg)}
 .menu-set summary:focus-visible::before{color:inherit}
 @media (hover:hover) and (pointer:fine){.menu-set summary:hover{color:var(--hot)}}
+
+/* ---- the [=] menu's list: one row per section, groups that fold ----------
+     [-] FORM 9
+         Button
+       > Card                (the one you are reading)
+     [+] OVERLAY 7
+   Each row is 21px of text in a 45px target (12px above and below, reaching
+   into the neighbours). The text (.nl) is positioned, so it is drawn and hit
+   above every neighbour's reach: a tap on a word opens that word, a tap past
+   the ends of the list still finds the nearest row. */
+/* flow-root: the negative margins would otherwise collapse into each other and
+   leave 12px of air per row */
+#menuSecs .navgroup,#menuSecs .navgroup li{display:flow-root}
+#menuSecs .navgroup + .navgroup{margin-top:0}
+#menuSecs .navgroup:has(> ul:not([hidden])) + .navgroup{margin-top:var(--r)}
+#menuSecs .navlink,.navtog{padding:12px 0;margin:-12px 0;overflow:visible;background:none}
+#menuSecs .navlink::before,#menuSecs .navlink::after{content:none}
+#menuSecs .nl{display:block;position:relative;padding:0 1ch;line-height:var(--r);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menuSecs .navlink .nl::before{content:"  ";content:"  " / "";white-space:pre}
+#menuSecs .navlink[aria-current] .nl::before{content:"> ";content:"> " / "";color:var(--hot)}
+#menuSecs .navlink:is([href$="/command"],[href$="/picture"]) .nl::after{content:" site only";color:var(--violet);font-weight:400}
+#menuSecs .navlink:focus-visible .nl,.navtog:focus-visible .nl{background:var(--accent);color:var(--bg)}
+#menuSecs .navlink:focus-visible .nl::before,#menuSecs .navlink:focus-visible .nl::after,.navtog:focus-visible .nl::before,.navtog:focus-visible .navcount{color:inherit}
+.navtog{
+  display:block;width:100%;text-align:left;font:inherit;color:var(--muted);text-transform:uppercase;
+  border:0;border-radius:0;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;
+}
+.navtog .nl::before{content:"[+] ";content:"[+] " / "";color:var(--hot)}
+.navtog[aria-expanded="true"] .nl::before{content:"[-] ";content:"[-] " / "";color:var(--ink)}
+.navtog[aria-expanded="true"]{color:var(--ink)}
+.navtog .navcount{text-transform:none}
+@media (hover:hover) and (pointer:fine){.navtog:hover{color:var(--hot)}#menuSecs .navlink:hover{color:var(--ink)}}
