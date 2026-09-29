@@ -6,28 +6,21 @@ errors, horizontal overflow and elements wider than the viewport. Without x it
 also screenshots every screen of every view as qa_TAG_VIEW_NN.png.
 --dist tests dist/ascii-ui.html, --site tests site/index.html (both from
 python3 build.py); the default is index.html.
-Font failures (fonts.googleapis.com, fonts.gstatic.com) are not counted: the
-font is the one outside request and an offline or proxied run cannot reach it.
 Prints TAG [] when clean, exits non-zero otherwise.
 """
 import asyncio,os,sys
 from playwright.async_api import async_playwright
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..'))
-FONT=('fonts.googleapis.com','fonts.gstatic.com')
 flags=[a for a in sys.argv[1:] if a.startswith('--')]
 args=[a for a in sys.argv[1:] if not a.startswith('--')]
 PAGE='dist/ascii-ui.html' if '--dist' in flags else ('site/index.html' if '--site' in flags else 'index.html')
-
-def font(m):
-    url=(m.location or {}).get('url','') if hasattr(m,'location') else ''
-    return any(f in url for f in FONT) or any(f in m.text for f in FONT)
 
 async def run(w,h,scheme,tag,shots=True):
     async with async_playwright() as p:
         b=await p.chromium.launch(); msgs=[]
         pg=await b.new_page(viewport={'width':w,'height':h},color_scheme=scheme)
         pg.on('pageerror',lambda e:msgs.append('ERR '+str(e)))
-        pg.on('console',lambda m:msgs.append('CON '+m.text) if m.type=='error' and not font(m) else None)
+        pg.on('console',lambda m:msgs.append('CON '+m.text) if m.type=='error' else None)
         await pg.goto('file://'+os.path.join(ROOT,PAGE)); await pg.wait_for_timeout(2600)
         await pg.mouse.click(w//2,200)
         for name in ['home','kit','blocks','charts','themes']:

@@ -2,7 +2,7 @@
 
 This covers the site (https://ascii.fedekotek.design, v11.4) and the kit (`kit/`, 1.3.0). The target is WCAG 2.2 AA. The characters are paint: underneath every component is a native control with a label, a focus state and a keyboard, and the glyphs that only decorate are hidden from assistive tech.
 
-What follows is what has been checked, how, and what is known not to work. It was last checked for v11.2, in September 2026.
+What follows is what has been checked, how, and what is known not to work. It was last checked for v11.4, in September 2026.
 
 ## What is supported
 

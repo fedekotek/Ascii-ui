@@ -213,7 +213,7 @@ def line(r):
     if u.get('avoid'): s+=' Not for: '+flat(u['avoid'][0][0].lower()+u['avoid'][0][1:])
     n,a=behaviors(r['js'])
     run=['`data-aui="%s"`'%x[0] for x in n]+['`%s`'%x[0] for x in a]
-    ev=[e['name'] for e in (u.get('kit') or {}).get('events',[])]
+    ev=list(dict.fromkeys(e['name'] for e in (u.get('kit') or {}).get('events',[])))
     if run: s+=' Runs on '+', '.join(run)+(' and fires '+', '.join('`'+e+'`' for e in ev) if ev else '')+'.'
     return s
 

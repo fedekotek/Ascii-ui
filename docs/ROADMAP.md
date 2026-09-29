@@ -5,8 +5,8 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 ## Now (structural, do first)
 - [ ] **ES modules.** One module per current IIFE, explicit imports instead of `window.AUI*`. Keep `build.py` producing the single file (esbuild-free: concatenate in order, or use a 20-line bundler).
 - [x] **One scheduler.** Done: one rAF loop in js/10, `A.every(ms,fn,{gate,el,times,end,delay})` and `A.times(ms,n,fn,end)`, handles with `.stop()`, `A.clock.pause()/resume()/count()`. All 33 intervals migrated, `qa/clock.py` guards it.
-- [ ] **Tokens as a JSON source of truth** that generates `css/01-tokens.css` and the Tokens block, so presets and docs cannot drift.
-- [ ] **A real device pass** on iOS Safari and Firefox. Fix list in KNOWN-ISSUES.md #25.
+- [ ] **Tokens as a JSON source of truth** that generates `css/01-tokens.css` and the Tokens block, so presets and docs cannot drift. Half there: `tokens.json` exists (v11.3), but it is generated from the CSS, not the other way round.
+- [ ] **A real device pass** on iOS Safari and Firefox. What has been tested is KNOWN-ISSUES.md #24, the Chromium-only parts #14.
 
 ## Next (layout)
 - [ ] The Themes view still lays out for one column. It reads fine wide, but the pickers and the labs could use the space.
@@ -17,9 +17,10 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] Per-component files: `components/button/{button.html,button.css,button.js,README.md}` and a script that assembles `index.html` and the kit. The Code tab still starts from the live preview's DOM for the HTML.
 - [ ] A copy-paste "registry" JSON like shadcn's, one entry per component with its files and dependencies. `docs/COMPONENTS-REFERENCE.md` (from `qa/reference.py`) already has the data: HTML, behaviors, CSS blocks.
 - [x] Popover, Combobox, Alert dialog and Context menu (v11.2, kit 1.2.0).
-- [ ] Components still missing versus shadcn: Carousel, Data table (sortable), Date picker (Calendar + Input), Hover card, Menubar, Navigation menu, Resizable, Scroll area, Toggle (a single pressed button).
+- [ ] Components still missing versus shadcn: Carousel, Date picker (Calendar + Input), Hover card, Menubar, Navigation menu, Resizable, Scroll area, Toggle (a single pressed button).
 - Exists under another name (Search finds these by the shadcn name): Accordion and Collapsible are Details, Drawer is Sheet, Dialog is Card and dialog, Radio group, Checkbox and Switch are in Toggles, Sonner is Toast, Table is a block, Command is Search.
-- [ ] More charts: area, stacked bars, radar, radial gauge, sparkline table, live scatter.
+- [x] Charts and a Data table (sortable, filterable) in the kit (v11.4, kit 1.3.0).
+- [ ] More charts: area, stacked bars, radar, radial gauge, live scatter.
 - [ ] Code tab: show the token dependencies per component; a "copy as React" toggle is out of scope, a "copy as web component" one might not be.
 - [ ] Command and Picture in the kit (a command palette, the LCD). Today they are site only.
 
@@ -37,4 +38,4 @@ Decided direction (Sept 2026): a publishable kit plus a playground. Not a portfo
 - [ ] i18n of UI copy (Rioplatense Spanish first).
 - [x] A print stylesheet, plus Windows High Contrast and more contrast (`css/29-print.css`, v11.2).
 - [ ] A screen reader pass with a real user (VoiceOver, NVDA, TalkBack). See ACCESSIBILITY.md.
-- [ ] An `npm` package that ships `dist/` plus the CSS/JS as importable files, no framework.
+- [ ] Maybe: an npm package that only distributes the two kit files, for people who pin through a package manager. The repo itself stays free of npm.

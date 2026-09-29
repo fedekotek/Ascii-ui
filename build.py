@@ -25,7 +25,7 @@
      kit/<version>/    every released kit, from kit/releases/<version>/, at an
                        address that never changes (pin it, and it stays put)
 
-Nothing else in the repo (docs, qa, CLAUDE.md, archive) is published.
+Nothing else in the repo (docs, qa, CLAUDE.md) is published.
 The version is the aui-version meta in index.html; the footer must say the same.
 
 Every build is the same bytes for the same source, so --check can compare:

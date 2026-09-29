@@ -1,4 +1,8 @@
-# Contributing (to yourself, mostly)
+# Contributing
+
+Issues and pull requests are welcome at https://github.com/fedekotek/Ascii-ui. For a bug, say the browser, the window width, the theme and the address (`#components/button`); a screenshot helps. For a change, keep it small and run the release bar (below) before you open the pull request: it must end with `release: ok`. The rules that are not negotiable (no dependencies, no outside requests, no em dashes, cyan is focus only, everything on the character grid) are in `CLAUDE.md`, and they apply to people too.
+
+The rest of this page is the maintainer's workflow.
 
 ## Workflow
 1. Edit `index.html`, `css/*.css`, `js/*.js`. Serve with `python3 -m http.server 8000`.
@@ -18,4 +22,4 @@
 See the recipes in `docs/COMPONENTS.md` (a checklist: site, kit, docs), `docs/BLOCKS.md`, `docs/CHARTS.md`. To change the palette, `docs/ARCHITECTURE.md`, Rebrand. For a new effect, add a section to `docs/EFFECTS.md` at the same time.
 
 ## Versioning
-Two numbers. The site's is `<meta name="aui-version">` in `index.html`, and the footer line (`#footLine`) must say the same (`v11.2`): `build.py` refuses to build when they disagree. Bump both and add a line to `docs/CHANGELOG.md`. The kit's is `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog; how and when to bump it is in `kit/README.md`. The `ASCII/UI BIOS v0.9` line in the boot log is a joke, not a version. `archive/` holds the single files for v2 to v9.3 and stops there: from v10 the history is in git, so do not add to it.
+Two numbers. The site's is `<meta name="aui-version">` in `index.html`, and the footer line (`#footLine`) must say the same (`v11.4` today): `build.py` refuses to build when they disagree. Bump both and add a line to `docs/CHANGELOG.md`. The kit's is `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog; how and when to bump it is in `kit/README.md`. The `ASCII/UI BIOS v0.9` line in the boot log is a joke, not a version. The history is in git. When the kit version changes, `python3 qa/sri.py` writes the new `integrity` hashes into the pinned links in `README.md` and `kit/README.md`.
