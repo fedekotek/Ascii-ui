@@ -195,7 +195,7 @@ Command and Picture are site only (34 of the 36 components are in the kit). `doc
 ## Versions
 
 Two numbers, owned separately.
-- The site: `<meta name="aui-version" content="11.4">` in `index.html`, and the footer line (`#footLine`) must say the same `v11.4`. `build.py` refuses to build when they disagree. Add a line to `docs/CHANGELOG.md` when it changes.
+- The site: `<meta name="aui-version" content="11.5">` in `index.html`, and the footer line (`#footLine`) must say the same `v11.5`. `build.py` refuses to build when they disagree. Add a line to `docs/CHANGELOG.md` when it changes.
 - The kit: `ASCIIUI.version` in `kit/ascii-ui.js`, semver, with its own changelog and pinned paths under `kit/`. See `kit/README.md`.
 
 ## Shipping

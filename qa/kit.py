@@ -674,7 +674,7 @@ EDGES=[
   '<div class="pop" id="d" data-aui="dropdown"><button aria-haspopup="menu">M</button><div role="menu" class="menu" hidden><button role="menuitem">X</button></div></div>'
   '<div class="otp" id="o" data-aui="otp"><span><input maxlength="1"></span><span><input maxlength="1"></span></div><span id="sp"></span>',
   """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
-    if(ASCIIUI.version!=='1.3.0')bad.push('version '+ASCIIUI.version);
+    if(ASCIIUI.version!=='1.3.1')bad.push('version '+ASCIIUI.version);
     if(__ev.length)bad.push('aui:change fired on load: '+__ev);
     const t=ASCIIUI.tabs($('tl'));t.select(1);const P=document.querySelectorAll('[role=tabpanel]');
     if(P[1].hidden||!P[0].hidden||t.index!==1)bad.push('tabs select');
@@ -715,6 +715,18 @@ EDGES=[
     if(cur('r')!=='15')bad.push('set(15) of 9, then 20 pages, ends '+cur('r'));
     $('q').querySelector('[aria-label="Page 20"]').click();$('q').setAttribute('data-pages','5');await w(0);$('q').setAttribute('data-pages','30');await w(0);
     if(cur('q')!=='20')bad.push('a click on 20, then 5 pages, then 30, ends '+cur('q'));
+    return bad.length?bad.join(', '):true})()"""),
+ # 1.3.1
+ ('pagination: a data-href that runs script draws buttons, a safe one still draws links',
+  '<nav id="j" data-aui="pagination" data-pages="5" data-page="2" data-href="javascript:alert({n})"></nav>'
+  '<nav id="k" data-aui="pagination" data-pages="5" data-page="2" data-href=" JaVa&#9;ScRiPt:alert({n})"></nav>'
+  '<nav id="d" data-aui="pagination" data-pages="5" data-page="2" data-href="data:text/html,{n}"></nav>'
+  '<nav id="s" data-aui="pagination" data-pages="5" data-page="2" data-href="/list?page={n}"></nav>',
+  """(async()=>{const $=id=>document.getElementById(id),w=ms=>new Promise(r=>setTimeout(r,ms)),bad=[];
+    for(const id of ['j','k','d']){if($(id).querySelector('a[href]'))bad.push(id+' drew a link: '+$(id).querySelector('a[href]').getAttribute('href'));if(!$(id).querySelector('button'))bad.push(id+' drew no buttons')}
+    if(!$('s').querySelector('a[href="/list?page=3"]'))bad.push('a safe data-href lost its links');
+    $('s').setAttribute('data-href','javascript:void({n})');await w(0);
+    if($('s').querySelector('a[href]'))bad.push('changed to javascript: on a live element, it still draws links');
     return bad.length?bad.join(', '):true})()"""),
  ('events fire for what a person does, not on load and not for a script',
   '<script>window.__ev=[];["invalid","valid","complete","change"].forEach(n=>document.addEventListener("aui:"+n,e=>__ev.push(n+":"+e.target.id)))</script>'

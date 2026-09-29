@@ -2,6 +2,11 @@
 
 The kit's versions, newest first. Every version lives at its own address that never changes, `https://ascii.fedekotek.design/kit/VERSION/ascii-ui.css` and `.../ascii-ui.js`. The plain `/kit/` address is always the latest.
 
+## 1.3.1, 2026-09-29
+
+Fixed
+- Pagination: a `data-href` that starts with `javascript:`, `data:` or `vbscript:` (spaced out or not) is not a link. The pages draw as buttons instead. It only mattered on a page that puts text a visitor typed into `data-href`, but a kit should not turn an attribute into a way to run script.
+
 ## 1.3.0, 2026-09-28
 
 Added

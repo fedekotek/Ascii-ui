@@ -14,11 +14,11 @@
 
 ## Start in 30 seconds
 
-Link the two kit files in the `<head>` of your page. Pinned to 1.3.0, so they never change under you:
+Link the two kit files in the `<head>` of your page. Pinned to 1.3.1, so they never change under you:
 
 ```html
-<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.css" integrity="sha384-PVsKFGhvH5P6JvqNhZ40Neu/9zBE5XoUAKklGDs1jVGq6of6rC+P9SaLcDKVFoA4" crossorigin="anonymous">
-<script defer src="https://ascii.fedekotek.design/kit/1.3.0/ascii-ui.js" integrity="sha384-zWLWXMf44ZiHudahDdB25irvp6Lm0TN9/l4r2TlB83GVVnJcRSX2z031lFHBG0T+" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://ascii.fedekotek.design/kit/1.3.1/ascii-ui.css" integrity="sha384-nMp404g1UoxxVcmJD1V3bgpAfQk48PlKCW+HVg4NU2VzD+5SYF5eZJkeEscr0kZ4" crossorigin="anonymous">
+<script defer src="https://ascii.fedekotek.design/kit/1.3.1/ascii-ui.js" integrity="sha384-UTy6GWe6+tYqnegxxNBJvGaQQh/n4ukhDN66ggJiSA34qcVypmZD2gjSVaI1Qxn+" crossorigin="anonymous"></script>
 ```
 
 Then open [Components](https://ascii.fedekotek.design/#components), pick the Code tab on any component and paste its HTML into your page. It works as pasted, twice on one page too. Or start from the [starter page](https://ascii.fedekotek.design/kit/starter.html), which already links both files and has every kit component on it.
