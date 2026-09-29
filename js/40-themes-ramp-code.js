@@ -197,9 +197,9 @@ const hush=t=>{const s=mk('span','',t);s.setAttribute('aria-hidden','true');retu
 /* the LCD scenes of Cases and the portrait of Profile, in characters */
 const THUMBS={
   ui1:['[REPORTS]          [30d v]','uptime 99.98    p95 182ms','          ##','    ##    ##    ##','##  ##    ##    ##    ##','##  ##  ####  ####  ######'],
-  ui2:['[> torque sensor_       ]','WO-1182 torque, line 3','WO-1177 torque sensor','AS-0042 sensor, line 3','PT-3310 torque wrench','4 results in 38 ms'],
-  ui3:['[WHEN] a probe fails 3x','  :','[IF]   region is fra-1','  :','[THEN] page the on-call','       and open a WO'],
-  ui4:['JP  belt motor is out','    again. third time.','          on it, 10 min FK','JP  bring the 5 mm key','                 copy. FK','[> type a message_     ]']
+  ui2:['[> checkout timeout_    ]','INC-512 checkout timeout','INC-498 checkout, fra-1','RB-0042 checkout runbook','PR-3310 retry checkout','4 results in 38 ms'],
+  ui3:['[WHEN] a probe fails 3x','  :','[IF]   region is fra-1','  :','[THEN] page the on-call','       and open a ticket'],
+  ui4:['JP  checkout is down','    again. third time.','          on it, 10 min FK','JP  bring the coffee','                 copy. FK','[> type a message_     ]']
 };
 const PORTRAIT=['          .:=++=:.','        :*%@@@@@@%*:','       +@@@@@@@@@@@@+','      :@@@@@@@@@@@@@@:','      +@@@@@@@@@@@@@@+',
   '      =@@@@@@@@@@@@@@=','      .%@@@@@@@@@@@@%.','        +@@@@@@@@@@+','          :*@@@@*:','         .=%@@@@%=.',
@@ -259,7 +259,7 @@ const KITIFY={
   's-spinner':c=>c.querySelectorAll('.spins b').forEach(b=>set(b,{'data-aui':'spinner','data-kind':(b.nextSibling&&b.nextSibling.textContent||'classic').trim()})),
   's-skeleton':c=>{const p=q1(c,'pre.skel');set(p,{'data-aui':'skeleton'});if(p)p.removeAttribute('id')},
   's-toast':c=>{set(q1(c,'#toastOk'),{'data-aui-toast':'Changes saved.'});set(q1(c,'#toastErr'),{'data-aui-toast-err':'Something broke. It was you.'})},
-  's-empty':c=>set(q1(c,'#emptyBtn'),{'data-aui-toast':'Work order created. So much for nothing.'}),
+  's-empty':c=>set(q1(c,'#emptyBtn'),{'data-aui-toast':'Incident opened. So much for nothing.'}),
   /* the Table block: the duration that rides under the badge on a phone is
      this site's trick for its own four columns, so it stays here */
   's-table':c=>c.querySelectorAll('.dur').forEach(e=>e.remove()),
@@ -269,9 +269,9 @@ const KITIFY={
   's-stats':c=>{c.querySelectorAll('pre.ptitle').forEach(posterOf);c.querySelectorAll('.spark[data-spark]').forEach(s=>{set(s,{'data-aui':'chart','data-type':'spark','data-values':s.getAttribute('data-spark').replace(/,/g,' '),'data-min':'0','data-max':'7'});s.removeAttribute('data-spark');s.textContent=''})},   /* the finished titles (blocks) and the sparklines as kit sparks (charts) */
   's-lost':c=>{const d=q1(c,'.lost');if(d)d.className='stack';posterOf(q1(c,'#lostTitle'));linkOf(q1(c,'#lostHome'),'/')},
   's-pricing':c=>c.querySelectorAll('.pricing .btn').forEach(b=>{const t=b.closest('.card').querySelector('.bar-title');set(b,{'data-aui-toast':(t?t.textContent.trim():'That')+' plan selected.'})}),
-  's-workorders':c=>{
+  's-tasks':c=>{
     const l=q1(c,'.wo'),p=q1(c,'[role="progressbar"]');
-    if(l){l.classList.replace('wo','checklist');set(l,{'data-aui':'checklist','data-done':'All work orders closed. Go home.'})}
+    if(l){l.classList.replace('wo','checklist');set(l,{'data-aui':'checklist','data-done':'All tasks done. Go home.'})}
     c.querySelectorAll('.check .t').forEach(t=>t.classList.remove('t'));
     /* the kit's bar reads a percent: 2 of 5 is 40 */
     if(l&&p){const n=l.querySelectorAll('input').length,d=l.querySelectorAll('input[checked]').length;set(p,{'data-aui':'progress','aria-valuemax':'100','aria-valuenow':String(n?Math.round(d/n*100):0)})}

@@ -1634,7 +1634,7 @@ Anatomy:
                     v
 1 @@ FILTERS @@@@@ [x] @@@@@@
   @@                       @@
-3 @@  [@] Only my orders   @@
+3 @@  [@] Only mine        @@
   @@  [ ] Overdue          @@
   @@                       @@
 4 @@    RESET   APPLY      @@
@@ -1700,7 +1700,7 @@ Limits:
         <button class="sheet-x" type="button" aria-label="Close the filters" data-aui-close>[x]</button>
         <div class="body">
           <div class="stack">
-            <label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span>Only my work orders</span></label>
+            <label class="check"><input type="checkbox" checked autofocus><span class="glyph" aria-hidden="true"></span><span>Only mine</span></label>
             <label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span>Overdue</span></label>
             <label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span>High priority</span></label>
           </div>
@@ -2842,17 +2842,17 @@ Limits:
 Anatomy:
 
 ```text
-1 @@ NO WORK ORDERS @@@@@@@@
+1 @@ NO INCIDENTS @@@@@@@@@@
   :                       : ::
 3 :   Nothing is broken.  : ::
   :   Enjoy it.           : ::
   :                       : ::
-4 :     CREATE WORK ORDER : ::
+4 :         OPEN INCIDENT : ::
 2 - - - - - - - - - - - - - ::
     ::::::::::::::::::::::::::
 ```
 
-1. **title** `.bar-title`: What is not there, in plain words: "No work orders". The top rim is @, as on every card.
+1. **title** `.bar-title`: What is not there, in plain words: "No incidents". The top rim is @, as on every card.
 2. **frame** `.card`: `tone-faint`: the quietest rim. Nothing to see, and it looks it.
 3. **line** `.body p`: One line, muted. A joke is fine; blame is not.
 4. **next step** `.btn-primary`: The one thing to do next, as a primary [Button](https://ascii.fedekotek.design/#components/button).
@@ -2891,11 +2891,11 @@ Limits:
 ```html
 <div class="lift">
   <div class="card frame tone-faint">
-    <span class="bar-title">No work orders</span>
+    <span class="bar-title">No incidents</span>
     <div class="body">
       <p class="muted">Nothing is broken. Enjoy it, it never lasts.</p>
       <div class="row">
-        <button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Work order created. So much for nothing."><span class="mid"><span class="label">Create work order</span></span></button>
+        <button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Incident opened. So much for nothing."><span class="mid"><span class="label">Open incident</span></span></button>
       </div>
     </div>
   </div>

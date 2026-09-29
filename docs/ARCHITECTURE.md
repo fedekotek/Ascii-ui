@@ -40,7 +40,7 @@ js/20-glitch-play.js        window.AUI2, window.AUI3. Sound wrappers, tear, fram
                             signature + poster, run() (typed commands for Search), space invaders, character-grid charts,
                             sparklines, skeleton, blocks wiring (login, table, pricing), layout hook, start.
 js/30-lcd-components-docs.js  LCD pictures, the 18 v7 components (calendar, dropdown, otp, pagination, spinner...),
-                            the v7 blocks (profile, recipe, build, work orders, settings, crit, 404),
+                            the v7 blocks (profile, recipe, build, tasks, settings, crit, 404),
                             the shadcn-style docs builder (groups, sort, index, Preview/Code tabs, filters),
                             then the overlays (popover, combobox, context menu, alert dialog), wired after the builder.
 js/40-themes-ramp-code.js   presets, color pickers, ramp editor, Home (hero buttons, tiles, placeHero),
