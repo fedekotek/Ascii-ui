@@ -9,7 +9,7 @@
 - **36 components, 16 blocks, 5 charts.** 34 of the 36 components are in the kit. Command and Picture need the site's engine.
 - **Two files.** `ascii-ui.css` and `ascii-ui.js`. No dependencies, no build step, no framework, no package to install.
 - **Copy it, own it.** Every component has a Code tab with the HTML to paste and a Usage tab: when to use it, anatomy, states, keys, accessibility, do and don't.
-- **Asks no one.** The font (Geist Mono) is self-hosted. No CDN, no font service, no trackers in the kit.
+- **The kit asks no one.** The font (Geist Mono) is self-hosted. No CDN, no font service, no trackers. (The site itself counts visits with Vercel Web Analytics: cookieless, same origin, off under Do Not Track.)
 - **Accessible under the paint.** Native controls with labels, a visible focus state and a keyboard. Reduced motion turns off every animation and sound. Target: WCAG 2.2 AA, see [ACCESSIBILITY.md](docs/ACCESSIBILITY.md).
 
 ## Start in 30 seconds
