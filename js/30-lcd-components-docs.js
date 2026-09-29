@@ -258,7 +258,7 @@ window.AUI_JS=window.AUI_JS||{};window.AUI_JS.dropdown=function(){
   $('dd').addEventListener('focusout',e=>{if(!menu.hidden&&e.relatedTarget&&!$('dd').contains(e.relatedTarget))open(false)});
 };window.AUI_JS.dropdown();
 /* empty */
-$('emptyBtn').addEventListener('click',()=>A.say('Work order created. So much for nothing.'));
+$('emptyBtn').addEventListener('click',()=>A.say('Incident opened. So much for nothing.'));
 /* otp */
 window.AUI_JS=window.AUI_JS||{};window.AUI_JS.otp=function(){
   const box=$('otp'),ins=[...box.querySelectorAll('input')];
@@ -365,7 +365,7 @@ if(!reduce)every(140,()=>{$('nowPull').textContent='|/-\\'[Date.now()/140&3]+' l
   function draw(){
     const all=list.querySelectorAll('input').length,done=list.querySelectorAll('input:checked').length;
     bar.querySelector('.bar').innerHTML=A.colorize(A.barRow(Math.round(done/all*24),false,24));bar.querySelector('.pct').textContent=' '+done+' of '+all;
-    bar.setAttribute('aria-valuenow',done);if(done===all){A.say('All work orders closed. Go home.');A.flash(bar)}
+    bar.setAttribute('aria-valuenow',done);if(done===all){A.say('All tasks done. Go home.');A.flash(bar)}
   }
   list.addEventListener('change',draw);draw();
 })();

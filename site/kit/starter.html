@@ -382,7 +382,7 @@
         <h2 class="bar-title">Filters</h2>
         <button class="sheet-x" type="button" aria-label="Close the filters" data-aui-close>[x]</button>
         <div class="body">
-          <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Only my work orders</label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Overdue</label></div>
+          <div class="stack"><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span>Only mine</label><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span>Overdue</label></div>
           <div class="row"><button class="btn frame tone-light" type="button" data-aui-reset><span class="mid"><span class="label">Reset</span></span></button><button class="btn btn-primary frame tone-heavy" type="button" data-aui-close data-aui-toast="Filters applied."><span class="mid"><span class="label">Apply</span></span></button></div>
         </div>
       </div></div>
@@ -522,7 +522,7 @@
 
   <section class="part" id="empty">
     <h3>Empty</h3>
-    <div class="lift"><div class="card frame tone-faint"><span class="bar-title">No work orders</span><div class="body"><p class="muted">Nothing is broken. Enjoy it, it never lasts.</p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Work order created. So much for nothing."><span class="mid"><span class="label">Create work order</span></span></button></div></div></div></div>
+    <div class="lift"><div class="card frame tone-faint"><span class="bar-title">No incidents</span><div class="body"><p class="muted">Nothing is broken. Enjoy it, it never lasts.</p><div class="row"><button class="btn btn-primary frame tone-heavy" type="button" data-aui-toast="Incident opened. So much for nothing."><span class="mid"><span class="label">Open incident</span></span></button></div></div></div></div>
   </section>
 
   <section class="part" id="progress">
@@ -577,7 +577,7 @@
         <button class="tab" role="tab" aria-selected="false" tabindex="-1" type="button">Notes</button>
         <button class="tab" role="tab" aria-selected="false" tabindex="-1" type="button">Files</button>
       </div>
-      <div class="tabpanel" role="tabpanel" tabindex="0"><p>One dashboard for plant managers. Mobile first.</p></div>
+      <div class="tabpanel" role="tabpanel" tabindex="0"><p>One dashboard for the on-call. Mobile first.</p></div>
       <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>14 comments, 3 of them useful.</p></div>
       <div class="tabpanel" role="tabpanel" tabindex="0" hidden><p>Nothing uploaded yet.</p></div>
     </div>
@@ -718,12 +718,12 @@
     <h3>Cards to pick</h3>
     <div class="stack">
       <div class="grid2" data-aui="pick">
-        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Search: one box, every work order."><article class="card frame tone-mid"><h4 class="bar-title">Search</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a search box and four results">[&gt; torque sensor_  ]
-WO-1182 torque, line 3
-AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="tags"><span class="badge b-violet">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div>
-        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Chat: messaging for people wearing gloves."><article class="card frame tone-mid"><h4 class="bar-title">Chat</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a chat of two lines">JP  belt motor is out
+        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Search: one box, every incident."><article class="card frame tone-mid"><h4 class="bar-title">Search</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a search box and four results">[&gt; checkout_        ]
+INC-512 checkout timeout
+INC-498 checkout, fra-1</pre></div><p>One box, every incident.</p><div class="tags"><span class="badge b-violet">Mobile</span><span class="badge b-out">Speed</span></div></div></article></div>
+        <div class="lift" role="button" tabindex="0" aria-pressed="false" data-say="Chat: messages that stay with the incident."><article class="card frame tone-mid"><h4 class="bar-title">Chat</h4><div class="body"><div class="thumb"><pre role="img" aria-label="Thumbnail: a chat of two lines">JP  checkout is down
        on it, 10 min FK
-[&gt; type a message_ ]</pre></div><p>Messaging for people wearing gloves.</p><div class="tags"><span class="badge b-pink">Frontline</span><span class="badge b-out">Realtime</span></div></div></article></div>
+[&gt; type a message_ ]</pre></div><p>Messages that stay with the incident.</p><div class="tags"><span class="badge b-pink">Mobile</span><span class="badge b-out">Realtime</span></div></div></article></div>
       </div>
       <p class="muted status" role="status">Pick one.</p>
     </div>
@@ -741,11 +741,11 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
   <section class="part" id="checklist">
     <h3>Checklist</h3>
     <div class="stack">
-      <ul class="checklist" data-aui="checklist" data-done="All work orders closed. Go home.">
-        <li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span>Replace conveyor belt motor</span></label><div class="meta"><span class="badge b-hot">High</span><span>due today</span></div></li>
-        <li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span>Inspect forklift 07 hydraulics</span></label><div class="meta"><span class="badge b-out">Low</span><span>due Wed</span></div></li>
+      <ul class="checklist" data-aui="checklist" data-done="All tasks done. Go home.">
+        <li><label class="check"><input type="checkbox"><span class="glyph" aria-hidden="true"></span><span>Rotate the staging API keys</span></label><div class="meta"><span class="badge b-hot">High</span><span>due today</span></div></li>
+        <li><label class="check"><input type="checkbox" checked><span class="glyph" aria-hidden="true"></span><span>Write the release notes</span></label><div class="meta"><span class="badge b-out">Low</span><span>due Wed</span></div></li>
       </ul>
-      <div class="progress" data-aui="progress" role="progressbar" aria-label="Work orders done" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
+      <div class="progress" data-aui="progress" role="progressbar" aria-label="Tasks done" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><span class="bar" aria-hidden="true"></span><span class="pct" aria-hidden="true"></span></div>
     </div>
   </section>
 
@@ -761,7 +761,7 @@ AS-0042 sensor, line 3</pre></div><p>One box, every work order.</p><div class="t
   <section class="part" id="navlist">
     <h3>Navigation list</h3>
     <ul class="navlist" data-aui="pick" aria-label="Sections">
-      <li><button type="button" aria-current="page">Work orders <span>12</span></button></li>
+      <li><button type="button" aria-current="page">Incidents <span>12</span></button></li>
       <li><button type="button">Assets <span>148</span></button></li>
       <li><button type="button">Parts <span>1,204</span></button></li>
     </ul>

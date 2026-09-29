@@ -14,7 +14,7 @@
 | Now | `s-now` | personal | Reading progress bar, "loading" spinner on the pull-up. | page: `.kv`, the reading bar a `role="meter"` progress, the pull-up a dots spinner |
 | Recipe | `s-recipe` | personal | Servings stepper 1..20 rescales quantities, metric formatting (g/kg, l). | page: `data-aui="stepper"` scales the `[data-each]` amounts in a `.kv` |
 | Build | `s-build` | personal | Five stats on halftone bars, Reroll randomizes them and flashes lime. | page: the stats are meters in a `.kv`, the resistances `.tags`, Reroll left out |
-| Orders | `s-workorders` | app | Checklist with a progress bar that counts, a toast and a lime flash when the last one is checked. | page: `.checklist` with `data-aui="checklist"`, `data-done` toasts |
+| Tasks | `s-tasks` | app | Checklist with a progress bar that counts, a toast and a lime flash when the last one is checked. | page: `.checklist` with `data-aui="checklist"`, `data-done` toasts |
 | Sidebar | `s-sidebar` | app | aria-current follows the click. | page: `.navlist` with `data-aui="pick"` |
 | Settings | `s-settings` | app | Sound and Glitch switches are two-way bound to the page's real Sound and Glitch (the bar's `<)))` and `/\/`). | page, html and css |
 | Crit | `s-crit` | app | Textarea with min length, verdict toggle group, error state. | page, html and css |

@@ -1167,7 +1167,7 @@
     }
     return (rep('@',n)+tail).slice(-k)+rep('.',n-k);
   }
-  /* one row, like every other halftone bar in the kit (tape, work orders,
+  /* one row, like every other halftone bar in the kit (tape, tasks,
      regions). It was two rows here, so the kit had bars in two heights. */
   function barText(k,jit){return barRow(k,jit)}
   /* density in colour: magenta, pink, violet, ink, then gray. Yellow and lime
